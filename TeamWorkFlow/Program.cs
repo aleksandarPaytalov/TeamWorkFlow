@@ -1,28 +1,20 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using TeamWorkFlow.Infrastructure.Data;
-
 namespace TeamWorkFlow
 {
 	public class Program
 	{
-		public static void Main(string[] args)
+		public static async Task Main(string[] args)
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-			// Add services to the container.
-			var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-			builder.Services.AddDbContext<TeamWorkFlowDbContext>(options =>
-				options.UseSqlServer(connectionString));
-			builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-			builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-				.AddEntityFrameworkStores<TeamWorkFlowDbContext>();
+			builder.Services.AddApplicationDbContext(builder.Configuration);
+			builder.Services.AddApplicationIdentity(builder.Configuration);
+			
 			builder.Services.AddControllersWithViews();
+
+			builder.Services.AddApplicationServices();
 
 			var app = builder.Build();
 
-			// Configure the HTTP request pipeline.
 			if (app.Environment.IsDevelopment())
 			{
 				app.UseMigrationsEndPoint();
@@ -30,7 +22,6 @@ namespace TeamWorkFlow
 			else
 			{
 				app.UseExceptionHandler("/Home/Error");
-				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
 
@@ -47,7 +38,7 @@ namespace TeamWorkFlow
 				pattern: "{controller=Home}/{action=Index}/{id?}");
 			app.MapRazorPages();
 
-			app.Run();
+			await app.RunAsync();
 		}
 	}
 }
