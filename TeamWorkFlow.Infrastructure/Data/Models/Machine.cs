@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using TeamWorkFlow.Infrastructure.Constants;
 
 namespace TeamWorkFlow.Infrastructure.Data.Models
 {
@@ -9,6 +10,11 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         [Key]
         [Comment("Machine identifier")]
         public int Id { get; set; }
+
+        [Required]
+        [MaxLength(DataConstants.MachineNameMaxLength)]
+        [Comment("Machine name")]
+        public string Name { get; set; } = string.Empty;
 
         [Required]
         [Comment("Machine capacity")]
