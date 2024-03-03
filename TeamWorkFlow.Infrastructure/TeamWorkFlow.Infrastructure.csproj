@@ -9,8 +9,6 @@
   <ItemGroup>
     <Folder Include="Data\SeedDatabase\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Data\Models\" />
-    <Folder Include="Constants\" />
   </ItemGroup>
 
   <ItemGroup>
