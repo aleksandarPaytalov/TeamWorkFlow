@@ -4,7 +4,7 @@ using TeamWorkFlow.Infrastructure.Constants;
 
 namespace TeamWorkFlow.Infrastructure.Data.Models
 {
-    [Comment("Operator availability status")]
+    [Comment("Operator availability status db model")]
     public class AvailabilityStatus
     {
         [Key]

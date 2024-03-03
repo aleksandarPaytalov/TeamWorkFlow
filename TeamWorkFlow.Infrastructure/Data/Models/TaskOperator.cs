@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace TeamWorkFlow.Infrastructure.Data.Models
 {
+    [Comment("TaskOperator data model")]
     public class TaskOperator
     {
         [Required]
