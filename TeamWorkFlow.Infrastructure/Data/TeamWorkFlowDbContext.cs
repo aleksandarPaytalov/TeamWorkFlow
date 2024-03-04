@@ -33,16 +33,16 @@ namespace TeamWorkFlow.Infrastructure.Data
             base.OnModelCreating(builder);
         }
 
-        public DbSet<Machine> Machines { get; set; }
-        public DbSet<Operator> Operators { get; set; }
-        public DbSet<OperatorAvailabilityStatus> OperatorAvailabilityStatusEnumerable { get; set; }
-        public DbSet<Part> Parts { get; set; }
-        public DbSet<PartStatus> PartStatusEnumerable { get; set; }
-        public DbSet<Priority> Priorities { get; set; }
-        public DbSet<Project> Projects { get; set; }
-        public DbSet<ProjectStatus> ProjectStatusEnumerable { get; set; }
-        public DbSet<Task> Tasks { get; set; }
-        public DbSet<TaskOperator> TasksOperators { get; set; }
-        public DbSet<TaskStatus> TaskStatusEnumerable { get; set; }
+        public DbSet<Machine> Machines { get; set; } = null!;
+        public DbSet<Operator> Operators { get; set; } = null!;
+        public DbSet<OperatorAvailabilityStatus> OperatorAvailabilityStatusEnumerable { get; set; } = null!;
+        public DbSet<Part> Parts { get; set; } = null!;
+        public DbSet<PartStatus> PartStatusEnumerable { get; set; } = null!;
+        public DbSet<Priority> Priorities { get; set; } = null!;
+        public DbSet<Project> Projects { get; set; } = null!;
+        public DbSet<ProjectStatus> ProjectStatusEnumerable { get; set; } = null!;
+        public DbSet<Task> Tasks { get; set; } = null!;
+        public DbSet<TaskOperator> TasksOperators { get; set; } = null!;
+        public DbSet<TaskStatus> TaskStatusEnumerable { get; set; } = null!;
     }
 }
