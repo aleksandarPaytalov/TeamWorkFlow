@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using TeamWorkFlow.Infrastructure.Constants;
 
 namespace TeamWorkFlow.Infrastructure.Data.Models
 {
@@ -11,6 +12,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public int Id { get; set; }
 
         [Required]
+        [MaxLength(DataConstants.TaskStatusNameMaxLength)]
         [Comment("TaskStatus name")]
         public string Name { get; set; } = string.Empty;
 
