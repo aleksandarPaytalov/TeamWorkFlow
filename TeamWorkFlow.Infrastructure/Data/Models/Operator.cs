@@ -24,7 +24,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
 
         [Required]
         [Comment("Availability status of the operator")]
-        public AvailabilityStatus AvailabilityStatus { get; set; } = null!;
+        public OperatorAvailabilityStatus AvailabilityStatus { get; set; } = null!;
 
         [Required]
         [EmailAddress]

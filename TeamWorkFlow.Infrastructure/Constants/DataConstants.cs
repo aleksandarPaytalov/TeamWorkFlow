@@ -6,7 +6,6 @@
         /// AvailabilityStatus DataConstants
         /// </summary>
         public const int AvailabilityStatusNameMinLength = 5;
-
         public const int AvailabilityStatusNameMaxLength = 15;
 
         /// <summary>
@@ -14,7 +13,6 @@
         /// </summary>
 
         public const int OperatorFullNameMinLength = 2;
-
         public const int OperatorFullNameMaxLength = 100;
 
         public const int OperatorEmailMinLength = 5;
@@ -27,7 +25,6 @@
         /// Task DataConstants
         /// </summary>
         public const int TaskNameMinLength = 5;
-
         public const int TaskNameMaxLength = 100;
 
         public const int TaskDescriptionMinLength = 5;
@@ -42,28 +39,24 @@
         /// Priority DataConstants
         /// </summary>
         public const int PriorityNameMinLength = 3;
-
         public const int PriorityNameMaxLength = 15;
 
         /// <summary>
         /// Machine DataConstants
         /// </summary>
         public const int MachineNameMinLength = 3;
-
         public const int MachineNameMaxLength = 50;
 
         /// <summary>
         /// PartStatus DataConstants
         /// </summary>
         public const int PartStatusNameMinLength = 2;
-
         public const int PartStatusNameMaxLength = 25;
 
         /// <summary>
         /// Part DataConstants
         /// </summary>
         public const int PartNameMinLength = 2;
-
         public const int PartNameMaxLength = 150;
 
         public const int PartArticleNumberMinLength = 5;
