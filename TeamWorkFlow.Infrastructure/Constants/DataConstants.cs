@@ -85,5 +85,11 @@
         /// </summary>
         public const int ProjectStatusNameMinLength = 5;
         public const int ProjectStatusNameMaxLength = 30;
+
+        /// <summary>
+        /// TaskStatus DataConstants 
+        /// </summary>
+        public const int TaskStatusNameMinLength = 2;
+        public const int TaskStatusNameMaxLength = 30;
     }
 }
