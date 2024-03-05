@@ -30,7 +30,7 @@
         public const int TaskDescriptionMinLength = 5;
         public const int TaskDescriptionMaxLength = 1500;
 
-        public const int TaskCreatorIdMaxLength = 500;
+        public const int TaskCreatorIdMaxLength = 450;
 
         public const int TaskCommentMaxLength = 2500;
         public const int TaskAttachmentsMaxLength = 1000;

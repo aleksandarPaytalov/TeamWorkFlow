@@ -35,6 +35,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         [Comment("TaskStatus identifier")]
         public int TaskStatusId { get; set; }
 
+        [Required]
         public TaskStatus TaskStatus { get; set; } = null!;
 
         [Required]
@@ -66,13 +67,19 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
 
         [MaxLength(DataConstants.TaskAttachmentsMaxLength)]
         [Comment("Task attachments - files, drawings, documents, etc.")]
-        public  string? Attachments { get; set; }
+        public  string? Attachment { get; set; }
 
         [ForeignKey(nameof(Machine))]
         [Comment("Machine identifier")]
         public int MachineId { get; set; }
 
         public Machine? Machine { get; set; }
+
+        [Required]
+        [ForeignKey(nameof(Project))]
+        public int ProjectId { get; set; }
+
+        public Project Project { get; set; } = null!;
 
         public ICollection<TaskOperator> TasksOperators { get; set; } = new List<TaskOperator>();
     }
