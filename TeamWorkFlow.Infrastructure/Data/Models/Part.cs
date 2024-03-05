@@ -45,5 +45,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public Project Project { get; set; } = null!;
         
         public string ImageUrl { get; set; } = string.Empty;
+
+        public string PartModel { get; set; } = string.Empty;
     }
 }
