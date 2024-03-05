@@ -88,7 +88,7 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
             InDevelopment = new ProjectStatus()
             {
                 Id= 2, 
-                Name = "In Production"
+                Name = "In development"
             };
             InAcl = new ProjectStatus()
             {
