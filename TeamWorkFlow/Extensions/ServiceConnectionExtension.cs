@@ -4,11 +4,12 @@ using TeamWorkFlow.Infrastructure.Data;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-	public static class ServiceConnectionExtension
+    public static class ServiceConnectionExtension
 	{
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services)
-		{
-			return services;
+		{ 
+            
+            return services;
 		}
 
 		public static IServiceCollection AddApplicationDbContext(this IServiceCollection services, IConfiguration config)
@@ -17,8 +18,8 @@ namespace Microsoft.Extensions.DependencyInjection
 			services.AddDbContext<TeamWorkFlowDbContext>(options =>
 				options.UseSqlServer(connectionString));
 			services.AddDatabaseDeveloperPageExceptionFilter();
-
-			return services;
+			
+            return services;
 		}
 
 		public static IServiceCollection AddApplicationIdentity(this IServiceCollection services, IConfiguration config)
