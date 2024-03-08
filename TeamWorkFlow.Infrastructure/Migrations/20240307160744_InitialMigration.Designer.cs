@@ -12,8 +12,8 @@ using TeamWorkFlow.Infrastructure.Data;
 namespace TeamWorkFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(TeamWorkFlowDbContext))]
-    [Migration("20240305185553_RelationBetweenTablesTaskAndProjectWasMade")]
-    partial class RelationBetweenTablesTaskAndProjectWasMade
+    [Migration("20240307160744_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TeamWorkFlow.Infrastructure.Migrations
 {
-    public partial class FirstDataBaseMigration : Migration
+    public partial class InitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -294,6 +294,39 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                 comment: "Project data model");
 
             migrationBuilder.CreateTable(
+                name: "Parts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false, comment: "Part identifier")
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false, comment: "Part name"),
+                    PartArticleNumber = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false, comment: "Part article number"),
+                    PartClientNumber = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false, comment: "Client article number for the current part"),
+                    ToolNumber = table.Column<int>(type: "int", nullable: false, comment: "Part tool number"),
+                    PartStatusId = table.Column<int>(type: "int", nullable: false, comment: "PartStatus identifier"),
+                    ProjectId = table.Column<int>(type: "int", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PartModel = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Parts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Parts_PartStatusEnumerable_PartStatusId",
+                        column: x => x.PartStatusId,
+                        principalTable: "PartStatusEnumerable",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Parts_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                },
+                comment: "Part Db model");
+
+            migrationBuilder.CreateTable(
                 name: "Tasks",
                 columns: table => new
                 {
@@ -305,12 +338,13 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false, comment: "The date when the task is finished"),
                     TaskStatusId = table.Column<int>(type: "int", nullable: false, comment: "TaskStatus identifier"),
                     PriorityId = table.Column<int>(type: "int", nullable: false, comment: "Priority identifier"),
-                    CreatorId = table.Column<string>(type: "nvarchar(450)", nullable: false, comment: "Organizer identifier"),
+                    CreatorId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false, comment: "Organizer identifier"),
                     DeadLine = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EstimatedTime = table.Column<int>(type: "int", nullable: false, comment: "Estimated time for the Task that is needed to be complete"),
                     Comment = table.Column<string>(type: "nvarchar(2500)", maxLength: 2500, nullable: true, comment: "Comment for the current task"),
-                    Attachments = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true, comment: "Task attachments - files, drawings, documents, etc."),
-                    MachineId = table.Column<int>(type: "int", nullable: false, comment: "Machine identifier")
+                    Attachment = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true, comment: "Task attachments - files, drawings, documents, etc."),
+                    MachineId = table.Column<int>(type: "int", nullable: false, comment: "Machine identifier"),
+                    ProjectId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -334,6 +368,12 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_Tasks_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_Tasks_TaskStatusEnumerable_TaskStatusId",
                         column: x => x.TaskStatusId,
                         principalTable: "TaskStatusEnumerable",
@@ -341,38 +381,6 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 },
                 comment: "Task Db model");
-
-            migrationBuilder.CreateTable(
-                name: "Parts",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false, comment: "Part identifier")
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false, comment: "Part name"),
-                    PartArticleNumber = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false, comment: "Part article number"),
-                    PartClientNumber = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false, comment: "Client article number for the current part"),
-                    ToolNumber = table.Column<int>(type: "int", nullable: false, comment: "Part tool number"),
-                    PartStatusId = table.Column<int>(type: "int", nullable: false, comment: "PartStatus identifier"),
-                    ProjectId = table.Column<int>(type: "int", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Parts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Parts_PartStatusEnumerable_PartStatusId",
-                        column: x => x.PartStatusId,
-                        principalTable: "PartStatusEnumerable",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Parts_Projects_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Projects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                },
-                comment: "Part Db model");
 
             migrationBuilder.CreateTable(
                 name: "TasksOperators",
@@ -436,7 +444,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                 values: new object[,]
                 {
                     { 1, "In production" },
-                    { 2, "In Production" },
+                    { 2, "In development" },
                     { 3, "in ACL" }
                 });
 
@@ -526,6 +534,11 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                 column: "PriorityId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Tasks_ProjectId",
+                table: "Tasks",
+                column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Tasks_TaskStatusId",
                 table: "Tasks",
                 column: "TaskStatusId");
@@ -566,16 +579,10 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                 name: "PartStatusEnumerable");
 
             migrationBuilder.DropTable(
-                name: "Projects");
-
-            migrationBuilder.DropTable(
                 name: "Operators");
 
             migrationBuilder.DropTable(
                 name: "Tasks");
-
-            migrationBuilder.DropTable(
-                name: "ProjectStatusEnumerable");
 
             migrationBuilder.DropTable(
                 name: "OperatorAvailabilityStatusEnumerable");
@@ -590,7 +597,13 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                 name: "Priorities");
 
             migrationBuilder.DropTable(
+                name: "Projects");
+
+            migrationBuilder.DropTable(
                 name: "TaskStatusEnumerable");
+
+            migrationBuilder.DropTable(
+                name: "ProjectStatusEnumerable");
         }
     }
 }

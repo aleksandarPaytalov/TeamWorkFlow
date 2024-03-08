@@ -23,7 +23,7 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
         /// <summary>
         /// Priority seeding fields
         /// </summary>
-        public  Priority Low { get; set; }
+        public Priority Low { get; set; }
         public Priority Normal { get; set; }
         public Priority High { get; set; }
 
