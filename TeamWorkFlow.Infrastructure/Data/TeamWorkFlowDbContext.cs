@@ -23,6 +23,7 @@ namespace TeamWorkFlow.Infrastructure.Data
             builder.ApplyConfiguration(new ProjectStatusConfig());
             builder.ApplyConfiguration(new TaskStatusConfig());
             builder.ApplyConfiguration(new MachineConfig());
+            builder.ApplyConfiguration(new ProjectConfig());
 
             builder.Entity<TaskOperator>()
                 .HasKey(e => new

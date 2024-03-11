@@ -49,7 +49,14 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
         public Machine ZeissInspect { get; set; }
         public Machine ZeissMetrotom { get; set; }
 
+		/// <summary>
+		/// Project seeding fields
+		/// </summary>
+        public Project BmwHousingGx9 { get; set; }
+        public Project VwFrontPanel { get; set; }
+        public Project ToyotaClimaticModule { get; set; }
 
+	
 		public SeedData()
         {
             SeedOperatorAvailabilityStatus();
@@ -58,7 +65,44 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
             SeedProjectStatus();
             SeedTaskStatus();
             SeedMachine();
+            SeedProject();
         }
+
+        private void SeedProject()
+        {
+	        BmwHousingGx9 = new Project()
+	        {
+                Id = 1,
+                Appliance = "Automotive industry",
+                ClientName = "Bmw",
+                ProjectName = "BMW Housing Gx9",
+                ProjectNumber = "249100",
+                ProjectStatusId = 1,
+                TotalHoursSpent = 50
+	        };
+
+	        VwFrontPanel = new Project()
+	        {
+		        Id = 2,
+		        Appliance = "Automotive industry",
+		        ClientName = "Vw",
+		        ProjectName = "Vw Tuareg Front panel ",
+		        ProjectNumber = "249200",
+		        ProjectStatusId = 2,
+		        TotalHoursSpent = 20
+	        };
+
+	        ToyotaClimaticModule = new Project()
+	        {
+		        Id = 3,
+		        Appliance = "Automotive industry",
+		        ClientName = "Toyota",
+		        ProjectName = "Toyota Climatic module X5",
+		        ProjectNumber = "249300",
+		        ProjectStatusId = 3,
+		        TotalHoursSpent = 41
+	        };
+		}
 
         private void SeedMachine()
         {
