@@ -3,7 +3,7 @@ using TaskStatus = TeamWorkFlow.Infrastructure.Data.Models.TaskStatus;
 
 namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 {
-    internal class SeedData
+	internal class SeedData
     {
         /// <summary>
         /// OperatorAvailabilityStatus seeding fields
@@ -42,15 +42,54 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
         public TaskStatus Finished { get; set; }
         public TaskStatus Canceled { get; set; }
 
-        public SeedData()
+        /// <summary>
+        /// Machine seeding fields 
+        /// </summary>
+        public Machine ZeissConturaOne { get; set; }
+        public Machine ZeissInspect { get; set; }
+        public Machine ZeissMetrotom { get; set; }
+
+
+		public SeedData()
         {
             SeedOperatorAvailabilityStatus();
             SeedPartStatus();
             SeedPriority();
             SeedProjectStatus();
             SeedTaskStatus();
+            SeedMachine();
         }
 
+        private void SeedMachine()
+        {
+	        ZeissConturaOne = new Machine()
+	        {
+		        Id = 1,
+		        Name = "Zeiss Contura",
+		        CalibrationSchedule = DateTime.Now,
+		        Capacity = 20,
+                TotalMachineLoad = 0
+	        };
+
+	        ZeissInspect = new Machine()
+	        {
+		        Id = 2,
+		        Name = "Zeiss O-inspect",
+		        CalibrationSchedule = DateTime.Now,
+		        Capacity = 20,
+                TotalMachineLoad = 0
+	        };
+
+	        ZeissMetrotom = new Machine()
+	        {
+		        Id = 3,
+		        Name = "Zeiss Metrotom",
+		        CalibrationSchedule = DateTime.Now,
+		        Capacity = 20,
+                TotalMachineLoad = 0
+	        };
+
+		}
         private void SeedTaskStatus()
         {
             Open = new TaskStatus()
