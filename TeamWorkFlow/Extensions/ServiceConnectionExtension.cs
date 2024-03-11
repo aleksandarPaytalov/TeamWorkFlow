@@ -1,14 +1,16 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Services;
 using TeamWorkFlow.Infrastructure.Data;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace TeamWorkFlow.Extensions
 {
     public static class ServiceConnectionExtension
 	{
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services)
-		{ 
-            
+		{
+			services.AddScoped<ITaskService, TaskService>();
             return services;
 		}
 
@@ -17,6 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
 			var connectionString = config.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 			services.AddDbContext<TeamWorkFlowDbContext>(options =>
 				options.UseSqlServer(connectionString));
+
 			services.AddDatabaseDeveloperPageExceptionFilter();
 			
             return services;
@@ -27,7 +30,10 @@ namespace Microsoft.Extensions.DependencyInjection
 			services.AddDefaultIdentity<IdentityUser>(options =>
 				{
 					options.SignIn.RequireConfirmedAccount = true;
-				})
+                    options.Password.RequireDigit = true;
+                    options.Password.RequireUppercase = true;
+                    options.Password.RequireNonAlphanumeric = true;
+                })
 				.AddEntityFrameworkStores<TeamWorkFlowDbContext>();
 
 			return services;

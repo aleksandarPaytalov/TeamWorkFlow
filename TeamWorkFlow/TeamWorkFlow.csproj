@@ -25,7 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Identity\Data\" />
     <Folder Include="Views\Machine\" />
     <Folder Include="Views\Project\" />
     <Folder Include="Views\Operator\" />

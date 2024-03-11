@@ -14,17 +14,16 @@ namespace TeamWorkFlow.Controllers
             _logger = logger;
         }
 
-        [AllowAnonymous]
 		public IActionResult Index()
         {
-            return View();
+	        if (User.Identity != null && User.Identity.IsAuthenticated)
+	        {
+		        return RedirectToAction("All", "Task");
+	        }
+
+			return View();
 		}
-
-        public IActionResult All()
-        {
-            return View();
-        }
-
+		
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 		public IActionResult Error()
 		{
