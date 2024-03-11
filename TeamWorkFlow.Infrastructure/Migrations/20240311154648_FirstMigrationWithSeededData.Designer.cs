@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeamWorkFlow.Infrastructure.Data;
 
@@ -11,9 +12,10 @@ using TeamWorkFlow.Infrastructure.Data;
 namespace TeamWorkFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(TeamWorkFlowDbContext))]
-    partial class TeamWorkFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240311154648_FirstMigrationWithSeededData")]
+    partial class FirstMigrationWithSeededData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,7 +271,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CalibrationSchedule = new DateTime(2024, 3, 11, 17, 50, 27, 75, DateTimeKind.Local).AddTicks(82),
+                            CalibrationSchedule = new DateTime(2024, 3, 11, 17, 46, 48, 772, DateTimeKind.Local).AddTicks(2615),
                             Capacity = 20,
                             Name = "Zeiss Contura",
                             TotalMachineLoad = 0.0
@@ -277,15 +279,15 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            CalibrationSchedule = new DateTime(2024, 3, 11, 17, 50, 27, 75, DateTimeKind.Local).AddTicks(84),
+                            CalibrationSchedule = new DateTime(2024, 3, 11, 17, 46, 48, 772, DateTimeKind.Local).AddTicks(2617),
                             Capacity = 20,
                             Name = "Zeiss O-inspect",
                             TotalMachineLoad = 0.0
                         },
                         new
                         {
-                            Id = 3,
-                            CalibrationSchedule = new DateTime(2024, 3, 11, 17, 50, 27, 75, DateTimeKind.Local).AddTicks(86),
+                            Id = 10,
+                            CalibrationSchedule = new DateTime(2024, 3, 11, 17, 46, 48, 772, DateTimeKind.Local).AddTicks(2618),
                             Capacity = 20,
                             Name = "Zeiss Metrotom",
                             TotalMachineLoad = 0.0

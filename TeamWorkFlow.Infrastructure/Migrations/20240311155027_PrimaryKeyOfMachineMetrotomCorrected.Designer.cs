@@ -12,8 +12,8 @@ using TeamWorkFlow.Infrastructure.Data;
 namespace TeamWorkFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(TeamWorkFlowDbContext))]
-    [Migration("20240307160744_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20240311155027_PrimaryKeyOfMachineMetrotomCorrected")]
+    partial class PrimaryKeyOfMachineMetrotomCorrected
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -266,6 +266,32 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                     b.ToTable("Machines");
 
                     b.HasComment("Machine db model");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CalibrationSchedule = new DateTime(2024, 3, 11, 17, 50, 27, 75, DateTimeKind.Local).AddTicks(82),
+                            Capacity = 20,
+                            Name = "Zeiss Contura",
+                            TotalMachineLoad = 0.0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CalibrationSchedule = new DateTime(2024, 3, 11, 17, 50, 27, 75, DateTimeKind.Local).AddTicks(84),
+                            Capacity = 20,
+                            Name = "Zeiss O-inspect",
+                            TotalMachineLoad = 0.0
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CalibrationSchedule = new DateTime(2024, 3, 11, 17, 50, 27, 75, DateTimeKind.Local).AddTicks(86),
+                            Capacity = 20,
+                            Name = "Zeiss Metrotom",
+                            TotalMachineLoad = 0.0
+                        });
                 });
 
             modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.Operator", b =>
@@ -603,7 +629,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)")
-                        .HasComment("Organizer identifier");
+                        .HasComment("Task creator identifier");
 
                     b.Property<DateTime>("DeadLine")
                         .HasColumnType("datetime2");
@@ -614,7 +640,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         .HasColumnType("nvarchar(1500)")
                         .HasComment("Task description");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2")
                         .HasComment("The date when the task is finished");
 

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TeamWorkFlow.Infrastructure.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class FirstMigrationWithSeededData : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -335,10 +335,10 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false, comment: "Task Name"),
                     Description = table.Column<string>(type: "nvarchar(1500)", maxLength: 1500, nullable: false, comment: "Task description"),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false, comment: "Task starting date"),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false, comment: "The date when the task is finished"),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true, comment: "The date when the task is finished"),
                     TaskStatusId = table.Column<int>(type: "int", nullable: false, comment: "TaskStatus identifier"),
                     PriorityId = table.Column<int>(type: "int", nullable: false, comment: "Priority identifier"),
-                    CreatorId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false, comment: "Organizer identifier"),
+                    CreatorId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false, comment: "Task creator identifier"),
                     DeadLine = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EstimatedTime = table.Column<int>(type: "int", nullable: false, comment: "Estimated time for the Task that is needed to be complete"),
                     Comment = table.Column<string>(type: "nvarchar(2500)", maxLength: 2500, nullable: true, comment: "Comment for the current task"),
@@ -406,6 +406,16 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 },
                 comment: "TaskOperator data model");
+
+            migrationBuilder.InsertData(
+                table: "Machines",
+                columns: new[] { "Id", "CalibrationSchedule", "Capacity", "MaintenanceScheduleEndDate", "MaintenanceScheduleStartDate", "Name", "TotalMachineLoad" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2024, 3, 11, 17, 46, 48, 772, DateTimeKind.Local).AddTicks(2615), 20, null, null, "Zeiss Contura", 0.0 },
+                    { 2, new DateTime(2024, 3, 11, 17, 46, 48, 772, DateTimeKind.Local).AddTicks(2617), 20, null, null, "Zeiss O-inspect", 0.0 },
+                    { 10, new DateTime(2024, 3, 11, 17, 46, 48, 772, DateTimeKind.Local).AddTicks(2618), 20, null, null, "Zeiss Metrotom", 0.0 }
+                });
 
             migrationBuilder.InsertData(
                 table: "OperatorAvailabilityStatusEnumerable",
