@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Models.Task;
 
 namespace TeamWorkFlow.Controllers
 {
@@ -20,7 +21,22 @@ namespace TeamWorkFlow.Controllers
             return View(model);
         }
 
-        public IActionResult Details()
+        [HttpGet]
+        public async Task<IActionResult> Add()
+        {
+            var priorities = await _service.GetAllPrioritiesAsync();
+            var statuses = await _service.GetAllStatusesAsync();
+
+            var model = new AddTaskViewModel()
+            {
+                Statuses = statuses,
+                Priorities = priorities
+            };
+
+	        return View(model);
+        }
+
+		public IActionResult Details()
         {
 	        return View();
         }
@@ -30,10 +46,7 @@ namespace TeamWorkFlow.Controllers
 	        return View();
         }
 
-        public IActionResult Add()
-        {
-	        return View();
-        }
+        
 
         public IActionResult Delete()
         {
