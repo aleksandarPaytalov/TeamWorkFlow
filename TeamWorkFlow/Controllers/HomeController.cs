@@ -14,6 +14,7 @@ namespace TeamWorkFlow.Controllers
             _logger = logger;
         }
 
+		[AllowAnonymous]
 		public IActionResult Index()
         {
 	        if (User.Identity != null && User.Identity.IsAuthenticated)

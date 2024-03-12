@@ -3,61 +3,47 @@
 	ViewData["Title"] = "Tasks";
 }
 
-
 <h2 class="text-center">@ViewBag.Title</h2>
 <hr />
 
-<div class="text-center row">
-	@foreach (var t in Model)
-	{
-		<div class="card col-4" style="width: 20rem; ">
-			<div class="card-body">
-				<table>
-					<thead>
-					<tr>
-						<th>Project Number</th>
-						<th>Name</th>
-						<th>Description</th>
-						<th>Status</th>
-						<th>Priority</th>
-						<th>Deadline</th>
-						<th>Start Date</th>
-						<th>End Date</th>
-					</tr>
-					</thead>
-					<tbody>
-					@foreach (var task in Model)
-					{
-						<tr>
-							<td>@task.ProjectNumber</td>
-							<td>@task.Name</td>
-							<td>@task.Description</td>
-							<td>@task.Status</td>
-							<td>@task.Priority</td>
-							<td>@task.Deadline</td>
-							<td>@task.StartDate</td>
-							<td>@(task.EndDate ?? "-")</td>
-						</tr>
-					}
-					</tbody>
-				</table>
-			</div>
-
-			<a asp-controller="Task" asp-action="All" asp-route-id="@t.Id" class="btn btn-warning mb-2 w-100 p-3 fw-bold">Details</a>
-			@if (User?.Identity?.Name == t.Creator)
-			{
-				<a asp-controller="Task" asp-action="Edit" asp-route-id="@t.Id" class="btn btn-warning mb-2 w-100 p-3 fw-bold">Edit</a>
-				<a asp-controller="Task" asp-action="Delete" asp-route-id="@t.Id" class="btn btn-warning mb-2 w-100 p-3 fw-bold">Delete</a>
-			}
-			else
-			{
-				<form class="input-group-sm" asp-controller="Task" asp-action="Given" asp-route-id="@t.Id">
-					<input type="submit" value="Subscribe" class="fs-6 btn btn-warning mb-2 w-100 p-3 fw-bold" />
-				</form>
-			}
-		</div>
-	}
-</div> 
+<div class="table-responsive">
+	<table class="table table-bordered">
+		<thead>
+		<tr>
+			<th>Project Number</th>
+			<th>Name</th>
+			<th>Description</th>
+			<th>Status</th>
+			<th>Priority</th>
+			<th>Deadline</th>
+			<th>Start Date</th>
+			<th>End Date</th>
+			<th>Actions</th> 
+		</tr>
+		</thead>
+		<tbody>
+		@foreach (var task in Model)
+		{
+			<tr>
+				<td>@task.ProjectNumber</td>
+				<td>@task.Name</td>
+				<td>@task.Description</td>
+				<td>@task.Status</td>
+				<td>@task.Priority</td>
+				<td>@task.Deadline</td>
+				<td>@task.StartDate</td>
+				<td>@(task.EndDate ?? "-")</td>
+				<td>
+					<a href="@Url.Action("Edit", "Task", new { id = task.Id })" class="btn btn-primary">Edit</a>
+					<a href="@Url.Action("Delete", "Task", new { id = task.Id })" class="btn btn-danger">Delete</a>
+					<a href="@Url.Action("Add", "Task", new { id = task.Id })" class="btn btn-success">Add</a>
+						<a href="@Url.Action("Details", "Task", new { id = task.Id })" class="btn btn-primary">Details</a>
+				</td>
+			</tr>
+		}
+		</tbody>
+	</table>
+</div>
 
 @section Scripts {
 	<partial name="_ValidationScriptsPartial" />

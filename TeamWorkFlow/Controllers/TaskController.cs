@@ -12,11 +12,32 @@ namespace TeamWorkFlow.Controllers
             _service = service;
         }
 
+        [HttpGet]
         public async Task<IActionResult> All()
         {
             var model = await _service.GetAllTasksAsync();
 
-            return View();
+            return View(model);
         }
-    }
+
+        public IActionResult Details()
+        {
+	        return View();
+        }
+
+        public IActionResult Edit()
+        {
+	        return View();
+        }
+
+        public IActionResult Add()
+        {
+	        return View();
+        }
+
+        public IActionResult Delete()
+        {
+	        return View();
+        }
+	}
 }

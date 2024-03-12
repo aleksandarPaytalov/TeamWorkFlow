@@ -22,12 +22,11 @@ namespace TeamWorkFlow.Core.Services
                 .AsNoTracking()
                 .Select(t => new TaskViewModel()
                 {
-                    ProjectNumber = t.Project.ProjectNumber,
                     Name = t.Name,
                     Description = t.Description,
-                    Deadline = t.DeadLine.ToString(Messages.DateFormat, CultureInfo.InvariantCulture),
-                    Priority = t.Priority.Name,
                     Status = t.TaskStatus.Name,
+                    Priority = t.Priority.Name,
+                    ProjectNumber = t.Project.ProjectNumber,
                     StartDate = t.StartDate.ToString(Messages.DateFormat, CultureInfo.InvariantCulture)
                 })
                 .ToListAsync();
