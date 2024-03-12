@@ -103,14 +103,13 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 		        TotalHoursSpent = 41
 	        };
 		}
-
         private void SeedMachine()
         {
-	        ZeissConturaOne = new Machine()
+			ZeissConturaOne = new Machine()
 	        {
 		        Id = 1,
 		        Name = "Zeiss Contura",
-		        CalibrationSchedule = DateTime.Now,
+		        CalibrationSchedule = new DateTime(2024,04,04),
 		        Capacity = 20,
                 TotalMachineLoad = 0
 	        };
@@ -119,7 +118,7 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 	        {
 		        Id = 2,
 		        Name = "Zeiss O-inspect",
-		        CalibrationSchedule = DateTime.Now,
+		        CalibrationSchedule = new DateTime(2024, 04, 04),
 		        Capacity = 20,
                 TotalMachineLoad = 0
 	        };
@@ -128,7 +127,7 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 	        {
 		        Id = 3,
 		        Name = "Zeiss Metrotom",
-		        CalibrationSchedule = DateTime.Now,
+		        CalibrationSchedule = new DateTime(2024, 04, 04),
 		        Capacity = 20,
                 TotalMachineLoad = 0
 	        };
