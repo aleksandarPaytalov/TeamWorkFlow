@@ -31,5 +31,32 @@ namespace TeamWorkFlow.Core.Services
                 })
                 .ToListAsync();
         }
+
+        public async Task<ICollection<StatusViewModel>> GetAllStatusesAsync()
+        {
+            return await _context.TaskStatusEnumerable
+                .Select(s => new StatusViewModel()
+                {
+                    Id = s.Id,
+                    Name = s.Name
+                })
+                .ToListAsync();
+        }
+
+        public async Task<ICollection<PriorityViewModel>> GetAllPrioritiesAsync()
+        {
+            return await _context.Priorities
+                .Select(p => new PriorityViewModel()
+                {
+                    Id = p.Id,
+                    Name = p.Name
+                })
+                .ToListAsync();
+        }
+
+        public async Task AddNewTaskAsync(AddTaskViewModel model, string userId)
+        {
+	        throw new NotImplementedException();
+        }
     }
 }

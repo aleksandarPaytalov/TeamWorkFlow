@@ -55,7 +55,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         [Comment("Task Creator")]
         public IdentityUser Creator { get; set; } = null!;
 
-        public DateTime DeadLine { get; set; }
+        public DateTime? DeadLine { get; set; }
 
         [Required]
         [Comment("Estimated time for the Task that is needed to be complete")]
