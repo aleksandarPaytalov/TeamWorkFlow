@@ -4,6 +4,11 @@
 }
 
 <h2 class="text-center">@ViewBag.Title</h2>
+
+<div class="text-right mb-3">
+	<a href="@Url.Action("Add", "Task")" class="btn btn-success">Add Task</a>
+</div>
+
 <hr />
 
 <div class="table-responsive">
@@ -18,7 +23,7 @@
 			<th>Deadline</th>
 			<th>Start Date</th>
 			<th>End Date</th>
-			<th>Actions</th> 
+			<th>Actions</th>
 		</tr>
 		</thead>
 		<tbody>
@@ -36,8 +41,7 @@
 				<td>
 					<a href="@Url.Action("Edit", "Task", new { id = task.Id })" class="btn btn-primary">Edit</a>
 					<a href="@Url.Action("Delete", "Task", new { id = task.Id })" class="btn btn-danger">Delete</a>
-					<a href="@Url.Action("Add", "Task", new { id = task.Id })" class="btn btn-success">Add</a>
-						<a href="@Url.Action("Details", "Task", new { id = task.Id })" class="btn btn-primary">Details</a>
+					<a href="@Url.Action("Details", "Task", new { id = task.Id })" class="btn btn-primary">Details</a>
 				</td>
 			</tr>
 		}
