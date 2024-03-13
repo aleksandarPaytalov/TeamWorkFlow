@@ -29,8 +29,8 @@ namespace TeamWorkFlow.Controllers
 
             var model = new AddTaskViewModel()
             {
-                Statuses = statuses,
-                Priorities = priorities
+	            Statuses = statuses,
+	            Priorities = priorities
             };
 
 	        return View(model);
