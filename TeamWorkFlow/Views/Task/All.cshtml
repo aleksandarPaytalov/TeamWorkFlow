@@ -1,5 +1,54 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model ICollection<TaskViewModel>
 @{
+	ViewData["Title"] = "All created Tasks";
+}
+
+<h2 class="text-center">@ViewBag.Title</h2>
+
+<div class="text-right mb-3">
+	<a href="@Url.Action("Add", "Task")" class="btn btn-success">Add Task</a>
+</div>
+
+<hr />
+
+<div class="table-responsive">
+	<table class="table table-bordered">
+		<thead>
+		<tr>
+			<th>Project Number</th>
+			<th>Name</th>
+			<th>Description</th>
+			<th>Status</th>
+			<th>Priority</th>
+			<th>Deadline</th>
+			<th>Start Date</th>
+			<th>End Date</th>
+			<th>Actions</th>
+		</tr>
+		</thead>
+		<tbody>
+		@foreach (var task in Model)
+		{
+			<tr>
+				<td>@task.ProjectNumber</td>
+				<td>@task.Name</td>
+				<td>@task.Description</td>
+				<td>@task.Status</td>
+				<td>@task.Priority</td>
+				<td>@task.Deadline</td>
+				<td>@task.StartDate</td>
+				<td>@(task.EndDate ?? "-")</td>
+				<td>
+					<a href="@Url.Action("Edit", "Task", new { id = task.Id })" class="btn btn-primary">Edit</a>
+					<a href="@Url.Action("Delete", "Task", new { id = task.Id })" class="btn btn-danger">Delete</a>
+					<a href="@Url.Action("Details", "Task", new { id = task.Id })" class="btn btn-primary">Details</a>
+				</td>
+			</tr>
+		}
+		</tbody>
+	</table>
+</div>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
 }

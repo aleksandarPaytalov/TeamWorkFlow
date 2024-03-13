@@ -264,6 +264,32 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                     b.ToTable("Machines");
 
                     b.HasComment("Machine db model");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CalibrationSchedule = new DateTime(2024, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Capacity = 20,
+                            Name = "Zeiss Contura",
+                            TotalMachineLoad = 0.0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CalibrationSchedule = new DateTime(2024, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Capacity = 20,
+                            Name = "Zeiss O-inspect",
+                            TotalMachineLoad = 0.0
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CalibrationSchedule = new DateTime(2024, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Capacity = 20,
+                            Name = "Zeiss Metrotom",
+                            TotalMachineLoad = 0.0
+                        });
                 });
 
             modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.Operator", b =>
@@ -537,6 +563,38 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                     b.ToTable("Projects");
 
                     b.HasComment("Project data model");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Appliance = "Automotive industry",
+                            ClientName = "Bmw",
+                            ProjectName = "BMW Housing Gx9",
+                            ProjectNumber = "249100",
+                            ProjectStatusId = 1,
+                            TotalHoursSpent = 50
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Appliance = "Automotive industry",
+                            ClientName = "Vw",
+                            ProjectName = "Vw Tuareg Front panel ",
+                            ProjectNumber = "249200",
+                            ProjectStatusId = 2,
+                            TotalHoursSpent = 20
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Appliance = "Automotive industry",
+                            ClientName = "Toyota",
+                            ProjectName = "Toyota Climatic module X5",
+                            ProjectNumber = "249300",
+                            ProjectStatusId = 3,
+                            TotalHoursSpent = 41
+                        });
                 });
 
             modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.ProjectStatus", b =>
@@ -601,9 +659,9 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)")
-                        .HasComment("Organizer identifier");
+                        .HasComment("Task creator identifier");
 
-                    b.Property<DateTime>("DeadLine")
+                    b.Property<DateTime?>("DeadLine")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
@@ -612,7 +670,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         .HasColumnType("nvarchar(1500)")
                         .HasComment("Task description");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2")
                         .HasComment("The date when the task is finished");
 

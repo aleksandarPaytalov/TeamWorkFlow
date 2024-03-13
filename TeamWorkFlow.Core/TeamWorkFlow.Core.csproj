@@ -7,7 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <Folder Include="Models\Machine\" />
+    <Folder Include="Models\Part\" />
+    <Folder Include="Models\Project\" />
+    <Folder Include="Models\Operator\" />
   </ItemGroup>
 
   <ItemGroup>

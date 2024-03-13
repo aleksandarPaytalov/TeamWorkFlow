@@ -12,8 +12,8 @@ using TeamWorkFlow.Infrastructure.Data;
 namespace TeamWorkFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(TeamWorkFlowDbContext))]
-    [Migration("20240305183111_FirstDataBaseMigration")]
-    partial class FirstDataBaseMigration
+    [Migration("20240312195807_TaskDeadLineMadeToBeNullable")]
+    partial class TaskDeadLineMadeToBeNullable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -266,6 +266,32 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                     b.ToTable("Machines");
 
                     b.HasComment("Machine db model");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CalibrationSchedule = new DateTime(2024, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Capacity = 20,
+                            Name = "Zeiss Contura",
+                            TotalMachineLoad = 0.0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CalibrationSchedule = new DateTime(2024, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Capacity = 20,
+                            Name = "Zeiss O-inspect",
+                            TotalMachineLoad = 0.0
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CalibrationSchedule = new DateTime(2024, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Capacity = 20,
+                            Name = "Zeiss Metrotom",
+                            TotalMachineLoad = 0.0
+                        });
                 });
 
             modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.Operator", b =>
@@ -389,6 +415,10 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)")
                         .HasComment("Client article number for the current part");
+
+                    b.Property<string>("PartModel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PartStatusId")
                         .HasColumnType("int")
@@ -535,6 +565,38 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                     b.ToTable("Projects");
 
                     b.HasComment("Project data model");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Appliance = "Automotive industry",
+                            ClientName = "Bmw",
+                            ProjectName = "BMW Housing Gx9",
+                            ProjectNumber = "249100",
+                            ProjectStatusId = 1,
+                            TotalHoursSpent = 50
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Appliance = "Automotive industry",
+                            ClientName = "Vw",
+                            ProjectName = "Vw Tuareg Front panel ",
+                            ProjectNumber = "249200",
+                            ProjectStatusId = 2,
+                            TotalHoursSpent = 20
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Appliance = "Automotive industry",
+                            ClientName = "Toyota",
+                            ProjectName = "Toyota Climatic module X5",
+                            ProjectNumber = "249300",
+                            ProjectStatusId = 3,
+                            TotalHoursSpent = 41
+                        });
                 });
 
             modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.ProjectStatus", b =>
@@ -567,7 +629,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            Name = "In Production"
+                            Name = "In development"
                         },
                         new
                         {
@@ -585,7 +647,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("Attachments")
+                    b.Property<string>("Attachment")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)")
                         .HasComment("Task attachments - files, drawings, documents, etc.");
@@ -597,10 +659,11 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.Property<string>("CreatorId")
                         .IsRequired()
+                        .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)")
-                        .HasComment("Organizer identifier");
+                        .HasComment("Task creator identifier");
 
-                    b.Property<DateTime>("DeadLine")
+                    b.Property<DateTime?>("DeadLine")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
@@ -609,7 +672,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         .HasColumnType("nvarchar(1500)")
                         .HasComment("Task description");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2")
                         .HasComment("The date when the task is finished");
 
@@ -631,6 +694,9 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasComment("Priority identifier");
 
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2")
                         .HasComment("Task starting date");
@@ -646,6 +712,8 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                     b.HasIndex("MachineId");
 
                     b.HasIndex("PriorityId");
+
+                    b.HasIndex("ProjectId");
 
                     b.HasIndex("TaskStatusId");
 
@@ -827,6 +895,12 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("TeamWorkFlow.Infrastructure.Data.Models.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("TeamWorkFlow.Infrastructure.Data.Models.TaskStatus", "TaskStatus")
                         .WithMany("Tasks")
                         .HasForeignKey("TaskStatusId")
@@ -838,6 +912,8 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                     b.Navigation("Machine");
 
                     b.Navigation("Priority");
+
+                    b.Navigation("Project");
 
                     b.Navigation("TaskStatus");
                 });

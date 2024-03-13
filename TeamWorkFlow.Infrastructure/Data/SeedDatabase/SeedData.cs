@@ -3,7 +3,7 @@ using TaskStatus = TeamWorkFlow.Infrastructure.Data.Models.TaskStatus;
 
 namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 {
-    internal class SeedData
+	internal class SeedData
     {
         /// <summary>
         /// OperatorAvailabilityStatus seeding fields
@@ -23,7 +23,7 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
         /// <summary>
         /// Priority seeding fields
         /// </summary>
-        public  Priority Low { get; set; }
+        public Priority Low { get; set; }
         public Priority Normal { get; set; }
         public Priority High { get; set; }
 
@@ -42,15 +42,97 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
         public TaskStatus Finished { get; set; }
         public TaskStatus Canceled { get; set; }
 
-        public SeedData()
+        /// <summary>
+        /// Machine seeding fields 
+        /// </summary>
+        public Machine ZeissConturaOne { get; set; }
+        public Machine ZeissInspect { get; set; }
+        public Machine ZeissMetrotom { get; set; }
+
+		/// <summary>
+		/// Project seeding fields
+		/// </summary>
+        public Project BmwHousingGx9 { get; set; }
+        public Project VwFrontPanel { get; set; }
+        public Project ToyotaClimaticModule { get; set; }
+
+	
+		public SeedData()
         {
             SeedOperatorAvailabilityStatus();
             SeedPartStatus();
             SeedPriority();
             SeedProjectStatus();
             SeedTaskStatus();
+            SeedMachine();
+            SeedProject();
         }
 
+        private void SeedProject()
+        {
+	        BmwHousingGx9 = new Project()
+	        {
+                Id = 1,
+                Appliance = "Automotive industry",
+                ClientName = "Bmw",
+                ProjectName = "BMW Housing Gx9",
+                ProjectNumber = "249100",
+                ProjectStatusId = 1,
+                TotalHoursSpent = 50
+	        };
+
+	        VwFrontPanel = new Project()
+	        {
+		        Id = 2,
+		        Appliance = "Automotive industry",
+		        ClientName = "Vw",
+		        ProjectName = "Vw Tuareg Front panel ",
+		        ProjectNumber = "249200",
+		        ProjectStatusId = 2,
+		        TotalHoursSpent = 20
+	        };
+
+	        ToyotaClimaticModule = new Project()
+	        {
+		        Id = 3,
+		        Appliance = "Automotive industry",
+		        ClientName = "Toyota",
+		        ProjectName = "Toyota Climatic module X5",
+		        ProjectNumber = "249300",
+		        ProjectStatusId = 3,
+		        TotalHoursSpent = 41
+	        };
+		}
+        private void SeedMachine()
+        {
+			ZeissConturaOne = new Machine()
+	        {
+		        Id = 1,
+		        Name = "Zeiss Contura",
+		        CalibrationSchedule = new DateTime(2024,04,04),
+		        Capacity = 20,
+                TotalMachineLoad = 0
+	        };
+
+	        ZeissInspect = new Machine()
+	        {
+		        Id = 2,
+		        Name = "Zeiss O-inspect",
+		        CalibrationSchedule = new DateTime(2024, 04, 04),
+		        Capacity = 20,
+                TotalMachineLoad = 0
+	        };
+
+	        ZeissMetrotom = new Machine()
+	        {
+		        Id = 3,
+		        Name = "Zeiss Metrotom",
+		        CalibrationSchedule = new DateTime(2024, 04, 04),
+		        Capacity = 20,
+                TotalMachineLoad = 0
+	        };
+
+		}
         private void SeedTaskStatus()
         {
             Open = new TaskStatus()

@@ -28,7 +28,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public DateTime StartDate { get; set; }
 
         [Comment("The date when the task is finished")]
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         [Required]
         [ForeignKey(nameof(TaskStatus))]
@@ -48,14 +48,14 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
 
         [Required]
         [MaxLength(DataConstants.TaskCreatorIdMaxLength)]
-        [Comment("Organizer identifier")]
+        [Comment("Task creator identifier")]
         public string CreatorId { get; set; } = string.Empty;
 
         [Required]
         [Comment("Task Creator")]
         public IdentityUser Creator { get; set; } = null!;
 
-        public DateTime DeadLine { get; set; }
+        public DateTime? DeadLine { get; set; }
 
         [Required]
         [Comment("Estimated time for the Task that is needed to be complete")]
