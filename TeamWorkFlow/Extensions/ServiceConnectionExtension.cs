@@ -11,6 +11,7 @@ namespace TeamWorkFlow.Extensions
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services)
 		{
 			services.AddScoped<ITaskService, TaskService>();
+			services.AddScoped<IOperatorService, OperatorService>();
             return services;
 		}
 
