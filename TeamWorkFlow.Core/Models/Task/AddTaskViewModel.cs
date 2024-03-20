@@ -1,15 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using TeamWorkFlow.Core.Constants;
 using TeamWorkFlow.Infrastructure.Constants;
+using TeamWorkFlow.Infrastructure.Data.Models;
 
 namespace TeamWorkFlow.Core.Models.Task
 {
     public class AddTaskViewModel
     {
-		[Required]
-	    public int Id { get; set; }
+		public int Id { get; set; }
 
 		[Required]
+        public int ProjectId { get; set; }
+
+        [Required]
 		[StringLength(DataConstants.ProjectNumberMaxLength,
 			MinimumLength = DataConstants.ProjectNumberMinLength,
 			ErrorMessage = Messages.StringLength)]
