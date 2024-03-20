@@ -15,11 +15,14 @@
         public const int OperatorFullNameMinLength = 2;
         public const int OperatorFullNameMaxLength = 100;
 
-        public const int OperatorEmailMinLength = 5;
+		public const int OperatorEmailMinLength = 5;
         public const int OperatorEmailMaxLength = 100;
 
         public const int OperatorPhoneMinLength = 5;
         public const int OperatorPhoneMaxLength = 20;
+
+        public const int OperatorMinCapacity = 4;
+        public const int OperatorMaxCapacity = 12;
 
         /// <summary>
         /// Task DataConstants

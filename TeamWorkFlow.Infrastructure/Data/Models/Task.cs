@@ -58,7 +58,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public DateTime? DeadLine { get; set; }
 
         [Required]
-        [Comment("Estimated time for the Task that is needed to be complete")]
+        [Comment("Estimated time for the Task that is needed to be complete - in hours")]
         public int EstimatedTime { get; set; }
 
         [MaxLength(DataConstants.TaskCommentMaxLength)]
@@ -71,7 +71,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
 
         [ForeignKey(nameof(Machine))]
         [Comment("Machine identifier")]
-        public int MachineId { get; set; }
+        public int? MachineId { get; set; }
 
         public Machine? Machine { get; set; }
 
