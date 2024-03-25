@@ -12,6 +12,7 @@ namespace TeamWorkFlow.Extensions
 		{
 			services.AddScoped<ITaskService, TaskService>();
 			services.AddScoped<IOperatorService, OperatorService>();
+			services.AddScoped<IMachineService, MachineService> ();
             return services;
 		}
 
