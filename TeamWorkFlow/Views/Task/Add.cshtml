@@ -36,7 +36,7 @@
             </div>
 	        <div class="mb-3">
 		        <label asp-for="@Model.EndDate" class="form-label-add-edit">Task finish date</label>
-				<input asp-for="@Model.EndDate" class="form-control" placeholder="dd/MM/yyyy" />
+				<input asp-for="@Model.EndDate" class="form-control" placeholder="@Messages.DateFormat" />
 		        <span asp-validation-for="@Model.EndDate" class="text-danger"></span>
 	        </div>
 	        <div class="mb-3">

@@ -12,8 +12,10 @@ namespace TeamWorkFlow.Extensions
 		{
 			services.AddScoped<ITaskService, TaskService>();
 			services.AddScoped<IOperatorService, OperatorService>();
-			services.AddScoped<IMachineService, MachineService> ();
-            return services;
+			services.AddScoped<IMachineService, MachineService>();
+			services.AddScoped<IPartService, PartService>();
+			services.AddScoped<IProjectService, ProjectService>();
+			return services;
 		}
 
 		public static IServiceCollection AddApplicationDbContext(this IServiceCollection services, IConfiguration config)

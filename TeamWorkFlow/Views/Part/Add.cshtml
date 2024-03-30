@@ -1,0 +1,15 @@
+﻿@model PartFormModel
+
+@{
+	ViewData["Title"] = "Add Part";
+}
+
+<h2 class="text-center">@ViewData["Title"]</h2>
+<hr />
+
+<partial name="_PartFormPartial" model="@Model" />
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}
+
