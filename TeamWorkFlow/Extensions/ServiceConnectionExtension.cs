@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Services;
+using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data;
 
 namespace TeamWorkFlow.Extensions
@@ -23,6 +24,8 @@ namespace TeamWorkFlow.Extensions
 			var connectionString = config.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 			services.AddDbContext<TeamWorkFlowDbContext>(options =>
 				options.UseSqlServer(connectionString));
+
+            services.AddScoped<IRepository, Repository>();
 
 			services.AddDatabaseDeveloperPageExceptionFilter();
 			
