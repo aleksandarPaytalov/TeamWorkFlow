@@ -6,7 +6,6 @@ namespace TeamWorkFlow.Core.Models.Task
 {
 	public class PriorityViewModel
 	{
-		[Required]
 		public int Id { get; set; }
 
 		[Required]

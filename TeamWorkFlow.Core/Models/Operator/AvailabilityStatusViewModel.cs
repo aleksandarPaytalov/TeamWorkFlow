@@ -6,7 +6,6 @@ namespace TeamWorkFlow.Core.Models.Operator
 {
 	public class AvailabilityStatusViewModel
 	{
-		[Required]
 		public int Id { get; set; }
 
 		[Required]
