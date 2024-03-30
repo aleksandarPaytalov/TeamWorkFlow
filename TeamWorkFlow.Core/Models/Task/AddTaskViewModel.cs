@@ -6,10 +6,12 @@ namespace TeamWorkFlow.Core.Models.Task
 {
     public class AddTaskViewModel
     {
-		[Required]
-	    public int Id { get; set; }
+		public int Id { get; set; }
 
 		[Required]
+        public int ProjectId { get; set; }
+
+        [Required]
 		[StringLength(DataConstants.ProjectNumberMaxLength,
 			MinimumLength = DataConstants.ProjectNumberMinLength,
 			ErrorMessage = Messages.StringLength)]

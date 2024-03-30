@@ -15,11 +15,14 @@
         public const int OperatorFullNameMinLength = 2;
         public const int OperatorFullNameMaxLength = 100;
 
-        public const int OperatorEmailMinLength = 5;
+		public const int OperatorEmailMinLength = 5;
         public const int OperatorEmailMaxLength = 100;
 
         public const int OperatorPhoneMinLength = 5;
         public const int OperatorPhoneMaxLength = 20;
+
+        public const int OperatorMinCapacity = 4;
+        public const int OperatorMaxCapacity = 12;
 
         /// <summary>
         /// Task DataConstants
@@ -64,6 +67,15 @@
 
         public const int PartClientNumberMinLength = 5;
         public const int PartClientNumberMaxLength = 30;
+
+        public const int PartToolNumberMinValue = 1000;
+        public const int PartToolNumberMaxValue = 9999;
+
+        public const int PartImageUrlMinLength = 10; 
+        public const int PartImageUrlMaxLength = 300;
+
+        public const int PartModelMinLength = 10;
+        public const int PartModelMaxLength = 200;
 
         /// <summary>
         /// Project DataConstants 

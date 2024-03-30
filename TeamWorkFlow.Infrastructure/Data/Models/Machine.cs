@@ -34,6 +34,9 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         [Comment("Machine total load")]
         public double TotalMachineLoad { get; set; }
 
+        [Required]
+        public bool IsCalibrated { get; set; }
+
         public ICollection<Task> Tasks { get; set; } = new List<Task>();
     }
 }

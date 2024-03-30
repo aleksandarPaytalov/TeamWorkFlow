@@ -4,7 +4,7 @@ namespace TeamWorkFlow.Controllers
 {
     public class ProjectController : BaseController
     {
-        public IActionResult Index()
+        public IActionResult All()
         {
             return View();
         }

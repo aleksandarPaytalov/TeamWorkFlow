@@ -41,6 +41,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public bool IsActive { get; set; }
 
         [Required]
+        [Range(DataConstants.OperatorMinCapacity, DataConstants.OperatorMaxCapacity)]
         [Comment("Operator working capacity in hours per day/shift")]
         public int Capacity { get; set; }
         

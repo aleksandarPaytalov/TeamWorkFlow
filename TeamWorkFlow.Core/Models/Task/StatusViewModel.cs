@@ -6,7 +6,6 @@ namespace TeamWorkFlow.Core.Models.Task
 {
 	public class StatusViewModel
 	{
-		[Required]
 		public int Id { get; set; }
 
 		[Required]

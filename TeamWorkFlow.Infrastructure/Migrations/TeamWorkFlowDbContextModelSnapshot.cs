@@ -241,6 +241,9 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasComment("Machine capacity");
 
+                    b.Property<bool>("IsCalibrated")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("MaintenanceScheduleEndDate")
                         .HasColumnType("datetime2")
                         .HasComment("Machine maintenanceScheduleEndDate");
@@ -271,6 +274,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             Id = 1,
                             CalibrationSchedule = new DateTime(2024, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Capacity = 20,
+                            IsCalibrated = false,
                             Name = "Zeiss Contura",
                             TotalMachineLoad = 0.0
                         },
@@ -279,6 +283,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             Id = 2,
                             CalibrationSchedule = new DateTime(2024, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Capacity = 20,
+                            IsCalibrated = false,
                             Name = "Zeiss O-inspect",
                             TotalMachineLoad = 0.0
                         },
@@ -287,6 +292,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             Id = 3,
                             CalibrationSchedule = new DateTime(2024, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Capacity = 20,
+                            IsCalibrated = false,
                             Name = "Zeiss Metrotom",
                             TotalMachineLoad = 0.0
                         });
@@ -394,7 +400,8 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -416,7 +423,8 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.Property<string>("PartModel")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("PartStatusId")
                         .HasColumnType("int")
@@ -676,9 +684,9 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.Property<int>("EstimatedTime")
                         .HasColumnType("int")
-                        .HasComment("Estimated time for the Task that is needed to be complete");
+                        .HasComment("Estimated time for the Task that is needed to be complete - in hours");
 
-                    b.Property<int>("MachineId")
+                    b.Property<int?>("MachineId")
                         .HasColumnType("int")
                         .HasComment("Machine identifier");
 
@@ -883,9 +891,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasOne("TeamWorkFlow.Infrastructure.Data.Models.Machine", "Machine")
                         .WithMany("Tasks")
-                        .HasForeignKey("MachineId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MachineId");
 
                     b.HasOne("TeamWorkFlow.Infrastructure.Data.Models.Priority", "Priority")
                         .WithMany("Tasks")

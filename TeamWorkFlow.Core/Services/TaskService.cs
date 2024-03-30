@@ -1,5 +1,5 @@
-﻿using System.Globalization;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using TeamWorkFlow.Core.Constants;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Models.Task;
@@ -22,6 +22,7 @@ namespace TeamWorkFlow.Core.Services
                 .AsNoTracking()
                 .Select(t => new TaskViewModel()
                 {
+                    Id = t.Id,
                     Name = t.Name,
                     Description = t.Description,
                     Status = t.TaskStatus.Name,
@@ -56,7 +57,49 @@ namespace TeamWorkFlow.Core.Services
 
         public async Task AddNewTaskAsync(AddTaskViewModel model, string userId)
         {
-	        throw new NotImplementedException();
+            DateTime startDate;
+            DateTime endDate;
+            DateTime deadLine;
+
+            var startDateIsValid = DateTime.TryParseExact(model.StartDate, Messages.DateFormat,
+                CultureInfo.InvariantCulture, DateTimeStyles.None, out startDate);
+
+            var endDateIsValid = DateTime.TryParseExact(model.EndDate, Messages.DateFormat,
+                CultureInfo.InvariantCulture, DateTimeStyles.None, out endDate);
+
+            var deadLineIsValid = DateTime.TryParseExact(model.Deadline, Messages.DateFormat,
+                    CultureInfo.InvariantCulture, DateTimeStyles.None, out deadLine);
+            
+            
+
+            if (startDateIsValid)
+            {
+                var task = new Infrastructure.Data.Models.Task()
+                {
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    DeadLine = deadLine,
+                    CreatorId = userId,
+                    Description = model.Description,
+                    Name = model.Name,
+                    PriorityId = model.PriorityId,
+                    TaskStatusId = model.StatusId,
+                    ProjectId = model.ProjectId
+                };
+
+                await _context.AddAsync(task);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<bool> TaskStatusExistsAsync(int statusId)
+        {
+            return await _context.TaskStatusEnumerable.AnyAsync(s => s.Id == statusId);
+        }
+
+        public async Task<bool> PriorityExistsAsync(int priorityId)
+        {
+            return await _context.Priorities.AnyAsync(p => p.Id == priorityId);
         }
     }
 }

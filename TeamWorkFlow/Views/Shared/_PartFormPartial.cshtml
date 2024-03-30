@@ -1,0 +1,57 @@
+﻿@model PartFormModel
+
+<div class="row">
+    <div class="col-sm-12 offset-lg-2 col-lg-8 offset-xl-3 col-xl-6">
+        <form method="post">
+            <div class="form-group">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control" placeholder="Name...">
+                <span asp-validation-for="Name" class="small text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PartArticleNumber"></label>
+                <input asp-for="PartArticleNumber" class="form-control" placeholder="Part article number...">
+                <span asp-validation-for="PartArticleNumber" class="small text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PartClientNumber"></label>
+                <input asp-for="PartClientNumber" class="form-control" placeholder="Part client number...">
+                <span asp-validation-for="PartClientNumber" class="small text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ImageUrl"></label>
+                <input asp-for="ImageUrl" class="form-control" placeholder="Picture of your part...">
+                <span asp-validation-for="ImageUrl" class="small text-danger"></span>
+            </div>
+            <div class="form-group">
+	            <label asp-for="ToolNumber"></label>
+	            <input asp-for="ToolNumber" class="form-control" placeholder="Part tool number...">
+	            <span asp-validation-for="ToolNumber" class="small text-danger"></span>
+            </div>
+            <div class="form-group">
+	            <label asp-for="PartModel"></label>
+	            <input asp-for="PartModel" class="form-control" placeholder="Part 3D model...">
+	            <span asp-validation-for="PartModel" class="small text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProjectNumber"></label>
+                <input asp-for="ProjectNumber" class="form-control" placeholder="Project number that the part is from...">
+                <span asp-validation-for="ProjectNumber" class="small text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PartStatusId"></label>
+                <select asp-for="PartStatusId" class="form-control">
+                    @foreach (var category in Model.Statuses)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="PartStatusId" class="small text-danger"></span>
+            </div>
+
+            <div class="text-center">
+                <input class="btn btn-primary mt-3" type="submit" value="Save" />
+            </div>
+        </form>
+    </div>
+</div>

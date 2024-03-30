@@ -28,6 +28,8 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public string PartClientNumber { get; set; } = string.Empty;
 
         [Required]
+        [Range(DataConstants.PartToolNumberMinValue, 
+            DataConstants.PartToolNumberMaxValue)]
         [Comment("Part tool number")]
         public int ToolNumber { get; set; }
 
@@ -43,9 +45,13 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
 
         [Required]
         public Project Project { get; set; } = null!;
-        
+
+        [Required]
+        [MaxLength(DataConstants.PartImageUrlMaxLength)]
         public string ImageUrl { get; set; } = string.Empty;
 
+        [Required]
+        [MaxLength(DataConstants.PartModelMaxLength)]
         public string PartModel { get; set; } = string.Empty;
     }
 }

@@ -9,11 +9,16 @@
 <div class="row">
     <div class="col-sm-12 offset-lg-2 col-lg-8 offset-xl-3 col-xl-6">
         <form asp-action="Add" method="post">
-            <div class="mb-3">
-                <label asp-for="@Model.ProjectNumber" class="form-label-add-edit">ProjectNumber</label>
-                <input asp-for="@Model.ProjectNumber" class="form-control" aria-required="true" />
-                <span asp-validation-for="@Model.ProjectNumber" class="text-danger"></span>
-            </div>
+	        <div class="mb-3">
+		        <label asp-for="@Model.ProjectNumber" class="form-label-add-edit">ProjectNumber</label>
+		        <input asp-for="@Model.ProjectNumber" class="form-control" aria-required="true" />
+		        <span asp-validation-for="@Model.ProjectNumber" class="text-danger"></span>
+	        </div>
+	        <div class="mb-3">
+		        <label asp-for="@Model.ProjectId" class="form-label-add-edit">ProjectId</label>
+                <input asp-for="@Model.ProjectId" class="form-control" aria-required="true" />
+                <span asp-validation-for="@Model.ProjectId" class="text-danger"></span>
+	        </div>
             <div class="mb-3">
                 <label asp-for="@Model.Name" class="form-label-add-edit">Task Name</label>
                 <input asp-for="@Model.Name" class="form-control" aria-required="true" />
@@ -25,20 +30,20 @@
                 <span asp-validation-for="@Model.Description" class="text-danger"></span>
             </div>
             <div class="mb-3">
-                <label asp-for="@Model.Deadline" class="form-label-add-edit">Task Deadline</label>
-                <input asp-for="@Model.Deadline" class="form-control" aria-required="true" placeholder="@Messages.DateFormat" />
-                <span asp-validation-for="@Model.Deadline" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
 	            <label asp-for="@Model.StartDate" class="form-label-add-edit">Task creation date</label>
-	            <input asp-for="@Model.StartDate" class="form-control" placeholder="30-180 min" />
+                <input asp-for="@Model.StartDate" class="form-control" placeholder="@Messages.DateFormat" />
 	            <span asp-validation-for="@Model.StartDate" class="text-danger"></span>
             </div>
-            <div class="mb-3">
-                <label asp-for="@Model.EndDate" class="form-label-add-edit">Task finish date</label>
-                <input asp-for="@Model.EndDate" class="form-control" placeholder="30-180 min" />
-                <span asp-validation-for="@Model.EndDate" class="text-danger"></span>
-            </div>
+	        <div class="mb-3">
+		        <label asp-for="@Model.EndDate" class="form-label-add-edit">Task finish date</label>
+				<input asp-for="@Model.EndDate" class="form-control" placeholder="@Messages.DateFormat" />
+		        <span asp-validation-for="@Model.EndDate" class="text-danger"></span>
+	        </div>
+	        <div class="mb-3">
+		        <label asp-for="@Model.Deadline" class="form-label-add-edit">Task Deadline</label>
+		        <input asp-for="@Model.Deadline" class="form-control" placeholder="@Messages.DateFormat" />
+		        <span asp-validation-for="@Model.Deadline" class="text-danger"></span>
+	        </div>
             <div class="mb-3">
 	            <label asp-for="@Model.PriorityId" class="form-label-add-edit">Select task priority</label>
 	            <select asp-for="@Model.PriorityId" class="form-control" aria-required="true">

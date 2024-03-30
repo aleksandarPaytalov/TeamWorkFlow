@@ -25,10 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\Machine\" />
     <Folder Include="Views\Project\" />
-    <Folder Include="Views\Operator\" />
-    <Folder Include="Views\Part\" />
   </ItemGroup>
 
 </Project>
