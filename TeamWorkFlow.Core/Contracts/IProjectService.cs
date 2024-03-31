@@ -2,5 +2,7 @@
 {
 	public interface IProjectService
 	{
-	}
+        Task<bool> ExistByProjectNumberAsync(string projectNumber);
+        Task<int?> GetProjectIdAsync(string projectNumber);
+    }
 }

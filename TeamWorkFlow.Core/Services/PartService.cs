@@ -18,11 +18,11 @@ namespace TeamWorkFlow.Core.Services
 
 
         public async Task<PartQueryServiceModel> AllAsync(
-            int partsPerPage = 1, 
-            int currentPage = 1, 
             PartSorting sorting = PartSorting.LastAdded,
             string? search = null, 
-            string? status = null)
+            string? status = null,
+            int partsPerPage = 1,
+            int currentPage = 1)
         {
             var partsToBeDisplayed = _repository.AllReadOnly<Part>();
 
@@ -95,6 +95,30 @@ namespace TeamWorkFlow.Core.Services
                 .ToListAsync();
         }
 
-        
+        public async Task<bool> StatusExistAsync(int statusId)
+        {
+            return await _repository.AllReadOnly<PartStatus>()
+                .AnyAsync(ps => ps.Id == statusId);
+        }
+
+        public async Task<int> AddNewPartAsync(PartFormModel model, int projectId)
+        {
+            var partToCreate = new Part()
+            {
+                Name = model.Name,
+                PartArticleNumber = model.PartArticleNumber,
+                PartClientNumber = model.PartClientNumber,
+                PartModel = model.PartModel,
+                PartStatusId = model.PartStatusId,
+                ImageUrl = model.ImageUrl,
+                ToolNumber = model.ToolNumber,
+                ProjectId = projectId
+            };
+
+            await _repository.AddAsync(partToCreate);
+            await _repository.SaveChangesAsync();
+
+            return partToCreate.Id;
+        }
     }
 }

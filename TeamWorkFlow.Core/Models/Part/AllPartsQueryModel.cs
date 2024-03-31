@@ -7,14 +7,14 @@ namespace TeamWorkFlow.Core.Models.Part
     {
         public int PartsPerPage { get; } = 6;
 
-        public string Status { get; set; } = string.Empty;
+        public string Status { get; init; } = string.Empty;
 
         [Display(Name = "Search by part name")]
-        public string Search { get; set; } = string.Empty;
+        public string Search { get; init; } = string.Empty;
 
         public PartSorting Sorting { get; init; }
         
-        public int CurrentPage { get; set; } = 1;
+        public int CurrentPage { get; init; } = 1;
 
         public int TotalPartsCount { get; set; }
 
