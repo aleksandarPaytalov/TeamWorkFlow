@@ -20,5 +20,14 @@ namespace TeamWorkFlow.Core.Contracts
         Task<bool> StatusExistAsync(int statusId);
 
         Task<int> AddNewPartAsync(PartFormModel model, int projectId);
+
+        Task<PartDetailsServiceModel> PartDetailsByIdAsync(int partId);
+
+        Task<bool> PartExistAsync(int partId);
+
+        Task<PartFormModel?> GetPartFormModelForEditAsync(int partId);
+
+        Task EditAsync(int partId, PartFormModel model, int projectId, int statusId);
+
     }
 }

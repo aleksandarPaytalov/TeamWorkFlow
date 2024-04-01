@@ -2,11 +2,10 @@
 using TeamWorkFlow.Core.Constants;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Models.Part;
-using TeamWorkFlow.Infrastructure.Data.Models;
 
 namespace TeamWorkFlow.Controllers
 {
-    public class PartController : BaseController
+	public class PartController : BaseController
     {
         private readonly IPartService _partService;
         private readonly IProjectService _projectService;
@@ -69,22 +68,85 @@ namespace TeamWorkFlow.Controllers
             }
 
 
-            int? projectId = await _projectService.GetProjectIdAsync(model.ProjectNumber);
-            int newPartId = await _partService.AddNewPartAsync(model, projectId ?? 0);
+            int? projectId = await _projectService.GetProjectIdByProjectNumberAsync(model.ProjectNumber);
+            int validProjectId = projectId ?? -1;
 
-            return RedirectToAction(nameof(All), new {id = newPartId});
+            if (validProjectId == -1)
+            {
+	            ModelState.AddModelError(nameof(model.ProjectNumber), $"{Messages.ProjectWithGivenNumberDoNotExist}");
+            }
+
+            int newPartId = await _partService.AddNewPartAsync(model, validProjectId);
+
+			return RedirectToAction(nameof(All), new {id = newPartId});
         }
 
-        public IActionResult Details()
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
         {
-            return View();
+            if (!await _partService.PartExistAsync(id))
+            {
+                return BadRequest();
+            }
+
+            var partModel = await _partService.PartDetailsByIdAsync(id);
+
+            return View(partModel);
         }
 
-        public IActionResult Edit()
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
         {
-            return View();
+            if (!await _partService.PartExistAsync(id))
+            {
+                return BadRequest();
+            }
+
+            var model = await _partService.GetPartFormModelForEditAsync(id);
+
+            return View(model);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Edit(int id, PartFormModel model)
+        {
+	        if (!await _partService.PartExistAsync(id))
+	        {
+		        return BadRequest();
+	        }
+
+	        if (!await _partService.StatusExistAsync(model.PartStatusId))
+	        {
+                ModelState.AddModelError(nameof(model.PartStatusId), $"{Messages.PartStatusNotExisting}");
+	        }
+
+	        if (!await _projectService.ExistByProjectNumberAsync(model.ProjectNumber))
+	        {
+		        ModelState.AddModelError(nameof(model.ProjectNumber), $"{Messages.ProjectWithGivenNumberDoNotExist}");
+			}
+
+	        if (ModelState.IsValid == false)
+	        {
+		        model.Statuses = await _partService.AllStatusesAsync();
+
+		        return View(model);
+	        }
+
+			int? projectId = await _projectService.GetProjectIdByProjectNumberAsync(model.ProjectNumber);
+			int validProjectId = projectId ?? -1;
+
+			if (validProjectId == -1)
+			{
+				ModelState.AddModelError(nameof(model.ProjectNumber), $"{Messages.ProjectWithGivenNumberDoNotExist}");
+			}
+
+			int statusId = model.PartStatusId;
+
+	        await _partService.EditAsync(id, model, validProjectId, statusId);
+
+	        return RedirectToAction(nameof(Details), new {id});
+        }
+		[HttpPost]
         public IActionResult Delete()
         {
             return View();

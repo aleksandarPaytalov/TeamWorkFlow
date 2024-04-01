@@ -21,10 +21,12 @@ namespace TeamWorkFlow.Core.Services
                 .AnyAsync(p => p.ProjectNumber == projectNumber);
         }
 
-        public async Task<int?> GetProjectIdAsync(string projectNumber)
+        public async Task<int?> GetProjectIdByProjectNumberAsync(string projectNumber)
         {
-            return (await _repository.AllReadOnly<Project>()
-                .FirstOrDefaultAsync(p => p.ProjectNumber.ToLower() == projectNumber.ToLower()))?.Id;
+	        var projectId = (await _repository.AllReadOnly<Project>()
+		        .FirstOrDefaultAsync(p => p.ProjectNumber == projectNumber))?.Id;
+
+		        return projectId;
         }
     }
 }

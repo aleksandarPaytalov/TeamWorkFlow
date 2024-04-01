@@ -41,16 +41,16 @@
             <div class="form-group">
                 <label asp-for="PartStatusId"></label>
                 <select asp-for="PartStatusId" class="form-control">
-                    @foreach (var category in Model.Statuses)
+                    @foreach (var status in Model.Statuses)
                     {
-                        <option value="@category.Id">@category.Name</option>
+                        <option value="@status.Id">@status.Name</option>
                     }
                 </select>
                 <span asp-validation-for="PartStatusId" class="small text-danger"></span>
             </div>
 
             <div class="text-center">
-                <input class="btn btn-primary mt-3" type="submit" value="Add" />
+                <input class="btn btn-primary mt-3" type="submit" value="Apply" />
             </div>
         </form>
     </div>

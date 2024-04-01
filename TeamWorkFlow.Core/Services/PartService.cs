@@ -4,6 +4,7 @@ using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Part;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
+using Task = System.Threading.Tasks.Task;
 
 namespace TeamWorkFlow.Core.Services
 {
@@ -120,5 +121,74 @@ namespace TeamWorkFlow.Core.Services
 
             return partToCreate.Id;
         }
+
+        public async Task<PartDetailsServiceModel> PartDetailsByIdAsync(int partId)
+        {
+            return await _repository.AllReadOnly<Part>()
+                .Where(p => p.Id == partId)
+                .Select(p => new PartDetailsServiceModel()
+                {
+                    Id = p.Id,
+                    ImageUrl = p.ImageUrl,
+                    Name = p.Name,
+                    PartArticleNumber = p.PartArticleNumber,
+                    PartClientNumber = p.PartClientNumber,
+                    PartModel = p.PartModel,
+                    ProjectNumber = p.Project.ProjectNumber,
+                    ToolNumber = p.ToolNumber,
+                    Status = p.PartStatus.Name
+                    })
+                .FirstAsync();
+        }
+
+        public async Task<bool> PartExistAsync(int partId)
+        {
+            return await _repository.AllReadOnly<Part>()
+                .AnyAsync(p => p.Id == partId);
+        }
+
+        public async Task<PartFormModel?> GetPartFormModelForEditAsync(int partId)
+        {
+            var modelForEdit = await _repository.AllReadOnly<Part>()
+                .Where(p => p.Id == partId)
+                .Select(p => new PartFormModel()
+                {
+                    Name = p.Name,
+                    ImageUrl = p.ImageUrl,
+                    PartArticleNumber = p.PartArticleNumber,
+                    PartClientNumber = p.PartClientNumber,
+                    ProjectNumber = p.Project.ProjectNumber,
+                    PartModel = p.PartModel,
+                    ToolNumber = p.ToolNumber
+                })
+                .FirstOrDefaultAsync();
+
+            if (modelForEdit != null)
+            {
+                modelForEdit.Statuses = await AllStatusesAsync();
+            }
+
+            return modelForEdit;
+        }
+
+        public async Task EditAsync(int partId, PartFormModel model, int projectId, int statusId)
+        {
+	        var partForEdit = await _repository.GetByIdAsync<Part>(partId);
+
+	        if (partForEdit != null)
+	        {
+		        partForEdit.Name = model.Name;
+		        partForEdit.ImageUrl = model.ImageUrl;
+		        partForEdit.PartArticleNumber = model.PartArticleNumber;
+		        partForEdit.PartClientNumber = model.PartClientNumber;
+		        partForEdit.PartModel = model.PartModel;
+		        partForEdit.ToolNumber = model.ToolNumber;
+		        partForEdit.ProjectId = projectId;
+		        //partForEdit.PartStatus.Id = statusId;
+
+				await _repository.SaveChangesAsync();
+	        }
+        }
+
     }
 }

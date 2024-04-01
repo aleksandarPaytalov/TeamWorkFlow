@@ -14,7 +14,7 @@
 
         public const string StringNumberRange = "The field {0}, must be a number between {1} and {2}.";
 
-        public const string PartStatusNotExisting = "Part status does not exist";
+        public const string PartStatusNotExisting = "Selected part status does not exist";
 
         public const string ProjectWithGivenNumberDoNotExist = "Project with this number do not exist";
     }
