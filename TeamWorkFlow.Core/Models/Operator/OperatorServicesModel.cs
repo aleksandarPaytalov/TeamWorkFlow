@@ -26,6 +26,7 @@ namespace TeamWorkFlow.Core.Models.Operator
 		[StringLength(DataConstants.OperatorPhoneMaxLength,
 			MinimumLength = DataConstants.OperatorPhoneMinLength,
 			ErrorMessage = Messages.StringLength)]
+		[Phone]
 		[Comment("Operator phoneNumber")]
 		public string PhoneNumber { get; set; } = string.Empty;
 

@@ -1,5 +1,37 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model PartDetailsServiceModel
+
 @{
+	ViewBag.Title = "Part Details";
 }
+
+<h2 class="text-center">@ViewBag.Title</h2>
+<hr />
+
+<div class="container">
+	<div class="row">
+		<div class="col-lg-4 order-lg-2 mb-3 mb-lg-0">
+			<img class="card-img-top w-250" src="@Model.ImageUrl" alt="Part Image">
+		</div>
+		<div class="col-lg-8 order-lg-1">
+			<div class="card border-0">
+				<div class="card-body">
+					<p style="font-size: 20px;"><u>@Model.Name</u></p>
+					<p>Project Number: <b>@Model.ProjectNumber</b></p>
+					<p>Part art. No.: @Model.PartArticleNumber</p>
+					<p>Client. No.: @Model.PartClientNumber</p>
+					<p>Status: <b>@Model.Status</b></p>
+                   
+					<div class="form-inline">
+						@if (this.User?.Identity?.IsAuthenticated ?? false)
+						{
+							<a class="btn btn-warning" asp-controller="Part" asp-action="Edit"
+							   asp-route-id="@Model.Id">Edit</a>
+							<a class="ml-2 btn btn-danger" asp-controller="Part" asp-action="Delete"
+							   asp-route-id="@Model.Id">Delete</a>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
