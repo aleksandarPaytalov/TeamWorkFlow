@@ -29,5 +29,8 @@ namespace TeamWorkFlow.Core.Contracts
 
         Task EditAsync(int partId, PartFormModel model, int projectId, int statusId);
 
+        Task<PartDeleteServiceModel?> GetPartForDeletingByIdAsync(int partId);
+
+        Task DeletePartByIdAsync(int partId);
     }
 }

@@ -186,10 +186,37 @@ namespace TeamWorkFlow.Core.Services
 		        partForEdit.ProjectId = projectId;
 		        partForEdit.PartStatusId = model.PartStatusId;
 
-
 				await _repository.SaveChangesAsync();
 	        }
         }
 
+        public async Task<PartDeleteServiceModel?> GetPartForDeletingByIdAsync(int partId)
+        {
+            var partForDelete = await _repository.AllReadOnly<Part>()
+                .Where(p => p.Id == partId)
+                .Select(p => new PartDeleteServiceModel()
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    PartNumber = p.PartArticleNumber,
+                    ProjectNumber = p.Project.ProjectNumber
+                })
+                .FirstOrDefaultAsync();
+
+            return partForDelete;
+        }
+
+        public async Task DeletePartByIdAsync(int partId)
+        {
+	        var partToDelete = await _repository.AllReadOnly<Part>()
+		        .Where(p => p.Id == partId)
+		        .FirstOrDefaultAsync();
+
+	        if (partToDelete != null)
+	        {
+		        await _repository.DeleteAsync<Part>(partId);
+		        await _repository.SaveChangesAsync();
+	        }
+        }
     }
 }
