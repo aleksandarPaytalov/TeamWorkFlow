@@ -184,7 +184,8 @@ namespace TeamWorkFlow.Core.Services
 		        partForEdit.PartModel = model.PartModel;
 		        partForEdit.ToolNumber = model.ToolNumber;
 		        partForEdit.ProjectId = projectId;
-		        //partForEdit.PartStatus.Id = statusId;
+		        partForEdit.PartStatusId = model.PartStatusId;
+
 
 				await _repository.SaveChangesAsync();
 	        }
