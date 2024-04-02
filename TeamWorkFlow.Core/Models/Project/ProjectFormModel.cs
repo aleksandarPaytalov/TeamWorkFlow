@@ -35,6 +35,9 @@ namespace TeamWorkFlow.Core.Models.Project
         public string? Appliance { get; set; }
 
         [Required(ErrorMessage = RequiredMessage)]
+        [Range(ProjectTotalHoursMinValue, 
+	        ProjectTotalHoursMaxValue, 
+	        ErrorMessage = StringNumberRange)]
         public int TotalHoursSpent { get; set; }
     }
 }

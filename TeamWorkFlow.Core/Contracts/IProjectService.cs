@@ -8,6 +8,9 @@ namespace TeamWorkFlow.Core.Contracts
         Task<int?> GetProjectIdByProjectNumberAsync(string projectNumber);
         Task<IEnumerable<ProjectServiceModel>> GetAllProjectsAsync();
         Task<IEnumerable<ProjectStatusServiceModel>> GetAllProjectStatusesAsync();
+        Task<int> AddNewProjectsAsync(ProjectFormModel model);
+
+        Task<bool> ProjectStatusExistAsync(int statusId);
 
 	}
 }

@@ -77,7 +77,7 @@ namespace TeamWorkFlow.Core.Services
             };
         }
 
-        public async  Task<IEnumerable<string>> AllStatusNamesAsync()
+        public async Task<IEnumerable<string>> AllStatusNamesAsync()
         {
             return await _repository.AllReadOnly<PartStatus>()
                 .Select(ps => ps.Name)

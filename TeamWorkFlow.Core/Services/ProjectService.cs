@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Headers;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Models.Project;
 using TeamWorkFlow.Infrastructure.Common;
@@ -7,7 +6,7 @@ using TeamWorkFlow.Infrastructure.Data.Models;
 
 namespace TeamWorkFlow.Core.Services
 {
-    public class ProjectService : IProjectService
+	public class ProjectService : IProjectService
 	{
         private readonly IRepository _repository;
 
@@ -54,6 +53,32 @@ namespace TeamWorkFlow.Core.Services
 			        Name = ps.Name
 		        })
 		        .ToListAsync();
+        }
+
+        public async Task<int> AddNewProjectsAsync(ProjectFormModel model)
+        {
+	        Project projectToAdd = new Project()
+	        {
+		        ProjectName = model.ProjectName,
+		        ProjectNumber = model.ProjectNumber,
+		        ProjectStatusId = model.ProjectStatusId,
+		        TotalHoursSpent = model.TotalHoursSpent,
+		        Appliance = model.Appliance,
+		        ClientName = model.ClientName
+	        };
+
+	        await _repository.AddAsync(projectToAdd);
+	        await _repository.SaveChangesAsync();
+
+	        return projectToAdd.Id;
+        }
+
+        public async Task<bool> ProjectStatusExistAsync(int statusId)
+        {
+	        bool exist = await _repository.AllReadOnly<ProjectStatus>()
+		        .AnyAsync(ps => ps.Id == statusId);
+
+	        return exist;
         }
 	}
 }

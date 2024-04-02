@@ -92,10 +92,13 @@
         public const int ProjectApplianceMinLength = 2;
         public const int ProjectApplianceMaxLength = 100;
 
-        /// <summary>
-        /// ProjectStatus DataConstants
-        /// </summary>
-        public const int ProjectStatusNameMinLength = 5;
+        public const int ProjectTotalHoursMinValue = 0;
+        public const int ProjectTotalHoursMaxValue = 5000;
+
+		/// <summary>
+		/// ProjectStatus DataConstants
+		/// </summary>
+		public const int ProjectStatusNameMinLength = 5;
         public const int ProjectStatusNameMaxLength = 30;
 
         /// <summary>
