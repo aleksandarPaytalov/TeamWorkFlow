@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Models.Project;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
 
@@ -28,5 +29,19 @@ namespace TeamWorkFlow.Core.Services
 
 		        return projectId;
         }
-    }
+
+        public async Task<IEnumerable<ProjectServiceModel>> GetAllProjectsAsync()
+        {
+	        return await _repository.AllReadOnly<Project>()
+		        .Select(p => new ProjectServiceModel()
+		        {
+			        Id = p.Id,
+			        ProjectName = p.ProjectName,
+			        ProjectNumber = p.ProjectNumber,
+			        Status = p.ProjectStatus.Name,
+			        TotalParts = p.Parts.Count
+		        })
+		        .ToListAsync();
+        }
+	}
 }
