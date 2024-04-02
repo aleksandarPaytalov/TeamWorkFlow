@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Models.Project;
 
 namespace TeamWorkFlow.Controllers
 {
@@ -20,10 +21,15 @@ namespace TeamWorkFlow.Controllers
             return View(projectsToDisplay);
         }
 
-
-	    public IActionResult Add()
+		[HttpGet]
+	    public async Task<IActionResult> Add()
 	    {
-		    return View();
+		    var model = new ProjectFormModel()
+		    {
+			    ProjectStatuses = await _projectService.GetAllProjectStatusesAsync()
+		    };
+
+		    return View(model);
 	    }
 
 	    public IActionResult Edit()

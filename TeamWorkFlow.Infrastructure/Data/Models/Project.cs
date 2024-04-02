@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
-using TeamWorkFlow.Infrastructure.Constants;
+using static TeamWorkFlow.Infrastructure.Constants.DataConstants;
 
 namespace TeamWorkFlow.Infrastructure.Data.Models
 {
@@ -13,12 +13,12 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(DataConstants.ProjectNumberMaxLength)]
+        [MaxLength(ProjectNumberMaxLength)]
         [Comment("Project number")]
         public string ProjectNumber { get; set; } = string.Empty;
 
         [Required]
-        [MaxLength(DataConstants.ProjectNameMaxLength)]
+        [MaxLength(ProjectNameMaxLength)]
         [Comment("Project name")]
         public string ProjectName { get; set; } = string.Empty;
 
@@ -30,11 +30,11 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         [Required]
         public ProjectStatus ProjectStatus { get; set; } = null!;
 
-        [MaxLength(DataConstants.ProjectClientNameMaxLength)]
+        [MaxLength(ProjectClientNameMaxLength)]
         [Comment("Client name")]
         public string? ClientName { get; set; }
 
-        [MaxLength(DataConstants.ProjectApplianceMaxLength)]
+        [MaxLength(ProjectApplianceMaxLength)]
         [Comment("Project appliance sector")]
         public string? Appliance { get; set; }
 
