@@ -1,17 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using TeamWorkFlow.Core.Constants;
-using TeamWorkFlow.Infrastructure.Constants;
+using static TeamWorkFlow.Core.Constants.Messages;
+using static TeamWorkFlow.Infrastructure.Constants.DataConstants;
 
 namespace TeamWorkFlow.Core.Models.Project
 {
-	public class ProjectStatusServiceModel
+    public class ProjectStatusServiceModel
 	{
 		public int Id { get; set; }
 
-		[Required(ErrorMessage = Messages.RequiredMessage)]
-		[StringLength(DataConstants.ProjectStatusNameMaxLength,
-			MinimumLength = DataConstants.ProjectStatusNameMinLength,
-			ErrorMessage = Messages.StringLength)]
+		[Required(ErrorMessage = RequiredMessage)]
+		[StringLength(ProjectStatusNameMaxLength,
+			MinimumLength = ProjectStatusNameMinLength,
+			ErrorMessage = StringLength)]
 		public string Name { get; set; } = string.Empty;
 	}
 }

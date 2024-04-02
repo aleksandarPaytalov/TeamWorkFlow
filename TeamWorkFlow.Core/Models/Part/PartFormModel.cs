@@ -1,33 +1,33 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using TeamWorkFlow.Core.Constants;
-using TeamWorkFlow.Infrastructure.Constants;
+using static TeamWorkFlow.Core.Constants.Messages;
+using static TeamWorkFlow.Infrastructure.Constants.DataConstants;
 
 namespace TeamWorkFlow.Core.Models.Part
 {
     public class PartFormModel
     {
-        [Required(ErrorMessage = Messages.RequiredMessage)]
-        [StringLength(DataConstants.PartNameMaxLength,
-            MinimumLength = DataConstants.PartNameMinLength,
-            ErrorMessage = Messages.StringLength)]
+        [Required(ErrorMessage = RequiredMessage)]
+        [StringLength(PartNameMaxLength,
+            MinimumLength = PartNameMinLength,
+            ErrorMessage = StringLength)]
         public string Name { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = Messages.RequiredMessage)]
-        [StringLength(DataConstants.PartArticleNumberMaxLength,
-            MinimumLength = DataConstants.PartArticleNumberMinLength,
-            ErrorMessage = Messages.StringLength)]
+        [Required(ErrorMessage = RequiredMessage)]
+        [StringLength(PartArticleNumberMaxLength,
+            MinimumLength = PartArticleNumberMinLength,
+            ErrorMessage = StringLength)]
         public string PartArticleNumber { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = Messages.RequiredMessage)]
-        [StringLength(DataConstants.PartClientNumberMaxLength,
-            MinimumLength = DataConstants.PartClientNumberMinLength,
-            ErrorMessage = Messages.StringLength)]
+        [Required(ErrorMessage = RequiredMessage)]
+        [StringLength(PartClientNumberMaxLength,
+            MinimumLength = PartClientNumberMinLength,
+            ErrorMessage = StringLength)]
         public string PartClientNumber { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = Messages.RequiredMessage)]
-        [Range(DataConstants.PartToolNumberMinValue, 
-            DataConstants.PartToolNumberMaxValue, 
-            ErrorMessage = Messages.StringNumberRange)]
+        [Required(ErrorMessage = RequiredMessage)]
+        [Range(PartToolNumberMinValue, 
+            PartToolNumberMaxValue, 
+            ErrorMessage = StringNumberRange)]
         public int ToolNumber { get; set; }
 
         public int PartStatusId { get; set; }
@@ -35,23 +35,22 @@ namespace TeamWorkFlow.Core.Models.Part
         public IEnumerable<PartStatusServiceModel> Statuses { get; set; } = 
             new List<PartStatusServiceModel>();
 
-        [Required(ErrorMessage = Messages.RequiredMessage)]
-        [StringLength(DataConstants.PartImageUrlMaxLength,
-            MinimumLength = DataConstants.PartImageUrlMinLength,
-            ErrorMessage = Messages.StringLength)]
+        [Required(ErrorMessage = RequiredMessage)]
+        [StringLength(PartImageUrlMaxLength,
+            MinimumLength = PartImageUrlMinLength,
+            ErrorMessage = StringLength)]
         public string ImageUrl { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = Messages.RequiredMessage)]
-        [StringLength(DataConstants.PartModelMaxLength,
-            MinimumLength = DataConstants.PartModelMinLength,
-            ErrorMessage = Messages.StringLength)]
+        [Required(ErrorMessage = RequiredMessage)]
+        [StringLength(PartModelMaxLength,
+            MinimumLength = PartModelMinLength,
+            ErrorMessage = StringLength)]
         public string PartModel { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = Messages.RequiredMessage)]
-        [StringLength(DataConstants.ProjectNumberMaxLength,
-            MinimumLength = DataConstants.ProjectNumberMinLength,
-            ErrorMessage = Messages.StringLength)]
+        [Required(ErrorMessage = RequiredMessage)]
+        [StringLength(ProjectNumberMaxLength,
+            MinimumLength = ProjectNumberMinLength,
+            ErrorMessage = StringLength)]
         public string ProjectNumber { get; set; } = string.Empty;
-
     }
 }
