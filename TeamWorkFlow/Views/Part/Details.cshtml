@@ -22,7 +22,7 @@
 					<p>Status: <b>@Model.Status</b></p>
                    
 					<div class="form-inline">
-						@if (this.User?.Identity?.IsAuthenticated ?? false)
+						@if (User?.Identity?.IsAuthenticated ?? false)
 						{
 							<a class="btn btn-warning" asp-controller="Part" asp-action="Edit"
 							   asp-route-id="@Model.Id">Edit</a>

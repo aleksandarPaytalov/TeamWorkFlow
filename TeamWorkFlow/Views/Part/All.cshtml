@@ -57,7 +57,7 @@
         previousPage = 1;
     }
 
-    var maxPage = Math.Ceiling((double)Model.TotalPartsCount / Model.PartsPerPage);
+    var maxPage = Math.Ceiling((decimal)Model.TotalPartsCount / (decimal)Model.PartsPerPage);
 }
 
 <div class="row mb-5">
@@ -96,6 +96,7 @@
 	}
 	else
 	{
-		<h2 class="text-center">No parts have been found!</h2>
+		<h2 class="text-center">No parts with these criteria have been found!</h2>
 	}
 </div>
+ 
