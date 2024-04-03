@@ -3,6 +3,7 @@ using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Models.Project;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
+using Task = System.Threading.Tasks.Task;
 
 namespace TeamWorkFlow.Core.Services
 {
@@ -79,6 +80,88 @@ namespace TeamWorkFlow.Core.Services
 		        .AnyAsync(ps => ps.Id == statusId);
 
 	        return exist;
+        }
+
+        public async Task<ProjectFormModel?> GetProjectForEditByIdAsync(int projectId)
+        {
+	        var projectForEdit = await _repository.AllReadOnly<Project>()
+		        .Where(p => p.Id == projectId)
+		        .Select(p => new ProjectFormModel()
+		        {
+					ProjectName = p.ProjectName,
+					ProjectNumber = p.ProjectNumber,
+					Appliance = p.Appliance,
+					ClientName = p.ClientName,
+					ProjectStatusId = p.ProjectStatusId,
+					TotalHoursSpent = p.TotalHoursSpent
+		        })
+		        .FirstOrDefaultAsync();
+
+	        if (projectForEdit != null)
+	        {
+		        projectForEdit.ProjectStatuses = await GetAllProjectStatusesAsync();
+	        }
+
+	        return projectForEdit;
+        }
+
+        public async Task EditProjectAsync(ProjectFormModel model, int projectId)
+        {
+	        var project = await _repository.GetByIdAsync<Project>(projectId);
+
+	        if (project != null)
+	        {
+		        project.ProjectName = model.ProjectName;
+		        project.ProjectNumber = model.ProjectNumber;
+		        project.ProjectStatusId = model.ProjectStatusId;
+		        project.Appliance = model.Appliance;
+		        project.ClientName = model.ClientName;
+		        project.TotalHoursSpent = model.TotalHoursSpent;
+
+		        await _repository.SaveChangesAsync();
+	        }
+        }
+
+        public async Task<bool> ProjectExistByIdAsync(int projectId)
+        {
+	        var exist = await _repository.AllReadOnly<Project>()
+		        .AnyAsync(p => p.Id == projectId);
+
+	        return exist;
+        }
+
+        public async Task<IEnumerable<int>> GetAllProjectIdsByProjectNumberAsync(string projectNumber)
+        {
+	        var projects = await _repository.AllReadOnly<Project>()
+		        .Where(p => p.ProjectNumber == projectNumber)
+		        .ToListAsync();
+			
+			List<int> identifiers = new List<int>();
+			foreach (var p in projects)
+			{
+				int id = p.Id;
+				identifiers.Add(id);
+			}
+
+			return identifiers;
+        }
+
+        public async Task<ProjectDetailsServiceModel?> GetProjectDetailsByIdAsync(int projectId)
+        {
+	        return await _repository.AllReadOnly<Project>()
+		        .Where(p => p.Id == projectId)
+		        .Select(p => new ProjectDetailsServiceModel()
+		        {
+			        Id = p.Id,
+			        ProjectName = p.ProjectName,
+			        ProjectNumber = p.ProjectNumber,
+			        Appliance = p.Appliance ?? string.Empty,
+			        ClientName = p.ClientName ?? string.Empty,
+			        Status = p.ProjectStatus.Name,
+			        TotalHoursSpent = p.TotalHoursSpent,
+			        TotalParts = p.Parts.Count
+		        })
+		        .FirstOrDefaultAsync();
         }
 	}
 }

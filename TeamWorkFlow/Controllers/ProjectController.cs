@@ -57,22 +57,76 @@ namespace TeamWorkFlow.Controllers
 				return View(model);
 		    }
 
-		    
-
 		    var projectId = await _projectService.AddNewProjectsAsync(model);
 
-		    //return RedirectToAction(nameof(All));
 		    return RedirectToAction(nameof(Details), new { id = projectId });
 	    }
 
-	    public IActionResult Edit()
+		[HttpGet]
+	    public async Task<IActionResult> Edit(int id)
 	    {
-		    return View();
+		    var projectModel = await _projectService.GetProjectForEditByIdAsync(id);
+
+		    if (!ModelState.IsValid)
+		    {
+			    return BadRequest();
+		    }
+
+			return View(projectModel);
+	    }
+	    
+		[HttpPost]
+	    public async Task<IActionResult> Edit(ProjectFormModel model, int id)
+	    {
+		    if (!await _projectService.ProjectExistByIdAsync(id))
+		    {
+			    return BadRequest();
+		    }
+		    
+			//checking if there is another projects with same ProjectNumber and different IDs.
+			var collectionOfProjectsId = await _projectService.GetAllProjectIdsByProjectNumberAsync(model.ProjectNumber);
+
+			foreach (var pId in collectionOfProjectsId)
+			{
+				if (pId != id)
+				{
+					ModelState.AddModelError(nameof(model.ProjectNumber), $"{ProjectWithThisNumberAlreadyCreated}");
+				}
+			}
+			
+		    if (!await _projectService.ProjectStatusExistAsync(model.ProjectStatusId))
+		    {
+			    ModelState.AddModelError(nameof(model.ProjectStatusId), $"{StatusNotExisting}");
+		    }
+
+		    if (model.TotalHoursSpent < 0)
+		    {
+			    ModelState.AddModelError(nameof(model.TotalHoursSpent), $"{StringNumberRange}");
+		    }
+
+		    if (!ModelState.IsValid)
+		    {
+			    model.ProjectStatuses = await _projectService.GetAllProjectStatusesAsync();
+
+			    return View(model);
+		    }
+
+		    await _projectService.EditProjectAsync(model, id);
+
+		    return RedirectToAction(nameof(All));
 	    }
 
-	    public IActionResult Details()
+		[HttpGet]
+	    public async Task<IActionResult> Details(int id)
 	    {
-		    return View();
+		    if (!await _projectService.ProjectExistByIdAsync(id))
+		    {
+			    return BadRequest();
+		    }
+
+		    var projectToShow = await _projectService.GetProjectDetailsByIdAsync(id);
+
+		    return View(projectToShow);
 		}
 
 	    public IActionResult Delete()

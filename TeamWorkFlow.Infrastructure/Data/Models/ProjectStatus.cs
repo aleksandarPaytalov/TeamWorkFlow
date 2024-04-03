@@ -15,7 +15,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         [MaxLength(DataConstants.ProjectStatusNameMaxLength)]
         [Comment("ProjectStatus name")]
         public string Name { get; set; } = string.Empty;
-
+        
         public ICollection<Project> Tasks { get; set; } = new List<Project>();
     }
 }
