@@ -15,6 +15,7 @@ namespace TeamWorkFlow.Core.Contracts
         Task<bool> ProjectExistByIdAsync(int projectId);
         Task<IEnumerable<int>> GetAllProjectIdsByProjectNumberAsync(string projectNumber);
         Task<ProjectDetailsServiceModel?> GetProjectDetailsByIdAsync(int projectId);
-
+        Task<ProjectDeleteServiceModel?> GetProjectForDeleteByIdAsync(int projectId);
+        Task ProjectDeleteAsync(int projectId);
 	}
 }

@@ -163,5 +163,29 @@ namespace TeamWorkFlow.Core.Services
 		        })
 		        .FirstOrDefaultAsync();
         }
+
+        public async Task<ProjectDeleteServiceModel?> GetProjectForDeleteByIdAsync(int projectId)
+        {
+	        return await _repository.AllReadOnly<Project>()
+		        .Where(p => p.Id == projectId)
+		        .Select(p => new ProjectDeleteServiceModel()
+		        {
+			        Id = p.Id,
+			        ProjectName = p.ProjectName,
+			        ProjectNumber = p.ProjectNumber
+		        })
+		        .FirstOrDefaultAsync();
+        }
+
+        public async Task ProjectDeleteAsync(int projectId)
+        {
+	        var project = await _repository.GetByIdAsync<Project>(projectId);
+
+	        if (project != null)
+	        {
+		        await _repository.DeleteAsync<Project>(project.Id);
+		        await _repository.SaveChangesAsync();
+	        }
+        }
 	}
 }

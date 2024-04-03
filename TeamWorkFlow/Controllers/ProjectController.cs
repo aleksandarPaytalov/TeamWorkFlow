@@ -129,9 +129,30 @@ namespace TeamWorkFlow.Controllers
 		    return View(projectToShow);
 		}
 
-	    public IActionResult Delete()
+		[HttpGet]
+	    public async Task<IActionResult> Delete(int id)
 	    {
-		    return View();
+		    if (!await _projectService.ProjectExistByIdAsync(id))
+		    {
+			    return BadRequest();
+		    }
+
+		    var model = await _projectService.GetProjectForDeleteByIdAsync(id);
+
+		    return View(model);
+	    }
+
+		[HttpPost]
+	    public async Task<IActionResult> Confirmation(int id)
+	    {
+		    if (!await _projectService.ProjectExistByIdAsync(id))
+		    {
+			    return BadRequest();
+		    }
+
+		    await _projectService.ProjectDeleteAsync(id);
+
+			return RedirectToAction(nameof(All));
 	    }
 	}
 }
