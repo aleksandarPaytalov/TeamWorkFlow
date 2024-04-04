@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
-using TeamWorkFlow.Core.Constants;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Models.Machine;
-using TeamWorkFlow.Infrastructure.Data.Models;
 
 namespace TeamWorkFlow.Controllers
 {

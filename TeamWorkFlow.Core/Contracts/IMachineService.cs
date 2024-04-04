@@ -6,7 +6,6 @@ namespace TeamWorkFlow.Core.Contracts
 	{
 		Task<ICollection<MachineViewModel>> GetAllMachinesAsync();
 		Task AddNewMachineAsync(MachineServiceModel model);
-
 		Task<MachineServiceModel?> GetMachineForEditAsync(int id);
 		Task EditMachineAsync(MachineServiceModel model, int id);
 	}
