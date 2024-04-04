@@ -1,11 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
-using TeamWorkFlow.Infrastructure.Constants;
+using static TeamWorkFlow.Infrastructure.Constants.DataConstants;
 
 namespace TeamWorkFlow.Infrastructure.Data.Models
 {
-    [Comment("Operator DB model")]
+	[Comment("Operator DB model")]
     public class Operator
     {
         [Key]
@@ -13,7 +13,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(DataConstants.OperatorFullNameMaxLength)]
+        [MaxLength(OperatorFullNameMaxLength)]
         [Comment("First and Last name of the operator")]
         public string FullName { get; set; } = string.Empty;
 
@@ -28,11 +28,11 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
 
         [Required]
         [EmailAddress]
-        [MaxLength(DataConstants.OperatorEmailMaxLength)]
+        [MaxLength(OperatorEmailMaxLength)]
         public string Email { get; set; } = null!;
 
         [Required]
-        [MaxLength(DataConstants.OperatorPhoneMaxLength)]
+        [MaxLength(OperatorPhoneMaxLength)]
         [Comment("Operator phoneNumber")]
         public string PhoneNumber { get; set; } = string.Empty;
 
@@ -41,7 +41,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public bool IsActive { get; set; }
 
         [Required]
-        [Range(DataConstants.OperatorMinCapacity, DataConstants.OperatorMaxCapacity)]
+        [Range(OperatorMinCapacity, OperatorMaxCapacity)]
         [Comment("Operator working capacity in hours per day/shift")]
         public int Capacity { get; set; }
         

@@ -65,13 +65,13 @@ namespace TeamWorkFlow.Controllers
 		[HttpGet]
 	    public async Task<IActionResult> Edit(int id)
 	    {
-		    var projectModel = await _projectService.GetProjectForEditByIdAsync(id);
-
 		    if (!ModelState.IsValid)
 		    {
 			    return BadRequest();
 		    }
 
+			var projectModel = await _projectService.GetProjectForEditByIdAsync(id);
+			
 			return View(projectModel);
 	    }
 	    

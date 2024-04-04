@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using TeamWorkFlow.Infrastructure.Constants;
+using static TeamWorkFlow.Infrastructure.Constants.DataConstants;
 
 namespace TeamWorkFlow.Infrastructure.Data.Models
 {
-    [Comment("Operator availability status db model")]
+	[Comment("Operator availability status db model")]
     public class OperatorAvailabilityStatus
     {
         [Key]
@@ -12,7 +12,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(DataConstants.AvailabilityStatusNameMaxLength)]
+        [MaxLength(AvailabilityStatusNameMaxLength)]
         [Comment("Availability status name")]
         public string Name { get; set; } = string.Empty;
 

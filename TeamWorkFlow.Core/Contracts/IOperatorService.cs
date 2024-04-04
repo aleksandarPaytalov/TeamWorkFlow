@@ -5,11 +5,14 @@ namespace TeamWorkFlow.Core.Contracts
 {
 	public interface IOperatorService
 	{
-		Task<ICollection<OperatorViewModel>> GetAllOperatorsAsync();
-		Task<ICollection<AvailabilityStatusViewModel>> GetAllStatusesAsync();
-		Task AddNewOperatorAsync(OperatorServicesModel model);
-		Task<OperatorServicesModel?> GetOperatorForEditAsync(int id);
+		Task<ICollection<OperatorServiceModel>> GetAllOperatorsAsync();
+		Task<ICollection<AvailabilityStatusServiceModel>> GetAllOperatorStatusesAsync();
+		Task AddNewOperatorAsync(OperatorFormModel model);
+		Task<OperatorFormModel?> GetOperatorForEditAsync(int id);
+		Task EditOperatorAsync(OperatorFormModel model, int id);
+		Task<bool> OperatorStatusExistAsync(int statusId);
+		Task<bool> OperatorExistByIdAsync(int operatorId);
+		Task<OperatorDetailsServiceModel> GetOperatorDetailsByIdAsync(int operatorId);
 
-		Task EditOperatorAsync(OperatorServicesModel model, int id);
 	}
 }

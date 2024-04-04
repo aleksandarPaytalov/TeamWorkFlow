@@ -1,12 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using TeamWorkFlow.Infrastructure.Constants;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using static TeamWorkFlow.Infrastructure.Constants.DataConstants;
 
 namespace TeamWorkFlow.Infrastructure.Data.Models
 {
-    [Comment("Task Db model")]
+	[Comment("Task Db model")]
     public class Task
     {
         [Key]
@@ -14,12 +14,12 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(DataConstants.TaskNameMaxLength)]
+        [MaxLength(TaskNameMaxLength)]
         [Comment("Task Name")]
         public string Name { get; set; } = string.Empty;
 
         [Required]
-        [MaxLength(DataConstants.TaskDescriptionMaxLength)]
+        [MaxLength(TaskDescriptionMaxLength)]
         [Comment("Task description")]
         public string Description { get; set; } = string.Empty;
 
@@ -47,7 +47,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public Priority Priority { get; set; } = null!;
 
         [Required]
-        [MaxLength(DataConstants.TaskCreatorIdMaxLength)]
+        [MaxLength(TaskCreatorIdMaxLength)]
         [Comment("Task creator identifier")]
         public string CreatorId { get; set; } = string.Empty;
 
@@ -61,11 +61,11 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         [Comment("Estimated time for the Task that is needed to be complete - in hours")]
         public int EstimatedTime { get; set; }
 
-        [MaxLength(DataConstants.TaskCommentMaxLength)]
+        [MaxLength(TaskCommentMaxLength)]
         [Comment("Comment for the current task")]
         public string? Comment { get; set; }
 
-        [MaxLength(DataConstants.TaskAttachmentsMaxLength)]
+        [MaxLength(TaskAttachmentsMaxLength)]
         [Comment("Task attachments - files, drawings, documents, etc.")]
         public  string? Attachment { get; set; }
 

@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using TeamWorkFlow.Infrastructure.Constants;
+using static TeamWorkFlow.Infrastructure.Constants.DataConstants;
+
 
 namespace TeamWorkFlow.Infrastructure.Data.Models
 {
-    [Comment("Priority data model")]
+	[Comment("Priority data model")]
     public class Priority
     {
         [Key]
@@ -12,7 +13,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(DataConstants.PriorityNameMaxLength)]
+        [MaxLength(PriorityNameMaxLength)]
         [Comment("Priority name")]
         public string Name { get; set; } = string.Empty;
 

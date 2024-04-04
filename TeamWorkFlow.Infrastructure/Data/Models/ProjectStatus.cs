@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using TeamWorkFlow.Infrastructure.Constants;
+using static TeamWorkFlow.Infrastructure.Constants.DataConstants;
 
 namespace TeamWorkFlow.Infrastructure.Data.Models
 {
-    [Comment("ProjectStatus data model")]
+	[Comment("ProjectStatus data model")]
     public class ProjectStatus
     {
         [Key]
@@ -12,7 +12,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(DataConstants.ProjectStatusNameMaxLength)]
+        [MaxLength(ProjectStatusNameMaxLength)]
         [Comment("ProjectStatus name")]
         public string Name { get; set; } = string.Empty;
         

@@ -20,11 +20,10 @@
 
         public const string CapacityRange = "Capacity must be value between {0} and {1}";
 
-        public const string CalibrationStatusException = "Incorrect input. It must be true or false.";
+        public const string BooleanInput = "Incorrect input. It must be true or false.";
 
         public const string InvalidIdInput = "Invalid Id.";
 
-        public const string BooleanInput = "The input for IsActive field must be true or false";
-
-	}
+        public const string OperatorWithIdDoNotExist = "Operator with Id do not exist";
+    }
 }

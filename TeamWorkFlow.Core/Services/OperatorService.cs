@@ -1,28 +1,27 @@
-﻿using System.Runtime.InteropServices;
-using Microsoft.EntityFrameworkCore;
-using TeamWorkFlow.Core.Constants;
+﻿using Microsoft.EntityFrameworkCore;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Models.Operator;
-using TeamWorkFlow.Infrastructure.Data;
+using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
+using static TeamWorkFlow.Core.Constants.Messages;
 using Task = System.Threading.Tasks.Task;
 
 namespace TeamWorkFlow.Core.Services
 {
 	public class OperatorService : IOperatorService
 	{
-		private readonly TeamWorkFlowDbContext _context;
+		private readonly IRepository _repository;
 
-		public OperatorService(TeamWorkFlowDbContext context)
+		public OperatorService(IRepository repository)
 		{
-			_context = context;
+			_repository = repository;
 		}
 
-		public async Task<ICollection<OperatorViewModel>> GetAllOperatorsAsync()
+
+		public async Task<ICollection<OperatorServiceModel>> GetAllOperatorsAsync()
 		{
-			 return await _context.Operators
-				.AsNoTracking()
-				.Select(o => new OperatorViewModel()
+			 return await _repository.AllReadOnly<Operator>()
+				.Select(o => new OperatorServiceModel()
 				{
 					Id = o.Id,
 					FullName = o.FullName,
@@ -35,10 +34,10 @@ namespace TeamWorkFlow.Core.Services
 				.ToListAsync();
 		}
 
-		public async Task<ICollection<AvailabilityStatusViewModel>> GetAllStatusesAsync()
+		public async Task<ICollection<AvailabilityStatusServiceModel>> GetAllOperatorStatusesAsync()
 		{
-			return await _context.OperatorAvailabilityStatusEnumerable
-				.Select(a => new AvailabilityStatusViewModel()
+			return await _repository.AllReadOnly<OperatorAvailabilityStatus>()
+				.Select(a => new AvailabilityStatusServiceModel()
 				{
 					Id = a.Id,
 					Name = a.Name
@@ -46,11 +45,10 @@ namespace TeamWorkFlow.Core.Services
 				.ToListAsync();
 		}
 
-		public async Task AddNewOperatorAsync(OperatorServicesModel model)
+		public async Task AddNewOperatorAsync(OperatorFormModel model)
 		{
 			if (bool.TryParse(model.IsActive, out bool isActive))
 			{
-				
 				var operatorModel = new Operator()
 				{
 					Id = model.Id,
@@ -62,53 +60,40 @@ namespace TeamWorkFlow.Core.Services
 					PhoneNumber = model.PhoneNumber
 				};
 
-				await _context.AddAsync(operatorModel);
-				await _context.SaveChangesAsync();
+				await _repository.AddAsync(operatorModel);
+				await _repository.SaveChangesAsync();
 			}
 			else
 			{
-				throw new ArgumentException("Invalid input. Must be true or false!");
+				throw new ArgumentException(string.Format(BooleanInput));
 			}
 		}
 
-		public async Task<OperatorServicesModel?> GetOperatorForEditAsync(int id)
+		public async Task<OperatorFormModel?> GetOperatorForEditAsync(int id)
 		{
-			var operatorModelForEditing = await _context.Operators
+			return await _repository.AllReadOnly<Operator>()
 				.Where(o => o.Id == id)
-				.FirstOrDefaultAsync();
-
-			if (operatorModelForEditing == null)
-			{
-				throw new ArgumentException($"{Messages.InvalidIdInput}");
-			}
-
-			var statusModels = await GetAllStatusesAsync();
-
-			return await _context.Operators
-				.Where(o => o.Id == id)
-				.Select(o => new OperatorServicesModel()
+				.Select(o => new OperatorFormModel()
 				{
 					FullName = o.FullName,
 					AvailabilityStatusId = o.AvailabilityStatusId,
 					Capacity = o.Capacity,
 					Email = o.Email,
 					IsActive = o.IsActive.ToString(),
-					PhoneNumber = o.PhoneNumber,
-					AvailabilityStatusModels = statusModels
-
+					PhoneNumber = o.PhoneNumber
 				})
 				.FirstOrDefaultAsync();
 		}
 
-		public async Task EditOperatorAsync(OperatorServicesModel model, int id)
+		public async Task EditOperatorAsync(OperatorFormModel model, int id)
         {
-            var operatorForEdit = await _context.Operators.FindAsync(id);
+            var operatorForEdit = await _repository.GetByIdAsync<Operator>(id);
 
             var isValid = bool.TryParse(model.IsActive, out var result);
 
             if (!isValid)
             {
-                throw new ArgumentException($"{Messages.BooleanInput}");
+                throw new ArgumentException($"{BooleanInput}");
             }
 
             if (operatorForEdit != null)
@@ -120,9 +105,27 @@ namespace TeamWorkFlow.Core.Services
                 operatorForEdit.AvailabilityStatusId = model.AvailabilityStatusId;
                 operatorForEdit.PhoneNumber = model.PhoneNumber;
 
-                await _context.SaveChangesAsync();
+                await _repository.SaveChangesAsync();
             }
         }
 
+		public async Task<bool> OperatorStatusExistAsync(int statusId)
+		{
+			 bool isValid = await _repository.AllReadOnly<OperatorAvailabilityStatus>()
+				.AnyAsync(os => os.Id == statusId);
+
+			 return isValid;
+		}
+
+		public async Task<bool> OperatorExistByIdAsync(int operatorId)
+		{
+			return await _repository.AllReadOnly<Operator>()
+				.AnyAsync(o => o.Id == operatorId);
+		}
+
+		public Task<OperatorDetailsServiceModel> GetOperatorDetailsByIdAsync(int id)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

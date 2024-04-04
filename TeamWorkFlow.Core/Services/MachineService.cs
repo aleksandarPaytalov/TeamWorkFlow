@@ -48,7 +48,7 @@ namespace TeamWorkFlow.Core.Services
 			
 			if (!bool.TryParse(model.IsCalibrated, out bool isCalibrated))
 			{
-				throw new ArgumentException(CalibrationStatusException);
+				throw new ArgumentException(BooleanInput);
 			}
 
 			if (model.Capacity is < 1 or > 20)
