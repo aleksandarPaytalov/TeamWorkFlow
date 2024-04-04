@@ -50,10 +50,16 @@
         public const int MachineNameMinLength = 3;
         public const int MachineNameMaxLength = 50;
 
-        /// <summary>
-        /// PartStatus DataConstants
-        /// </summary>
-        public const int PartStatusNameMinLength = 2;
+        public const int MachineImageUrlMinLength = 10;
+        public const int MachineImageUrlMaxLength = 300;
+
+        public const int MachineCapacityMinValue = 1;
+        public const int MachineCapacityMaxValue = 20;
+
+		/// <summary>
+		/// PartStatus DataConstants
+		/// </summary>
+		public const int PartStatusNameMinLength = 2;
         public const int PartStatusNameMaxLength = 25;
 
         /// <summary>

@@ -1,0 +1,37 @@
+﻿@model MachineDetailsServiceModel
+
+@{
+	ViewBag.Title = "Machine Details";
+}
+
+<h2 class="text-center">@ViewBag.Title</h2>
+<hr />
+
+<div class="container">
+	<div class="row">
+		<div class="col-lg-4 order-lg-2 mb-3 mb-lg-0">
+			<img class="card-img-top w-250" src="@Model.ImageUrl" alt="Part Image">
+		</div>
+		<div class="col-lg-8 order-lg-1">
+			<div class="card border-0">
+				<div class="card-body">
+					<p style="font-size: 20px;"><u>@Model.Name</u></p>
+					<p>Next calibration date: <b>@Model.CalibrationSchedule</b></p>
+					<p>Is Calibrated: @Model.IsCalibrated</p>
+					<p>Machine Capacity: @Model.Capacity</p>
+					<p>Total machine load after last calibration: <b>@Model.TotalMachineLoad</b></p>
+
+					<div class="form-inline">
+						@if (User?.Identity?.IsAuthenticated ?? false)
+						{
+							<a class="btn btn-warning" asp-controller="Machine" asp-action="Edit"
+							   asp-route-id="@Model.Id">Edit</a>
+							<a class="ml-2 btn btn-danger" asp-controller="Machine" asp-action="Delete"
+							   asp-route-id="@Model.Id">Delete</a>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

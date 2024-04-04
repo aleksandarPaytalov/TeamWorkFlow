@@ -1,0 +1,36 @@
+﻿@model MachineFormModel
+
+<div class="row">
+	<div class="col-sm-12 offset-lg-2 col-lg-8 offset-xl-3 col-xl-6">
+		<form method="post">
+			<div class="mb-3">
+				<label asp-for="@Model.ImageUrl" class="form-label-add-edit">Machine picture</label>
+				<input asp-for="@Model.ImageUrl" class="form-control" aria-required="true" placeholder="Image Url" />
+				<span asp-validation-for="@Model.ImageUrl" class="text-danger"></span>
+			</div>
+			<div class="mb-3">
+				<label asp-for="@Model.Name" class="form-label-add-edit">Name</label>
+				<input asp-for="@Model.Name" class="form-control" aria-required="true" placeholder="Machine name" />
+				<span asp-validation-for="@Model.Name" class="text-danger"></span>
+			</div>
+			<div class="mb-3">
+				<label asp-for="@Model.Capacity" class="form-label-add-edit">Capacity</label>
+				<input asp-for="@Model.Capacity" class="form-control" aria-required="true"/>
+				<span asp-validation-for="@Model.Capacity" class="text-danger"></span>
+			</div>
+			<div class="mb-3">
+				<label asp-for="@Model.CalibrationSchedule" class="form-label-add-edit">Next calibration date</label>
+				<input asp-for="@Model.CalibrationSchedule" class="form-control" aria-required="true" placeholder="@Messages.DateFormat" />
+				<span asp-validation-for="@Model.CalibrationSchedule" class="text-danger"></span>
+			</div>
+			<div class="mb-3">
+				<label asp-for="@Model.IsCalibrated" class="form-label-add-edit">Machine is calibrated</label>
+				<input asp-for="@Model.IsCalibrated" class="form-control" aria-required="true" placeholder="True or False" />
+				<span asp-validation-for="@Model.IsCalibrated" class="text-danger"></span>
+			</div>
+			<div class="mb-3">
+				<input class="btn btn-warning mb-2 w-25 p-2 fw-bold" type="submit" value="Apply" />
+			</div>
+		</form>
+	</div>
+</div>

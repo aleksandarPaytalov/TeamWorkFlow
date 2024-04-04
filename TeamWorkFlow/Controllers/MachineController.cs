@@ -7,17 +7,17 @@ namespace TeamWorkFlow.Controllers
 	public class MachineController : BaseController
     {
 
-	    private readonly IMachineService _service;
+	    private readonly IMachineService _machineService;
 
-	    public MachineController(IMachineService service)
+	    public MachineController(IMachineService machineService)
 	    {
-		    _service = service;
+		    _machineService = machineService;
 	    }
 
 		[HttpGet]
 	    public async Task<IActionResult> All()
 	    {
-		    var model = await _service.GetAllMachinesAsync();
+		    var model = await _machineService.GetAllMachinesAsync();
 
             return View(model);
         }
@@ -25,20 +25,20 @@ namespace TeamWorkFlow.Controllers
 	    [HttpGet]
 	    public IActionResult Add()
 	    {
-		    var machineModel = new MachineServiceModel();
+		    var machineModel = new MachineFormModel();
 
 		    return View(machineModel);
 	    }
 
 		[HttpPost]
-	    public async Task<IActionResult> Add(MachineServiceModel model)
+	    public async Task<IActionResult> Add(MachineFormModel model)
 	    {
 		    if (!ModelState.IsValid)
 		    {
 			    return BadRequest();
 		    }
 			
-			await _service.AddNewMachineAsync(model);
+			await _machineService.AddNewMachineAsync(model);
 
 			return RedirectToAction(nameof(All));
 	    }
@@ -51,21 +51,57 @@ namespace TeamWorkFlow.Controllers
 			    return BadRequest();
 		    }
 
-		    var model = await _service.GetMachineForEditAsync(id);
+		    var model = await _machineService.GetMachineForEditAsync(id);
 
 		    return View(model);
 	    }
 
-	    public async Task<IActionResult> Edit(MachineServiceModel model, int id)
+	    public async Task<IActionResult> Edit(MachineFormModel model, int id)
 	    {
 		    if (!ModelState.IsValid)
 		    {
 			    return BadRequest();
 		    }
 
-		    await _service.EditMachineAsync(model, id);
+		    await _machineService.EditMachineAsync(model, id);
 
 		    return RedirectToAction(nameof(All));
 	    }
+
+	    public async Task<IActionResult> Details(int id)
+	    {
+		    if (!await _machineService.MachineExistByIdAsync(id))
+		    {
+			    return BadRequest();
+		    }
+
+			var model = await _machineService.MachineDetailsAsync(id);
+
+		    return View(model);
+	    }
+
+	    public async Task<IActionResult> Delete(int id)
+	    {
+		    if (!await _machineService.MachineExistByIdAsync(id))
+		    {
+			    return BadRequest();
+		    }
+
+		    var model = await _machineService.GetMachineForDeleteByIdAsync(id);
+
+			return View(model);
+	    }
+
+	    public async Task<IActionResult> DeleteConfirmation(int id)
+	    {
+		    if (!await _machineService.MachineExistByIdAsync(id))
+		    {
+			    return BadRequest();
+		    }
+
+		    await _machineService.DeleteMachineAsync(id);
+
+			return RedirectToAction(nameof(All));
+		}
     }
 }

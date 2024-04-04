@@ -111,8 +111,9 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 		        Name = "Zeiss Contura",
 		        CalibrationSchedule = new DateTime(2024,04,04),
 		        Capacity = 20,
-                TotalMachineLoad = 0
-	        };
+                TotalMachineLoad = 0,
+                ImageUrl = "https://www.researchgate.net/profile/Nermina_Zaimovic-Uzunovic2/publication/343880067/figure/fig2/AS:928740968255491@1598440510374/Measurement-of-the-top-surface-Fig4-CMM-Zeiss-Contura-G2_Q320.jpg"
+			};
 
 	        ZeissInspect = new Machine()
 	        {
@@ -120,8 +121,9 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 		        Name = "Zeiss O-inspect",
 		        CalibrationSchedule = new DateTime(2024, 04, 04),
 		        Capacity = 20,
-                TotalMachineLoad = 0
-	        };
+                TotalMachineLoad = 0,
+                ImageUrl = "https://www.qpluslabs.com/wp-content/uploads/2019/11/Zeiss-O-Inspect-863-475px.jpg"
+			};
 
 	        ZeissMetrotom = new Machine()
 	        {
@@ -129,8 +131,9 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 		        Name = "Zeiss Metrotom",
 		        CalibrationSchedule = new DateTime(2024, 04, 04),
 		        Capacity = 20,
-                TotalMachineLoad = 0
-	        };
+                TotalMachineLoad = 0,
+                ImageUrl = "https://i0.wp.com/metrology.news/wp-content/uploads/2023/02/ZEISS-METROTOM-1.jpg?resize=450%2C404"
+			};
 
 		}
         private void SeedTaskStatus()

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeamWorkFlow.Infrastructure.Data;
 
@@ -11,9 +12,10 @@ using TeamWorkFlow.Infrastructure.Data;
 namespace TeamWorkFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(TeamWorkFlowDbContext))]
-    partial class TeamWorkFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240404071534_MachineImageUrlAdded")]
+    partial class MachineImageUrlAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -270,7 +272,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Machines", (string)null);
+                    b.ToTable("Machines");
 
                     b.HasComment("Machine db model");
 
@@ -349,7 +351,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("AvailabilityStatusId");
 
-                    b.ToTable("Operators", (string)null);
+                    b.ToTable("Operators");
 
                     b.HasComment("Operator DB model");
                 });
@@ -371,7 +373,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OperatorAvailabilityStatusEnumerable", (string)null);
+                    b.ToTable("OperatorAvailabilityStatusEnumerable");
 
                     b.HasComment("Operator availability status db model");
 
@@ -452,7 +454,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Parts", (string)null);
+                    b.ToTable("Parts");
 
                     b.HasComment("Part Db model");
                 });
@@ -474,7 +476,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PartStatusEnumerable", (string)null);
+                    b.ToTable("PartStatusEnumerable");
 
                     b.HasComment("Part status Db model");
 
@@ -513,7 +515,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Priorities", (string)null);
+                    b.ToTable("Priorities");
 
                     b.HasComment("Priority data model");
 
@@ -577,7 +579,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("ProjectStatusId");
 
-                    b.ToTable("Projects", (string)null);
+                    b.ToTable("Projects");
 
                     b.HasComment("Project data model");
 
@@ -631,7 +633,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectStatusEnumerable", (string)null);
+                    b.ToTable("ProjectStatusEnumerable");
 
                     b.HasComment("ProjectStatus data model");
 
@@ -732,7 +734,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("TaskStatusId");
 
-                    b.ToTable("Tasks", (string)null);
+                    b.ToTable("Tasks");
 
                     b.HasComment("Task Db model");
                 });
@@ -749,7 +751,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("TasksOperators", (string)null);
+                    b.ToTable("TasksOperators");
 
                     b.HasComment("TaskOperator data model");
                 });
@@ -771,7 +773,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TaskStatusEnumerable", (string)null);
+                    b.ToTable("TaskStatusEnumerable");
 
                     b.HasComment("TaskStatus data model");
 

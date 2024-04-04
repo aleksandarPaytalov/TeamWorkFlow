@@ -1,0 +1,26 @@
+﻿@model MachineDeleteServiceModel
+@{
+	ViewBag.Title = "Delete Machine";
+}
+
+<h2 class="text-center">@ViewBag.Title</h2>
+<hr />
+
+<div class="row justify-content-center">
+	<div class="col-md-6">
+		<div class="card">
+			<div class="card-body">
+				<img src="@Model.ImageUrl" alt="Machine Image" class="img-fluid" />
+				<p class="mb-0"><strong>Machine Name:</strong> @Model.Name</p>
+				<p class="text-danger mt-3">"Are you sure you want to delete @Model.Name?"</p>
+			</div>
+			<div class="card-footer">
+				<form asp-action="DeleteConfirmation" method="post">
+					<input type="hidden" asp-for="Id" />
+					<button type="submit" class="btn btn-danger">Confirm Delete</button>
+					<a asp-action="All" class="btn btn-secondary">Cancel</a>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
