@@ -12,7 +12,10 @@ namespace TeamWorkFlow.Core.Contracts
 		Task EditOperatorAsync(OperatorFormModel model, int id);
 		Task<bool> OperatorStatusExistAsync(int statusId);
 		Task<bool> OperatorExistByIdAsync(int operatorId);
-		Task<OperatorDetailsServiceModel> GetOperatorDetailsByIdAsync(int operatorId);
-
+		Task<OperatorDetailsServiceModel?> GetOperatorDetailsByIdAsync(int operatorId);
+		Task<int> GetAllCompletedTasksAssignedToOperatorByIdAsync(int operatorId);
+		Task<int> GetAllActiveAssignedTaskToOperatorByIdAsync(int operatorId);
+		Task<OperatorDeleteServiceModel?> GetOperatorModelForDeleteByIdAsync(int operatorId);
+		Task DeleteOperatorByIdAsync(int operatorId);
 	}
 }

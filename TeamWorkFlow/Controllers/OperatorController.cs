@@ -107,15 +107,44 @@ namespace TeamWorkFlow.Controllers
             return RedirectToAction(nameof(All));
         }
 
-        public async Task<IActionResult> Details()
+		[HttpGet]
+        public async Task<IActionResult> Details(int id)
         {
-	        return View();
+	        if (!ModelState.IsValid)
+	        {
+		        BadRequest();
+	        }
+
+	        var operatorModel = await _operatorService.GetOperatorDetailsByIdAsync(id);
+
+	        return View(operatorModel);
         }
 
-        public async Task<IActionResult> Delete()
+		[HttpGet]
+        public async Task<IActionResult> Delete(int id)
         {
-	        return View();
+	        if (!ModelState.IsValid)
+	        {
+		        BadRequest();
+	        }
+
+	        var operatorModel = await _operatorService.GetOperatorModelForDeleteByIdAsync(id);
+
+			return View(operatorModel);
 		}
 
-    }
+		[HttpPost]
+        public async Task<IActionResult> DeleteConfirmation(int id)
+        {
+			if (!ModelState.IsValid)
+			{
+				BadRequest();
+			}
+
+			await _operatorService.DeleteOperatorByIdAsync(id);
+
+			return RedirectToAction(nameof(All));
+        }
+
+	}
 }

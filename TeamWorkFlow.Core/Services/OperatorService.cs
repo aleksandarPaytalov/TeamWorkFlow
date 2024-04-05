@@ -123,9 +123,66 @@ namespace TeamWorkFlow.Core.Services
 				.AnyAsync(o => o.Id == operatorId);
 		}
 
-		public Task<OperatorDetailsServiceModel> GetOperatorDetailsByIdAsync(int id)
+		public async Task<OperatorDetailsServiceModel?> GetOperatorDetailsByIdAsync(int id)
 		{
-			throw new NotImplementedException();
+			int totalCompletedTasks = await GetAllCompletedTasksAssignedToOperatorByIdAsync(id);
+			int totalActiveAssignedTasks = await GetAllActiveAssignedTaskToOperatorByIdAsync(id);
+
+			return await _repository.AllReadOnly<Operator>()
+				.Where(o => o.Id == id)
+				.Select(o => new OperatorDetailsServiceModel()
+				{
+					Id = o.Id,
+					FullName = o.FullName,
+					Email = o.Email,
+					PhoneNumber = o.PhoneNumber,
+					AvailabilityStatus = o.AvailabilityStatus.Name,
+					Capacity = o.Capacity,
+					IsActive = o.IsActive,
+					TotalCompletedTasks = totalCompletedTasks,
+					CurrentTasks = totalActiveAssignedTasks
+				})
+				.FirstOrDefaultAsync();
+		}
+
+		public async Task<int> GetAllCompletedTasksAssignedToOperatorByIdAsync(int operatorId)
+		{
+			return await _repository.AllReadOnly<TaskOperator>()
+				.Where(o => o.OperatorId == operatorId && o.Task.TaskStatus.Name.ToLower() == "finished")
+				.CountAsync();
+		}
+
+		public async Task<int> GetAllActiveAssignedTaskToOperatorByIdAsync(int operatorId)
+		{
+			return await _repository.AllReadOnly<TaskOperator>()
+				.Where(o => o.OperatorId == operatorId && o.Task.TaskStatus.Name.ToLower() == "in progress")
+				.CountAsync();
+		}
+
+		public async Task<OperatorDeleteServiceModel?> GetOperatorModelForDeleteByIdAsync(int operatorId)
+		{
+			return await _repository.AllReadOnly<Operator>()
+				.Where(o => o.Id == operatorId)
+				.Select(o => new OperatorDeleteServiceModel()
+				{
+					Id = o.Id,
+					FullName = o.FullName,
+					Email = o.Email,
+					PhoneNumber = o.PhoneNumber,
+					IsActive = o.IsActive
+				})
+				.FirstOrDefaultAsync();
+		}
+
+		public async Task DeleteOperatorByIdAsync(int operatorId)
+		{
+			var operatorForDelete = await _repository.GetByIdAsync<Operator>(operatorId);
+
+			if (operatorForDelete != null)
+			{
+				await _repository.DeleteAsync<Operator>(operatorForDelete.Id);
+				await _repository.SaveChangesAsync();
+			}
 		}
 	}
 }
