@@ -50,10 +50,16 @@
         public const int MachineNameMinLength = 3;
         public const int MachineNameMaxLength = 50;
 
-        /// <summary>
-        /// PartStatus DataConstants
-        /// </summary>
-        public const int PartStatusNameMinLength = 2;
+        public const int MachineImageUrlMinLength = 10;
+        public const int MachineImageUrlMaxLength = 300;
+
+        public const int MachineCapacityMinValue = 1;
+        public const int MachineCapacityMaxValue = 20;
+
+		/// <summary>
+		/// PartStatus DataConstants
+		/// </summary>
+		public const int PartStatusNameMinLength = 2;
         public const int PartStatusNameMaxLength = 25;
 
         /// <summary>
@@ -92,10 +98,13 @@
         public const int ProjectApplianceMinLength = 2;
         public const int ProjectApplianceMaxLength = 100;
 
-        /// <summary>
-        /// ProjectStatus DataConstants
-        /// </summary>
-        public const int ProjectStatusNameMinLength = 5;
+        public const int ProjectTotalHoursMinValue = 0;
+        public const int ProjectTotalHoursMaxValue = 5000;
+
+		/// <summary>
+		/// ProjectStatus DataConstants
+		/// </summary>
+		public const int ProjectStatusNameMinLength = 5;
         public const int ProjectStatusNameMaxLength = 30;
 
         /// <summary>

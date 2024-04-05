@@ -1,0 +1,36 @@
+﻿@model ProjectDetailsServiceModel
+
+@{
+	ViewBag.Title = "Project Details";
+}
+
+<h2 class="text-center">@ViewBag.Title</h2>
+<hr />
+
+<div class="container">
+	<div class="row">
+		</div>
+	<div class="col-lg-6 order-lg-1">
+		<div class="card border-0">
+			<div class="card-body">
+				<p style="font-size: 30px;"><u>@Model.ProjectName</u></p>
+				<p>Project Number: <b>@Model.ProjectNumber</b></p>
+				<p>Status: @Model.Status</p>
+				<p>Client Name: @Model.ClientName</p>
+				<p>Area of appliance: @Model.Appliance</p>
+				<p>Parts Count: @Model.TotalParts</p>
+				<p>Hours spent: @Model.TotalHoursSpent</p>
+
+				<div class="form-inline">
+					@if (User?.Identity?.IsAuthenticated ?? false)
+					{
+						<a class="btn btn-warning" asp-controller="Project" asp-action="Edit"
+						   asp-route-id="@Model.Id">Edit</a>
+						<a class="ml-2 btn btn-danger" asp-controller="Project" asp-action="Delete"
+						   asp-route-id="@Model.Id">Delete</a>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

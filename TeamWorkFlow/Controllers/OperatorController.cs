@@ -1,22 +1,23 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Models.Operator;
+using static TeamWorkFlow.Core.Constants.Messages;
 
 namespace TeamWorkFlow.Controllers
 {
     public class OperatorController : BaseController
     {
-	    private readonly IOperatorService _service;
+	    private readonly IOperatorService _operatorService;
 
-	    public OperatorController(IOperatorService service)
+	    public OperatorController(IOperatorService operatorService)
 	    {
-		    _service = service;
+		    _operatorService = operatorService;
 	    }
 
 		[HttpGet]
 	    public async Task <IActionResult> All()
 	    {
-		    var model = await _service.GetAllOperatorsAsync();
+		    var model = await _operatorService.GetAllOperatorsAsync();
 
             return View(model);
         }
@@ -24,9 +25,9 @@ namespace TeamWorkFlow.Controllers
 		[HttpGet]
 	    public async Task<IActionResult> Add()
 	    {
-		    var operatorStatus = await _service.GetAllStatusesAsync();
+		    var operatorStatus = await _operatorService.GetAllOperatorStatusesAsync();
 
-		    var operatorModel = new OperatorServicesModel()
+		    var operatorModel = new OperatorFormModel()
 		    {
 			    AvailabilityStatusModels = operatorStatus
 		    };
@@ -35,47 +36,115 @@ namespace TeamWorkFlow.Controllers
 	    }
 
         [HttpPost]
-        public async Task<IActionResult> Add(OperatorServicesModel model)
+        public async Task<IActionResult> Add(OperatorFormModel model)
         {
+	        if (!bool.TryParse(model.IsActive, out bool result))
+	        {
+				ModelState.AddModelError(nameof(model.IsActive),$"{BooleanInput}");
+	        }
+			
+			if (!await _operatorService.OperatorStatusExistAsync(model.AvailabilityStatusId))
+	        {
+		        ModelState.AddModelError(nameof(model.AvailabilityStatusId), $"{StatusNotExisting}");
+			}
+			
 	        if (!ModelState.IsValid)
 	        {
-		        return View(model);
+		        model.AvailabilityStatusModels = await _operatorService.GetAllOperatorStatusesAsync();
+
+				return View(model);
 	        }
+			
+	        await _operatorService.AddNewOperatorAsync(model);
 
-	        try
-	        {
-		        await _service.AddNewOperatorAsync(model);
-
-		        return RedirectToAction(nameof(All));
-			}
-	        catch (Exception)
-	        {
-				ModelState.AddModelError("", "Something went wrong. Please try again");
-
-		        return View(model);
-	        }
+	        return RedirectToAction(nameof(All));
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-	        var model = await _service.GetOperatorForEditAsync(id);
-
-	        return View(model);
+	        if (ModelState.IsValid == false)
+	        {
+		        return BadRequest();
+	        }
+	        
+			var model = await _operatorService.GetOperatorForEditAsync(id);
+			if (model != null)
+			{
+				model.AvailabilityStatusModels = await _operatorService.GetAllOperatorStatusesAsync();
+			}
+			
+			return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(OperatorServicesModel model, int id)
+        public async Task<IActionResult> Edit(OperatorFormModel model, int id)
         {
-            if (!ModelState.IsValid)
+	        if (!bool.TryParse(model.IsActive, out bool result))
+	        {
+		        ModelState.AddModelError(nameof(model.IsActive), $"{BooleanInput}");
+	        }
+
+	        if (!await _operatorService.OperatorStatusExistAsync(model.AvailabilityStatusId))
+	        {
+		        ModelState.AddModelError(nameof(model.AvailabilityStatusId), $"{StatusNotExisting}");
+	        }
+
+	        if (!await _operatorService.OperatorExistByIdAsync(id))
+	        {
+		        ModelState.AddModelError(nameof(model.Id), $"{OperatorWithIdDoNotExist}");
+			}
+
+			if (!ModelState.IsValid)
             {
-                return View(model);
+	            model.AvailabilityStatusModels = await _operatorService.GetAllOperatorStatusesAsync();
+
+				return View(model);
             }
 
-            await _service.EditOperatorAsync(model, id);
+            await _operatorService.EditOperatorAsync(model, id);
 
             return RedirectToAction(nameof(All));
         }
 
-    }
+		[HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+	        if (!ModelState.IsValid)
+	        {
+		        BadRequest();
+	        }
+
+	        var operatorModel = await _operatorService.GetOperatorDetailsByIdAsync(id);
+
+	        return View(operatorModel);
+        }
+
+		[HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+	        if (!ModelState.IsValid)
+	        {
+		        BadRequest();
+	        }
+
+	        var operatorModel = await _operatorService.GetOperatorModelForDeleteByIdAsync(id);
+
+			return View(operatorModel);
+		}
+
+		[HttpPost]
+        public async Task<IActionResult> DeleteConfirmation(int id)
+        {
+			if (!ModelState.IsValid)
+			{
+				BadRequest();
+			}
+
+			await _operatorService.DeleteOperatorByIdAsync(id);
+
+			return RedirectToAction(nameof(All));
+        }
+
+	}
 }

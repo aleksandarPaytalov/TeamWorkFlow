@@ -1,6 +1,6 @@
 ﻿namespace TeamWorkFlow.Core.Models.Operator
 {
-	public class OperatorViewModel
+	public class OperatorServiceModel
 	{
 		public int Id { get; set; }
 

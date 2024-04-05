@@ -1,0 +1,44 @@
+﻿@model IEnumerable<ProjectServiceModel>
+@{
+	ViewBag.Title = "All Project";
+}
+
+<h2 class="text-center">@ViewBag.Title</h2>
+
+<a class="btn btn-success"  asp-area="" asp-controller="Project" asp-action="Add">Add Project</a>
+<hr />
+
+<div class="text-center row">
+	@foreach (var p in Model)
+	{
+		<div class="card col-4" style="width: 20rem; margin-bottom: 20px;">
+			<div class="card-body">
+				<h4 class="card-title mt-1">@p.ProjectName</h4>
+				<h5 class="mb-0"><span class="fw-bold">Project Number: </span>@p.ProjectNumber</h5>
+				<h5 class="mb-0"><span class="fw-bold">Status: </span>@p.Status</h5>
+				<p class="mb-0"><span class="fw-bold">Total Parts: </span>@p.TotalParts</p>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					<a asp-controller="Project" asp-action="Details" asp-route-id="@p.Id" class="btn btn-warning mb-2 w-100 p-2 fw-bold">Details</a>
+				</div>
+				@if (User?.Identity?.IsAuthenticated ?? false)
+				{
+					<div class="col">
+						<a asp-controller="Project" asp-action="Edit" asp-route-id="@p.Id" class="btn btn-warning mb-2 w-100 p-2 fw-bold">Edit</a>
+					</div>
+					<div class="col">
+						<a asp-controller="Project" asp-action="Delete" asp-route-id="@p.Id" class="btn btn-danger mb-2 w-100 p-2 fw-bold">Delete</a>
+					</div>
+				}
+			</div>
+		</div>
+		
+	}
+</div>
+
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial"/>
+}

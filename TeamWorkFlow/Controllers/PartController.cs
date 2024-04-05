@@ -2,6 +2,7 @@
 using TeamWorkFlow.Core.Constants;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Models.Part;
+using static TeamWorkFlow.Core.Constants.Messages;
 
 namespace TeamWorkFlow.Controllers
 {
@@ -52,12 +53,12 @@ namespace TeamWorkFlow.Controllers
         {
             if (await _partService.StatusExistAsync(model.PartStatusId) == false)
             {
-                ModelState.AddModelError(nameof(model.PartStatusId), $"{Messages.PartStatusNotExisting}");
+                ModelState.AddModelError(nameof(model.PartStatusId), $"{StatusNotExisting}");
             }
 
             if (await _projectService.ExistByProjectNumberAsync(model.ProjectNumber) == false)
             {
-                ModelState.AddModelError(nameof(model.ProjectNumber), $"{Messages.ProjectWithGivenNumberDoNotExist}");
+                ModelState.AddModelError(nameof(model.ProjectNumber), $"{ProjectWithGivenNumberDoNotExist}");
             }
 
             if (ModelState.IsValid == false)
@@ -73,7 +74,7 @@ namespace TeamWorkFlow.Controllers
 
             if (validProjectId == -1)
             {
-	            ModelState.AddModelError(nameof(model.ProjectNumber), $"{Messages.ProjectWithGivenNumberDoNotExist}");
+	            ModelState.AddModelError(nameof(model.ProjectNumber), $"{ProjectWithGivenNumberDoNotExist}");
             }
 
             int newPartId = await _partService.AddNewPartAsync(model, validProjectId);
@@ -117,12 +118,12 @@ namespace TeamWorkFlow.Controllers
 
 	        if (!await _partService.StatusExistAsync(model.PartStatusId))
 	        {
-                ModelState.AddModelError(nameof(model.PartStatusId), $"{Messages.PartStatusNotExisting}");
+                ModelState.AddModelError(nameof(model.PartStatusId), $"{StatusNotExisting}");
 	        }
 
 	        if (!await _projectService.ExistByProjectNumberAsync(model.ProjectNumber))
 	        {
-		        ModelState.AddModelError(nameof(model.ProjectNumber), $"{Messages.ProjectWithGivenNumberDoNotExist}");
+		        ModelState.AddModelError(nameof(model.ProjectNumber), $"{ProjectWithGivenNumberDoNotExist}");
 			}
 
 	        if (ModelState.IsValid == false)
@@ -137,7 +138,7 @@ namespace TeamWorkFlow.Controllers
 
 			if (validProjectId == -1)
 			{
-				ModelState.AddModelError(nameof(model.ProjectNumber), $"{Messages.ProjectWithGivenNumberDoNotExist}");
+				ModelState.AddModelError(nameof(model.ProjectNumber), $"{ProjectWithGivenNumberDoNotExist}");
 			}
 
 			int statusId = model.PartStatusId;

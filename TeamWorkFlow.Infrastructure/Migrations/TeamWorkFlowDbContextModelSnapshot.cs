@@ -241,6 +241,12 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasComment("Machine capacity");
 
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)")
+                        .HasComment("Machine picture");
+
                     b.Property<bool>("IsCalibrated")
                         .HasColumnType("bit");
 
@@ -264,7 +270,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Machines");
+                    b.ToTable("Machines", (string)null);
 
                     b.HasComment("Machine db model");
 
@@ -274,6 +280,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             Id = 1,
                             CalibrationSchedule = new DateTime(2024, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Capacity = 20,
+                            ImageUrl = "",
                             IsCalibrated = false,
                             Name = "Zeiss Contura",
                             TotalMachineLoad = 0.0
@@ -283,6 +290,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             Id = 2,
                             CalibrationSchedule = new DateTime(2024, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Capacity = 20,
+                            ImageUrl = "",
                             IsCalibrated = false,
                             Name = "Zeiss O-inspect",
                             TotalMachineLoad = 0.0
@@ -292,6 +300,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             Id = 3,
                             CalibrationSchedule = new DateTime(2024, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Capacity = 20,
+                            ImageUrl = "",
                             IsCalibrated = false,
                             Name = "Zeiss Metrotom",
                             TotalMachineLoad = 0.0
@@ -340,7 +349,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("AvailabilityStatusId");
 
-                    b.ToTable("Operators");
+                    b.ToTable("Operators", (string)null);
 
                     b.HasComment("Operator DB model");
                 });
@@ -362,7 +371,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OperatorAvailabilityStatusEnumerable");
+                    b.ToTable("OperatorAvailabilityStatusEnumerable", (string)null);
 
                     b.HasComment("Operator availability status db model");
 
@@ -443,7 +452,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Parts");
+                    b.ToTable("Parts", (string)null);
 
                     b.HasComment("Part Db model");
                 });
@@ -465,7 +474,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PartStatusEnumerable");
+                    b.ToTable("PartStatusEnumerable", (string)null);
 
                     b.HasComment("Part status Db model");
 
@@ -504,7 +513,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Priorities");
+                    b.ToTable("Priorities", (string)null);
 
                     b.HasComment("Priority data model");
 
@@ -568,7 +577,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("ProjectStatusId");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
 
                     b.HasComment("Project data model");
 
@@ -622,7 +631,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectStatusEnumerable");
+                    b.ToTable("ProjectStatusEnumerable", (string)null);
 
                     b.HasComment("ProjectStatus data model");
 
@@ -723,7 +732,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("TaskStatusId");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("Tasks", (string)null);
 
                     b.HasComment("Task Db model");
                 });
@@ -740,7 +749,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("TasksOperators");
+                    b.ToTable("TasksOperators", (string)null);
 
                     b.HasComment("TaskOperator data model");
                 });
@@ -762,7 +771,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TaskStatusEnumerable");
+                    b.ToTable("TaskStatusEnumerable", (string)null);
 
                     b.HasComment("TaskStatus data model");
 

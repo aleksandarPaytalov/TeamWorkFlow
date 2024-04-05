@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
-using TeamWorkFlow.Infrastructure.Constants;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using static TeamWorkFlow.Infrastructure.Constants.DataConstants;
 
 namespace TeamWorkFlow.Infrastructure.Data.Models
 {
-    [Comment("Machine db model")]
+	[Comment("Machine db model")]
     public class Machine
     {
         [Key]
@@ -12,7 +12,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(DataConstants.MachineNameMaxLength)]
+        [MaxLength(MachineNameMaxLength)]
         [Comment("Machine name")]
         public string Name { get; set; } = string.Empty;
 
@@ -38,5 +38,10 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public bool IsCalibrated { get; set; }
 
         public ICollection<Task> Tasks { get; set; } = new List<Task>();
-    }
+
+        [Required]
+        [MaxLength(MachineImageUrlMaxLength)]
+        [Comment("Machine picture")]
+        public string ImageUrl { get; set; } = string.Empty;
+	}
 }

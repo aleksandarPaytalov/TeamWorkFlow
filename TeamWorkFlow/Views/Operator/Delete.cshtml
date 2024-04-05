@@ -1,0 +1,35 @@
+﻿@model OperatorDeleteServiceModel
+@{
+	ViewBag.Title = "Delete Operator";
+}
+
+<h2 class="text-center">@ViewBag.Title</h2>
+<hr />
+
+<div class="row justify-content-center">
+	<div class="col-md-6">
+		<div class="card">
+			<div class="card-body">
+				<h3 class="card-title text-center">@Model.FullName</h3>
+				<p class="mb-0"><strong>Phone No.:</strong> @Model.PhoneNumber</p>
+				<p class="mb-0"><strong>Email Address:</strong> @Model.Email</p>
+				<p class="mb-0"><strong>Active status</strong> @Model.IsActive</p>
+			</div>
+			<div class="card-footer">
+				@if (!Model.IsActive)
+				{
+					<p class="text-danger mt-3">"Are you sure you want to delete @Model.FullName?"</p>
+					<form asp-action="DeleteConfirmation" method="post">
+						<input type="hidden" asp-for="Id"/>
+						<button type="submit" class="btn btn-danger">Confirm Delete</button>
+						<a asp-action="All" class="btn btn-secondary">Cancel</a>
+					</form>
+				}
+				else
+				{
+					<p class="text-danger mt-3">"You can not remove active Operator"</p>
+				}				
+			</div>
+		</div>
+	</div>
+</div>
