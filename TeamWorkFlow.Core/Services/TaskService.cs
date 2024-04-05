@@ -16,11 +16,11 @@ namespace TeamWorkFlow.Core.Services
             _context = context;
         }
 
-        public async Task<ICollection<TaskViewModel>> GetAllTasksAsync()
+        public async Task<ICollection<TaskServiceModel>> GetAllTasksAsync()
         {
             return await _context.Tasks
                 .AsNoTracking()
-                .Select(t => new TaskViewModel()
+                .Select(t => new TaskServiceModel()
                 {
                     Id = t.Id,
                     Name = t.Name,
@@ -33,10 +33,10 @@ namespace TeamWorkFlow.Core.Services
                 .ToListAsync();
         }
 
-        public async Task<ICollection<StatusViewModel>> GetAllStatusesAsync()
+        public async Task<ICollection<TaskStatusServiceModel>> GetAllStatusesAsync()
         {
             return await _context.TaskStatusEnumerable
-                .Select(s => new StatusViewModel()
+                .Select(s => new TaskStatusServiceModel()
                 {
                     Id = s.Id,
                     Name = s.Name
@@ -44,10 +44,10 @@ namespace TeamWorkFlow.Core.Services
                 .ToListAsync();
         }
 
-        public async Task<ICollection<PriorityViewModel>> GetAllPrioritiesAsync()
+        public async Task<ICollection<TaskPriorityServiceModel>> GetAllPrioritiesAsync()
         {
             return await _context.Priorities
-                .Select(p => new PriorityViewModel()
+                .Select(p => new TaskPriorityServiceModel()
                 {
                     Id = p.Id,
                     Name = p.Name
@@ -55,7 +55,7 @@ namespace TeamWorkFlow.Core.Services
                 .ToListAsync();
         }
 
-        public async Task AddNewTaskAsync(AddTaskViewModel model, string userId)
+        public async Task AddNewTaskAsync(AddTaskFormModel model, string userId)
         {
             DateTime startDate;
             DateTime endDate;

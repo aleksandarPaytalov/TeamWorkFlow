@@ -1,6 +1,6 @@
 ﻿namespace TeamWorkFlow.Core.Models.Task
 {
-    public class TaskViewModel
+    public class TaskServiceModel
     {
         public int Id { get; set; }
         public string ProjectNumber { get; set; } = string.Empty;

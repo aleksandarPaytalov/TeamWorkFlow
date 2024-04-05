@@ -12,7 +12,9 @@
 
         public const string StatusNotExisting = "Selected status does not exist";
 
-        public const string ProjectWithGivenNumberDoNotExist = "Project with this number do not exist";
+        public const string PriorityNotExisting = "Selected status does not exist";
+
+		public const string ProjectWithGivenNumberDoNotExist = "Project with this number do not exist";
 
         public const string ProjectWithThisNumberAlreadyCreated = "Project with this number already have been created";
 

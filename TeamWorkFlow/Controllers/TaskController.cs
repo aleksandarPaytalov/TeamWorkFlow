@@ -2,22 +2,23 @@
 using Microsoft.AspNetCore.Mvc;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Models.Task;
+using static TeamWorkFlow.Core.Constants.Messages;
 
 namespace TeamWorkFlow.Controllers
 {
     public class TaskController : BaseController
     {
-        private readonly ITaskService _service;
+        private readonly ITaskService _taskService;
 
-        public TaskController(ITaskService service)
+        public TaskController(ITaskService taskService)
         {
-            _service = service;
+            _taskService = taskService;
         }
 
         [HttpGet]
         public async Task<IActionResult> All()
         {
-            var model = await _service.GetAllTasksAsync();
+            var model = await _taskService.GetAllTasksAsync();
 
             return View(model);
         }
@@ -25,10 +26,10 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-            var priorities = await _service.GetAllPrioritiesAsync();
-            var statuses = await _service.GetAllStatusesAsync();
+            var priorities = await _taskService.GetAllPrioritiesAsync();
+            var statuses = await _taskService.GetAllStatusesAsync();
 
-            var model = new AddTaskViewModel()
+            var model = new AddTaskFormModel()
             {
 	            Statuses = statuses,
 	            Priorities = priorities
@@ -38,28 +39,29 @@ namespace TeamWorkFlow.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(AddTaskViewModel model)
+        public async Task<IActionResult> Add(AddTaskFormModel model)
         {
-            if (await _service.PriorityExistsAsync(model.PriorityId) == false)
+            if (await _taskService.PriorityExistsAsync(model.PriorityId) == false)
             {
-                ModelState.AddModelError(nameof(model.PriorityId), "Selected priority does not exist.");
+                ModelState.AddModelError(nameof(model.PriorityId), $"{PriorityNotExisting}");
             }
 
-            if (await _service.TaskStatusExistsAsync(model.StatusId) == false)
+            if (await _taskService.TaskStatusExistsAsync(model.StatusId) == false)
             {
-                ModelState.AddModelError(nameof(model.PriorityId), "Selected status does not exist");
+                ModelState.AddModelError(nameof(model.PriorityId), $"{StatusNotExisting}");
             }
+
             var userId = GetUserId();
 
             if (ModelState.IsValid == false)
             {
-                model.Priorities = await _service.GetAllPrioritiesAsync();
-                model.Statuses = await _service.GetAllStatusesAsync();
+                model.Priorities = await _taskService.GetAllPrioritiesAsync();
+                model.Statuses = await _taskService.GetAllStatusesAsync();
 
                 return View(model);
             }
 
-            await _service.AddNewTaskAsync(model, userId);
+            await _taskService.AddNewTaskAsync(model, userId);
 
             return RedirectToAction(nameof(All));
 
