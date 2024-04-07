@@ -4,10 +4,8 @@ using static TeamWorkFlow.Infrastructure.Constants.DataConstants;
 
 namespace TeamWorkFlow.Core.Models.Task
 {
-	public class AddTaskFormModel
+	public class TaskFormModel
     {
-		public int Id { get; set; }
-
 		[Required]
         public int ProjectId { get; set; }
 

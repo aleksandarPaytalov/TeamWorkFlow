@@ -27,5 +27,7 @@
         public const string InvalidIdInput = "Invalid Id.";
 
         public const string OperatorWithIdDoNotExist = "Operator with Id do not exist";
+
+        public const string StartDateGreaterThanEndDateOrDeadLine = "The start date cannot be greater than the end date or the deadline";
     }
 }
