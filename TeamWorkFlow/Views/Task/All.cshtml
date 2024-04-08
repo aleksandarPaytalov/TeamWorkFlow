@@ -1,4 +1,4 @@
-﻿@model ICollection<TaskViewModel>
+﻿@model ICollection<TaskServiceModel>
 @{
 	ViewData["Title"] = "All created Tasks";
 }
@@ -7,12 +7,6 @@
 
 <div class="text-right mb-3">
 	<a href="@Url.Action("Add", "Task")" class="btn btn-success">Add Task</a>
-	<a href="@Url.Action("Edit", "Task")" class="btn btn-primary">Edit</a>
-	<a href="@Url.Action("Delete", "Task")" class="btn btn-danger">Delete</a>
-	<a href="@Url.Action("Details", "Task")" class="btn btn-primary">Details</a>
-</div>
-<div class="text-right mb-3">
-	
 </div>
 
 <hr />
@@ -24,12 +18,12 @@
 			<th>Project Number</th>
 			<th>Name</th>
 			<th>Description</th>
-			<th>Priority</th>
 			<th>Status</th>
-			<th>Assigned to</th>
+			<th>Priority</th>
+			<th>Deadline</th>
 			<th>Start Date</th>
 			<th>End Date</th>
-			<th>Deadline</th>
+			<th>Actions</th>
 		</tr>
 		</thead>
 		<tbody>
@@ -44,10 +38,29 @@
 				<td>@task.Deadline</td>
 				<td>@task.StartDate</td>
 				<td>@task.EndDate</td>
+				<td>
+					<div class="dropdown">
+						<button class="btn btn-secondary dropdown-toggle" type="button" id="actionsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color: #007bff;">
+							...
+						</button>
+						<div class="dropdown-menu" aria-labelledby="actionsDropdown">
+							<a class="dropdown-item" href="@Url.Action("Edit", "Task", new { id = task.Id })">
+								<span class="text-primary">Edit</span>
+							</a>
+							<a class="dropdown-item" href="@Url.Action("Delete", "Task", new { id = task.Id })">
+								<span class="text-danger">Delete</span>
+							</a>
+							<a class="dropdown-item" href="@Url.Action("Details", "Task", new { id = task.Id })">
+								<span class="text-info">Details</span>
+							</a>
+						</div>
+					</div>
+				</td>
 			</tr>
 		}
 		</tbody>
 	</table>
+
 </div>
 
 @section Scripts {

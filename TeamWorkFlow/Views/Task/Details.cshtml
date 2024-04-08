@@ -1,0 +1,54 @@
+﻿@using System.Globalization
+@model TaskDetailsServiceModel
+
+@{
+	ViewBag.Title = "Task Details";
+}
+
+<h2 class="text-center">@ViewBag.Title</h2>
+<hr />
+
+<div class="container">
+	<div class="row">
+	</div>
+	<div class="col-lg-6 order-lg-1">
+		<div class="card border-0">
+			<div class="card-body">
+				<p style="font-size: 30px;"><u>@Model.Name</u></p>
+				<p>Project Number: <b>@Model.ProjectNumber</b></p>
+				<p>Priority level: @Model.Priority</p>
+				<p>Status: @Model.Status</p>
+				<p>Description: @Model.Description</p>
+				@if (!string.IsNullOrWhiteSpace(Model.Deadline))
+				{
+					<p>Deadline date: <b><u>@Model.Deadline</u></b></p>
+				}
+				else
+				{
+					<p>Deadline date: -</p>
+				}
+				<p>Start date: @Model.StartDate.</p>
+				@if (!string.IsNullOrWhiteSpace(Model.EndDate))
+				{
+					<p>End date: @Model.EndDate</p>
+				}
+				else
+				{
+					<p>End date: -</p>
+				}
+				<p>Task assigned to CMM name: @Model.AssignedMachineName</p>
+				<p>Creator: @Model.Creator</p>
+
+				<div class="form-inline">
+					@if (User?.Identity?.IsAuthenticated ?? false)
+					{
+						<a class="btn btn-warning" asp-controller="Task" asp-action="Edit"
+						   asp-route-id="@Model.Id">Edit</a>
+						<a class="ml-2 btn btn-danger" asp-controller="Task" asp-action="Delete"
+						   asp-route-id="@Model.Id">Delete</a>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

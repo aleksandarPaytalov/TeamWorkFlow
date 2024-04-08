@@ -1,0 +1,50 @@
+﻿@{
+	ViewData["Title"] = "Page not found";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Error Page</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			text-align: center;
+			background-color: #333333; 
+			color: #ffffff; 
+		}
+
+		h1 {
+			font-size: 50px;
+			color: #cc0000;
+		}
+
+		p {
+			font-size: 20px;
+			color: #ffffff; 
+			margin: 20px 0;
+		}
+
+		.button {
+			display: inline-block;
+			padding: 10px 20px;
+			background-color: #007bff;
+			color: #fff;
+			text-decoration: none;
+			border-radius: 5px;
+			transition: background-color 0.3s ease;
+		}
+
+		.button:hover {
+			background-color: #0056b3;
+		}
+	</style>
+</head>
+<body>
+<h1> @ViewBag.ErrorMessage</h1>
+<p>We apologize, but there was an error processing your request. We are working to resolve the issue.</p>
+<div class="text-left h4">Go back to <a asp-controller="Task" asp-action="All">Home</a> Page</div>
+
+	<img src="https://s3-cdn.cmlabs.co/page/2023/01/24/a-guideline-on-how-to-fix-error-404-not-found-effectively-519451.png" alt="Error Image" style="max-width: 100%; height: auto; margin-top: 20px;">
+</body>
+</html>
