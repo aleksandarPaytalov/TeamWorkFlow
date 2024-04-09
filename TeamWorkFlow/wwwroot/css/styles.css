@@ -1,0 +1,56 @@
+﻿/* styles.css */
+
+.summary-table {
+    margin-top: 20px;
+    border-collapse: collapse;
+    width: 100%; /* Set width to 100% to fill the container */
+}
+
+.summary-table th,
+.summary-table td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}
+
+.tasks-header {
+    color: red;
+    margin-bottom: 10px;
+}
+
+.summary-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%; 
+    overflow-x: auto; 
+}
+
+.summary-container > div {
+    width: 33.33%;
+    margin-right: 10px; 
+}
+
+.summary-container > div:last-child {
+    margin-right: 0;
+}
+
+
+.table-left table {
+    background-color: lightblue;
+}
+
+.table-center table {
+    background-color: lightgreen;
+}
+
+.table-right table {
+    background-color: lightcoral;
+}
+
+.table-bottom-left table {
+    background-color: lightyellow;
+}
+
+.table-bottom-right table {
+    background-color: lightpink;
+}

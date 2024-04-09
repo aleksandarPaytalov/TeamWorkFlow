@@ -1,10 +1,146 @@
 ﻿@{
-	ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-	<h1 class="index-page-greeting">TeAm WoRk FlOw</h1>
-	<h2 class="index-page-greeting-p">Your Tasks Management app</h2>
+<link rel="stylesheet" type="text/css" href="styles.css">
 
-	<img src="~/img/task.png" style="width: 100vh" />
+<div class="text-center">
+    <h1 class="index-page-greeting">TeAm WoRk FlOw</h1>
+    <h2 class="index-page-greeting-p">Your Tasks Management app</h2>
+
+    <img src="~/img/task.png" style="width: 100vh" />
 </div>
+
+<div class="mb-5"></div>
+
+<div class="row">
+    <div class="col-12 text-center">
+        <button class="btn btn-primary" id="summary-button">Show data summary</button>
+    </div>
+</div>
+
+<div class="mt-4 p-5 bg-light d-none summary-container" id="summary">
+    <div class="table-left">
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th colspan="2" class="tasks-header">Tasks Overview</th>
+                </tr>
+                <tr>
+                    <th>Total Tasks</th>
+                    <th>Finished Tasks</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="total-tasks" style="color: black;"></td>
+                    <td id="total-finishedTasks" style="color: black;"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-center">
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th colspan="2" class="projects-header">Projects Overview</th>
+                </tr>
+                <tr>
+                    <th>Total Projects</th>
+                    <th>Projects in production</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="total-projects" style="color: black;"></td>
+                    <td id="total-projectsInProduction" style="color: black;"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-right">
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th colspan="2" class="parts-header">Parts Overview</th>
+                </tr>
+                <tr>
+                    <th>Total Parts</th>
+                    <th>Released Parts</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="total-parts" style="color: black;"></td>
+                    <td id="total-totalPartsWithStatusApproved" style="color: black;"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="mt-4 p-5 bg-light d-none summary-container" id="summary-bottom">
+    <div class="table-bottom-left">
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th colspan="2" class="workers-header">Workers Overview</th>
+                </tr>
+                <tr>
+                    <th>Total Workers</th>
+                    <th>Available Workers</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="total-workers" style="color: black;"></td>
+                    <td id="total-totalAvailableWorkers" style="color: black;"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-bottom-right">
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th colspan="2" class="machines-header">Machines Overview</th>
+                </tr>
+                <tr>
+                    <th>Total Machines</th>
+                    <th>Available Machines</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="total-machines" style="color: black;"></td>
+                    <td id="total-totalAvailableMachines" style="color: black;"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $('#summary-button').on('click', ev => {
+            $.get('/api/summary', data => {
+                $('#total-tasks').text(data.totalTasks);
+                $('#total-finishedTasks').text(data.finishedTasks);
+                $('#total-projects').text(data.totalProjects);
+                $('#total-projectsInProduction').text(data.projectsInProduction);
+                $('#total-parts').text(data.totalParts); 
+                $('#total-totalPartsWithStatusApproved').text(data.totalApprovedParts);
+                $('#total-workers').text(data.totalWorkers);
+                $('#total-totalAvailableWorkers').text(data.totalAvailableWorkers);
+                $('#total-machines').text(data.totalMachines);
+                $('#total-totalAvailableMachines').text(data.totalAvailableMachines); 
+                $('#summary').removeClass('d-none');
+                $('#summary-bottom').removeClass('d-none');
+                $('#summary-button').hide();
+            });
+        });
+    </script>
+}
