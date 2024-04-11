@@ -44,97 +44,19 @@ namespace TeamWorkFlow
             app.UseEndpoints(endpoints =>
             {
 				//TaskRouting
-				endpoints.MapControllerRoute(
-				    name: "Task Details",
-				    pattern: "/Task/Details/{id}/{extension}",
-				    defaults: new { Controller = "Task", Action = "Details" }
-				    );
-				endpoints.MapControllerRoute(
-				    name: "Task Delete",
-				    pattern: "/Task/Delete/{id}/{extension}",
-				    defaults: new { Controller = "Task", Action = "Delete" }
-				);
-				endpoints.MapControllerRoute(
-				    name: "Task Edit",
-				    pattern: "/Task/Edit/{id}/{extension}",
-				    defaults: new { Controller = "Task", Action = "Edit" }
-				);
+				endpoints.MapEntityControllerRoutes("Task");
 
 				//OperatorRouting
-				endpoints.MapControllerRoute(
-					name: "Operator Details",
-					pattern: "/Operator/Details/{id}/{extension}",
-					defaults: new { Controller = "Operator", Action = "Details" }
-				);
-
-                endpoints.MapControllerRoute(
-                    name: "Operator Delete",
-                    pattern: "/Operator/Delete/{id}/{extension}",
-                    defaults: new { Controller = "Operator", Action = "Delete" }
-                );
-
-                endpoints.MapControllerRoute(
-                    name: "Operator Edit",
-                    pattern: "/Operator/Edit/{id}/{extension}",
-                    defaults: new { Controller = "Operator", Action = "Edit" }
-                );
+				endpoints.MapEntityControllerRoutes("Operator");
 
 				//MachineRouting
-				endpoints.MapControllerRoute(
-					name: "Machine Details",
-					pattern: "/Machine/Details/{id}/{extension}",
-					defaults: new { Controller = "Machine", Action = "Details" }
-				);
-
-				endpoints.MapControllerRoute(
-					name: "Machine Delete",
-					pattern: "/Machine/Delete/{id}/{extension}",
-					defaults: new { Controller = "Machine", Action = "Delete" }
-				);
-
-				endpoints.MapControllerRoute(
-					name: "Machine Edit",
-					pattern: "/Machine/Edit/{id}/{extension}",
-					defaults: new { Controller = "Machine", Action = "Edit" }
-				);
+				endpoints.MapEntityControllerRoutes("Machine");
 
 				//ProjectRouting
-				endpoints.MapControllerRoute(
-					name: "Project Details",
-					pattern: "/Project/Details/{id}/{extension}",
-					defaults: new { Controller = "Project", Action = "Details" }
-				);
-
-				endpoints.MapControllerRoute(
-					name: "Project Edit",
-					pattern: "/Project/Edit/{id}/{extension}",
-					defaults: new { Controller = "Project", Action = "Edit" }
-				);
-
-				endpoints.MapControllerRoute(
-					name: "Project Delete",
-					pattern: "/Project/Delete/{id}/{extension}",
-					defaults: new { Controller = "Project", Action = "Delete" }
-				);
+				endpoints.MapEntityControllerRoutes("Project");
 
 				//PartRouting
-				endpoints.MapControllerRoute(
-					name: "Part Details",
-					pattern: "/Part/Details/{id}/{extension}",
-					defaults: new { Controller = "Part", Action = "Details" }
-				);
-
-				endpoints.MapControllerRoute(
-					name: "Part Delete",
-					pattern: "/Part/Delete/{id}/{extension}",
-					defaults: new { Controller = "Part", Action = "Delete" }
-				);
-
-				endpoints.MapControllerRoute(
-					name: "Part Edit",
-					pattern: "/Part/Edit/{id}/{extension}",
-					defaults: new { Controller = "Part", Action = "Edit" }
-				);
+				endpoints.MapEntityControllerRoutes("Part");
 
 				endpoints.MapDefaultControllerRoute();
 				endpoints.MapRazorPages();
