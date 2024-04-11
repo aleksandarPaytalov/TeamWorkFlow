@@ -1,10 +1,10 @@
-﻿using System.Globalization;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using TeamWorkFlow.Core.Constants;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Task;
+using TeamWorkFlow.Extensions;
 using static TeamWorkFlow.Core.Constants.Messages;
 
 namespace TeamWorkFlow.Controllers
@@ -47,7 +47,7 @@ namespace TeamWorkFlow.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(TaskFormModel model)
         {
-			var userId = GetUserId();
+			var userId = User.Id();
 			
 			DateTime? parsedEndDate = null;
 			DateTime? parsedDeadlineDate = null;
@@ -309,9 +309,5 @@ namespace TeamWorkFlow.Controllers
 			return RedirectToAction(nameof(All));
 		}
 
-        private string GetUserId()
-        {
-            return User.FindFirstValue(ClaimTypes.NameIdentifier);
-        }
 	}
 }

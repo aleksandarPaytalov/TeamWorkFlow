@@ -2,6 +2,7 @@
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Part;
+using TeamWorkFlow.Extensions;
 using static TeamWorkFlow.Core.Constants.Messages;
 
 namespace TeamWorkFlow.Controllers
@@ -76,7 +77,7 @@ namespace TeamWorkFlow.Controllers
             {
 	            ModelState.AddModelError(nameof(model.ProjectNumber), $"{ProjectWithGivenNumberDoNotExist}");
             }
-
+            
             int newPartId = await _partService.AddNewPartAsync(model, validProjectId);
 
 			return RedirectToAction(nameof(All), new {id = newPartId});
