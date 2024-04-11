@@ -32,9 +32,9 @@
 				<td>@m.IsCalibrated</td>
 				<td>@m.Capacity</td>
 				<td>
-					<a href="@Url.Action("Edit", "Machine", new { id = m.Id })" class="btn btn-primary">Edit</a>
-						<a href="@Url.Action("Delete", "Machine", new { id = m.Id })" class="btn btn-danger">Delete</a>
-						<a href="@Url.Action("Details", "Machine", new { id = m.Id })" class="btn btn-primary">Details</a>
+					<a href="@Url.Action("Edit", "Machine", new { id = m.Id, extension = m.GetMachineExtension() })" class="btn btn-primary">Edit</a>
+						<a href="@Url.Action("Delete", "Machine", new { id = m.Id, extension = m.GetMachineExtension() })" class="btn btn-danger">Delete</a>
+						<a href="@Url.Action("Details", "Machine", new { id = m.Id, extension = m.GetMachineExtension() })" class="btn btn-primary">Details</a>
 				</td>
 			</tr>
 		}

@@ -1,6 +1,8 @@
-﻿namespace TeamWorkFlow.Core.Models.Project
+﻿using TeamWorkFlow.Core.Contracts;
+
+namespace TeamWorkFlow.Core.Models.Project
 {
-	public class ProjectServiceModel
+	public class ProjectServiceModel : IProjectModel
 	{
 		public int Id { get; set; }
 

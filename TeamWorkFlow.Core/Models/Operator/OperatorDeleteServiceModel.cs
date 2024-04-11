@@ -1,6 +1,8 @@
-﻿namespace TeamWorkFlow.Core.Models.Operator
+﻿using TeamWorkFlow.Core.Contracts;
+
+namespace TeamWorkFlow.Core.Models.Operator
 {
-	public class OperatorDeleteServiceModel
+	public class OperatorDeleteServiceModel : IOperatorModel
 	{
 		public int Id { get; set; }
 		public string FullName { get; set; } = string.Empty;

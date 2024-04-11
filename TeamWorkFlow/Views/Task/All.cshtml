@@ -44,13 +44,13 @@
 							...
 						</button>
 						<div class="dropdown-menu" aria-labelledby="actionsDropdown">
-							<a class="dropdown-item" href="@Url.Action("Edit", "Task", new { id = task.Id })">
+								<a class="dropdown-item" href="@Url.Action("Edit", "Task", new { id = task.Id, extension = task.GetTaskExtension()})">
 								<span class="text-primary">Edit</span>
 							</a>
-							<a class="dropdown-item" href="@Url.Action("Delete", "Task", new { id = task.Id })">
+								<a class="dropdown-item" href="@Url.Action("Delete", "Task", new { id = task.Id, extension = task.GetTaskExtension()})">
 								<span class="text-danger">Delete</span>
 							</a>
-							<a class="dropdown-item" href="@Url.Action("Details", "Task", new { id = task.Id })">
+								<a class="dropdown-item" href="@Url.Action("Details", "Task", new { id = task.Id, extension = task.GetTaskExtension()})">
 								<span class="text-info">Details</span>
 							</a>
 						</div>

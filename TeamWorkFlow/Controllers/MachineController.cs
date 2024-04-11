@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Machine;
 
 namespace TeamWorkFlow.Controllers
@@ -44,16 +45,26 @@ namespace TeamWorkFlow.Controllers
 	    }
 
 		[HttpGet]
-	    public async Task<IActionResult?> Edit(int id)
+	    public async Task<IActionResult> Edit(int id, string extension)
 	    {
-		    if (!ModelState.IsValid)
+		    if (!await _machineService.MachineExistByIdAsync(id))
+		    {
+			    return BadRequest();
+		    }
+
+			if (!ModelState.IsValid)
 		    {
 			    return BadRequest();
 		    }
 
 		    var model = await _machineService.GetMachineForEditAsync(id);
 
-		    return View(model);
+		    if (extension != model?.GetMachineExtension())
+		    {
+			    return BadRequest();
+		    }
+
+			return View(model);
 	    }
 
 	    public async Task<IActionResult> Edit(MachineFormModel model, int id)
@@ -65,29 +76,49 @@ namespace TeamWorkFlow.Controllers
 
 		    await _machineService.EditMachineAsync(model, id);
 
-		    return RedirectToAction(nameof(All));
+		    return RedirectToAction(nameof(Details), new {id, extension = model.GetMachineExtension()});
 	    }
 
-	    public async Task<IActionResult> Details(int id)
+	    public async Task<IActionResult> Details(int id, string extension)
 	    {
 		    if (!await _machineService.MachineExistByIdAsync(id))
 		    {
 			    return BadRequest();
 		    }
 
+		    if (!ModelState.IsValid)
+		    {
+			    return BadRequest();
+			}
+
 			var model = await _machineService.MachineDetailsAsync(id);
+
+			if (extension != model?.GetMachineExtension())
+			{
+				return BadRequest();
+			}
 
 		    return View(model);
 	    }
 
-	    public async Task<IActionResult> Delete(int id)
+	    public async Task<IActionResult> Delete(int id, string extension)
 	    {
 		    if (!await _machineService.MachineExistByIdAsync(id))
 		    {
 			    return BadRequest();
 		    }
 
-		    var model = await _machineService.GetMachineForDeleteByIdAsync(id);
+		    if (!ModelState.IsValid)
+		    {
+			    return BadRequest();
+		    }
+
+			var model = await _machineService.GetMachineForDeleteByIdAsync(id);
+
+			if (extension != model?.GetMachineExtension())
+			{
+				return BadRequest();
+			}
 
 			return View(model);
 	    }

@@ -25,9 +25,9 @@
 						@if (User?.Identity?.IsAuthenticated ?? false)
 						{
 							<a class="btn btn-warning" asp-controller="Part" asp-action="Edit"
-							   asp-route-id="@Model.Id">Edit</a>
+							   asp-route-id="@Model.Id" asp-route-extension="@Model.GetPartExtension()">Edit</a>
 							<a class="ml-2 btn btn-danger" asp-controller="Part" asp-action="Delete"
-							   asp-route-id="@Model.Id">Delete</a>
+							   asp-route-id="@Model.Id" asp-route-extension="@Model.GetPartExtension()">Delete</a>
 						}
 					</div>
 				</div>

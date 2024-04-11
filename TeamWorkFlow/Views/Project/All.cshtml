@@ -21,23 +21,24 @@
 
 			<div class="row">
 				<div class="col">
-					<a asp-controller="Project" asp-action="Details" asp-route-id="@p.Id" class="btn btn-warning mb-2 w-100 p-2 fw-bold">Details</a>
+					<a asp-controller="Project" asp-action="Details" asp-route-id="@p.Id" class="btn btn-warning mb-2 w-100 p-2 fw-bold"
+					   asp-route-extension="@p.GetProjectExtension()">Details</a>
 				</div>
 				@if (User?.Identity?.IsAuthenticated ?? false)
 				{
 					<div class="col">
-						<a asp-controller="Project" asp-action="Edit" asp-route-id="@p.Id" class="btn btn-warning mb-2 w-100 p-2 fw-bold">Edit</a>
+						<a asp-controller="Project" asp-action="Edit" asp-route-id="@p.Id" class="btn btn-warning mb-2 w-100 p-2 fw-bold"
+						   asp-route-extension="@p.GetProjectExtension()">Edit</a>
 					</div>
 					<div class="col">
-						<a asp-controller="Project" asp-action="Delete" asp-route-id="@p.Id" class="btn btn-danger mb-2 w-100 p-2 fw-bold">Delete</a>
+						<a asp-controller="Project" asp-action="Delete" asp-route-id="@p.Id" class="btn btn-danger mb-2 w-100 p-2 fw-bold"
+						   asp-route-extension="@p.GetProjectExtension()">Delete</a>
 					</div>
 				}
 			</div>
 		</div>
-		
 	}
 </div>
-
 
 @section Scripts {
 	<partial name="_ValidationScriptsPartial"/>

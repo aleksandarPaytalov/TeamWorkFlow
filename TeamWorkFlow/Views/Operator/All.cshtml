@@ -1,4 +1,5 @@
-﻿@model ICollection<OperatorServiceModel>
+﻿
+@model ICollection<OperatorServiceModel>
 @{
     ViewData["Title"] = "Operators list";
 }
@@ -36,9 +37,9 @@
                     <td>@o.IsActive</td>
                     <td>@o.Capacity</td>
                     <td>
-                        <a href="@Url.Action("Edit", "Operator", new { id = o.Id })" class="btn btn-primary">Edit</a>
-                        <a href="@Url.Action("Delete", "Operator", new { id = o.Id })" class="btn btn-danger">Delete</a>
-                        <a href="@Url.Action("Details", "Operator", new { id = o.Id })" class="btn btn-primary">Details</a>
+                        <a href="@Url.Action("Edit", "Operator", new { id = o.Id, extension = o.GetOperatorExtension()})" class="btn btn-primary">Edit</a>
+                        <a href="@Url.Action("Delete", "Operator", new { id = o.Id, extension = o.GetOperatorExtension() })" class="btn btn-danger">Delete</a>
+                        <a href="@Url.Action("Details", "Operator", new { id = o.Id, extension = o.GetOperatorExtension() })" class="btn btn-primary">Details</a>
                     </td>
                 </tr>
             }

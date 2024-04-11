@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TeamWorkFlow.Core.Contracts;
 using static TeamWorkFlow.Core.Constants.Messages;
 using static TeamWorkFlow.Infrastructure.Constants.DataConstants;
 
 namespace TeamWorkFlow.Core.Models.Machine
 {
-	public class MachineFormModel
+	public class MachineFormModel : IMachineModel
 	{
 
 		public int Id { get; set; }

@@ -58,7 +58,7 @@ namespace TeamWorkFlow.Core.Services
 
         public async Task<int> AddNewProjectsAsync(ProjectFormModel model)
         {
-	        Project projectToAdd = new Project()
+	        Project projectToAdd = new()
 	        {
 		        ProjectName = model.ProjectName,
 		        ProjectNumber = model.ProjectNumber,
@@ -136,7 +136,7 @@ namespace TeamWorkFlow.Core.Services
 		        .Where(p => p.ProjectNumber == projectNumber)
 		        .ToListAsync();
 			
-			List<int> identifiers = new List<int>();
+			List<int> identifiers = new ();
 			foreach (var p in projects)
 			{
 				int id = p.Id;

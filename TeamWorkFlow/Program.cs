@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using TeamWorkFlow.Extensions;
 
 namespace TeamWorkFlow
@@ -11,7 +12,10 @@ namespace TeamWorkFlow
 			builder.Services.AddApplicationDbContext(builder.Configuration);
 			builder.Services.AddApplicationIdentity(builder.Configuration);
 			
-			builder.Services.AddControllersWithViews();
+			builder.Services.AddControllersWithViews(options =>
+            {
+                options.Filters.Add<AutoValidateAntiforgeryTokenAttribute>();
+            });
 
 			builder.Services.AddApplicationServices();
 
@@ -37,12 +41,29 @@ namespace TeamWorkFlow
 			app.UseAuthentication();
 			app.UseAuthorization();
 
-			app.MapControllerRoute(
-				name: "default",
-				pattern: "{controller=Home}/{action=Index}/{id?}");
-			app.MapRazorPages();
+            app.UseEndpoints(endpoints =>
+            {
+				//TaskRouting
+				endpoints.MapEntityControllerRoutes("Task");
 
-			await app.RunAsync();
+				//OperatorRouting
+				endpoints.MapEntityControllerRoutes("Operator");
+
+				//MachineRouting
+				endpoints.MapEntityControllerRoutes("Machine");
+
+				//ProjectRouting
+				endpoints.MapEntityControllerRoutes("Project");
+
+				//PartRouting
+				endpoints.MapEntityControllerRoutes("Part");
+
+				endpoints.MapDefaultControllerRoute();
+				endpoints.MapRazorPages();
+            });
+			
+
+            await app.RunAsync();
 		}
 	}
 }

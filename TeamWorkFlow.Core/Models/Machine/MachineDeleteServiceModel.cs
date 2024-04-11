@@ -1,6 +1,8 @@
-﻿namespace TeamWorkFlow.Core.Models.Machine
+﻿using TeamWorkFlow.Core.Contracts;
+
+namespace TeamWorkFlow.Core.Models.Machine
 {
-	public class MachineDeleteServiceModel
+	public class MachineDeleteServiceModel : IMachineModel
 	{
 		public int Id { get; set; }
 		public string ImageUrl { get; set; } = string.Empty;
