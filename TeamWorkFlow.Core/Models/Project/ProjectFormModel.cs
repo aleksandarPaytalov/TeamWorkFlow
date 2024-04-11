@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TeamWorkFlow.Core.Contracts;
 using static TeamWorkFlow.Core.Constants.Messages;
 using static TeamWorkFlow.Infrastructure.Constants.DataConstants;
 
 namespace TeamWorkFlow.Core.Models.Project
 {
-    public class ProjectFormModel
+    public class ProjectFormModel : IProjectModel
 	{
 
         [Required(ErrorMessage = RequiredMessage)]

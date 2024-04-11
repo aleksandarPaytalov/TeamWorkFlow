@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NuGet.Packaging.Signing;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Project;
 using static TeamWorkFlow.Core.Constants.Messages;
 
@@ -63,15 +65,25 @@ namespace TeamWorkFlow.Controllers
 	    }
 
 		[HttpGet]
-	    public async Task<IActionResult> Edit(int id)
+	    public async Task<IActionResult> Edit(int id, string extension)
 	    {
-		    if (!ModelState.IsValid)
+		    if (!await _projectService.ProjectExistByIdAsync(id))
+		    {
+			    return BadRequest();
+		    }
+
+			if (!ModelState.IsValid)
 		    {
 			    return BadRequest();
 		    }
 
 			var projectModel = await _projectService.GetProjectForEditByIdAsync(id);
-			
+
+			if (extension != projectModel?.GetProjectExtension())
+			{
+				return BadRequest();
+			}
+
 			return View(projectModel);
 	    }
 	    
@@ -113,33 +125,53 @@ namespace TeamWorkFlow.Controllers
 
 		    await _projectService.EditProjectAsync(model, id);
 
-		    return RedirectToAction(nameof(All));
+		    return RedirectToAction(nameof(Details), new {id, extension = model.GetProjectExtension()});
 	    }
 
 		[HttpGet]
-	    public async Task<IActionResult> Details(int id)
+	    public async Task<IActionResult> Details(int id, string extension)
 	    {
 		    if (!await _projectService.ProjectExistByIdAsync(id))
 		    {
 			    return BadRequest();
 		    }
 
+		    if (!ModelState.IsValid)
+		    {
+			    return BadRequest();
+			}
+
 		    var projectToShow = await _projectService.GetProjectDetailsByIdAsync(id);
+
+		    if (extension != projectToShow?.GetProjectExtension())
+		    {
+			    return BadRequest();
+		    }
 
 		    return View(projectToShow);
 		}
 
 		[HttpGet]
-	    public async Task<IActionResult> Delete(int id)
+	    public async Task<IActionResult> Delete(int id, string extension)
 	    {
 		    if (!await _projectService.ProjectExistByIdAsync(id))
 		    {
 			    return BadRequest();
 		    }
 
-		    var model = await _projectService.GetProjectForDeleteByIdAsync(id);
+		    if (!ModelState.IsValid)
+		    {
+			    return BadRequest();
+		    }
 
-		    return View(model);
+			var model = await _projectService.GetProjectForDeleteByIdAsync(id);
+
+			if (extension != model?.GetProjectExtension())
+			{
+				return BadRequest();
+			}
+
+			return View(model);
 	    }
 
 		[HttpPost]

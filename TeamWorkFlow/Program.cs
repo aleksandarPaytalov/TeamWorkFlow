@@ -98,6 +98,25 @@ namespace TeamWorkFlow
 					defaults: new { Controller = "Machine", Action = "Edit" }
 				);
 
+				//ProjectRouting
+				endpoints.MapControllerRoute(
+					name: "Project Details",
+					pattern: "/Project/Details/{id}/{extension}",
+					defaults: new { Controller = "Project", Action = "Details" }
+				);
+
+				endpoints.MapControllerRoute(
+					name: "Project Edit",
+					pattern: "/Project/Edit/{id}/{extension}",
+					defaults: new { Controller = "Project", Action = "Edit" }
+				);
+
+				endpoints.MapControllerRoute(
+					name: "Project Delete",
+					pattern: "/Project/Delete/{id}/{extension}",
+					defaults: new { Controller = "Project", Action = "Delete" }
+				);
+
 				endpoints.MapDefaultControllerRoute();
 				endpoints.MapRazorPages();
             });
