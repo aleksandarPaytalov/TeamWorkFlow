@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace TeamWorkFlow.Core.Models.Machine
+﻿namespace TeamWorkFlow.Core.Models.Machine
 {
 	public class MachineDetailsServiceModel : MachineServiceModel
 	{
