@@ -1,6 +1,8 @@
-﻿namespace TeamWorkFlow.Core.Models.Task
+﻿using TeamWorkFlow.Core.Contracts;
+
+namespace TeamWorkFlow.Core.Models.Task
 {
-    public class TaskServiceModel
+    public class TaskServiceModel : ITaskModel
     {
         public int Id { get; set; }
         public string ProjectNumber { get; set; } = string.Empty;

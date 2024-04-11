@@ -60,7 +60,7 @@ namespace TeamWorkFlow.Core.Services
                 .ToListAsync();
         }
 
-        public async Task AddNewTaskAsync(TaskFormModel model, 
+        public async Task<int> AddNewTaskAsync(TaskFormModel model, 
 	        string userId,
 			DateTime parsedStartDate,
 	        DateTime? parsedEndDate,
@@ -82,7 +82,8 @@ namespace TeamWorkFlow.Core.Services
 
             await _repository.AddAsync(task);
             await _repository.SaveChangesAsync();
-            
+
+            return task.Id;
         }
 
         public async Task<bool> TaskStatusExistsAsync(int statusId)

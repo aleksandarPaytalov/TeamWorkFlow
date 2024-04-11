@@ -1,5 +1,4 @@
-﻿@using System.Globalization
-@model TaskDetailsServiceModel
+﻿@model TaskDetailsServiceModel
 
 @{
 	ViewBag.Title = "Task Details";
@@ -38,14 +37,13 @@
 				}
 				<p>Task assigned to CMM name: @Model.AssignedMachineName</p>
 				<p>Creator: @Model.Creator</p>
-
 				<div class="form-inline">
 					@if (User?.Identity?.IsAuthenticated ?? false)
 					{
 						<a class="btn btn-warning" asp-controller="Task" asp-action="Edit"
-						   asp-route-id="@Model.Id">Edit</a>
+						   asp-route-id="@Model.Id" asp-route-extension="@Model.GetTaskExtension()">Edit</a>
 						<a class="ml-2 btn btn-danger" asp-controller="Task" asp-action="Delete"
-						   asp-route-id="@Model.Id">Delete</a>
+						   asp-route-id="@Model.Id" asp-route-extension="@Model.GetTaskExtension()">Delete</a>
 					}
 				</div>
 			</div>

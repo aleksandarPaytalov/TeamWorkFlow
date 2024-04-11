@@ -3,12 +3,13 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using TeamWorkFlow.Core.Constants;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Task;
 using static TeamWorkFlow.Core.Constants.Messages;
 
 namespace TeamWorkFlow.Controllers
 {
-    public class TaskController : BaseController
+	public class TaskController : BaseController
     {
         private readonly ITaskService _taskService;
         private readonly IProjectService _projectService;
@@ -133,14 +134,14 @@ namespace TeamWorkFlow.Controllers
 				return View(model);
 			}
 
-			await _taskService.AddNewTaskAsync(model, userId, parsedStartDate, parsedEndDate, parsedDeadlineDate, validProjectId);
+			int taskId = await _taskService.AddNewTaskAsync(model, userId, parsedStartDate, parsedEndDate, parsedDeadlineDate, validProjectId);
 
-            return RedirectToAction(nameof(All));
+            return RedirectToAction(nameof(Details), new { id = taskId, extension = model.GetTaskExtension() });
 
         }
 
         [HttpGet]
-		public async Task <IActionResult> Details(int id)
+		public async Task <IActionResult> Details(int id, string extension)
         {
 	        if (!await _taskService.TaskExistByIdAsync(id))
 	        {
@@ -149,11 +150,16 @@ namespace TeamWorkFlow.Controllers
 
 	        var taskModel = await _taskService.GetTaskDetailsByIdAsync(id);
 
+            if (extension != taskModel?.GetTaskExtension())
+            {
+                return BadRequest();
+            }
+
 	        return View(taskModel);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, string extension)
         {
 	        if (!await _taskService.TaskExistByIdAsync(id))
 	        {
@@ -162,14 +168,17 @@ namespace TeamWorkFlow.Controllers
 
 	        var taskModel = await _taskService.GetTaskForEditByIdAsync(id);
 
-	        return View(taskModel);
+	        if (extension != taskModel?.GetTaskExtension())
+	        {
+		        return BadRequest();
+	        }
+
+			return View(taskModel);
         }
 
         [HttpPost]
         public async Task<IActionResult> Edit(TaskFormModel model, int id)
         {
-	        var userId = GetUserId();
-
 	        if (!await _taskService.TaskExistByIdAsync(id))
 	        {
 		        return BadRequest();
@@ -263,10 +272,10 @@ namespace TeamWorkFlow.Controllers
 
 	        await _taskService.EditTaskAsync(model, id, parsedStartDate, parsedEndDate, parsedDeadlineDate, validProjectId);
 
-			return RedirectToAction(nameof(Details), new {id});
+			return RedirectToAction(nameof(Details), new {id, extension = model.GetTaskExtension()});
 		}
 
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, string extension)
         {
 			if (!await _taskService.TaskExistByIdAsync(id))
 			{
@@ -274,6 +283,11 @@ namespace TeamWorkFlow.Controllers
 			}
 
 			var model = await _taskService.GetTaskForDeleteByIdAsync(id);
+
+			if (extension != model?.GetTaskExtension())
+			{
+				return BadRequest();
+			}
 
 	        return View(model);
         }

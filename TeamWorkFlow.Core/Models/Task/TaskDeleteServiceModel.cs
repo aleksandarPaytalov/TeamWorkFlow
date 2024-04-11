@@ -1,6 +1,8 @@
-﻿namespace TeamWorkFlow.Core.Models.Task
+﻿using TeamWorkFlow.Core.Contracts;
+
+namespace TeamWorkFlow.Core.Models.Task
 {
-	public class TaskDeleteServiceModel
+	public class TaskDeleteServiceModel : ITaskModel
 	{
 		public int Id { get; set; }
 		public string Name { get; set; } = string.Empty;

@@ -7,7 +7,7 @@ namespace TeamWorkFlow.Core.Contracts
         Task<ICollection<TaskServiceModel>> GetAllTasksAsync();
         Task<ICollection<TaskStatusServiceModel>> GetAllStatusesAsync();
         Task<ICollection<TaskPriorityServiceModel>> GetAllPrioritiesAsync();
-        Task AddNewTaskAsync(TaskFormModel model, 
+        Task<int> AddNewTaskAsync(TaskFormModel model, 
 	        string userId,
 	        DateTime parsedStartDate,
 	        DateTime? parsedEndDate,
