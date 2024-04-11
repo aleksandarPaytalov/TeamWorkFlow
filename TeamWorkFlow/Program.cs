@@ -117,6 +117,25 @@ namespace TeamWorkFlow
 					defaults: new { Controller = "Project", Action = "Delete" }
 				);
 
+				//PartRouting
+				endpoints.MapControllerRoute(
+					name: "Part Details",
+					pattern: "/Part/Details/{id}/{extension}",
+					defaults: new { Controller = "Part", Action = "Details" }
+				);
+
+				endpoints.MapControllerRoute(
+					name: "Part Delete",
+					pattern: "/Part/Delete/{id}/{extension}",
+					defaults: new { Controller = "Part", Action = "Delete" }
+				);
+
+				endpoints.MapControllerRoute(
+					name: "Part Edit",
+					pattern: "/Part/Edit/{id}/{extension}",
+					defaults: new { Controller = "Part", Action = "Edit" }
+				);
+
 				endpoints.MapDefaultControllerRoute();
 				endpoints.MapRazorPages();
             });

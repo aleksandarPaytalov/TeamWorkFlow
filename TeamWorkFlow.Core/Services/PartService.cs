@@ -198,7 +198,7 @@ namespace TeamWorkFlow.Core.Services
                 {
                     Id = p.Id,
                     Name = p.Name,
-                    PartNumber = p.PartArticleNumber,
+                    PartArticleNumber = p.PartArticleNumber,
                     ProjectNumber = p.Project.ProjectNumber
                 })
                 .FirstOrDefaultAsync();

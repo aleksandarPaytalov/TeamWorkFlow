@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TeamWorkFlow.Core.Contracts;
 using static TeamWorkFlow.Core.Constants.Messages;
 using static TeamWorkFlow.Infrastructure.Constants.DataConstants;
 
 namespace TeamWorkFlow.Core.Models.Part
 {
-    public class PartFormModel
+    public class PartFormModel : IPartModel
     {
         [Required(ErrorMessage = RequiredMessage)]
         [StringLength(PartNameMaxLength,

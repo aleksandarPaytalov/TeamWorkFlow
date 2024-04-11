@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using TeamWorkFlow.Core.Constants;
+using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Infrastructure.Constants;
 
 namespace TeamWorkFlow.Core.Models.Part
 {
-    public class PartServiceModel
+    public class PartServiceModel : IPartModel
     {
         public int Id { get; set; }
 

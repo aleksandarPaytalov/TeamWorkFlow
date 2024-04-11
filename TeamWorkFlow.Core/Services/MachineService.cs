@@ -75,23 +75,21 @@ namespace TeamWorkFlow.Core.Services
 				.Where(m => m.Id == id)
 				.FirstOrDefaultAsync();
 
-			if (machineForEdit == null)
-			{
-				throw new ArgumentException($"{InvalidIdInput}");
-			}
-
-			return await _repository.AllReadOnly<Machine>()
-				.Where(m => m.Id == id)
-				.Select(m => new MachineFormModel()
-				{
-					Id = m.Id,
-					CalibrationSchedule = m.CalibrationSchedule.ToString(Messages.DateFormat, CultureInfo.InvariantCulture),
-					Capacity = m.Capacity,
-					Name = m.Name,
-					IsCalibrated = m.IsCalibrated.ToString(),
-					ImageUrl = m.ImageUrl
-				})
-				.FirstOrDefaultAsync();
+			return machineForEdit == null
+				? throw new ArgumentException($"{InvalidIdInput}")
+				: await _repository.AllReadOnly<Machine>()
+					.Where(m => m.Id == id)
+					.Select(m => new MachineFormModel()
+					{
+						Id = m.Id,
+						CalibrationSchedule =
+							m.CalibrationSchedule.ToString(Messages.DateFormat, CultureInfo.InvariantCulture),
+						Capacity = m.Capacity,
+						Name = m.Name,
+						IsCalibrated = m.IsCalibrated.ToString(),
+						ImageUrl = m.ImageUrl
+					})
+					.FirstOrDefaultAsync();
 		}
 
 		public async Task EditMachineAsync(MachineFormModel model, int id)

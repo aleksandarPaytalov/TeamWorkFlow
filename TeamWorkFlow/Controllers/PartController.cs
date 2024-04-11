@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TeamWorkFlow.Core.Constants;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Part;
 using static TeamWorkFlow.Core.Constants.Messages;
 
@@ -83,7 +83,7 @@ namespace TeamWorkFlow.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(int id, string extension)
         {
             if (!await _partService.PartExistAsync(id))
             {
@@ -92,20 +92,34 @@ namespace TeamWorkFlow.Controllers
 
             var partModel = await _partService.PartDetailsByIdAsync(id);
 
+            if (extension != partModel.GetPartExtension())
+            {
+	            return BadRequest();
+            }
+
             return View(partModel);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, string extension)
         {
             if (!await _partService.PartExistAsync(id))
             {
                 return BadRequest();
             }
 
-            var model = await _partService.GetPartFormModelForEditAsync(id);
+            if (!await _partService.PartExistAsync(id))
+            {
+	            return BadRequest();
+            }
+			var model = await _partService.GetPartFormModelForEditAsync(id);
 
-            return View(model);
+			if (extension != model?.GetPartExtension())
+			{
+				return BadRequest();
+			}
+
+			return View(model);
         }
 
         [HttpPost]
@@ -145,18 +159,30 @@ namespace TeamWorkFlow.Controllers
 
 	        await _partService.EditAsync(id, model, validProjectId, statusId);
 
-	        return RedirectToAction(nameof(Details), new {id});
+	        return RedirectToAction(nameof(Details), new {id, extension = model.GetPartExtension()});
         }
 		[HttpGet]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, string extension)
         {
 	        if (!await _partService.PartExistAsync(id))
 	        {
 		        return BadRequest();
 	        }
 
+			if (!await _partService.PartExistAsync(id))
+	        {
+		        return BadRequest();
+	        }
+
 	        var partModel = await _partService.GetPartForDeletingByIdAsync(id);
-            return View(partModel);
+
+
+	        if (extension != partModel?.GetPartExtension())
+	        {
+		        return BadRequest();
+	        }
+
+			return View(partModel);
         }
 
         [HttpPost]

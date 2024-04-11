@@ -11,13 +11,13 @@
             <h6>3D-model: @Model.PartModel</h6>
             <br />
             <a asp-controller="Part" asp-action="Details" asp-route-id="@Model.Id"
-               class="btn btn-success">Details</a>
+               class="btn btn-success" asp-route-extension="@Model.GetPartExtension()">Details</a>
             @if (this.User.Identity.IsAuthenticated)
             {
 	            <a asp-controller="Part" asp-action="Edit" asp-route-id="@Model.Id"
-	               class="btn btn-warning">Edit</a>
+                   class="btn btn-warning" asp-route-extension="@Model.GetPartExtension()">Edit</a>
 	            <a asp-controller="Part" asp-action="Delete" asp-route-id="@Model.Id"
-	               class="btn btn-danger">Delete</a>
+                   class="btn btn-danger" asp-route-extension="@Model.GetPartExtension()">Delete</a>
 
                 <p></p>
             }
