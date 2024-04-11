@@ -1,6 +1,8 @@
-﻿namespace TeamWorkFlow.Core.Models.Operator
+﻿using TeamWorkFlow.Core.Contracts;
+
+namespace TeamWorkFlow.Core.Models.Operator
 {
-	public class OperatorServiceModel
+	public class OperatorServiceModel : IOperatorModel
 	{
 		public int Id { get; set; }
 

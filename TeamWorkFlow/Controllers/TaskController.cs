@@ -299,7 +299,12 @@ namespace TeamWorkFlow.Controllers
 		        return BadRequest();
 	        }
 
-	        await _taskService.DeleteTaskAsync(id);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            await _taskService.DeleteTaskAsync(id);
 
 			return RedirectToAction(nameof(All));
 		}

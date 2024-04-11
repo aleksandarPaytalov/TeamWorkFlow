@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using TeamWorkFlow.Core.Contracts;
 using static TeamWorkFlow.Core.Constants.Messages;
 using static TeamWorkFlow.Infrastructure.Constants.DataConstants;
 
 namespace TeamWorkFlow.Core.Models.Operator
 {
-	public class OperatorFormModel
+	public class OperatorFormModel : IOperatorModel
 	{
 		public int Id { get; set; }
 

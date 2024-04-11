@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using TeamWorkFlow.Extensions;
 
 namespace TeamWorkFlow
@@ -11,7 +12,10 @@ namespace TeamWorkFlow
 			builder.Services.AddApplicationDbContext(builder.Configuration);
 			builder.Services.AddApplicationIdentity(builder.Configuration);
 			
-			builder.Services.AddControllersWithViews();
+			builder.Services.AddControllersWithViews(options =>
+            {
+                options.Filters.Add<AutoValidateAntiforgeryTokenAttribute>();
+            });
 
 			builder.Services.AddApplicationServices();
 
@@ -37,12 +41,50 @@ namespace TeamWorkFlow
 			app.UseAuthentication();
 			app.UseAuthorization();
 
-			app.MapControllerRoute(
-				name: "default",
-				pattern: "{controller=Home}/{action=Index}/{id?}");
-			app.MapRazorPages();
+            app.UseEndpoints(endpoints =>
+            {
+				//TaskRouting
+				endpoints.MapControllerRoute(
+				    name: "Task Details",
+				    pattern: "/Task/Details/{id}/{extension}",
+				    defaults: new { Controller = "Task", Action = "Details" }
+				    );
+				endpoints.MapControllerRoute(
+				    name: "Task Delete",
+				    pattern: "/Task/Delete/{id}/{extension}",
+				    defaults: new { Controller = "Task", Action = "Delete" }
+				);
+				endpoints.MapControllerRoute(
+				    name: "Task Edit",
+				    pattern: "/Task/Edit/{id}/{extension}",
+				    defaults: new { Controller = "Task", Action = "Edit" }
+				);
 
-			await app.RunAsync();
+				//OperatorRouting
+				endpoints.MapControllerRoute(
+					name: "Operator Details",
+					pattern: "/Operator/Details/{id}/{extension}",
+					defaults: new { Controller = "Operator", Action = "Details" }
+				);
+
+                endpoints.MapControllerRoute(
+                    name: "Operator Delete",
+                    pattern: "/Operator/Delete/{id}/{extension}",
+                    defaults: new { Controller = "Operator", Action = "Delete" }
+                );
+
+                endpoints.MapControllerRoute(
+                    name: "Operator Edit",
+                    pattern: "/Operator/Edit/{id}/{extension}",
+                    defaults: new { Controller = "Operator", Action = "Edit" }
+                );
+
+                endpoints.MapDefaultControllerRoute();
+				endpoints.MapRazorPages();
+            });
+			
+
+            await app.RunAsync();
 		}
 	}
 }
