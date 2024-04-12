@@ -112,5 +112,14 @@
         /// </summary>
         public const int TaskStatusNameMinLength = 2;
         public const int TaskStatusNameMaxLength = 30;
-    }
+
+        /// <summary>
+        /// AppUser DataConstants 
+        /// </summary>
+        public const int AppUserFirstNameMinLength = 2;
+        public const int AppUserFirstNameMaxLength = 50;
+
+        public const int AppUserLastNameMinLength = 2;
+        public const int AppUserLastNameMaxLength = 50;
+	}
 }
