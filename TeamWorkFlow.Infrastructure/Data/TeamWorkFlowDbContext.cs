@@ -28,6 +28,7 @@ namespace TeamWorkFlow.Infrastructure.Data
             builder.ApplyConfiguration(new UserClaimsConfig());
             builder.ApplyConfiguration(new PartConfig());
             builder.ApplyConfiguration(new OperatorConfig());
+            builder.ApplyConfiguration(new TaskConfig());
 
             builder.Entity<TaskOperator>()
                 .HasKey(e => new

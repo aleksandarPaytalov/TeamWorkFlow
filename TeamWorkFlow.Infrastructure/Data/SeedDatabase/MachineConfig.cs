@@ -14,7 +14,10 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 			{
 				data.ZeissConturaOne,
 				data.ZeissInspect,
-				data.ZeissMetrotom
+				data.ZeissMetrotom,
+				data.MachineFour,
+				data.MachineFive,
+				data.MachineSix
 			});
 		}
 	}
