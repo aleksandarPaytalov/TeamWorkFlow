@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using TeamWorkFlow.Infrastructure.Data.Models;
 using TaskStatus = TeamWorkFlow.Infrastructure.Data.Models.TaskStatus;
+using static TeamWorkFlow.Infrastructure.Constants.CustomClaimsConstants;
 
 namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 {
@@ -77,8 +78,73 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
             SeedTaskStatus();
             SeedMachine();
             SeedProject();
+            SeedUsers();
         }
 
+        private void SeedUsers()
+        {
+	        var hasher = new PasswordHasher<IdentityUser>();
+
+            //Admin
+	        AdminUser = new IdentityUser()
+	        {
+		        Id = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
+		        UserName = "ap.softuni@gmail.com",
+		        NormalizedUserName = "AP.SOFTUNI@GMAIL.COM",
+		        Email = "ap.softuni@gmail.com",
+		        NormalizedEmail = "AP.SOFTUNI@GMAIL.COM"
+	        };
+
+	        AdminUserClaim = new IdentityUserClaim<string>()
+	        {
+		        Id = 1,
+		        ClaimType = UserName,
+		        ClaimValue = "ap.softuni@gmail.com",
+		        UserId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77"
+	        };
+
+	        AdminUser.PasswordHash = hasher.HashPassword(AdminUser, "1234aA!");
+
+            //Operator
+            OperatorUser = new IdentityUser()
+            {
+	            Id = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
+	            UserName = "jon.doe@softuni.bg",
+	            NormalizedUserName = "JON.DOE@SOFTUNI.BG",
+	            Email = "jon.doe@softuni.bg",
+                NormalizedEmail = "JON.DOE@SOFTUNI.BG"
+			};
+
+            OperatorUserClaim = new IdentityUserClaim<string>()
+            {
+	            Id = 2,
+	            ClaimType = UserName,
+	            ClaimValue = "jon.doe@softuni.bg",
+	            UserId = "7bf9623c-54d9-45ba-84c6-52806dcee7bd"
+            };
+
+            OperatorUser.PasswordHash = hasher.HashPassword(OperatorUser, "1234bB!");
+
+            //Guest
+            GuestUser = new IdentityUser()
+            {
+	            Id = "b806eee6-2ceb-4956-9643-e2e2e82289d2",
+	            UserName = "jane.doe@softuni.bg",
+	            NormalizedUserName = "JANE.DOE@SOFTUNI.BG",
+	            Email = "jane.doe@softuni.bg",
+	            NormalizedEmail = "JANE.DOE@SOFTUNI.BG"
+            };
+
+            GuestUserClaim = new IdentityUserClaim<string>()
+            {
+	            Id = 3,
+	            ClaimType = UserName,
+	            ClaimValue = "jane.doe@softuni.bg",
+	            UserId = "b806eee6-2ceb-4956-9643-e2e2e82289d2"
+            };
+
+            GuestUser.PasswordHash = hasher.HashPassword(GuestUser, "1234cC!");
+        }
         private void SeedProject()
         {
 	        BmwHousingGx9 = new Project()
@@ -258,7 +324,5 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
                 Name = "on training"
             };
         }
-
-
     }
 }

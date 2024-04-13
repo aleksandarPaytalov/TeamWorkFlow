@@ -74,6 +74,121 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                     b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "b806eee6-2ceb-4956-9643-e2e2e82289d2",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "6a7245c5-88c9-410e-b5a5-e3cdb7ce21bb",
+                            Email = "jane.doe@softuni.bg",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "JANE.DOE@SOFTUNI.BG",
+                            NormalizedUserName = "JANE.DOE@SOFTUNI.BG",
+                            PasswordHash = "AQAAAAEAACcQAAAAEOgH9Oi1x17iitPp6iYq4dC0pw8UVqhMPMxdEsN96pVKpV+HSeK3MJwiQH7gsdd9kg==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "639c9c13-3e8a-46dd-aa7e-aa802f2c92c1",
+                            TwoFactorEnabled = false,
+                            UserName = "jane.doe@softuni.bg"
+                        },
+                        new
+                        {
+                            Id = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "38ff4114-aaaf-4ab8-8698-cf5d76c7b379",
+                            Email = "jon.doe@softuni.bg",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "JON.DOE@SOFTUNI.BG",
+                            NormalizedUserName = "JON.DOE@SOFTUNI.BG",
+                            PasswordHash = "AQAAAAEAACcQAAAAEEdAAnx2snH8vvyuOBVgIMc5+nv6LwK+fbasH1WlYdF8PLFaOQsg4RDb3Kf9vGrz5w==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "bb6c387e-d76f-4ab4-b319-9e4bdb94491d",
+                            TwoFactorEnabled = false,
+                            UserName = "jon.doe@softuni.bg"
+                        },
+                        new
+                        {
+                            Id = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "11f1fc9a-45d7-4032-8ffc-22a47857059a",
+                            Email = "ap.softuni@gmail.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "AP.SOFTUNI@GMAIL.COM",
+                            NormalizedUserName = "AP.SOFTUNI@GMAIL.COM",
+                            PasswordHash = "AQAAAAEAACcQAAAAECo5InvtDuXGzzvttemHoD4j97GTBmVx3gKC53Ll+rX4BpfORp8iE8Pima32h5qWUg==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "f7786638-4c92-4412-943c-67de8fac5e96",
+                            TwoFactorEnabled = false,
+                            UserName = "ap.softuni@gmail.com"
+                        });
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
@@ -101,24 +216,24 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 2,
-                            ClaimType = "user:FirstAndSecondName",
-                            ClaimValue = "Jon Doe",
-                            UserId = "fe0a41ef-1ea3-4fe5-8a78-8adfe5f020ff"
+                            Id = 3,
+                            ClaimType = "userName",
+                            ClaimValue = "jane.doe@softuni.bg",
+                            UserId = "b806eee6-2ceb-4956-9643-e2e2e82289d2"
                         },
                         new
                         {
-                            Id = 3,
-                            ClaimType = "user:FirstAndSecondName",
-                            ClaimValue = "Jane Doe",
-                            UserId = "acdf58cd-9793-4207-98a2-7e1e463cc5d3"
+                            Id = 2,
+                            ClaimType = "userName",
+                            ClaimValue = "jon.doe@softuni.bg",
+                            UserId = "7bf9623c-54d9-45ba-84c6-52806dcee7bd"
                         },
                         new
                         {
                             Id = 1,
-                            ClaimType = "user:FirstAndSecondName",
-                            ClaimValue = "Aleksandar Paytalov",
-                            UserId = "e733b261-0a9c-45eb-ad97-cc611c83e2dd"
+                            ClaimType = "userName",
+                            ClaimValue = "ap.softuni@gmail.com",
+                            UserId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77"
                         });
                 });
 
@@ -182,140 +297,6 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.AppUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "fe0a41ef-1ea3-4fe5-8a78-8adfe5f020ff",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "d34feabd-14dc-44ad-91bf-abc542fa21cd",
-                            Email = "jon.doe@softuni.bg",
-                            EmailConfirmed = true,
-                            FirstName = "Jon",
-                            LastName = "Doe",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "JON.DOE@SOFTUNI.BG",
-                            NormalizedUserName = "JON.DOE@SOFTUNI.BG",
-                            PasswordHash = "AQAAAAEAACcQAAAAEAZHaMufHdSSD9ebp59ISynfrHaYaDOz/5B3LBUjwCi1snHQJWkFvd2mkIqSLgVrLg==",
-                            PhoneNumber = "+359887654321",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "8d94a42e-3312-41e5-b51a-0d23c7053f9c",
-                            TwoFactorEnabled = false,
-                            UserName = "jon.doe@softuni.bg"
-                        },
-                        new
-                        {
-                            Id = "acdf58cd-9793-4207-98a2-7e1e463cc5d3",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "4f35c92a-24c7-4b40-898e-b7bbf5d060f3",
-                            Email = "jane.doe@softuni.bg",
-                            EmailConfirmed = true,
-                            FirstName = "Jane",
-                            LastName = "Doe",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "JANE.DOE@SOFTUNI.BG",
-                            NormalizedUserName = "JANE.DOE@SOFTUNI.BG",
-                            PasswordHash = "AQAAAAEAACcQAAAAEMCr2gXmxugchgOw1PcX3RvYEs2h470/1wiRj7wawLCjgZD2xKOZVpEh1mL69BGRBg==",
-                            PhoneNumber = "+359894567890",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "6928dfad-97c9-4d0b-8d2d-133fd4579eb9",
-                            TwoFactorEnabled = false,
-                            UserName = "jane.doe@softuni.bg"
-                        },
-                        new
-                        {
-                            Id = "e733b261-0a9c-45eb-ad97-cc611c83e2dd",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "6eb17026-e703-4197-9ebd-3577fb8d51fc",
-                            Email = "ap.softuni9@gmail.com",
-                            EmailConfirmed = true,
-                            FirstName = "Aleksandar",
-                            LastName = "Paytalov",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "AP.SOFTUNI9@GMAIL.COM",
-                            NormalizedUserName = "AP.SOFTUNI9@GMAIL.COM",
-                            PasswordHash = "AQAAAAEAACcQAAAAEDHif1VXYLZy3bU96D+65c/WChgE2FHD4CLtP1pRC/S8PjAyUwy3TyzFauou2C3fzw==",
-                            PhoneNumber = "+359881234567",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "cadcbae7-c1ae-449b-bd53-b5a433059e5b",
-                            TwoFactorEnabled = false,
-                            UserName = "ap.softuni9@gmail.com"
-                        });
-                });
-
             modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.Machine", b =>
                 {
                     b.Property<int>("Id")
@@ -362,7 +343,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Machines", (string)null);
+                    b.ToTable("Machines");
 
                     b.HasComment("Machine db model");
 
@@ -441,41 +422,9 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("AvailabilityStatusId");
 
-                    b.ToTable("Operators", (string)null);
+                    b.ToTable("Operators");
 
                     b.HasComment("Operator DB model");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AvailabilityStatusId = 4,
-                            Capacity = 8,
-                            Email = "ap.softuni@gmail.com",
-                            FullName = "Aleksandar Paytalov",
-                            IsActive = true,
-                            PhoneNumber = "+359881234567"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            AvailabilityStatusId = 1,
-                            Capacity = 4,
-                            Email = "jon.doe@softuni.bg",
-                            FullName = "Jon Doe",
-                            IsActive = true,
-                            PhoneNumber = "+359887654321"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            AvailabilityStatusId = 2,
-                            Capacity = 8,
-                            Email = "jane.doe@softuni.bg",
-                            FullName = "Jane Doe",
-                            IsActive = false,
-                            PhoneNumber = "+359894567890"
-                        });
                 });
 
             modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.OperatorAvailabilityStatus", b =>
@@ -495,7 +444,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OperatorAvailabilityStatusEnumerable", (string)null);
+                    b.ToTable("OperatorAvailabilityStatusEnumerable");
 
                     b.HasComment("Operator availability status db model");
 
@@ -576,59 +525,9 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Parts", (string)null);
+                    b.ToTable("Parts");
 
                     b.HasComment("Part Db model");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            ImageUrl = "https://www.preh.com/fileadmin/templates/website/media/images/Produkte/Car_HMI/Climate_Control/Preh_Produkte_Climate_Control_AudiA1.jpg",
-                            Name = "VW Housing Front D9",
-                            PartArticleNumber = "2.4.100.501",
-                            PartClientNumber = "252.166-15",
-                            PartModel = "252.166-15_0B_VW Housing Front D9",
-                            PartStatusId = 2,
-                            ProjectId = 2,
-                            ToolNumber = 9055
-                        },
-                        new
-                        {
-                            Id = 2,
-                            ImageUrl = "https://wodofogdr.com/cdn/shop/products/GDR-MBT-823287-2_grande.jpg?v=1626163358",
-                            Name = "VW Housing D8",
-                            PartArticleNumber = "2.4.100.502",
-                            PartClientNumber = "252.167-00",
-                            PartModel = "252.167-00_0D_VW Housing D8",
-                            PartStatusId = 2,
-                            ProjectId = 2,
-                            ToolNumber = 3418
-                        },
-                        new
-                        {
-                            Id = 3,
-                            ImageUrl = "https://wodofogdr.com/cdn/shop/products/GDR-MBT-823287-2_grande.jpg?v=1626163358",
-                            Name = "Audi Housing A5 X-line",
-                            PartArticleNumber = "2.4.100.605",
-                            PartClientNumber = "312.205-11",
-                            PartModel = "334.255-10_0E_Audi Housing A5 X-line",
-                            PartStatusId = 1,
-                            ProjectId = 2,
-                            ToolNumber = 3459
-                        },
-                        new
-                        {
-                            Id = 4,
-                            ImageUrl = "https://www.bhtc.com/media/pages/produkte/fahrzeugklimatisierung/bmw-klimabediengerat/3086657772-1542633776/bmw_klimabediengeraet_gkl.png",
-                            Name = "Toyota Housing F5",
-                            PartArticleNumber = "2.4.202.333",
-                            PartClientNumber = "212.200-00",
-                            PartModel = "212.200-00_0B_Toyota Housing F5",
-                            PartStatusId = 3,
-                            ProjectId = 3,
-                            ToolNumber = 5533
-                        });
                 });
 
             modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.PartStatus", b =>
@@ -648,7 +547,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PartStatusEnumerable", (string)null);
+                    b.ToTable("PartStatusEnumerable");
 
                     b.HasComment("Part status Db model");
 
@@ -687,7 +586,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Priorities", (string)null);
+                    b.ToTable("Priorities");
 
                     b.HasComment("Priority data model");
 
@@ -751,7 +650,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("ProjectStatusId");
 
-                    b.ToTable("Projects", (string)null);
+                    b.ToTable("Projects");
 
                     b.HasComment("Project data model");
 
@@ -805,7 +704,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectStatusEnumerable", (string)null);
+                    b.ToTable("ProjectStatusEnumerable");
 
                     b.HasComment("ProjectStatus data model");
 
@@ -906,63 +805,9 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("TaskStatusId");
 
-                    b.ToTable("Tasks", (string)null);
+                    b.ToTable("Tasks");
 
                     b.HasComment("Task Db model");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 4,
-                            CreatorId = "e733b261-0a9c-45eb-ad97-cc611c83e2dd",
-                            DeadLine = new DateTime(2023, 12, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "LOP dimensional report for phase 1 (T0) - samples from the tool maker should arrive in Calendar week 48.",
-                            EstimatedTime = 2,
-                            MachineId = 1,
-                            Name = "Housing Front Panel - LOP.",
-                            PriorityId = 2,
-                            ProjectId = 2,
-                            StartDate = new DateTime(2023, 11, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            TaskStatusId = 1
-                        },
-                        new
-                        {
-                            Id = 15,
-                            CreatorId = "e733b261-0a9c-45eb-ad97-cc611c83e2dd",
-                            DeadLine = new DateTime(2024, 7, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "PPAP level 3",
-                            EstimatedTime = 0,
-                            Name = "Housing Klima - PPAP",
-                            PriorityId = 2,
-                            ProjectId = 3,
-                            StartDate = new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            TaskStatusId = 2
-                        },
-                        new
-                        {
-                            Id = 17,
-                            CreatorId = "e733b261-0a9c-45eb-ad97-cc611c83e2dd",
-                            DeadLine = new DateTime(2024, 7, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Full PPAP documents need to be created and prepared for sending to customer no late than 07.07.2024.",
-                            EstimatedTime = 0,
-                            Name = "Housing D8 - PPAP",
-                            PriorityId = 2,
-                            ProjectId = 2,
-                            StartDate = new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            TaskStatusId = 2
-                        },
-                        new
-                        {
-                            Id = 18,
-                            CreatorId = "e733b261-0a9c-45eb-ad97-cc611c83e2dd",
-                            Description = "Validation of the part on another production machine. Full dimensional report of 5 shots from the new machine. Results must be compared with measurements of the part from the serial (validated) production machine",
-                            EstimatedTime = 0,
-                            Name = "BMW Back Panel - Sample order no. 987",
-                            PriorityId = 2,
-                            ProjectId = 1,
-                            StartDate = new DateTime(2024, 7, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            TaskStatusId = 1
-                        });
                 });
 
             modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.TaskOperator", b =>
@@ -977,7 +822,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("TasksOperators", (string)null);
+                    b.ToTable("TasksOperators");
 
                     b.HasComment("TaskOperator data model");
                 });
@@ -999,7 +844,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TaskStatusEnumerable", (string)null);
+                    b.ToTable("TaskStatusEnumerable");
 
                     b.HasComment("TaskStatus data model");
 
@@ -1037,7 +882,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("TeamWorkFlow.Infrastructure.Data.Models.AppUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1046,7 +891,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("TeamWorkFlow.Infrastructure.Data.Models.AppUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1061,7 +906,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TeamWorkFlow.Infrastructure.Data.Models.AppUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1070,7 +915,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("TeamWorkFlow.Infrastructure.Data.Models.AppUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1120,7 +965,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
             modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.Task", b =>
                 {
-                    b.HasOne("TeamWorkFlow.Infrastructure.Data.Models.AppUser", "Creator")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Creator")
                         .WithMany()
                         .HasForeignKey("CreatorId")
                         .OnDelete(DeleteBehavior.Cascade)
