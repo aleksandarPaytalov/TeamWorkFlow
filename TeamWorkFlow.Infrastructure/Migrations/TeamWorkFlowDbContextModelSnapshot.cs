@@ -137,6 +137,56 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "b806eee6-2ceb-4956-9643-e2e2e82289d2",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "6a7245c5-88c9-410e-b5a5-e3cdb7ce21bb",
+                            Email = "jane.doe@softuni.bg",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "JANE.DOE@SOFTUNI.BG",
+                            NormalizedUserName = "JANE.DOE@SOFTUNI.BG",
+                            PasswordHash = "AQAAAAEAACcQAAAAEOgH9Oi1x17iitPp6iYq4dC0pw8UVqhMPMxdEsN96pVKpV+HSeK3MJwiQH7gsdd9kg==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "639c9c13-3e8a-46dd-aa7e-aa802f2c92c1",
+                            TwoFactorEnabled = false,
+                            UserName = "jane.doe@softuni.bg"
+                        },
+                        new
+                        {
+                            Id = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "38ff4114-aaaf-4ab8-8698-cf5d76c7b379",
+                            Email = "jon.doe@softuni.bg",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "JON.DOE@SOFTUNI.BG",
+                            NormalizedUserName = "JON.DOE@SOFTUNI.BG",
+                            PasswordHash = "AQAAAAEAACcQAAAAEEdAAnx2snH8vvyuOBVgIMc5+nv6LwK+fbasH1WlYdF8PLFaOQsg4RDb3Kf9vGrz5w==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "bb6c387e-d76f-4ab4-b319-9e4bdb94491d",
+                            TwoFactorEnabled = false,
+                            UserName = "jon.doe@softuni.bg"
+                        },
+                        new
+                        {
+                            Id = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "11f1fc9a-45d7-4032-8ffc-22a47857059a",
+                            Email = "ap.softuni@gmail.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "AP.SOFTUNI@GMAIL.COM",
+                            NormalizedUserName = "AP.SOFTUNI@GMAIL.COM",
+                            PasswordHash = "AQAAAAEAACcQAAAAECo5InvtDuXGzzvttemHoD4j97GTBmVx3gKC53Ll+rX4BpfORp8iE8Pima32h5qWUg==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "f7786638-4c92-4412-943c-67de8fac5e96",
+                            TwoFactorEnabled = false,
+                            UserName = "ap.softuni@gmail.com"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -162,6 +212,29 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("AspNetUserClaims", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 3,
+                            ClaimType = "userName",
+                            ClaimValue = "jane.doe@softuni.bg",
+                            UserId = "b806eee6-2ceb-4956-9643-e2e2e82289d2"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ClaimType = "userName",
+                            ClaimValue = "jon.doe@softuni.bg",
+                            UserId = "7bf9623c-54d9-45ba-84c6-52806dcee7bd"
+                        },
+                        new
+                        {
+                            Id = 1,
+                            ClaimType = "userName",
+                            ClaimValue = "ap.softuni@gmail.com",
+                            UserId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -270,7 +343,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Machines", (string)null);
+                    b.ToTable("Machines");
 
                     b.HasComment("Machine db model");
 
@@ -280,7 +353,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             Id = 1,
                             CalibrationSchedule = new DateTime(2024, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Capacity = 20,
-                            ImageUrl = "",
+                            ImageUrl = "https://www.researchgate.net/profile/Nermina_Zaimovic-Uzunovic2/publication/343880067/figure/fig2/AS:928740968255491@1598440510374/Measurement-of-the-top-surface-Fig4-CMM-Zeiss-Contura-G2_Q320.jpg",
                             IsCalibrated = false,
                             Name = "Zeiss Contura",
                             TotalMachineLoad = 0.0
@@ -290,7 +363,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             Id = 2,
                             CalibrationSchedule = new DateTime(2024, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Capacity = 20,
-                            ImageUrl = "",
+                            ImageUrl = "https://www.qpluslabs.com/wp-content/uploads/2019/11/Zeiss-O-Inspect-863-475px.jpg",
                             IsCalibrated = false,
                             Name = "Zeiss O-inspect",
                             TotalMachineLoad = 0.0
@@ -300,7 +373,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             Id = 3,
                             CalibrationSchedule = new DateTime(2024, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Capacity = 20,
-                            ImageUrl = "",
+                            ImageUrl = "https://i0.wp.com/metrology.news/wp-content/uploads/2023/02/ZEISS-METROTOM-1.jpg?resize=450%2C404",
                             IsCalibrated = false,
                             Name = "Zeiss Metrotom",
                             TotalMachineLoad = 0.0
@@ -349,7 +422,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("AvailabilityStatusId");
 
-                    b.ToTable("Operators", (string)null);
+                    b.ToTable("Operators");
 
                     b.HasComment("Operator DB model");
                 });
@@ -371,7 +444,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OperatorAvailabilityStatusEnumerable", (string)null);
+                    b.ToTable("OperatorAvailabilityStatusEnumerable");
 
                     b.HasComment("Operator availability status db model");
 
@@ -452,7 +525,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Parts", (string)null);
+                    b.ToTable("Parts");
 
                     b.HasComment("Part Db model");
                 });
@@ -474,7 +547,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PartStatusEnumerable", (string)null);
+                    b.ToTable("PartStatusEnumerable");
 
                     b.HasComment("Part status Db model");
 
@@ -513,7 +586,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Priorities", (string)null);
+                    b.ToTable("Priorities");
 
                     b.HasComment("Priority data model");
 
@@ -577,7 +650,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("ProjectStatusId");
 
-                    b.ToTable("Projects", (string)null);
+                    b.ToTable("Projects");
 
                     b.HasComment("Project data model");
 
@@ -631,7 +704,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectStatusEnumerable", (string)null);
+                    b.ToTable("ProjectStatusEnumerable");
 
                     b.HasComment("ProjectStatus data model");
 
@@ -732,7 +805,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("TaskStatusId");
 
-                    b.ToTable("Tasks", (string)null);
+                    b.ToTable("Tasks");
 
                     b.HasComment("Task Db model");
                 });
@@ -749,7 +822,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("TasksOperators", (string)null);
+                    b.ToTable("TasksOperators");
 
                     b.HasComment("TaskOperator data model");
                 });
@@ -771,7 +844,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TaskStatusEnumerable", (string)null);
+                    b.ToTable("TaskStatusEnumerable");
 
                     b.HasComment("TaskStatus data model");
 
