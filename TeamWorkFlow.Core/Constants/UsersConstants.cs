@@ -7,6 +7,11 @@
 
 
         public const string OperatorRole = "Operator";
-        public const string OperatorEmail = "ap.softuni@gmail.com";
+        public static readonly string[] OperatorEmails =
+        {
+            "jon.doe@softuni.bg", 
+            "jane.doe@softuni.bg"
+        };
     }
+
 }
