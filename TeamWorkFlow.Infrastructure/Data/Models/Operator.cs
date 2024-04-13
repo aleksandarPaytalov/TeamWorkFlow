@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 using static TeamWorkFlow.Infrastructure.Constants.DataConstants;
 
 namespace TeamWorkFlow.Infrastructure.Data.Models
@@ -44,6 +45,13 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         [Range(OperatorMinCapacity, OperatorMaxCapacity)]
         [Comment("Operator working capacity in hours per day/shift")]
         public int Capacity { get; set; }
+
+        [Required]
+        [Comment("User identifier")]
+        public string UserId { get; set; } = string.Empty;
+
+        [ForeignKey(nameof(UserId))]
+        public IdentityUser User { get; set; } = null!;
         
         public ICollection<TaskOperator> TasksOperators { get; set; } = new List<TaskOperator>();
     }

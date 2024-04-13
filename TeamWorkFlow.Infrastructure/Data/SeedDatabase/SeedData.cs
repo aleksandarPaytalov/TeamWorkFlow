@@ -117,42 +117,7 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
             SeedOperator();
 			SeedTask();
         }
-
-        private void SeedOperator()
-        {
-	        OperatorOne = new Operator()
-	        {
-                Id = 1,
-                FullName = "Aleksandar Paytalov",
-                AvailabilityStatusId = 4,
-                Email = "ap.softuni@gmail.com",
-                PhoneNumber = "+359881234567",
-                IsActive = true,
-                Capacity = 8
-			};
-
-	        OperatorTwo = new Operator()
-	        {
-		        Id = 2,
-		        FullName = "Jon Doe",
-		        AvailabilityStatusId = 1,
-		        Email = "jon.doe@softuni.bg",
-		        PhoneNumber = "+359887654321",
-		        IsActive = true,
-		        Capacity = 4
-	        };
-
-	        OperatorThree = new Operator()
-	        {
-		        Id = 3,
-		        FullName = "Jane Doe",
-		        AvailabilityStatusId = 2,
-		        Email = "jane.doe@softuni.bg",
-		        PhoneNumber = "+359894567890",
-		        IsActive = true,
-		        Capacity = 8
-	        };
-        }
+        
         private void SeedPart()
         {
 	        PartOne = new Part()
@@ -327,6 +292,44 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
             };
 
             GuestUser.PasswordHash = hasher.HashPassword(GuestUser, "1234cC!");
+        }
+        private void SeedOperator()
+        {
+            OperatorOne = new Operator()
+            {
+                Id = 1,
+                FullName = "Aleksandar Paytalov",
+                AvailabilityStatusId = 4,
+                Email = "ap.softuni@gmail.com",
+                PhoneNumber = "+359881234567",
+                IsActive = true,
+                Capacity = 8,
+				UserId = AdminUser.Id
+            };
+
+            OperatorTwo = new Operator()
+            {
+                Id = 2,
+                FullName = "Jon Doe",
+                AvailabilityStatusId = 1,
+                Email = "jon.doe@softuni.bg",
+                PhoneNumber = "+359887654321",
+                IsActive = true,
+                Capacity = 4,
+				UserId = OperatorUser.Id
+            };
+
+            OperatorThree = new Operator()
+            {
+                Id = 3,
+                FullName = "Jane Doe",
+                AvailabilityStatusId = 2,
+                Email = "jane.doe@softuni.bg",
+                PhoneNumber = "+359894567890",
+                IsActive = true,
+                Capacity = 8,
+				UserId = GuestUser.Id
+            };
         }
         private void SeedProject()
         {

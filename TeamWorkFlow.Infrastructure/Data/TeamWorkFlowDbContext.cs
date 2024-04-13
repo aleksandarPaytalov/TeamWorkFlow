@@ -37,6 +37,12 @@ namespace TeamWorkFlow.Infrastructure.Data
                     e.TaskId
                 });
 
+            builder.Entity<Operator>()
+                .HasOne(o => o.User)
+                .WithMany()
+                .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
             base.OnModelCreating(builder);
         }
 

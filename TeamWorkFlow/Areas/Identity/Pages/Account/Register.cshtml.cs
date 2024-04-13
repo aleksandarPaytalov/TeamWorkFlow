@@ -8,7 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using System.Text;
+using TeamWorkFlow.Extensions;
+using static TeamWorkFlow.Infrastructure.Constants.CustomClaimsConstants;
 
 namespace TeamWorkFlow.Areas.Identity.Pages.Account
 {
@@ -105,6 +108,8 @@ namespace TeamWorkFlow.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+
+                    await _userManager.AddClaimAsync(user, new Claim(UserName, $"{user.Email}"));
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

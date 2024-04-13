@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using TeamWorkFlow.Extensions
 @using TeamWorkFlow.Infrastructure.Data.Models
+@using System.Security.Claims
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
@@ -9,12 +10,8 @@
 
 	if (SignInManager.IsSignedIn(User))
 	{
-		var user = await UserManager.FindByIdAsync(User.Id());
-		string[] nameStrings = user.Email.Split("@");
-		if (nameStrings.Length > 0)
-		{
-			userName = nameStrings[0];
-		}
+		userName = User.FindFirstValue(TeamWorkFlow.Infrastructure.Constants.CustomClaimsConstants.UserName)
+			.Split("@")[0];
 	}
 }
 
