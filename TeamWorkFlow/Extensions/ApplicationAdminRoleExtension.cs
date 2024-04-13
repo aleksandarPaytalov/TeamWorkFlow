@@ -3,7 +3,7 @@ using static TeamWorkFlow.Core.Constants.UsersConstants;
 
 namespace TeamWorkFlow.Extensions
 {
-    public static class ApplicationRoleExtensions
+    public static class ApplicationAdminRoleExtension
     {
         public static async Task CreateAdminRoleAsync(this IApplicationBuilder app)
         {
