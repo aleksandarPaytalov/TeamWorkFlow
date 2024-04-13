@@ -1,12 +1,28 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using TeamWorkFlow.Extensions
+@using TeamWorkFlow.Infrastructure.Data.Models
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
+
+@{
+	string userName = string.Empty;
+
+	if (SignInManager.IsSignedIn(User))
+	{
+		var user = await UserManager.FindByIdAsync(User.Id());
+		string[] nameStrings = user.Email.Split("@");
+		if (nameStrings.Length > 0)
+		{
+			userName = nameStrings[0];
+		}
+	}
+}
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
+        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @userName!</a>
     </li>
     <li class="nav-item">
         <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
