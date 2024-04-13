@@ -61,7 +61,9 @@ namespace TeamWorkFlow
 				endpoints.MapDefaultControllerRoute();
 				endpoints.MapRazorPages();
             });
-			
+
+            await app.CreateAdminRoleAsync();
+            await app.CreateOperatorRoleAsync();
 
             await app.RunAsync();
 		}
