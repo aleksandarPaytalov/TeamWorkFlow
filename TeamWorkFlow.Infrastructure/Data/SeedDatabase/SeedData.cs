@@ -23,9 +23,22 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
         public PartStatus ConditionalReleased { get; set; }
 
         /// <summary>
-        /// Priority seeding fields
+        /// Part seeding fields
         /// </summary>
-        public Priority Low { get; set; }
+        public Part PartOne { get; set; }
+        public Part PartTwo { get; set; }
+        public Part PartThree { get; set; }
+        public Part PartFour { get; set; }
+        public Part PartFive { get; set; }
+        public Part PartSix { get; set; }
+        public Part PartSeven { get; set; }
+        public Part PartEight { get; set; }
+
+
+		/// <summary>
+		/// Priority seeding fields
+		/// </summary>
+		public Priority Low { get; set; }
         public Priority Normal { get; set; }
         public Priority High { get; set; }
 
@@ -77,8 +90,121 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
             SeedProjectStatus();
             SeedTaskStatus();
             SeedMachine();
+            SeedPart();
             SeedProject();
             SeedUsers();
+        }
+
+        private void SeedPart()
+        {
+	        PartOne = new Part()
+	        {
+		        Id = 1,
+		        Name = "VW Housing Front D9",
+		        PartArticleNumber = "2.4.100.501",
+		        PartClientNumber = "252.166-15",
+		        ToolNumber = 9055,
+		        PartStatusId = 2,
+		        ProjectId = 2,
+		        ImageUrl =
+			        "https://www.preh.com/fileadmin/templates/website/media/images/Produkte/Car_HMI/Climate_Control/Preh_Produkte_Climate_Control_AudiA1.jpg",
+		        PartModel = "252.166-15_0B_VW Housing Front D9"
+	        };
+
+	        PartTwo = new Part()
+	        {
+		        Id = 2,
+		        Name = "VW Housing D8",
+		        PartArticleNumber = "2.4.100.502",
+		        PartClientNumber = "252.167-00",
+		        ToolNumber = 3418,
+		        PartStatusId = 2,
+		        ProjectId = 2,
+		        ImageUrl = "https://wodofogdr.com/cdn/shop/products/GDR-MBT-823287-2_grande.jpg?v=1626163358",
+		        PartModel = "252.167-00_0D_VW Housing D8"
+	        };
+
+	        PartThree = new Part()
+	        {
+		        Id = 3,
+		        Name = "Audi Housing A5 X-line",
+		        PartArticleNumber = "2.4.100.605",
+		        PartClientNumber = "312.205-11",
+		        ToolNumber = 3459,
+		        PartStatusId = 1,
+		        ProjectId = 2,
+		        ImageUrl = "https://wodofogdr.com/cdn/shop/products/GDR-MBT-823287-2_grande.jpg?v=1626163358",
+		        PartModel = "334.255-10_0E_Audi Housing A5 X-line"
+	        };
+
+	        PartFour = new Part()
+	        {
+		        Id = 4,
+		        Name = "Toyota Housing F5",
+		        PartArticleNumber = "2.4.202.333",
+		        PartClientNumber = "212.200-00",
+		        ToolNumber = 5533,
+		        PartStatusId = 3,
+		        ProjectId = 3,
+		        ImageUrl =
+			        "https://www.bhtc.com/media/pages/produkte/fahrzeugklimatisierung/bmw-klimabediengerat/3086657772-1542633776/bmw_klimabediengeraet_gkl.png",
+		        PartModel = "212.200-00_0B_Toyota Housing F5"
+	        };
+
+	        PartFive = new Part()
+	        {
+		        Id = 5,
+		        Name = "BMW Front-Back Panels X5",
+		        PartArticleNumber = "2.3.105.603",
+		        PartClientNumber = "212.200-11",
+		        ToolNumber = 3360,
+		        PartStatusId = 3,
+		        ProjectId = 1,
+		        ImageUrl = "https://conti-engineering.com/wp-content/uploads/2020/09/climatecontrol_beitrag.jpg",
+		        PartModel = "212.200-11_0E_BMW Front-Back Panels X5"
+	        };
+
+	        PartSix = new Part()
+	        {
+		        Id = 6,
+		        Name = "VW Tuareg Housing panel G5",
+		        PartArticleNumber = "2.4.305.777",
+		        PartClientNumber = "431.222-07",
+		        ToolNumber = 2515,
+		        PartStatusId = 1,
+		        ProjectId = 2,
+		        ImageUrl =
+			        "https://www.preh.com/fileadmin/templates/website/media/images/Produkte/Car_HMI/Climate_Control/Preh_Produkte_Climate_Control_FordFocus.jpg",
+		        PartModel = "431.222-07_0A_VW Tuareg Housing panel G5"
+	        };
+
+	        PartSeven = new Part()
+	        {
+		        Id = 7,
+		        Name = "Toyota Aventis Housing Klima module V6",
+		        PartArticleNumber = "2.4.105.589",
+		        PartClientNumber = "305.201-11",
+		        ToolNumber = 9999,
+		        PartStatusId = 1,
+		        ProjectId = 3,
+		        ImageUrl =
+			        "https://www.preh.com/fileadmin/templates/website/media/images/Produkte/Car_HMI/Climate_Control/Preh_Produkte_Climate_Control_AudiR8.jpg",
+		        PartModel = "305.201-11_0B_Toyota Aventis Housing Klima module V6"
+	        };
+
+	        PartEight = new Part()
+	        {
+		        Id = 8,
+		        Name = "VW Light Conductor Front Panel",
+		        PartArticleNumber = "2.4.222.777",
+		        PartClientNumber = "213.891-22",
+		        ToolNumber = 9995,
+		        PartStatusId = 1,
+		        ProjectId = 2,
+		        ImageUrl =
+			        "https://autoprotoway.com/wp-content/uploads/2022/09/precision-automotive-lighting-parts.jpg",
+		        PartModel = "213.891-22_0T_VW Light Conductor Front Panel"
+	        };
         }
 
         private void SeedUsers()
