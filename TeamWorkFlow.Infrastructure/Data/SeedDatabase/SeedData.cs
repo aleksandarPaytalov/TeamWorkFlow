@@ -2,6 +2,7 @@
 using TeamWorkFlow.Infrastructure.Data.Models;
 using TaskStatus = TeamWorkFlow.Infrastructure.Data.Models.TaskStatus;
 using static TeamWorkFlow.Infrastructure.Constants.CustomClaimsConstants;
+using Task = TeamWorkFlow.Infrastructure.Data.Models.Task;
 
 namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 {
@@ -16,9 +17,16 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
         public OperatorAvailabilityStatus OnTraining { get; set; }
 
         /// <summary>
-        /// PartStatus seeding fields
+        /// Operator seeding fields
         /// </summary>
-        public PartStatus Released { get; set; }
+        public Operator OperatorOne { get; set; }
+        public Operator OperatorTwo { get; set; }
+        public Operator OperatorThree { get; set; }
+
+		/// <summary>
+		/// PartStatus seeding fields
+		/// </summary>
+		public PartStatus Released { get; set; }
         public PartStatus NotReleased { get; set; }
         public PartStatus ConditionalReleased { get; set; }
 
@@ -58,16 +66,29 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
         public TaskStatus Canceled { get; set; }
 
         /// <summary>
-        /// Machine seeding fields 
+        /// Task seeding fields
         /// </summary>
-        public Machine ZeissConturaOne { get; set; }
+		public Task TaskOne { get; set; }
+		public Task TaskTwo { get; set; }
+		public Task TaskThree { get; set; }
+		public Task TaskFour { get; set; }
+		public Task TaskFive { get; set; }
+		public Task TaskSix { get; set; }
+
+		/// <summary>
+		/// Machine seeding fields 
+		/// </summary>
+		public Machine ZeissConturaOne { get; set; }
         public Machine ZeissInspect { get; set; }
         public Machine ZeissMetrotom { get; set; }
+        public Machine MachineFour { get; set; }
+		public Machine MachineFive { get; set; }
+		public Machine MachineSix { get; set; }
 
 		/// <summary>
 		/// Project seeding fields
 		/// </summary>
-        public Project BmwHousingGx9 { get; set; }
+		public Project BmwHousingGx9 { get; set; }
         public Project VwFrontPanel { get; set; }
         public Project ToyotaClimaticModule { get; set; }
 
@@ -93,8 +114,45 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
             SeedPart();
             SeedProject();
             SeedUsers();
+            SeedOperator();
+			SeedTask();
         }
 
+        private void SeedOperator()
+        {
+	        OperatorOne = new Operator()
+	        {
+                Id = 1,
+                FullName = "Aleksandar Paytalov",
+                AvailabilityStatusId = 4,
+                Email = "ap.softuni@gmail.com",
+                PhoneNumber = "+359881234567",
+                IsActive = true,
+                Capacity = 8
+			};
+
+	        OperatorTwo = new Operator()
+	        {
+		        Id = 2,
+		        FullName = "Jon Doe",
+		        AvailabilityStatusId = 1,
+		        Email = "jon.doe@softuni.bg",
+		        PhoneNumber = "+359887654321",
+		        IsActive = true,
+		        Capacity = 4
+	        };
+
+	        OperatorThree = new Operator()
+	        {
+		        Id = 3,
+		        FullName = "Jane Doe",
+		        AvailabilityStatusId = 2,
+		        Email = "jane.doe@softuni.bg",
+		        PhoneNumber = "+359894567890",
+		        IsActive = true,
+		        Capacity = 8
+	        };
+        }
         private void SeedPart()
         {
 	        PartOne = new Part()
@@ -206,7 +264,6 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 		        PartModel = "213.891-22_0T_VW Light Conductor Front Panel"
 	        };
         }
-
         private void SeedUsers()
         {
 	        var hasher = new PasswordHasher<IdentityUser>();
@@ -338,7 +395,40 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
                 ImageUrl = "https://i0.wp.com/metrology.news/wp-content/uploads/2023/02/ZEISS-METROTOM-1.jpg?resize=450%2C404"
 			};
 
-		}
+	        MachineFour = new Machine()
+	        {
+		        Id = 4,
+		        Name = "Zeiss X-ray",
+		        Capacity = 16,
+		        CalibrationSchedule = new DateTime(2024, 06, 06),
+		        TotalMachineLoad = 0,
+		        IsCalibrated = true,
+		        ImageUrl =
+			        "https://www.zeiss.com/content/dam/metrology/products/systems/ct/bosello-new/bosello-sre-max.jpg"
+	        };
+
+	        MachineFive = new Machine()
+	        {
+		        Id = 5,
+		        Name = "Mitutoyo Scan",
+		        Capacity = 20,
+		        CalibrationSchedule = new DateTime(2024, 06, 06),
+		        TotalMachineLoad = 0,
+		        IsCalibrated = true,
+		        ImageUrl = "https://measuremetrology.com/wp-content/uploads/2023/03/mitutoyobrightapex504.png"
+	        };
+
+	        MachineSix = new Machine()
+	        {
+				Id = 6,
+				Name = "Zeiss Microscope E9000",
+				Capacity = 11,
+				CalibrationSchedule = new DateTime(2024,10,10),
+				TotalMachineLoad = 0,
+				IsCalibrated = true,
+				ImageUrl = "https://www.micro-shop.zeiss.com/data/image/shop-catalog-system/group_6038.jpg"
+			};
+        }
         private void SeedTaskStatus()
         {
             Open = new TaskStatus()
@@ -450,5 +540,100 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
                 Name = "on training"
             };
         }
-    }
+        private void SeedTask()
+        {
+	        TaskOne = new Task()
+	        {
+		        Id = 1,
+		        Name = "Housing Front Panel - LOP.",
+		        Description =
+			        "LOP dimensional report for phase 1 (T0) - samples from the tool maker should arrive in Calendar week 48.",
+		        StartDate = new DateTime(2023, 11, 03),
+		        TaskStatusId = 1,
+		        PriorityId = 2,
+		        CreatorId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
+		        DeadLine = new DateTime(2023, 12, 12),
+		        EstimatedTime = 25,
+		        MachineId = 1,
+		        ProjectId = 2
+	        };
+
+	        TaskTwo = new Task()
+	        {
+		        Id = 2,
+		        Name = "Housing Klima - PPAP",
+		        Description = "PPAP level 3",
+		        StartDate = new DateTime(2024, 06, 06),
+		        TaskStatusId = 2,
+		        PriorityId = 2,
+		        CreatorId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
+		        DeadLine = new DateTime(2024, 07, 07),
+		        EstimatedTime = 32,
+		        MachineId = 2,
+		        ProjectId = 3
+	        };
+
+	        TaskThree = new Task()
+	        {
+		        Id = 3,
+		        Name = "Housing D8 - PPAP",
+		        Description =
+			        "Full PPAP documents need to be created and prepared for sending to customer no late than 07.07.2024.",
+		        StartDate = new DateTime(2024, 06, 06),
+		        TaskStatusId = 2,
+		        PriorityId = 2,
+		        CreatorId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
+		        DeadLine = new DateTime(2024, 07, 07),
+		        EstimatedTime = 32,
+		        ProjectId = 2
+	        };
+
+	        TaskFour = new Task()
+	        {
+		        Id = 4,
+		        Name = "BMW Back Panel - Sample order no. 987",
+		        Description =
+			        "Validation of the part on another production machine. Full dimensional report of 5 shots from the new machine. Results must be compared with measurements of the part from the serial (validated) production machine",
+		        StartDate = new DateTime(2024, 07, 18),
+		        TaskStatusId = 1,
+		        PriorityId = 2,
+		        CreatorId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
+		        EstimatedTime = 8,
+		        ProjectId = 1
+	        };
+
+	        TaskFive = new Task()
+	        {
+		        Id = 5,
+		        Name = "BMW Front panel - Sample order No. 954",
+		        Description =
+			        "Validation of the part on another production machine. Full dimensional report of 5 shots from the new machine. Results must be compared with measurements of the part from the serial (validated) production machine",
+		        StartDate = new DateTime(2024, 06, 06),
+		        EndDate = new DateTime(2024, 07, 12),
+		        TaskStatusId = 3,
+		        PriorityId = 1,
+		        CreatorId = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
+		        EstimatedTime = 10,
+		        MachineId = 2,
+		        ProjectId = 1
+	        };
+
+	        TaskSix = new Task()
+	        {
+		        Id = 6,
+		        Name = "Housing Klima module V6 - PPAP",
+		        Description =
+			        "PPAP documents level 3 must be performed. Note: Deviations on dimensions 10 and 150 have been accepted from the customer. Drawing will be adjusted with next PPAP revision",
+		        StartDate = new DateTime(2024, 06, 06),
+		        EndDate = new DateTime(2024, 06, 12),
+		        TaskStatusId = 3,
+		        PriorityId = 3,
+		        CreatorId = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
+		        DeadLine = new DateTime(2024, 06, 12),
+		        EstimatedTime = 16,
+		        MachineId = 3,
+		        ProjectId = 3
+	        };
+        }
+	}
 }

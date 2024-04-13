@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeamWorkFlow.Infrastructure.Data;
 
@@ -11,9 +12,10 @@ using TeamWorkFlow.Infrastructure.Data;
 namespace TeamWorkFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(TeamWorkFlowDbContext))]
-    partial class TeamWorkFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240413125115_SeedOperatorsIntoDataBase")]
+    partial class SeedOperatorsIntoDataBase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -143,15 +145,15 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         {
                             Id = "b806eee6-2ceb-4956-9643-e2e2e82289d2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d9d19e80-610f-44db-ba6f-0ba6b4b4b2c9",
+                            ConcurrencyStamp = "6b457b5b-0a03-45c7-a3f3-6421cc601007",
                             Email = "jane.doe@softuni.bg",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "JANE.DOE@SOFTUNI.BG",
                             NormalizedUserName = "JANE.DOE@SOFTUNI.BG",
-                            PasswordHash = "AQAAAAEAACcQAAAAEE9yVdjVGNdo9Q5lF5lxyD51yalW+rNN3sIwvoiK+/6vNUd7xwsimNWpeX6JwD82KA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEI8NMymfamuGj/4qzADJ7xqMPZOMwUM7jjiMBDGJaYwasVoScBPv7uZ8fHbY7DZbNA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "341fba96-2787-4380-900c-fd0b81ff8c94",
+                            SecurityStamp = "510f9fd3-e8cd-4348-bfcf-8c934a9b3233",
                             TwoFactorEnabled = false,
                             UserName = "jane.doe@softuni.bg"
                         },
@@ -159,15 +161,15 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         {
                             Id = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "062f86d9-8e6b-4faa-9481-ee9bf011df9a",
+                            ConcurrencyStamp = "8beca5d7-6112-4308-8bda-eaa2d6731910",
                             Email = "jon.doe@softuni.bg",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "JON.DOE@SOFTUNI.BG",
                             NormalizedUserName = "JON.DOE@SOFTUNI.BG",
-                            PasswordHash = "AQAAAAEAACcQAAAAEAF6MhR8xsHOmQ5rtR3pAk4Ssm7GOeGw9GB6nRMFtcuqpQIUFV+Rd6VkcKaa7sTeFw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEJHgp2mIeqwwwzCrdTONGHXwT067/0dXfMU9rEUTRWVDkGc00kE1LDBxHS1rA6P16A==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "ef45f4ce-9f34-46ca-9d0e-3833ce4a7c2f",
+                            SecurityStamp = "48ce4be3-e2cc-4505-b776-2235d4d91d5a",
                             TwoFactorEnabled = false,
                             UserName = "jon.doe@softuni.bg"
                         },
@@ -175,15 +177,15 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         {
                             Id = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "f6cf4375-e30e-4a8a-8b4c-f0fb723a7a57",
+                            ConcurrencyStamp = "bd3b5b27-26e6-4807-8f89-9f31ffffc2c5",
                             Email = "ap.softuni@gmail.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "AP.SOFTUNI@GMAIL.COM",
                             NormalizedUserName = "AP.SOFTUNI@GMAIL.COM",
-                            PasswordHash = "AQAAAAEAACcQAAAAEJ3aW/wj+0gRkMMP18NKfscyjbixAMok0gn6+IB76KE1o8X1wHRQ8TLou2sPM7djFw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEM+PpOZLjI+c45Nx28nhNpiSPDnwICIYYFvpADD/GNikzrSDKnJyLKhKPrTNvlg2DA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "73af7f97-6410-4d5b-93a4-f057c89712c3",
+                            SecurityStamp = "d066a5c8-37f9-405f-b638-3776c8c92970",
                             TwoFactorEnabled = false,
                             UserName = "ap.softuni@gmail.com"
                         });
@@ -376,36 +378,6 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             ImageUrl = "https://i0.wp.com/metrology.news/wp-content/uploads/2023/02/ZEISS-METROTOM-1.jpg?resize=450%2C404",
                             IsCalibrated = false,
                             Name = "Zeiss Metrotom",
-                            TotalMachineLoad = 0.0
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CalibrationSchedule = new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Capacity = 16,
-                            ImageUrl = "https://www.zeiss.com/content/dam/metrology/products/systems/ct/bosello-new/bosello-sre-max.jpg",
-                            IsCalibrated = true,
-                            Name = "Zeiss X-ray",
-                            TotalMachineLoad = 0.0
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CalibrationSchedule = new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Capacity = 20,
-                            ImageUrl = "https://measuremetrology.com/wp-content/uploads/2023/03/mitutoyobrightapex504.png",
-                            IsCalibrated = true,
-                            Name = "Mitutoyo Scan",
-                            TotalMachineLoad = 0.0
-                        },
-                        new
-                        {
-                            Id = 6,
-                            CalibrationSchedule = new DateTime(2024, 10, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Capacity = 11,
-                            ImageUrl = "https://www.micro-shop.zeiss.com/data/image/shop-catalog-system/group_6038.jpg",
-                            IsCalibrated = true,
-                            Name = "Zeiss Microscope E9000",
                             TotalMachineLoad = 0.0
                         });
                 });
@@ -968,90 +940,6 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                     b.ToTable("Tasks");
 
                     b.HasComment("Task Db model");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatorId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
-                            DeadLine = new DateTime(2023, 12, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "LOP dimensional report for phase 1 (T0) - samples from the tool maker should arrive in Calendar week 48.",
-                            EstimatedTime = 25,
-                            MachineId = 1,
-                            Name = "Housing Front Panel - LOP.",
-                            PriorityId = 2,
-                            ProjectId = 2,
-                            StartDate = new DateTime(2023, 11, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            TaskStatusId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatorId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
-                            DeadLine = new DateTime(2024, 7, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "PPAP level 3",
-                            EstimatedTime = 32,
-                            MachineId = 2,
-                            Name = "Housing Klima - PPAP",
-                            PriorityId = 2,
-                            ProjectId = 3,
-                            StartDate = new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            TaskStatusId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatorId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
-                            DeadLine = new DateTime(2024, 7, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Full PPAP documents need to be created and prepared for sending to customer no late than 07.07.2024.",
-                            EstimatedTime = 32,
-                            Name = "Housing D8 - PPAP",
-                            PriorityId = 2,
-                            ProjectId = 2,
-                            StartDate = new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            TaskStatusId = 2
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CreatorId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
-                            Description = "Validation of the part on another production machine. Full dimensional report of 5 shots from the new machine. Results must be compared with measurements of the part from the serial (validated) production machine",
-                            EstimatedTime = 8,
-                            Name = "BMW Back Panel - Sample order no. 987",
-                            PriorityId = 2,
-                            ProjectId = 1,
-                            StartDate = new DateTime(2024, 7, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            TaskStatusId = 1
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CreatorId = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
-                            Description = "Validation of the part on another production machine. Full dimensional report of 5 shots from the new machine. Results must be compared with measurements of the part from the serial (validated) production machine",
-                            EndDate = new DateTime(2024, 7, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            EstimatedTime = 10,
-                            MachineId = 2,
-                            Name = "BMW Front panel - Sample order No. 954",
-                            PriorityId = 1,
-                            ProjectId = 1,
-                            StartDate = new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            TaskStatusId = 3
-                        },
-                        new
-                        {
-                            Id = 6,
-                            CreatorId = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
-                            DeadLine = new DateTime(2024, 6, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "PPAP documents level 3 must be performed. Note: Deviations on dimensions 10 and 150 have been accepted from the customer. Drawing will be adjusted with next PPAP revision",
-                            EndDate = new DateTime(2024, 6, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            EstimatedTime = 16,
-                            MachineId = 3,
-                            Name = "Housing Klima module V6 - PPAP",
-                            PriorityId = 3,
-                            ProjectId = 3,
-                            StartDate = new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            TaskStatusId = 3
-                        });
                 });
 
             modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.TaskOperator", b =>
