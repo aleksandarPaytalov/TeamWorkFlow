@@ -16,9 +16,16 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
         public OperatorAvailabilityStatus OnTraining { get; set; }
 
         /// <summary>
-        /// PartStatus seeding fields
+        /// Operator seeding fields
         /// </summary>
-        public PartStatus Released { get; set; }
+        public Operator OperatorOne { get; set; }
+        public Operator OperatorTwo { get; set; }
+        public Operator OperatorThree { get; set; }
+
+		/// <summary>
+		/// PartStatus seeding fields
+		/// </summary>
+		public PartStatus Released { get; set; }
         public PartStatus NotReleased { get; set; }
         public PartStatus ConditionalReleased { get; set; }
 
@@ -93,6 +100,43 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
             SeedPart();
             SeedProject();
             SeedUsers();
+            SeedOperator();
+        }
+
+        private void SeedOperator()
+        {
+	        OperatorOne = new Operator()
+	        {
+                Id = 1,
+                FullName = "Aleksandar Paytalov",
+                AvailabilityStatusId = 4,
+                Email = "ap.softuni@gmail.com",
+                PhoneNumber = "+359881234567",
+                IsActive = true,
+                Capacity = 8
+			};
+
+	        OperatorTwo = new Operator()
+	        {
+		        Id = 2,
+		        FullName = "Jon Doe",
+		        AvailabilityStatusId = 1,
+		        Email = "jon.doe@softuni.bg",
+		        PhoneNumber = "+359887654321",
+		        IsActive = true,
+		        Capacity = 4
+	        };
+
+	        OperatorThree = new Operator()
+	        {
+		        Id = 3,
+		        FullName = "Jane Doe",
+		        AvailabilityStatusId = 2,
+		        Email = "jane.doe@softuni.bg",
+		        PhoneNumber = "+359894567890",
+		        IsActive = true,
+		        Capacity = 8
+	        };
         }
 
         private void SeedPart()
@@ -206,7 +250,6 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 		        PartModel = "213.891-22_0T_VW Light Conductor Front Panel"
 	        };
         }
-
         private void SeedUsers()
         {
 	        var hasher = new PasswordHasher<IdentityUser>();
