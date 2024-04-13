@@ -23,6 +23,20 @@ namespace TeamWorkFlow.Extensions
                     await userManager.AddToRoleAsync(admin, role.Name);
                 }
             }
+
+            if (await roleManager.RoleExistsAsync(OperatorRole) == false)
+            {
+                var role = new IdentityRole(OperatorRole);
+                await roleManager.CreateAsync(role);
+
+                var operatorUser = await userManager.FindByEmailAsync(OperatorEmail);
+
+                if (operatorUser != null)
+                {
+                    await userManager.AddToRoleAsync(operatorUser, role.Name);
+                }
+
+            }
         }
     }
 }

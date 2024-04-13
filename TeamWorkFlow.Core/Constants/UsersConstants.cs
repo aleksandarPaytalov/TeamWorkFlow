@@ -7,5 +7,6 @@
 
 
         public const string OperatorRole = "Operator";
+        public const string OperatorEmail = "ap.softuni@gmail.com";
     }
 }
