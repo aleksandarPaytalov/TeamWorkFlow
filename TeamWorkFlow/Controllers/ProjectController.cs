@@ -3,6 +3,7 @@ using NuGet.Packaging.Signing;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Project;
+using TeamWorkFlow.Extensions;
 using static TeamWorkFlow.Core.Constants.Messages;
 
 namespace TeamWorkFlow.Controllers
@@ -27,6 +28,11 @@ namespace TeamWorkFlow.Controllers
 		[HttpGet]
 	    public async Task<IActionResult> Add()
 	    {
+            if (User.IsAdmin() == false)
+            {
+                return Unauthorized();
+            }
+
 		    var model = new ProjectFormModel()
 		    {
 			    ProjectStatuses = await _projectService.GetAllProjectStatusesAsync()
@@ -67,7 +73,12 @@ namespace TeamWorkFlow.Controllers
 		[HttpGet]
 	    public async Task<IActionResult> Edit(int id, string extension)
 	    {
-		    if (!await _projectService.ProjectExistByIdAsync(id))
+            if (User.IsAdmin() == false)
+            {
+                return Unauthorized();
+            }
+
+            if (!await _projectService.ProjectExistByIdAsync(id))
 		    {
 			    return BadRequest();
 		    }
@@ -154,7 +165,12 @@ namespace TeamWorkFlow.Controllers
 		[HttpGet]
 	    public async Task<IActionResult> Delete(int id, string extension)
 	    {
-		    if (!await _projectService.ProjectExistByIdAsync(id))
+            if (User.IsAdmin() == false)
+            {
+                return Unauthorized();
+            }
+
+            if (!await _projectService.ProjectExistByIdAsync(id))
 		    {
 			    return BadRequest();
 		    }

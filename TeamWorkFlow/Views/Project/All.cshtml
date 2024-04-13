@@ -1,13 +1,19 @@
-﻿@model IEnumerable<ProjectServiceModel>
+﻿@using TeamWorkFlow.Extensions
+@model IEnumerable<ProjectServiceModel>
 @{
 	ViewBag.Title = "All Project";
 }
 
 <h2 class="text-center">@ViewBag.Title</h2>
 
-<a class="btn btn-success"  asp-area="" asp-controller="Project" asp-action="Add">Add Project</a>
-<hr />
-
+@if (User?.Identity?.IsAuthenticated ?? false)
+{
+	if (User.IsAdmin())
+	{
+		<a class="btn btn-success"  asp-area="" asp-controller="Project" asp-action="Add">Add Project</a>
+		<hr />
+	}
+	
 <div class="text-center row">
 	@foreach (var p in Model)
 	{
@@ -20,25 +26,33 @@
 			</div>
 
 			<div class="row">
-				<div class="col">
-					<a asp-controller="Project" asp-action="Details" asp-route-id="@p.Id" class="btn btn-warning mb-2 w-100 p-2 fw-bold"
-					   asp-route-extension="@p.GetProjectExtension()">Details</a>
-				</div>
-				@if (User?.Identity?.IsAuthenticated ?? false)
+				@if (User.IsAdmin())
 				{
 					<div class="col">
-						<a asp-controller="Project" asp-action="Edit" asp-route-id="@p.Id" class="btn btn-warning mb-2 w-100 p-2 fw-bold"
-						   asp-route-extension="@p.GetProjectExtension()">Edit</a>
+						<a asp-controller="Project" asp-action="Details" asp-route-id="@p.Id" class="btn btn-warning mb-2 w-100 p-2 fw-bold"
+						   asp-route-extension="@p.GetProjectExtension()">Details</a>
 					</div>
-					<div class="col">
-						<a asp-controller="Project" asp-action="Delete" asp-route-id="@p.Id" class="btn btn-danger mb-2 w-100 p-2 fw-bold"
-						   asp-route-extension="@p.GetProjectExtension()">Delete</a>
-					</div>
+						<div class="col">
+							<a asp-controller="Project" asp-action="Edit" asp-route-id="@p.Id" class="btn btn-warning mb-2 w-100 p-2 fw-bold"
+							   asp-route-extension="@p.GetProjectExtension()">Edit</a>
+						</div>
+						<div class="col">
+							<a asp-controller="Project" asp-action="Delete" asp-route-id="@p.Id" class="btn btn-danger mb-2 w-100 p-2 fw-bold"
+							   asp-route-extension="@p.GetProjectExtension()">Delete</a>
+						</div>
+				}
+				else if (User.IsOperator())
+				{
+						<div class="col">
+							<a asp-controller="Project" asp-action="Details" asp-route-id="@p.Id" class="btn btn-warning mb-2 w-100 p-2 fw-bold"
+							   asp-route-extension="@p.GetProjectExtension()">Details</a>
+						</div>
 				}
 			</div>
 		</div>
 	}
 </div>
+}
 
 @section Scripts {
 	<partial name="_ValidationScriptsPartial"/>
