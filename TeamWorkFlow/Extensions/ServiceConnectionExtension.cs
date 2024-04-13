@@ -42,6 +42,7 @@ namespace TeamWorkFlow.Extensions
                     options.Password.RequireUppercase = true;
                     options.Password.RequireNonAlphanumeric = true;
                 })
+                .AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<TeamWorkFlowDbContext>();
 
 			return services;
