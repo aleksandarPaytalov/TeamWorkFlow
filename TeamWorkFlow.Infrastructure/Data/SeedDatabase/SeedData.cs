@@ -1,4 +1,5 @@
-﻿using TeamWorkFlow.Infrastructure.Data.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using TeamWorkFlow.Infrastructure.Data.Models;
 using TaskStatus = TeamWorkFlow.Infrastructure.Data.Models.TaskStatus;
 
 namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
@@ -56,7 +57,17 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
         public Project VwFrontPanel { get; set; }
         public Project ToyotaClimaticModule { get; set; }
 
-	
+        /// <summary>
+        /// Project seeding fields
+        /// </summary>
+        public IdentityUser GuestUser { get; set; }
+        public IdentityUser OperatorUser { get; set; }
+        public IdentityUser AdminUser { get; set; }
+        public IdentityUserClaim<string> GuestUserClaim { get; set; }
+        public IdentityUserClaim<string> OperatorUserClaim { get; set; }
+        public IdentityUserClaim<string> AdminUserClaim { get; set; }
+
+
 		public SeedData()
         {
             SeedOperatorAvailabilityStatus();
