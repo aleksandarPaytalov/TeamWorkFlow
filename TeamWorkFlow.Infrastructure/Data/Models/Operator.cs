@@ -54,5 +54,8 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public IdentityUser User { get; set; } = null!;
         
         public ICollection<TaskOperator> TasksOperators { get; set; } = new List<TaskOperator>();
+
+        [Comment("Checker if the User is approved as operator")]
+        public bool IsApproved { get; set; }
     }
 }
