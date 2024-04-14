@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeamWorkFlow.Infrastructure.Data;
 
@@ -11,9 +12,10 @@ using TeamWorkFlow.Infrastructure.Data;
 namespace TeamWorkFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(TeamWorkFlowDbContext))]
-    partial class TeamWorkFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240414082834_OperatorIsApprove")]
+    partial class OperatorIsApprove
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -143,15 +145,15 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         {
                             Id = "b806eee6-2ceb-4956-9643-e2e2e82289d2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "876f7332-34b0-4124-adab-1b66d5855dd2",
+                            ConcurrencyStamp = "75abd990-7935-4331-9e09-a7db3a09ab8c",
                             Email = "jane.doe@softuni.bg",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "JANE.DOE@SOFTUNI.BG",
                             NormalizedUserName = "JANE.DOE@SOFTUNI.BG",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGvfoP7NSa8KsuiO7zDamflzwQdazPGPwYmzNA4EBlz1xoRAZ4Hc20W1aEby98iJjQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAELiAONgtUCEx5b+kLE6MWEdDCij83NzO5gGJP39FOrrXirOC4YjUP9u/z75bxW3NIQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "190bcf7a-72f8-40eb-b6be-d0ffa49f4d90",
+                            SecurityStamp = "e98fcd54-8222-42f0-b620-0dce142e20a1",
                             TwoFactorEnabled = false,
                             UserName = "jane.doe@softuni.bg"
                         },
@@ -159,15 +161,15 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         {
                             Id = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "0e69f5eb-fa82-4550-9090-d6e5b3dcd0fc",
+                            ConcurrencyStamp = "e71ab459-5a04-4863-a711-1889829057e7",
                             Email = "jon.doe@softuni.bg",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "JON.DOE@SOFTUNI.BG",
                             NormalizedUserName = "JON.DOE@SOFTUNI.BG",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGlioKHXb9fo8eFHS+a7NOo2hMMVrg2ZQXEu0s3+JNzoLt+HM22dSqNMZZH4jHfTJA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEBiQdBlpTXytHpKVmQvyKTzBelYgcRBJsGrVGp62MRroktUBLidZ2E6d8kwbZBaIjA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "4cd6a9b3-86b9-4372-98bf-70b59e015a86",
+                            SecurityStamp = "55087060-019c-4d78-b949-b543625e5df6",
                             TwoFactorEnabled = false,
                             UserName = "jon.doe@softuni.bg"
                         },
@@ -175,15 +177,15 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         {
                             Id = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "cae56427-a3da-4480-9b13-9116013de4a1",
+                            ConcurrencyStamp = "03808e8b-ef90-4ab7-9ba3-4a0681d01be8",
                             Email = "ap.softuni@gmail.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "AP.SOFTUNI@GMAIL.COM",
                             NormalizedUserName = "AP.SOFTUNI@GMAIL.COM",
-                            PasswordHash = "AQAAAAEAACcQAAAAELsuJFGnr7DDGswazoHf/JDZRkqopMxen4/E56oUbtJE4NvceFB1wYzmAJKXuJXQEg==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEJcAkRvu8BwlD9svesTD7+pXlCfFqLXqLMI8aKAW4Xtt4iBtQrwJLS9CL7SEs7MRCA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "f380b92c-92da-4e6b-86da-5fb9d3522119",
+                            SecurityStamp = "68ebe27c-646d-4b05-afa2-6a377596b55b",
                             TwoFactorEnabled = false,
                             UserName = "ap.softuni@gmail.com"
                         });
@@ -442,6 +444,10 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasComment("Showing if the current operator is still working in the company");
 
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit")
+                        .HasComment("Checker if the User is approved as operator");
+
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -472,6 +478,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             Email = "ap.softuni@gmail.com",
                             FullName = "Aleksandar Paytalov",
                             IsActive = true,
+                            IsApproved = false,
                             PhoneNumber = "+359881234567",
                             UserId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77"
                         },
@@ -483,6 +490,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             Email = "jon.doe@softuni.bg",
                             FullName = "Jon Doe",
                             IsActive = true,
+                            IsApproved = false,
                             PhoneNumber = "+359887654321",
                             UserId = "7bf9623c-54d9-45ba-84c6-52806dcee7bd"
                         },
@@ -494,6 +502,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             Email = "jane.doe@softuni.bg",
                             FullName = "Jane Doe",
                             IsActive = true,
+                            IsApproved = false,
                             PhoneNumber = "+359894567890",
                             UserId = "b806eee6-2ceb-4956-9643-e2e2e82289d2"
                         });

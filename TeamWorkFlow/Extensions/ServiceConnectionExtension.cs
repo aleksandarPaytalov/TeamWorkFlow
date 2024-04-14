@@ -37,6 +37,7 @@ namespace TeamWorkFlow.Extensions
 		{
 			services.AddDefaultIdentity<IdentityUser>(options =>
 				{
+					options.User.RequireUniqueEmail = true;
 					options.SignIn.RequireConfirmedAccount = false;
                     options.Password.RequireDigit = true;
                     options.Password.RequireUppercase = true;

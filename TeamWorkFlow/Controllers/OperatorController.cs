@@ -126,7 +126,7 @@ namespace TeamWorkFlow.Controllers
 
             await _operatorService.EditOperatorAsync(model, id);
 
-            return RedirectToAction(nameof(Details), new {id = model.Id, extension = model.GetOperatorExtension()});
+            return RedirectToAction(nameof(All)); //, new {id = model.Id, extension = model.GetOperatorExtension()});
         }
 
 		[HttpGet]

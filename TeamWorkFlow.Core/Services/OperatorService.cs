@@ -21,6 +21,7 @@ namespace TeamWorkFlow.Core.Services
 		public async Task<ICollection<OperatorServiceModel>> GetAllOperatorsAsync()
 		{
 			 return await _repository.AllReadOnly<Operator>()
+				 .Where(o => o.IsActive)
 				.Select(o => new OperatorServiceModel()
 				{
 					Id = o.Id,
@@ -73,6 +74,7 @@ namespace TeamWorkFlow.Core.Services
 		{
 			return await _repository.AllReadOnly<Operator>()
 				.Where(o => o.Id == id)
+				.Where(o => o.IsActive)
 				.Select(o => new OperatorFormModel()
 				{
 					FullName = o.FullName,
@@ -120,7 +122,7 @@ namespace TeamWorkFlow.Core.Services
 		public async Task<bool> OperatorExistByIdAsync(int operatorId)
 		{
 			return await _repository.AllReadOnly<Operator>()
-				.AnyAsync(o => o.Id == operatorId);
+				.AnyAsync(o => o.Id == operatorId && o.IsActive == true);
 		}
 
 		public async Task<OperatorDetailsServiceModel?> GetOperatorDetailsByIdAsync(int id)
@@ -130,6 +132,7 @@ namespace TeamWorkFlow.Core.Services
 
 			return await _repository.AllReadOnly<Operator>()
 				.Where(o => o.Id == id)
+				.Where(o => o.IsActive)
 				.Select(o => new OperatorDetailsServiceModel()
 				{
 					Id = o.Id,
@@ -163,6 +166,7 @@ namespace TeamWorkFlow.Core.Services
 		{
 			return await _repository.AllReadOnly<Operator>()
 				.Where(o => o.Id == operatorId)
+				.Where(o => o.IsActive)
 				.Select(o => new OperatorDeleteServiceModel()
 				{
 					Id = o.Id,

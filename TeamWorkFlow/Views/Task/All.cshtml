@@ -3,6 +3,7 @@
 	ViewData["Title"] = "All created Tasks";
 }
 
+
 <h2 class="text-center">@ViewBag.Title</h2>
 
 @if (User?.Identity?.IsAuthenticated ?? false)
@@ -10,6 +11,7 @@
 	if (User.IsAdmin() || User.IsOperator())
 	{
 		<a href="@Url.Action("Add", "Task")" class="btn btn-success">Add Task</a>
+		<a href="@Url.Action("Mine", "Task")" class="btn btn-purple">My Tasks</a>
 		<hr />
 	}
 	
@@ -56,6 +58,9 @@
 										</a>
 										<a class="dropdown-item" href="@Url.Action("Details", "Task", new { id = task.Id, extension = task.GetTaskExtension() })">
 											<span class="text-info">Details</span>
+										</a>
+										<a class="dropdown-item" href="@Url.Action("AddToMine", "Task", new { id = task.Id, extension = task.GetTaskExtension() })">
+											<span class="text-purple">Add to My collection</span>
 										</a>
 									</div>
 								</div>

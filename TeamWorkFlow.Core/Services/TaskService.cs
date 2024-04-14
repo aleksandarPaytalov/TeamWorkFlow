@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Exceptions;
 using TeamWorkFlow.Core.Models.Task;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
@@ -196,6 +198,115 @@ namespace TeamWorkFlow.Core.Services
         {
 	        return await _repository.AllReadOnly<Infrastructure.Data.Models.Task>()
 		        .AnyAsync(t => t.Id == taskId);
+        }
+
+        public async Task<ICollection<TaskServiceModel>> GetMyTasksAsync(string userId)
+        {
+	        var operatorId = await GetOperatorIdByUserId(userId);
+
+            var model = await _repository.AllReadOnly<TaskOperator>()
+	            .Where(to => to.OperatorId == operatorId)
+	            .Select(to => new TaskServiceModel()
+	            {
+					Id = to.Task.Id,
+                    Name = to.Task.Name,
+					Description = to.Task.Description,
+					Status = to.Task.TaskStatus.Name,
+					Priority = to.Task.Priority.Name,
+					ProjectNumber = to.Task.Project.ProjectNumber,
+					StartDate = to.Task.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
+					EndDate = to.Task.EndDate != null ? to.Task.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+					Deadline = to.Task.DeadLine != null ? to.Task.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty
+				})
+	            .ToListAsync();
+
+			return model;
+        }
+
+        public async Task AddTaskToMyCollection(TaskServiceModel model, string userId)
+        {
+	        var operatorId = await GetOperatorIdByUserId(userId);
+	        var exist = await TaskExistInTaskOperatorTableByIdAsync(model.Id);
+
+	        var alreadyInCollection = await _repository.AllReadOnly<TaskOperator>()
+		        .FirstOrDefaultAsync(to => to.TaskId == model.Id && to.OperatorId == operatorId);
+
+	        if (alreadyInCollection == null && exist == false)
+	        {
+		        var taskOperator = new TaskOperator()
+		        {
+			        TaskId = model.Id,
+                    OperatorId = operatorId
+		        };
+
+		        await _repository.AddAsync(taskOperator);
+		        await _repository.SaveChangesAsync();
+	        }
+        }
+
+        public async Task<int> GetOperatorIdByUserId(string userId)
+        {
+	        var operatorModel = await _repository.AllReadOnly<Operator>()
+		        .Where(o => o.UserId == userId)
+		        .FirstOrDefaultAsync();
+
+	        if (operatorModel == null)
+	        {
+		        throw new UnExistingActionException("The operator with this userId does not exist");
+	        }
+
+	        return operatorModel.Id;
+        }
+
+        public async Task<TaskServiceModel?> GetTaskByIdAsync(int id)
+        {
+	        var taskModel = await _repository.AllReadOnly<Infrastructure.Data.Models.Task>()
+		        .Where(t => t.Id == id)
+		        .Select(t => new TaskServiceModel()
+		        {
+			        Id = t.Id,
+			        Name = t.Name,
+			        Description = t.Description,
+			        Status = t.TaskStatus.Name,
+			        Priority = t.Priority.Name,
+			        ProjectNumber = t.Project.ProjectNumber,
+			        StartDate = t.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
+			        EndDate = t.EndDate != null
+				        ? t.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture)
+				        : string.Empty,
+			        Deadline = t.DeadLine != null
+				        ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture)
+				        : string.Empty
+		        })
+		        .FirstOrDefaultAsync();
+
+	        return taskModel;
+        }
+
+        public async Task<bool> TaskExistInTaskOperatorTableByIdAsync(int taskId)
+        {
+	        var exist = await _repository.AllReadOnly<TaskOperator>()
+		        .Where(to => to.TaskId == taskId)
+		        .AnyAsync();
+
+	        return exist;
+        }
+
+        public async Task RemoveFromCollection(int taskId, string userId)
+        {
+	        var operatorId = await GetOperatorIdByUserId(userId);
+
+	        var toRemoveFromCollection = await _repository.AllReadOnly<TaskOperator>()
+		        .Where(to =>
+			        to.TaskId == taskId &&
+			        to.OperatorId == operatorId)
+		        .FirstOrDefaultAsync();
+
+	        if (toRemoveFromCollection != null)
+	        {
+		        _repository.DeleteTaskOperator(toRemoveFromCollection);
+		        await _repository.SaveChangesAsync();
+	        }
         }
     }
 }

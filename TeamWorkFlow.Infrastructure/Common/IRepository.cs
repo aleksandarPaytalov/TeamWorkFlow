@@ -1,4 +1,6 @@
-﻿namespace TeamWorkFlow.Infrastructure.Common
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace TeamWorkFlow.Infrastructure.Common
 {
     public interface IRepository
     {
@@ -13,5 +15,7 @@
         Task<T?> GetByIdAsync<T>(object id) where T : class;
 
         Task DeleteAsync<T>(object id) where T : class;
+
+        T DeleteTaskOperator<T>(T entity) where T : class;
     }
 }

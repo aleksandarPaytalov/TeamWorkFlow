@@ -36,9 +36,10 @@ namespace TeamWorkFlow.Core.Services
 				.CountAsync();
 
 			int totalWorkers = await _repository.AllReadOnly<Operator>()
+				.Where(w => w.IsActive)
 				.CountAsync();
 			int totalAvailableWorkers = await _repository.AllReadOnly<Operator>()
-				.Where(w => w.AvailabilityStatus.Name.ToLower() == "at work")
+				.Where(w => w.AvailabilityStatus.Name.ToLower() == "at work" && w.IsActive)
 				.CountAsync();
 
 			int totalMachines = await _repository.AllReadOnly<Machine>()
