@@ -37,8 +37,20 @@ section, section > div > p > a, section > form > div > p > a {
     border-color: #176B87;
 }
 
-    .custom-button-color:hover {
-        background-color: #86B6F6;
-        color: #176B87;
-    }
+.custom-button-color:hover {
+    background-color: #86B6F6;
+    color: #176B87;
+}
+
+.btn-purple {
+    background-color: purple;
+    color: white;
+    border-color: purple;
+}
+
+.text-purple { color: purple; 
+
+}
+
+
 

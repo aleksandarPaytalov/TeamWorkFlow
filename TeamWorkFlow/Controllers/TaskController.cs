@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata;
 using TeamWorkFlow.Core.Constants;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Extensions;
@@ -14,12 +15,15 @@ namespace TeamWorkFlow.Controllers
     {
         private readonly ITaskService _taskService;
         private readonly IProjectService _projectService;
+        private readonly IOperatorService _operatorService;
 
         public TaskController(ITaskService taskService, 
-	        IProjectService projectService)
+	        IProjectService projectService, 
+	        IOperatorService operatorService)
         {
 	        _taskService = taskService;
 	        _projectService = projectService;
+	        _operatorService = operatorService;
         }
 
         [HttpGet]
@@ -330,5 +334,56 @@ namespace TeamWorkFlow.Controllers
 
 			return RedirectToAction(nameof(All));
 		}
+
+		[HttpGet]
+        public async Task<IActionResult> AddToMine(int id)
+        {
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Unauthorized();
+	        }
+
+			var taskToAdd = await _taskService.GetTaskByIdAsync(id);
+
+	        if (taskToAdd == null)
+	        {
+		        return RedirectToAction(nameof(All));
+			}
+
+	        var userId = User.Id();
+
+	        await _taskService.AddTaskToMyCollection(taskToAdd, userId);
+
+	        return RedirectToAction(nameof(Mine));
+        }
+
+		[HttpGet]
+        public async Task<IActionResult> Mine()
+        {
+	        var userId = User.Id();
+
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Unauthorized();
+	        }
+
+	        var model = await _taskService.GetMyTasksAsync(userId);
+			
+			return View(model);
+        }
+
+        public async Task<IActionResult> RemoveFromCollection(int id)
+        {
+	        var userId = User.Id();
+
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Unauthorized();
+	        }
+
+	        await _taskService.RemoveFromCollection(id, userId);
+
+			return RedirectToAction(nameof(Mine));
+        }
 	}
 }
