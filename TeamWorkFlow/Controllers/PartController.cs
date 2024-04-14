@@ -2,6 +2,7 @@
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Part;
+using TeamWorkFlow.Extensions;
 using static TeamWorkFlow.Core.Constants.Messages;
 
 namespace TeamWorkFlow.Controllers
@@ -40,7 +41,12 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-            var partModel = new PartFormModel()
+	        if (User.IsAdmin() == false)
+	        {
+		        return Unauthorized();
+	        }
+
+			var partModel = new PartFormModel()
             {
                 Statuses = await _partService.AllStatusesAsync()
             };
@@ -85,7 +91,12 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id, string extension)
         {
-            if (!await _partService.PartExistAsync(id))
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Unauthorized();
+	        }
+
+			if (!await _partService.PartExistAsync(id))
             {
                 return BadRequest();
             }
@@ -103,7 +114,12 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id, string extension)
         {
-            if (!await _partService.PartExistAsync(id))
+	        if (User.IsAdmin() == false)
+	        {
+		        return Unauthorized();
+	        }
+
+			if (!await _partService.PartExistAsync(id))
             {
                 return BadRequest();
             }
@@ -161,10 +177,16 @@ namespace TeamWorkFlow.Controllers
 
 	        return RedirectToAction(nameof(Details), new {id, extension = model.GetPartExtension()});
         }
+
 		[HttpGet]
         public async Task<IActionResult> Delete(int id, string extension)
         {
-	        if (!await _partService.PartExistAsync(id))
+	        if (User.IsAdmin() == false)
+	        {
+		        return Unauthorized();
+	        }
+
+			if (!await _partService.PartExistAsync(id))
 	        {
 		        return BadRequest();
 	        }
@@ -175,7 +197,6 @@ namespace TeamWorkFlow.Controllers
 	        }
 
 	        var partModel = await _partService.GetPartForDeletingByIdAsync(id);
-
 
 	        if (extension != partModel?.GetPartExtension())
 	        {
