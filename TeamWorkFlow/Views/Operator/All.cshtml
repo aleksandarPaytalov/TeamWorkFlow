@@ -6,46 +6,60 @@
 
 <h2 class="text-center">@ViewBag.Title</h2>
 
-<div class="text-right mb-3">
-    <a href="@Url.Action("Add", "Operator")" class="btn btn-success">Add Operator</a>
-</div>
-<div class="text-right mb-3">
-</div>
+@if (User?.Identity?.IsAuthenticated ?? false)
+{
+	if (User.IsAdmin())
+	{
+		<a href="@Url.Action("Add", "Operator")" class="btn btn-success">Add Operator</a>
+		<hr/>
+	}
+	
+	<div class="table-responsive">
+		<table class="table table-bordered">
+			<thead>
+			<tr>
+				<th>Full Name</th>
+				<th>Availability Status</th>
+				<th>Email</th>
+				<th>Phone number</th>
+				<th>Is active</th>
+				<th>Capacity</th>
+				<th>Action buttons</th>
+			</tr>
+			</thead>
+			<tbody>
+			@foreach (var o in Model)
+			{
+				<tr>
+					<td>@o.FullName</td>
+					<td>@o.AvailabilityStatus</td>
+					<td>@o.Email</td>
+					<td>@o.PhoneNumber</td>
+					<td>@o.IsActive</td>
+					<td>@o.Capacity</td>
+					
+					@if (User.IsAdmin())
+					{
+						<td>
+							<a href="@Url.Action("Edit", "Operator", new { id = o.Id, extension = o.GetOperatorExtension()})" class="btn btn-primary">Edit</a>
+							<a href="@Url.Action("Delete", "Operator", new { id = o.Id, extension = o.GetOperatorExtension() })" class="btn btn-danger">Delete</a>
+							<a href="@Url.Action("Details", "Operator", new { id = o.Id, extension = o.GetOperatorExtension() })" class="btn btn-primary">Details</a>
+						</td>
+					}
+					else if (User.IsOperator())
+					{
+							<td>
+								<a href="@Url.Action("Details", "Operator", new { id = o.Id, extension = o.GetOperatorExtension() })" class="btn btn-primary">Details</a>
+							</td>
+					}
+				</tr>
+			}
+			</tbody>
+		</table>
+	</div>
 
-<hr />
+}
 
-<div class="table-responsive">
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Full Name</th>
-                <th>Availability Status</th>
-                <th>Email</th>
-                <th>Phone number</th>
-                <th>Is active</th>
-                <th>Capacity</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var o in Model)
-            {
-                <tr>
-                    <td>@o.FullName</td>
-                    <td>@o.AvailabilityStatus</td>
-                    <td>@o.Email</td>
-                    <td>@o.PhoneNumber</td>
-                    <td>@o.IsActive</td>
-                    <td>@o.Capacity</td>
-                    <td>
-                        <a href="@Url.Action("Edit", "Operator", new { id = o.Id, extension = o.GetOperatorExtension()})" class="btn btn-primary">Edit</a>
-                        <a href="@Url.Action("Delete", "Operator", new { id = o.Id, extension = o.GetOperatorExtension() })" class="btn btn-danger">Delete</a>
-                        <a href="@Url.Action("Details", "Operator", new { id = o.Id, extension = o.GetOperatorExtension() })" class="btn btn-primary">Details</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

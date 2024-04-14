@@ -27,7 +27,12 @@ namespace TeamWorkFlow.Controllers
 	    [HttpGet]
 	    public IActionResult Add()
 	    {
-		    var machineModel = new MachineFormModel();
+		    if (User.IsAdmin() == false)
+		    {
+			    return Unauthorized();
+		    }
+
+			var machineModel = new MachineFormModel();
 
 		    return View(machineModel);
 	    }
@@ -35,11 +40,6 @@ namespace TeamWorkFlow.Controllers
 		[HttpPost]
 	    public async Task<IActionResult> Add(MachineFormModel model)
 	    {
-		    if (User.IsAdmin() == false)
-		    {
-			    return Unauthorized();
-		    }
-
 		    if (!ModelState.IsValid)
 		    {
 			    return BadRequest();
