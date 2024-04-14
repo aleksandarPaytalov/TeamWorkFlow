@@ -10,17 +10,24 @@
             <h6>Tool No.: <b>@Model.ToolNumber</b></h6>
             <h6>3D-model: @Model.PartModel</h6>
             <br />
-            <a asp-controller="Part" asp-action="Details" asp-route-id="@Model.Id"
-               class="btn btn-success" asp-route-extension="@Model.GetPartExtension()">Details</a>
-            @if (this.User.Identity.IsAuthenticated)
-            {
-	            <a asp-controller="Part" asp-action="Edit" asp-route-id="@Model.Id"
-                   class="btn btn-warning" asp-route-extension="@Model.GetPartExtension()">Edit</a>
-	            <a asp-controller="Part" asp-action="Delete" asp-route-id="@Model.Id"
-                   class="btn btn-danger" asp-route-extension="@Model.GetPartExtension()">Delete</a>
+            
+	        @if (User.IsAdmin())
+	        {
+		        <a asp-controller="Part" asp-action="Details" asp-route-id="@Model.Id"
+		           class="btn btn-success" asp-route-extension="@Model.GetPartExtension()">Details</a>
+		        <a asp-controller="Part" asp-action="Edit" asp-route-id="@Model.Id"
+		           class="btn btn-warning" asp-route-extension="@Model.GetPartExtension()">Edit</a>
+		        <a asp-controller="Part" asp-action="Delete" asp-route-id="@Model.Id"
+		           class="btn btn-danger" asp-route-extension="@Model.GetPartExtension()">Delete</a>
 
-                <p></p>
-            }
+		        <p></p>
+	        }
+
+	        else if (User.IsOperator())
+	        {
+		        <a asp-controller="Part" asp-action="Details" asp-route-id="@Model.Id"
+		           class="btn btn-success" asp-route-extension="@Model.GetPartExtension()">Details</a>
+	        }
         </div>
     </div>
 </div>
