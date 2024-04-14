@@ -5,6 +5,7 @@ using TeamWorkFlow.Core.Constants;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Task;
+using TeamWorkFlow.Extensions;
 using static TeamWorkFlow.Core.Constants.Messages;
 
 namespace TeamWorkFlow.Controllers
@@ -32,7 +33,12 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-            var priorities = await _taskService.GetAllPrioritiesAsync();
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Unauthorized();
+	        }
+
+			var priorities = await _taskService.GetAllPrioritiesAsync();
             var statuses = await _taskService.GetAllStatusesAsync();
 
             var model = new TaskFormModel()
@@ -47,7 +53,7 @@ namespace TeamWorkFlow.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(TaskFormModel model)
         {
-			var userId = GetUserId();
+			var userId = User.Id();
 			
 			DateTime? parsedEndDate = null;
 			DateTime? parsedDeadlineDate = null;
@@ -143,7 +149,12 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
 		public async Task <IActionResult> Details(int id, string extension)
         {
-	        if (!await _taskService.TaskExistByIdAsync(id))
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Unauthorized();
+	        }
+
+			if (!await _taskService.TaskExistByIdAsync(id))
 	        {
 		        return BadRequest();
 	        }
@@ -161,7 +172,12 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id, string extension)
         {
-	        if (!await _taskService.TaskExistByIdAsync(id))
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Unauthorized();
+	        }
+
+			if (!await _taskService.TaskExistByIdAsync(id))
 	        {
 		        return BadRequest();
 	        }
@@ -275,8 +291,14 @@ namespace TeamWorkFlow.Controllers
 			return RedirectToAction(nameof(Details), new {id, extension = model.GetTaskExtension()});
 		}
 
+		[HttpGet]
         public async Task<IActionResult> Delete(int id, string extension)
         {
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Unauthorized();
+	        }
+
 			if (!await _taskService.TaskExistByIdAsync(id))
 			{
 				return BadRequest();
@@ -308,10 +330,5 @@ namespace TeamWorkFlow.Controllers
 
 			return RedirectToAction(nameof(All));
 		}
-
-        private string GetUserId()
-        {
-            return User.FindFirstValue(ClaimTypes.NameIdentifier);
-        }
 	}
 }
