@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using TeamWorkFlow.Infrastructure.Data;
 
 namespace TeamWorkFlow.Infrastructure.Common
@@ -53,5 +54,12 @@ namespace TeamWorkFlow.Infrastructure.Common
                 DbSet<T>().Remove(entity);
             }
         }
-    }
+
+		public T DeleteTaskOperator<T>(T entity) where T : class
+		{
+			DbSet<T>().Remove(entity);
+
+			return entity;
+		}
+	}
 }
