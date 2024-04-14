@@ -8,10 +8,5 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
 		{
 			return View();
 		}
-
-		public async Task<IActionResult> ForReview()
-		{
-			return View();
-		}
 	}
 }
