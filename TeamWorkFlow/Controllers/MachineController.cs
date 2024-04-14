@@ -2,6 +2,7 @@
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Machine;
+using TeamWorkFlow.Extensions;
 
 namespace TeamWorkFlow.Controllers
 {
@@ -34,6 +35,11 @@ namespace TeamWorkFlow.Controllers
 		[HttpPost]
 	    public async Task<IActionResult> Add(MachineFormModel model)
 	    {
+		    if (User.IsAdmin() == false)
+		    {
+			    return Unauthorized();
+		    }
+
 		    if (!ModelState.IsValid)
 		    {
 			    return BadRequest();
@@ -47,7 +53,12 @@ namespace TeamWorkFlow.Controllers
 		[HttpGet]
 	    public async Task<IActionResult> Edit(int id, string extension)
 	    {
-		    if (!await _machineService.MachineExistByIdAsync(id))
+		    if (User.IsAdmin() == false)
+		    {
+			    return Unauthorized();
+		    }
+
+			if (!await _machineService.MachineExistByIdAsync(id))
 		    {
 			    return BadRequest();
 		    }
@@ -67,6 +78,7 @@ namespace TeamWorkFlow.Controllers
 			return View(model);
 	    }
 
+		[HttpPost]
 	    public async Task<IActionResult> Edit(MachineFormModel model, int id)
 	    {
 		    if (!ModelState.IsValid)
@@ -81,7 +93,12 @@ namespace TeamWorkFlow.Controllers
 
 	    public async Task<IActionResult> Details(int id, string extension)
 	    {
-		    if (!await _machineService.MachineExistByIdAsync(id))
+		    if (User.IsAdmin() == false && User.IsOperator() == false)
+		    {
+			    return Unauthorized();
+		    }
+
+			if (!await _machineService.MachineExistByIdAsync(id))
 		    {
 			    return BadRequest();
 		    }
@@ -101,9 +118,15 @@ namespace TeamWorkFlow.Controllers
 		    return View(model);
 	    }
 
+		[HttpGet]
 	    public async Task<IActionResult> Delete(int id, string extension)
 	    {
-		    if (!await _machineService.MachineExistByIdAsync(id))
+		    if (User.IsAdmin() == false)
+		    {
+			    return Unauthorized();
+		    }
+
+			if (!await _machineService.MachineExistByIdAsync(id))
 		    {
 			    return BadRequest();
 		    }
@@ -123,6 +146,7 @@ namespace TeamWorkFlow.Controllers
 			return View(model);
 	    }
 
+		[HttpPost]
 	    public async Task<IActionResult> DeleteConfirmation(int id)
 	    {
 		    if (!await _machineService.MachineExistByIdAsync(id))

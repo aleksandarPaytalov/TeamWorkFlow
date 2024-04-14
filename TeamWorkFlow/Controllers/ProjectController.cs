@@ -142,7 +142,12 @@ namespace TeamWorkFlow.Controllers
 		[HttpGet]
 	    public async Task<IActionResult> Details(int id, string extension)
 	    {
-		    if (!await _projectService.ProjectExistByIdAsync(id))
+		    if (User.IsAdmin() == false && User.IsOperator() == false)
+		    {
+			    return Unauthorized();
+		    }
+
+			if (!await _projectService.ProjectExistByIdAsync(id))
 		    {
 			    return BadRequest();
 		    }
