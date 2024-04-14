@@ -23,8 +23,17 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
 			return View(assignedTasks);
 		}
 
-		public async Task<IActionResult> RemoveFromCollection(int id, int operatorId)
+		public async Task<IActionResult> RemoveFromCollection(int id)
 		{
+			var operatorId = await _taskService.GetOperatorIdByAssignedTaskId(id);
+
+			if (operatorId == 0)
+			{
+				return BadRequest();
+			}
+
+			await _taskService.RemoveAssignedTaskFromUserCollection(id, operatorId);
+
 
 			return RedirectToAction(nameof(AllAssigns), "Task");
 		}

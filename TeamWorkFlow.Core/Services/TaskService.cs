@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Globalization;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Exceptions;
-using TeamWorkFlow.Core.Models.Admin;
 using TeamWorkFlow.Core.Models.Task;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
@@ -329,5 +327,29 @@ namespace TeamWorkFlow.Core.Services
 
 			return model;
         }
+
+        public async Task<int> GetOperatorIdByAssignedTaskId(int taskId)
+        {
+	        var operatorModel = await _repository.AllReadOnly<TaskOperator>()
+		        .Where(to => to.TaskId == taskId)
+		        .FirstOrDefaultAsync();
+
+	        return operatorModel?.OperatorId ?? 0;
+        }
+
+        public async Task RemoveAssignedTaskFromUserCollection(int taskId, int operatorId)
+        {
+			var toRemoveAssignedTask = await _repository.AllReadOnly<TaskOperator>()
+				.Where(to =>
+					to.TaskId == taskId &&
+					to.OperatorId == operatorId)
+				.FirstOrDefaultAsync();
+
+			if (toRemoveAssignedTask != null)
+			{
+				_repository.DeleteTaskOperator(toRemoveAssignedTask);
+				await _repository.SaveChangesAsync();
+			}
+		}
     }
 }
