@@ -11,12 +11,12 @@
 		In this section you can see <b style="color: red">all users and operators</b> and <b style = "color: red">all assigned tasks</b> in your application.
 	</p>
 	<hr class="my-4">
-	<a asp-area="" asp-controller="Operator" asp-action="All"
-	   class="btn btn-primary btn-lg btn-purple">Operators List</a>
 	<a asp-area="" asp-controller="Operator" asp-action="Add"
 	   class="btn btn-primary btn-lg btn-purple">Add Operator</a>
+	<a asp-area="" asp-controller="Operator" asp-action="All"
+	   class="btn btn-primary btn-lg btn-purple">Active Operators</a>
 	<a asp-area="Admin" asp-controller="Task" asp-action="AllAssigns"
 	   class="btn btn-primary btn-lg btn-purple">All Assigned Tasks</a>
-	<a asp-area="Admin" asp-controller="User" asp-action="All"
-	   class="btn btn-primary btn-lg btn-purple">All Users</a>
+	<a asp-area="Admin" asp-controller="Operator" asp-action="All"
+	   class="btn btn-primary btn-lg btn-purple">All Operators</a>
 </div>

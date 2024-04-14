@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Models.Admin.Operator;
 using TeamWorkFlow.Core.Models.Operator;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
@@ -18,7 +19,7 @@ namespace TeamWorkFlow.Core.Services
 		}
 
 
-		public async Task<ICollection<OperatorServiceModel>> GetAllOperatorsAsync()
+		public async Task<ICollection<OperatorServiceModel>> GetAllActiveOperatorsAsync()
 		{
 			 return await _repository.AllReadOnly<Operator>()
 				 .Where(o => o.IsActive)
@@ -187,6 +188,21 @@ namespace TeamWorkFlow.Core.Services
 				await _repository.DeleteAsync<Operator>(operatorForDelete.Id);
 				await _repository.SaveChangesAsync();
 			}
+		}
+
+		public async Task<ICollection<OperatorAccessServiceModel>> GetAllOperatorsAsync()
+		{
+			var model = await _repository.AllReadOnly<Operator>()
+				.Select(o => new OperatorAccessServiceModel()
+				{
+					FullName = o.FullName,
+					Email = o.Email,
+					PhoneNumber = o.PhoneNumber,
+					IsActive = o.IsActive
+				})
+				.ToListAsync();
+
+			return model;
 		}
 	}
 }
