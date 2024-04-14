@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NuGet.Packaging.Signing;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Operator;
+using TeamWorkFlow.Extensions;
 using static TeamWorkFlow.Core.Constants.Messages;
 
 namespace TeamWorkFlow.Controllers
 {
-    public class OperatorController : BaseController
+	public class OperatorController : BaseController
     {
 	    private readonly IOperatorService _operatorService;
 
@@ -27,7 +27,12 @@ namespace TeamWorkFlow.Controllers
 		[HttpGet]
 	    public async Task<IActionResult> Add()
 	    {
-		    var operatorStatus = await _operatorService.GetAllOperatorStatusesAsync();
+		    if (User.IsAdmin() == false)
+		    {
+			    return Unauthorized();
+		    }
+
+			var operatorStatus = await _operatorService.GetAllOperatorStatusesAsync();
 
 		    var operatorModel = new OperatorFormModel()
 		    {
@@ -65,7 +70,12 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id, string extension)
         {
-            if (await _operatorService.OperatorExistByIdAsync(id) == false)
+	        if (User.IsAdmin() == false)
+	        {
+		        return Unauthorized();
+	        }
+
+			if (await _operatorService.OperatorExistByIdAsync(id) == false)
             {
                 return BadRequest();
             }
@@ -122,7 +132,12 @@ namespace TeamWorkFlow.Controllers
 		[HttpGet]
         public async Task<IActionResult> Details(int id, string extension)
         {
-            if (await _operatorService.OperatorExistByIdAsync(id) == false)
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Unauthorized();
+	        }
+
+			if (await _operatorService.OperatorExistByIdAsync(id) == false)
             {
                 return BadRequest();
             }
@@ -145,7 +160,12 @@ namespace TeamWorkFlow.Controllers
 		[HttpGet]
         public async Task<IActionResult> Delete(int id, string extension)
         {
-            if (await _operatorService.OperatorExistByIdAsync(id) == false)
+	        if (User.IsAdmin() == false)
+	        {
+		        return Unauthorized();
+	        }
+
+			if (await _operatorService.OperatorExistByIdAsync(id) == false)
             {
                 return BadRequest();
             }

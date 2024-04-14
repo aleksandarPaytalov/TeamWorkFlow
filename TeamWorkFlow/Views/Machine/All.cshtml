@@ -5,42 +5,55 @@
 
 <h2 class="text-center">@ViewBag.Title</h2>
 
-<div class="text-right mb-3">
-	<a href="@Url.Action("Add", "Machine")" class="btn btn-success">Add new machine</a>
-</div>
-<div class="text-right mb-3">
-</div>
+@if (User?.Identity?.IsAuthenticated ?? false)
+{
+	if (User.IsAdmin())
+	{
+		<a href="@Url.Action("Add", "Machine")" class="btn btn-success">Add new machine</a>
+		<hr />
+	}
 
-<hr />
-
-<div class="table-responsive">
-	<table class="table table-bordered">
-		<thead>
-		<tr>
-			<th>Name</th>
-			<th>Next Calibration date</th>
-			<th>Is calibrated</th>
-			<th>Daily capacity</th>
-		</tr>
-		</thead>
-		<tbody>
-		@foreach (var m in Model)
-		{
+	<div class="table-responsive">
+		<table class="table table-bordered">
+			<thead>
 			<tr>
-				<td>@m.Name</td>
-				<td>@m.CalibrationSchedule</td>
-				<td>@m.IsCalibrated</td>
-				<td>@m.Capacity</td>
-				<td>
-					<a href="@Url.Action("Edit", "Machine", new { id = m.Id, extension = m.GetMachineExtension() })" class="btn btn-primary">Edit</a>
-						<a href="@Url.Action("Delete", "Machine", new { id = m.Id, extension = m.GetMachineExtension() })" class="btn btn-danger">Delete</a>
-						<a href="@Url.Action("Details", "Machine", new { id = m.Id, extension = m.GetMachineExtension() })" class="btn btn-primary">Details</a>
-				</td>
+				<th>Name</th>
+				<th>Next Calibration date</th>
+				<th>Is calibrated</th>
+				<th>Daily capacity</th>
+				<th>Action buttons</th>
 			</tr>
-		}
-		</tbody>
-	</table>
-</div>
+			</thead>
+			<tbody>
+			@foreach (var m in Model)
+			{
+				<tr>
+					<td>@m.Name</td>
+					<td>@m.CalibrationSchedule</td>
+					<td>@m.IsCalibrated</td>
+					<td>@m.Capacity</td>
+
+					@if (User.IsAdmin())
+					{
+						<td>
+							<a href="@Url.Action("Edit", "Machine", new { id = m.Id, extension = m.GetMachineExtension() })" class="btn btn-primary">Edit</a>
+							<a href="@Url.Action("Delete", "Machine", new { id = m.Id, extension = m.GetMachineExtension() })" class="btn btn-danger">Delete</a>
+							<a href="@Url.Action("Details", "Machine", new { id = m.Id, extension = m.GetMachineExtension() })" class="btn btn-primary">Details</a>
+						</td>
+					}
+					else if (User.IsOperator())
+					{
+							<td>
+								<a href="@Url.Action("Details", "Machine", new { id = m.Id, extension = m.GetMachineExtension() })" class="btn btn-primary">Details</a>
+							</td>
+					}
+				</tr>
+			}
+			</tbody>
+		</table>
+	</div>
+
+}
 
 @section Scripts {
 	<partial name="_ValidationScriptsPartial" />

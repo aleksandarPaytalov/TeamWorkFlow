@@ -23,7 +23,7 @@
 				<p>Total tasks completed: @Model.TotalCompletedTasks</p>
 
 				<div class="form-inline">
-					@if (User?.Identity?.IsAuthenticated ?? false)
+					@if (User.Identity.IsAuthenticated && User.IsAdmin())
 					{
 						<a class="btn btn-warning" asp-controller="Operator" asp-action="Edit"
 						   asp-route-id="@Model.Id" asp-route-extension ="@Model.GetOperatorExtension()">Edit</a>
