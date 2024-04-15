@@ -25,7 +25,8 @@ namespace TeamWorkFlow.Core.Services
             int partsPerPage = 1,
             int currentPage = 1)
         {
-            var partsToBeDisplayed = _repository.AllReadOnly<Part>();
+	        IQueryable<Part> partsToBeDisplayed = _repository.AllReadOnly<Part>();
+	            
 
             if (status != null)
             {
