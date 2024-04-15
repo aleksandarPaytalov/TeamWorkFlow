@@ -47,6 +47,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public int Capacity { get; set; }
 
         [Required]
+        [MaxLength(OperatorUserIdMaxLength)]
         [Comment("User identifier")]
         public string UserId { get; set; } = string.Empty;
 

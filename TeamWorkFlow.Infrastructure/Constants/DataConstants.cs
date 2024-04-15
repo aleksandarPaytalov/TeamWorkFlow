@@ -24,10 +24,13 @@
         public const int OperatorMinCapacity = 4;
         public const int OperatorMaxCapacity = 12;
 
-        /// <summary>
-        /// Task DataConstants
-        /// </summary>
-        public const int TaskNameMinLength = 5;
+        public const int OperatorUserIdMinLength = 36;
+        public const int OperatorUserIdMaxLength = 450;
+
+		/// <summary>
+		/// Task DataConstants
+		/// </summary>
+		public const int TaskNameMinLength = 5;
         public const int TaskNameMaxLength = 100;
 
         public const int TaskDescriptionMinLength = 5;
