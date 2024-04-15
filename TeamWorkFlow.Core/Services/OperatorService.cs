@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Models.Admin.Operator;
 using TeamWorkFlow.Core.Models.Operator;
@@ -12,11 +14,14 @@ namespace TeamWorkFlow.Core.Services
 	public class OperatorService : IOperatorService
 	{
 		private readonly IRepository _repository;
+        private readonly UserManager<IdentityUser> _userManager;
 
-		public OperatorService(IRepository repository)
-		{
-			_repository = repository;
-		}
+		public OperatorService(IRepository repository, 
+            UserManager<IdentityUser> userManager)
+        {
+            _repository = repository;
+            _userManager = userManager;
+        }
 
 
 		public async Task<ICollection<OperatorServiceModel>> GetAllActiveOperatorsAsync()
@@ -47,7 +52,7 @@ namespace TeamWorkFlow.Core.Services
 				.ToListAsync();
 		}
 
-		public async Task AddNewOperatorAsync(OperatorFormModel model)
+		public async Task AddNewOperatorAsync(OperatorFormModel model, string userId)
 		{
 			if (bool.TryParse(model.IsActive, out bool isActive))
 			{
@@ -59,8 +64,9 @@ namespace TeamWorkFlow.Core.Services
 					Email = model.Email,
 					FullName = model.FullName,
 					IsActive = isActive,
-					PhoneNumber = model.PhoneNumber
-				};
+					PhoneNumber = model.PhoneNumber,
+					UserId = userId
+                };
 
 				await _repository.AddAsync(operatorModel);
 				await _repository.SaveChangesAsync();
@@ -123,7 +129,7 @@ namespace TeamWorkFlow.Core.Services
 		public async Task<bool> OperatorExistByIdAsync(int operatorId)
 		{
 			return await _repository.AllReadOnly<Operator>()
-				.AnyAsync(o => o.Id == operatorId && o.IsActive == true);
+				.AnyAsync(o => o.Id == operatorId); // && o.IsActive == true);
 		}
 
 		public async Task<OperatorDetailsServiceModel?> GetOperatorDetailsByIdAsync(int id)
@@ -232,5 +238,17 @@ namespace TeamWorkFlow.Core.Services
 				await _repository.SaveChangesAsync();
 			}
 		}
+
+		public async Task<string?> GetUserIdByEmailAsync(string emailAddress)
+        {
+            var user = await _userManager.FindByEmailAsync(emailAddress);
+
+            if (user != null)
+            {
+                return user.Id;
+            }
+
+            return null;
+        }
 	}
 }

@@ -143,6 +143,7 @@ namespace TeamWorkFlow.Areas.Identity.Pages.Account
             return Page();
         }
 
+        // for implementation after Project defence
         //private async Task<bool> SendEmailAsync(string email, string subject, string confirmLink)
         //{
         //    try

@@ -29,5 +29,11 @@
         public const string OperatorWithIdDoNotExist = "Operator with Id do not exist";
 
         public const string StartDateGreaterThanEndDateOrDeadLine = "The start date cannot be greater than the end date or the deadline";
+
+        public const string UserWithEmailNotRegistered = "User with email is not registered in the application";
+
+        public const string UserMessageSuccess = "UserMessageSuccess";
+
+        public const string UserMessageError = "UserMessageError";
     }
 }

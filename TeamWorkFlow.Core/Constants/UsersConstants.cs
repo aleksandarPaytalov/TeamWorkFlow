@@ -5,6 +5,8 @@
         public const string AdminRole = "Administrator";
         public const string AdminEmail = "ap.softuni@gmail.com";
         public const string AdminAreaName = "Admin";
+        public const string UserCacheKey = "UserCacheKey";
+
 
 
 		public const string OperatorRole = "Operator";

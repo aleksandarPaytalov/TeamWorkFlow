@@ -41,6 +41,12 @@ namespace TeamWorkFlow.Core.Models.Operator
 		[Required(ErrorMessage = RequiredMessage)]
 		public int AvailabilityStatusId { get; set; }
 
+
+		[StringLength(OperatorUserIdMaxLength,
+			MinimumLength = OperatorUserIdMinLength,
+			ErrorMessage = StringLength)]
+		public string? UserId { get; set; }
+
 		public ICollection<AvailabilityStatusServiceModel> AvailabilityStatusModels { get; set; } =
 			new List<AvailabilityStatusServiceModel>();
 	}

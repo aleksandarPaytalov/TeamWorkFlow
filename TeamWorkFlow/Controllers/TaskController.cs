@@ -1,29 +1,25 @@
-﻿using System.Globalization;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using TeamWorkFlow.Core.Constants;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Task;
 using TeamWorkFlow.Extensions;
 using static TeamWorkFlow.Core.Constants.Messages;
+using static TeamWorkFlow.Constants.MessageConstants;
 
 namespace TeamWorkFlow.Controllers
 {
-	public class TaskController : BaseController
+    public class TaskController : BaseController
     {
         private readonly ITaskService _taskService;
         private readonly IProjectService _projectService;
-        private readonly IOperatorService _operatorService;
 
         public TaskController(ITaskService taskService, 
-	        IProjectService projectService, 
-	        IOperatorService operatorService)
+	        IProjectService projectService)
         {
 	        _taskService = taskService;
 	        _projectService = projectService;
-	        _operatorService = operatorService;
         }
 
         [HttpGet]
@@ -57,98 +53,102 @@ namespace TeamWorkFlow.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(TaskFormModel model)
         {
-			var userId = User.Id();
-			
-			DateTime? parsedEndDate = null;
-			DateTime? parsedDeadlineDate = null;
+            var userId = User.Id();
 
-			//Check if the startDate is in valid format.
-			bool startDateIsValid = DateTime.TryParseExact(model.StartDate, DateFormat,
-				CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedStartDate);
-			if (!startDateIsValid)
-			{
-				ModelState.AddModelError(nameof(model.StartDate), string.Format(InvalidDate, DateFormat));
-			}
+            DateTime? parsedEndDate = null;
+            DateTime? parsedDeadlineDate = null;
 
-			//If the EndDate is not null and valid it checks if the StartDate is smaller than the EndDate.
-			if (!string.IsNullOrWhiteSpace(model.EndDate))
-			{
-				bool endDateIsValid = DateTime.TryParseExact(model.EndDate, DateFormat,
-					CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime endDate);
-				if (!endDateIsValid)
-				{
-					ModelState.AddModelError(nameof(model.EndDate), string.Format(InvalidDate, DateFormat));
-				}
-				else
-				{
-					if (parsedStartDate > endDate)
-					{
-						ModelState.AddModelError(nameof(model.EndDate), string.Format(StartDateGreaterThanEndDateOrDeadLine));
-					}
-					else
-					{
-						parsedEndDate = endDate;
-					}
-				}
-			}
+            // Check if the startDate is in valid format.
+            bool startDateIsValid = DateTime.TryParseExact(model.StartDate, DateFormat,
+                CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedStartDate);
+            if (!startDateIsValid)
+            {
+                ModelState.AddModelError(nameof(model.StartDate), string.Format(InvalidDate, DateFormat));
+            }
 
-			//If the Deadline is not null and valid it checks if the StartDate is smaller than the Deadline.
-			if (!string.IsNullOrWhiteSpace(model.Deadline))
-			{
-				bool deadLineIsValid = DateTime.TryParseExact(model.Deadline, Messages.DateFormat,
-					CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime deadLine);
-				if (!deadLineIsValid)
-				{
-					ModelState.AddModelError(nameof(model.Deadline), string.Format(InvalidDate, DateFormat));
-				}
-				else
-				{
-					if (parsedStartDate > deadLine)
-					{
-						ModelState.AddModelError(nameof(model.Deadline), string.Format(StartDateGreaterThanEndDateOrDeadLine));
-					}
-					else
-					{
-						parsedDeadlineDate = deadLine;
-					}
-				}
-			}
+            // If the EndDate is not null and valid it checks if the StartDate is smaller than the EndDate.
+            if (!string.IsNullOrWhiteSpace(model.EndDate))
+            {
+                bool endDateIsValid = DateTime.TryParseExact(model.EndDate, DateFormat,
+                    CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime endDate);
+                if (!endDateIsValid)
+                {
+                    ModelState.AddModelError(nameof(model.EndDate), string.Format(InvalidDate, DateFormat));
+                }
+                else
+                {
+                    if (parsedStartDate > endDate)
+                    {
+                        ModelState.AddModelError(nameof(model.EndDate), string.Format(StartDateGreaterThanEndDateOrDeadLine));
+                    }
+                    else
+                    {
+                        parsedEndDate = endDate;
+                    }
+                }
+            }
 
-			if (await _taskService.PriorityExistsAsync(model.PriorityId) == false)
-			{
-				ModelState.AddModelError(nameof(model.PriorityId), $"{PriorityNotExisting}");
-			}
+            // If the Deadline is not null and valid it checks if the StartDate is smaller than the Deadline.
+            if (!string.IsNullOrWhiteSpace(model.Deadline))
+            {
+                bool deadLineIsValid = DateTime.TryParseExact(model.Deadline, Messages.DateFormat,
+                    CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime deadLine);
+                if (!deadLineIsValid)
+                {
+                    ModelState.AddModelError(nameof(model.Deadline), string.Format(InvalidDate, DateFormat));
+                }
+                else
+                {
+                    if (parsedStartDate > deadLine)
+                    {
+                        ModelState.AddModelError(nameof(model.Deadline), string.Format(StartDateGreaterThanEndDateOrDeadLine));
+                    }
+                    else
+                    {
+                        parsedDeadlineDate = deadLine;
+                    }
+                }
+            }
 
-			if (await _taskService.TaskStatusExistsAsync(model.StatusId) == false)
-			{
-				ModelState.AddModelError(nameof(model.PriorityId), $"{StatusNotExisting}");
-			}
+            if (await _taskService.PriorityExistsAsync(model.PriorityId) == false)
+            {
+                ModelState.AddModelError(nameof(model.PriorityId), $"{PriorityNotExisting}");
+            }
 
-			if (!await _projectService.ExistByProjectNumberAsync(model.ProjectNumber))
-			{
-				ModelState.AddModelError(nameof(model.ProjectNumber), string.Format(ProjectWithGivenNumberDoNotExist));
-			}
+            if (await _taskService.TaskStatusExistsAsync(model.StatusId) == false)
+            {
+                ModelState.AddModelError(nameof(model.PriorityId), $"{StatusNotExisting}");
+            }
 
-			int validProjectId = 0;
-			int? projectId = await _projectService.GetProjectIdByProjectNumberAsync(model.ProjectNumber);
-			if (projectId.HasValue && projectId.Value != 0)
-			{
-				validProjectId = projectId.Value;
-			}
+            if (!await _projectService.ExistByProjectNumberAsync(model.ProjectNumber))
+            {
+                ModelState.AddModelError(nameof(model.ProjectNumber), string.Format(ProjectWithGivenNumberDoNotExist));
+            }
 
-			if (ModelState.IsValid == false)
-			{
-				model.Priorities = await _taskService.GetAllPrioritiesAsync();
-				model.Statuses = await _taskService.GetAllStatusesAsync();
+            int validProjectId = 0;
+            int? projectId = await _projectService.GetProjectIdByProjectNumberAsync(model.ProjectNumber);
+            if (projectId.HasValue && projectId.Value != 0)
+            {
+                validProjectId = projectId.Value;
+            }
 
-				return View(model);
-			}
+            if (ModelState.IsValid == false)
+            {
+                model.Priorities = await _taskService.GetAllPrioritiesAsync();
+                model.Statuses = await _taskService.GetAllStatusesAsync();
 
-			int taskId = await _taskService.AddNewTaskAsync(model, userId, parsedStartDate, parsedEndDate, parsedDeadlineDate, validProjectId);
+                TempData["UserMessageError"] = $"{InValidDataInsert}";
+
+                return View(model);
+            }
+
+            int taskId = await _taskService.AddNewTaskAsync(model, userId, parsedStartDate, parsedEndDate, parsedDeadlineDate, validProjectId);
+
+            TempData["UserMessageSuccess"] = $"{ValidDataInsert}";
 
             return RedirectToAction(nameof(Details), new { id = taskId, extension = model.GetTaskExtension() });
-
         }
+
 
         [HttpGet]
 		public async Task <IActionResult> Details(int id, string extension)

@@ -39,12 +39,23 @@ namespace TeamWorkFlow.Controllers
 			    AvailabilityStatusModels = operatorStatus
 		    };
 
+
 		    return View(operatorModel);
 	    }
 
         [HttpPost]
         public async Task<IActionResult> Add(OperatorFormModel model)
         {
+            var userId = await _operatorService.GetUserIdByEmailAsync(model.Email.Normalize());
+            if (userId != null)
+            {
+                model.UserId = userId;
+            }
+            else
+            {
+				ModelState.AddModelError(nameof(model.UserId), $"{UserWithEmailNotRegistered}");
+            }
+
 	        if (!bool.TryParse(model.IsActive, out bool result))
 	        {
 				ModelState.AddModelError(nameof(model.IsActive),$"{BooleanInput}");
@@ -62,7 +73,7 @@ namespace TeamWorkFlow.Controllers
 				return View(model);
 	        }
 			
-	        await _operatorService.AddNewOperatorAsync(model);
+	        await _operatorService.AddNewOperatorAsync(model, userId);
 
 	        return RedirectToAction(nameof(All));
         }
