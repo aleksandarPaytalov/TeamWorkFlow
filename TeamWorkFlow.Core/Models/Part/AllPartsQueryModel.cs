@@ -5,12 +5,12 @@ namespace TeamWorkFlow.Core.Models.Part
 {
     public class AllPartsQueryModel
     {
-        public int PartsPerPage { get; } = 6;
+        public int PartsPerPage { get; } = 3;
 
-        public string Status { get; init; } = string.Empty;
+        public string Status { get; init; } = null!;
 
         [Display(Name = "Search by part name")]
-        public string Search { get; init; } = string.Empty;
+        public string Search { get; init; } = null!;
 
         public PartSorting Sorting { get; init; }
         
