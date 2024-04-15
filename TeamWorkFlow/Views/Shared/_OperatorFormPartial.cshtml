@@ -28,11 +28,6 @@
 				<input asp-for="@Model.IsActive" class="form-control" aria-required="true" />
 				<span asp-validation-for="@Model.IsActive" class="text-danger"></span>
 			</div>
-			@*<div class="mb-3">
-				<label asp-for="@Model.UserId" class="form-label-add-edit">User id</label>
-				<input asp-for="@Model.UserId" class="form-control" aria-required="true" />
-				<span asp-validation-for="@Model.UserId" class="text-danger"></span>
-			</div>*@
 			<div class="mb-3">
 				<label asp-for="@Model.AvailabilityStatusId" class="form-label-add-edit">Select status</label>
 				<select asp-for="@Model.AvailabilityStatusId" class="form-control" aria-required="true">
