@@ -8,7 +8,7 @@ namespace TeamWorkFlow.Core.Contracts
 	{
 		Task<ICollection<OperatorServiceModel>> GetAllActiveOperatorsAsync();
 		Task<ICollection<AvailabilityStatusServiceModel>> GetAllOperatorStatusesAsync();
-		Task AddNewOperatorAsync(OperatorFormModel model);
+		Task AddNewOperatorAsync(OperatorFormModel model, string userId);
 		Task<OperatorFormModel?> GetOperatorForEditAsync(int id);
 		Task EditOperatorAsync(OperatorFormModel model, int id);
 		Task<bool> OperatorStatusExistAsync(int statusId);
@@ -21,5 +21,6 @@ namespace TeamWorkFlow.Core.Contracts
 		Task<ICollection<OperatorAccessServiceModel>> GetAllOperatorsAsync();
 		Task<ICollection<OperatorServiceModel>> GetAllUnActiveOperatorsAsync();
 		Task ActivateOperatorAsync(int id);
+		Task<string?> GetUserIdByEmailAsync(string emailAddress);
 	}
 }
