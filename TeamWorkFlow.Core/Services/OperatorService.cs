@@ -129,7 +129,7 @@ namespace TeamWorkFlow.Core.Services
 		public async Task<bool> OperatorExistByIdAsync(int operatorId)
 		{
 			return await _repository.AllReadOnly<Operator>()
-				.AnyAsync(o => o.Id == operatorId && o.IsActive == true);
+				.AnyAsync(o => o.Id == operatorId); // && o.IsActive == true);
 		}
 
 		public async Task<OperatorDetailsServiceModel?> GetOperatorDetailsByIdAsync(int id)
