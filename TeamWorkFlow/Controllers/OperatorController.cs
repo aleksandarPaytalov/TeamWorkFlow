@@ -19,7 +19,7 @@ namespace TeamWorkFlow.Controllers
 		[HttpGet]
 	    public async Task <IActionResult> All()
 	    {
-		    var model = await _operatorService.GetAllOperatorsAsync();
+		    var model = await _operatorService.GetAllActiveOperatorsAsync();
 
             return View(model);
         }

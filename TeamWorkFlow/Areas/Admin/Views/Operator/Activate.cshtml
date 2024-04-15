@@ -1,0 +1,48 @@
+﻿@model ICollection<OperatorServiceModel>
+@{
+	ViewData["Title"] = "Un active operators list";
+}
+
+<h2 class="text-center">@ViewBag.Title</h2>
+
+
+<div class="table-responsive">
+	<table class="table table-bordered">
+		<thead>
+		<tr>
+			<th>Full Name</th>
+			<th>Availability Status</th>
+			<th>Email</th>
+			<th>Phone number</th>
+			<th>Capacity</th>
+			<th>Action buttons</th>
+		</tr>
+		</thead>
+		<tbody>
+		@foreach (var o in Model)
+		{
+			<tr>
+				<td>@o.FullName</td>
+				<td>@o.AvailabilityStatus</td>
+				<td>@o.Email</td>
+				<td>@o.PhoneNumber</td>
+				<td>@o.Capacity</td>
+				
+				@if (User.IsAdmin())
+				{
+					<td>
+						<form class="input-group-sm" asp-controller="Operator"
+						      asp-area="Admin" asp-action="Activate" asp-route-id="@o.Id" method="post">
+							<input class="btn btn-success" type="submit" value="Activate" />
+						</form>
+					</td>
+				}
+			</tr>
+		}
+		</tbody>
+	</table>
+</div>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}

@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Globalization;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Exceptions;
 using TeamWorkFlow.Core.Models.Task;
@@ -308,5 +307,49 @@ namespace TeamWorkFlow.Core.Services
 		        await _repository.SaveChangesAsync();
 	        }
         }
+
+        public async Task<ICollection<TaskServiceModel>> GetAllAssignedTasksAsync()
+        {
+	        var model = await _repository.AllReadOnly<TaskOperator>()
+		        .Select(to => new TaskServiceModel()
+				{
+					Id = to.Task.Id,
+					Name = to.Task.Name,
+					Description = to.Task.Description,
+					Status = to.Task.TaskStatus.Name,
+					Priority = to.Task.Priority.Name,
+					ProjectNumber = to.Task.Project.ProjectNumber,
+					StartDate = to.Task.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
+					EndDate = to.Task.EndDate != null ? to.Task.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+					Deadline = to.Task.DeadLine != null ? to.Task.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty
+				})
+				.ToListAsync();
+
+			return model;
+        }
+
+        public async Task<int> GetOperatorIdByAssignedTaskId(int taskId)
+        {
+	        var operatorModel = await _repository.AllReadOnly<TaskOperator>()
+		        .Where(to => to.TaskId == taskId)
+		        .FirstOrDefaultAsync();
+
+	        return operatorModel?.OperatorId ?? 0;
+        }
+
+        public async Task RemoveAssignedTaskFromUserCollection(int taskId, int operatorId)
+        {
+			var toRemoveAssignedTask = await _repository.AllReadOnly<TaskOperator>()
+				.Where(to =>
+					to.TaskId == taskId &&
+					to.OperatorId == operatorId)
+				.FirstOrDefaultAsync();
+
+			if (toRemoveAssignedTask != null)
+			{
+				_repository.DeleteTaskOperator(toRemoveAssignedTask);
+				await _repository.SaveChangesAsync();
+			}
+		}
     }
 }

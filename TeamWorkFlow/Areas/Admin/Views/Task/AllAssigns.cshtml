@@ -1,0 +1,56 @@
+﻿@model AssignedTasksServiceModel
+@{
+	ViewData["Title"] = "All assigned Tasks";
+}
+
+<h2 class="text-center">@ViewBag.Title</h2>
+
+@if (Model.AllAssignedTasks.Any() && User.IsAdmin())
+{
+	<div class="table-responsive">
+		<table class="table table-bordered">
+			<thead>
+			<tr>
+				<th>Project Number</th>
+				<th>Name</th>
+				<th>Description</th>
+				<th>Status</th>
+				<th>Priority</th>
+				<th>Deadline</th>
+				<th>Start Date</th>
+				<th>End Date</th>
+				<th>Actions</th>
+			</tr>
+			</thead>
+			<tbody>
+			@foreach (var task in Model.AllAssignedTasks)
+			{
+				<tr>
+					<td>@task.ProjectNumber</td>
+					<td>@task.Name</td>
+					<td>@task.Description</td>
+					<td>@task.Status</td>
+					<td>@task.Priority</td>
+					<td>@task.Deadline</td>
+					<td>@task.StartDate</td>
+					<td>@task.EndDate</td>
+					<td>
+						<form class="input-group-sm" asp-area="Admin" asp-controller="Task" asp-action="RemoveFromCollection" asp-route-id="@task.Id">
+							<input type="submit" value="Remove" class="fs-6 btn btn-success mb-3 p-2" />
+						</form>
+					</td>
+				</tr>
+			}
+			</tbody>
+		</table>
+	</div>
+}
+else
+{
+	<h2 class="text-center" style="color:red">There is no assigned Tasks at the moment!</h2>
+}
+
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}

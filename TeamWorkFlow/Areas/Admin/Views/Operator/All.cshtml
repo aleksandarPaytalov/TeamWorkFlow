@@ -1,0 +1,39 @@
+﻿@model IEnumerable<OperatorAccessServiceModel>
+
+@{
+	ViewBag.Title = "All Operators";
+}
+
+<h2 class="text-center">@ViewBag.Title</h2>
+<hr />
+
+<table class="table table-striped">
+	<thead>
+	<tr>
+		<th><label>Email</label></th>
+		<th><label>Full Name</label></th>
+		<th><label>Phone Number</label></th>
+		<th><label>Operator Is Active</label></th>
+	</tr>
+	</thead>
+	<tbody>
+	@foreach (var op in Model)
+	{
+		<tr>
+				<td><label>@op.Email</label></td>
+				<td><label>@op.FullName</label></td>
+				<td><label>@op.PhoneNumber</label></td>
+			<td>
+				@if (op.IsActive)
+				{
+					<label style="color: green">✔ (at work)</label>
+				}
+				else
+				{
+					<label class="text-center" style="color: red">❌ (unavailable)</label>
+				}
+			</td>
+		</tr>
+	}
+	</tbody>
+</table>
