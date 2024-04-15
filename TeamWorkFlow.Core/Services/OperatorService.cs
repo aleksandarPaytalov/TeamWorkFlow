@@ -204,5 +204,33 @@ namespace TeamWorkFlow.Core.Services
 
 			return model;
 		}
+
+		public async Task<ICollection<OperatorServiceModel>> GetAllUnActiveOperatorsAsync()
+		{
+			return await _repository.AllReadOnly<Operator>()
+				.Where(o => o.IsActive == false)
+				.Select(o => new OperatorServiceModel()
+				{
+					Id = o.Id,
+					FullName = o.FullName,
+					Email = o.Email,
+					PhoneNumber = o.PhoneNumber,
+					AvailabilityStatus = o.AvailabilityStatus.Name,
+					Capacity = o.Capacity
+				})
+				.ToListAsync();
+		}
+
+		public async Task ActivateOperatorAsync(int id)
+		{
+			var operatorModel = await _repository.GetByIdAsync<Operator>(id);
+
+			if (operatorModel != null && operatorModel.IsActive == false)
+			{
+				operatorModel.IsActive = true;
+
+				await _repository.SaveChangesAsync();
+			}
+		}
 	}
 }

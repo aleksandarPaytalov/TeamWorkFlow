@@ -19,5 +19,7 @@ namespace TeamWorkFlow.Core.Contracts
 		Task<OperatorDeleteServiceModel?> GetOperatorModelForDeleteByIdAsync(int operatorId);
 		Task DeleteOperatorByIdAsync(int operatorId);
 		Task<ICollection<OperatorAccessServiceModel>> GetAllOperatorsAsync();
+		Task<ICollection<OperatorServiceModel>> GetAllUnActiveOperatorsAsync();
+		Task ActivateOperatorAsync(int id);
 	}
 }

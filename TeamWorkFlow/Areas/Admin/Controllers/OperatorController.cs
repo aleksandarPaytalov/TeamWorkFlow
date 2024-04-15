@@ -12,11 +12,27 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
 			_operatorService = operatorService;
 		}
 
+		[HttpGet]
 		public async Task<IActionResult> All()
 		{
 			var operators = await _operatorService.GetAllOperatorsAsync();
 
 			return View(operators);
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> Activate()
+		{
+			var model = await _operatorService.GetAllUnActiveOperatorsAsync();
+
+			return View(model);
+		}
+
+		public async Task<IActionResult> Activate(int id)
+		{
+			await _operatorService.ActivateOperatorAsync(id);
+
+			return RedirectToAction(nameof(Activate));
 		}
 	}
 }
