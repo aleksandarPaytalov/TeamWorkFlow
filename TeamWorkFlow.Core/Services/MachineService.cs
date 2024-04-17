@@ -115,6 +115,11 @@ namespace TeamWorkFlow.Core.Services
 					throw new ArgumentException(string.Format(InvalidDate, DateFormat));
 				}
 
+				if (model.Capacity is < 1 or > 20)
+				{
+					throw new ArgumentException(string.Format(CapacityRange, MachineCapacityMinValue, MachineCapacityMaxValue));
+				}
+
 				machineForEdit.Name = model.Name;
 				machineForEdit.CalibrationSchedule = date;
 				machineForEdit.Capacity = model.Capacity;
@@ -155,11 +160,25 @@ namespace TeamWorkFlow.Core.Services
 
 			if (machine != null)
 			{
+				var listOfTasks = await GetAllTaskByAssignedMachineId(machineId);
+
+				if (listOfTasks.Count > 0)
+				{
+					foreach (var task in listOfTasks)
+					{
+						task.MachineId = null;
+					}
+
+					// Save changes to update the MachineId values in the Task table
+					await _repository.SaveChangesAsync();
+				}
+
+				// After setting MachineId to null in all related tasks, delete the machine
 				await _repository.DeleteAsync<Machine>(machineId);
-				await _repository.SaveChangesAsync();
+				await _repository.SaveChangesAsync(); // Save changes after deleting the machine
 			}
 		}
-
+		
 		public async Task<MachineDeleteServiceModel?> GetMachineForDeleteByIdAsync(int machineId)
 		{
 			return await _repository.AllReadOnly<Machine>()
@@ -171,6 +190,15 @@ namespace TeamWorkFlow.Core.Services
 					Name = m.Name
 				})
 				.FirstOrDefaultAsync();
+		}
+
+		public async Task<ICollection<Infrastructure.Data.Models.Task>> GetAllTaskByAssignedMachineId(int machineId)
+		{
+			var tasksList = await _repository.AllReadOnly<Infrastructure.Data.Models.Task>()
+				.Where(t => t.MachineId == machineId)
+				.ToListAsync();
+
+			return tasksList;
 		}
 	}
 }

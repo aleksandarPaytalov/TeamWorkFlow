@@ -25,8 +25,8 @@ namespace UnitTests
 		public void Setup()
 		{
 			var mockUserStore = new Mock<IUserStore<IdentityUser>>();
-			_mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object);
-			
+			_mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null, null, null, null, null, null, null, null);
+
 			_mockUserManager.Setup(x => x.IsInRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
 				.ReturnsAsync((IdentityUser user, string role) => role == "Operator" || role == "Admin");
 

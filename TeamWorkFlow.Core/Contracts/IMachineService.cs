@@ -1,5 +1,5 @@
 ﻿using TeamWorkFlow.Core.Models.Machine;
-using TeamWorkFlow.Infrastructure.Migrations;
+using Task = System.Threading.Tasks.Task;
 
 namespace TeamWorkFlow.Core.Contracts
 {
@@ -13,5 +13,6 @@ namespace TeamWorkFlow.Core.Contracts
 		Task<MachineDetailsServiceModel?> MachineDetailsAsync(int machineId);
 		Task DeleteMachineAsync(int machineId);
 		Task<MachineDeleteServiceModel?> GetMachineForDeleteByIdAsync(int machineId);
+		Task<ICollection<TeamWorkFlow.Infrastructure.Data.Models.Task>> GetAllTaskByAssignedMachineId(int machineId);
 	}
 }
