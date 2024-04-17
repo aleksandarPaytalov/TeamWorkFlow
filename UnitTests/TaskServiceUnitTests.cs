@@ -1,8 +1,12 @@
+using Humanizer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.VisualBasic;
 using Moq;
+using System.Globalization;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Exceptions;
 using TeamWorkFlow.Core.Models.Task;
 using TeamWorkFlow.Core.Services;
 using TeamWorkFlow.Infrastructure.Common;
@@ -517,12 +521,24 @@ namespace UnitTests
 			Assert.That(result, Is.GreaterThan(tasksCount));
 		}
 
+		[Test]
+		public async Task GetOperatorIdByUserId_ReturnUnExistingActionExceptionIfOperatorDoesNotExist()
+		{
+			// Arrange
+			string userId = "f700189f-d9a5-42ca-aaac-6f73e43614a9";
+
+			// Act & Assert
+			var ex =  Assert.ThrowsAsync<UnExistingActionException>(() => _taskService.GetOperatorIdByUserId(userId));
+
+			// Assert
+			Assert.That(ex.Message, Is.EqualTo("The operator with this userId does not exist"));
+		}
+
 		[TearDown]
 		public void TearDown()
 		{
 			_dbContext.Dispose();
 		}
-
 	}	
 	
 }
