@@ -102,6 +102,12 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
         public IdentityUserClaim<string> OperatorUserClaim { get; set; }
         public IdentityUserClaim<string> AdminUserClaim { get; set; }
 
+		/// <summary>
+		/// TaskOperator seeding fields
+		/// </summary>
+		public TaskOperator TaskOperatorOne { get; set; }
+		public TaskOperator TaskOperatorTwo { get; set; }
+		public TaskOperator TaskOperatorThree { get; set; }
 
 		public SeedData()
         {
@@ -116,9 +122,31 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
             SeedUsers();
             SeedOperator();
 			SeedTask();
+			SeedTaskOperator();
         }
-        
-        private void SeedPart()
+
+
+        private void SeedTaskOperator()
+        {
+	        TaskOperatorOne = new TaskOperator()
+	        {
+		        OperatorId = 1,
+		        TaskId = 1
+	        };
+
+	        TaskOperatorTwo = new TaskOperator()
+	        {
+		        OperatorId = 1,
+		        TaskId = 6
+	        };
+
+	        TaskOperatorThree = new TaskOperator()
+	        {
+		        OperatorId = 2,
+		        TaskId = 2
+	        };
+        }
+		private void SeedPart()
         {
 	        PartOne = new Part()
 	        {
