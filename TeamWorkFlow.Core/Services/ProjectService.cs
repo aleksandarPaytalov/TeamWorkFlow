@@ -3,6 +3,7 @@ using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Models.Project;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
+using static TeamWorkFlow.Core.Constants.Messages;
 using Task = System.Threading.Tasks.Task;
 
 namespace TeamWorkFlow.Core.Services
@@ -58,6 +59,16 @@ namespace TeamWorkFlow.Core.Services
 
         public async Task<int> AddNewProjectsAsync(ProjectFormModel model)
         {
+	        if (await ExistByProjectNumberAsync(model.ProjectNumber))
+	        {
+		        throw new ArgumentException($"{ProjectWithThisNumberAlreadyCreated}");
+	        }
+
+	        if (!await ProjectStatusExistAsync(model.ProjectStatusId))
+	        {
+		        throw new ArgumentException($"{StatusNotExisting}");
+	        }
+
 	        Project projectToAdd = new()
 	        {
 		        ProjectName = model.ProjectName,
@@ -108,9 +119,20 @@ namespace TeamWorkFlow.Core.Services
         public async Task EditProjectAsync(ProjectFormModel model, int projectId)
         {
 	        var project = await _repository.GetByIdAsync<Project>(projectId);
-
+			
 	        if (project != null)
 	        {
+				var statusExist = await ProjectStatusExistAsync(model.ProjectStatusId);
+				if (!statusExist)
+				{
+			        throw new ArgumentException($"{StatusNotExisting}");
+		        }
+
+				if (model.TotalHoursSpent < 0)
+				{
+					throw new ArgumentException($"{TotalHoursNegative}");
+				}
+
 		        project.ProjectName = model.ProjectName;
 		        project.ProjectNumber = model.ProjectNumber;
 		        project.ProjectStatusId = model.ProjectStatusId;
@@ -119,6 +141,10 @@ namespace TeamWorkFlow.Core.Services
 		        project.TotalHoursSpent = model.TotalHoursSpent;
 
 		        await _repository.SaveChangesAsync();
+	        }
+	        else
+	        {
+		        throw new ArgumentException($"{ProjectNotExisting}");
 	        }
         }
 
@@ -185,6 +211,11 @@ namespace TeamWorkFlow.Core.Services
 	        {
 		        await _repository.DeleteAsync<Project>(project.Id);
 		        await _repository.SaveChangesAsync();
+	        }
+
+	        else
+	        {
+		        throw new ArgumentException($"{ProjectNotExisting}");
 	        }
         }
 	}

@@ -35,5 +35,9 @@
         public const string UserMessageSuccess = "UserMessageSuccess";
 
         public const string UserMessageError = "UserMessageError";
+
+        public const string ProjectNotExisting = "Project with this id do not exist";
+
+        public const string TotalHoursNegative = "Total hours cannot be negative value";
     }
 }
