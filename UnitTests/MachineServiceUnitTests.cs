@@ -274,23 +274,21 @@ namespace UnitTests
 			Assert.ThrowsAsync<ArgumentException>(() => _machineService.EditMachineAsync(model, machine.Id));
 		}
 
-
-		// Must be Fixed. Now assigned machine to task cannot be deleted
-		//[Test]
-		//public async Task DeleteMachineAsync_ShouldDeleteMachine()
-		//{
-		//	// Arrange
-		//	var machine = await _repository.AllReadOnly<Machine>().FirstOrDefaultAsync();
-		//	var expectedMachineCount = await _repository.AllReadOnly<Machine>().CountAsync() - 1;
-		//	Assert.That(machine, Is.Not.Null, "Machine is null");
-		//
-		//	// Act
-		//	await _machineService.DeleteMachineAsync(machine.Id);
-		//	var result = await _repository.AllReadOnly<Machine>().CountAsync();
-		//
-		//	// Assert
-		//	Assert.That(result, Is.EqualTo(expectedMachineCount), "Machine count is not equal to expected count");
-		//}
+		[Test]
+		public async Task DeleteMachineAsync_ShouldDeleteMachine()
+		{
+			// Arrange
+			var machine = await _repository.AllReadOnly<Machine>().FirstOrDefaultAsync();
+			var expectedMachineCount = await _repository.AllReadOnly<Machine>().CountAsync() - 1;
+			Assert.That(machine, Is.Not.Null, "Machine is null");
+		
+			// Act
+			await _machineService.DeleteMachineAsync(machine.Id);
+			var result = await _repository.AllReadOnly<Machine>().CountAsync();
+		
+			// Assert
+			Assert.That(result, Is.EqualTo(expectedMachineCount), "Machine count is not equal to expected count");
+		}
 
 		[Test]
 		public async Task GetMachineForDeleteByIdAsync_ShouldReturnMachineForDelete()
