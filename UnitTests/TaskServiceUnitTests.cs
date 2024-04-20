@@ -519,7 +519,7 @@ namespace UnitTests
 		}
 
 		[Test]
-		public async Task GetOperatorIdByUserId_ReturnUnExistingActionExceptionIfOperatorDoesNotExist()
+		public void GetOperatorIdByUserId_ReturnUnExistingActionExceptionIfOperatorDoesNotExist()
 		{
 			// Arrange
 			string userId = "f700189f-d9a5-42ca-aaac-6f73e43614a9";
@@ -530,6 +530,103 @@ namespace UnitTests
 			// Assert
 			Assert.That(ex.Message, Is.EqualTo("The operator with this userId does not exist"));
 		}
+
+		[Test]
+		public void GetOperatorIdByAssignedTaskId_ReturnUnExistingActionExceptionIfOperatorDoesNotExist()
+		{
+			// Arrange
+			int taskId = 100;
+
+			// Act & Assert
+			var ex =  Assert.ThrowsAsync<UnExistingActionException>(() => _taskService.GetOperatorIdByAssignedTaskId(taskId));
+
+			// Assert
+			Assert.That(ex.Message, Is.EqualTo("The operator with this assigned taskId does not exist"));
+		}
+
+		[Test]
+		public void RemoveAssignedTaskFromUserCollection_ReturnUnExistingActionExceptionIfTaskDoesNotExist()
+		{
+			// Arrange
+			int taskId = 100;
+			int operatorId = 1;
+
+			// Act & Assert
+			var ex =  Assert.ThrowsAsync<UnExistingActionException>(() => _taskService.RemoveAssignedTaskFromUserCollection(taskId, operatorId));
+
+			// Assert
+			Assert.That(ex.Message, Is.EqualTo("The task with this id does not exist"));
+		}
+
+		[Test]
+		public void GetTaskForDeleteByIdAsync_ReturnUnExistingActionExceptionIfTaskDoesNotExist()
+		{
+			// Arrange
+			int taskId = 100;
+
+			// Act & Assert
+			var ex =  Assert.ThrowsAsync<UnExistingActionException>(() => _taskService.GetTaskForDeleteByIdAsync(taskId));
+
+			// Assert
+			Assert.That(ex.Message, Is.EqualTo("The task with this id does not exist"));
+		}
+
+		[Test]
+		public void GetTaskForEditByIdAsync_ReturnUnExistingActionExceptionIfTaskDoesNotExist()
+		{
+			// Arrange
+			int taskId = 100;
+
+			// Act & Assert
+			var ex =  Assert.ThrowsAsync<UnExistingActionException>(() => _taskService.GetTaskForEditByIdAsync(taskId));
+
+			// Assert
+			Assert.That(ex.Message, Is.EqualTo("The task with this id does not exist"));
+		}
+
+		[Test]
+		public void GetTaskDetailsByIdAsync_ReturnUnExistingActionExceptionIfTaskDoesNotExist()
+		{
+			// Arrange
+			int taskId = 100;
+
+			// Act & Assert
+			var ex =  Assert.ThrowsAsync<UnExistingActionException>(() => _taskService.GetTaskDetailsByIdAsync(taskId));
+
+			// Assert
+			Assert.That(ex.Message, Is.EqualTo("The task with this id does not exist"));
+		}
+
+		[Test]
+		public void EditTaskAsync_ReturnUnExistingActionExceptionIfTaskDoesNotExist()
+		{
+			// Arrange
+			int taskId = 100;
+			DateTime startDate = new DateTime (2024, 02, 02);
+			DateTime endDate = new DateTime (2024, 03, 03);
+			DateTime deadline = new DateTime (2024, 03, 04);
+
+			var taskFormModel = new TaskFormModel()
+			{
+				Name = "Housing Front Panel - LOP.",
+				Description = "New Description",
+				ProjectNumber = "242700",
+				StartDate = DateTime.Now.ToString("dd/MM/yyyy"),
+				Deadline = DateTime.Now.AddDays(1).ToString("dd/MM/yyyy"),
+				EndDate = DateTime.Now.AddDays(2).ToString("dd/MM/yyyy"),
+				PriorityId = 1,
+				StatusId = 1,
+				ProjectId = 1,
+			};
+
+			// Act & Assert
+			var ex =  Assert.ThrowsAsync<UnExistingActionException>(() => _taskService.EditTaskAsync(taskFormModel, taskId, startDate, endDate, deadline, 1));
+
+			// Assert
+			Assert.That(ex.Message, Is.EqualTo("The task with this id does not exist"));
+		}
+
+
 
 		[TearDown]
 		public void TearDown()
