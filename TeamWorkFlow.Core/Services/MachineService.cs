@@ -167,15 +167,15 @@ namespace TeamWorkFlow.Core.Services
 					foreach (var task in listOfTasks)
 					{
 						task.MachineId = null;
-					}
 
-					// Save changes to update the MachineId values in the Task table
-					await _repository.SaveChangesAsync();
+						// Save changes to update the MachineId values in the Task table
+						await _repository.SaveChangesAsync();
+					}
 				}
 
 				// After setting MachineId to null in all related tasks, delete the machine
 				await _repository.DeleteAsync<Machine>(machineId);
-				await _repository.SaveChangesAsync(); // Save changes after deleting the machine
+				await _repository.SaveChangesAsync(); 
 			}
 		}
 		
@@ -194,7 +194,7 @@ namespace TeamWorkFlow.Core.Services
 
 		public async Task<ICollection<Infrastructure.Data.Models.Task>> GetAllTaskByAssignedMachineId(int machineId)
 		{
-			var tasksList = await _repository.AllReadOnly<Infrastructure.Data.Models.Task>()
+			var tasksList = await _repository.All<Infrastructure.Data.Models.Task>()
 				.Where(t => t.MachineId == machineId)
 				.ToListAsync();
 

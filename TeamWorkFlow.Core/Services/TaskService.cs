@@ -115,7 +115,7 @@ namespace TeamWorkFlow.Core.Services
 			        AssignedMachineName = t.Machine != null ? t.Machine.Name : string.Empty,
 			        Creator = t.Creator.UserName
 		        })
-		        .FirstOrDefaultAsync();
+		        .FirstOrDefaultAsync() ?? throw new UnExistingActionException("The task with this id does not exist");
         }
 
         public async Task<TaskFormModel?> GetTaskForEditByIdAsync(int taskId)
@@ -139,9 +139,14 @@ namespace TeamWorkFlow.Core.Services
 	        {
 		        model.Priorities = await GetAllPrioritiesAsync();
 		        model.Statuses = await GetAllStatusesAsync();
-	        }
 
-	        return model;
+		        return model;
+			}
+	        else
+	        {
+				throw new UnExistingActionException("The task with this id does not exist");
+	        }
+	        
         }
 
         public async Task EditTaskAsync(TaskFormModel model, 
@@ -166,6 +171,10 @@ namespace TeamWorkFlow.Core.Services
 
 		        await _repository.SaveChangesAsync();
 	        }
+			else
+			{
+		        throw new UnExistingActionException("The task with this id does not exist");
+	        }
         }
 
         public async Task<TaskDeleteServiceModel?> GetTaskForDeleteByIdAsync(int taskId)
@@ -179,7 +188,7 @@ namespace TeamWorkFlow.Core.Services
 			        Name = t.Name,
 			        Creator = t.Creator.UserName
 		        })
-		        .FirstOrDefaultAsync();
+		        .FirstOrDefaultAsync() ?? throw new UnExistingActionException("The task with this id does not exist");
         }
 
         public async Task DeleteTaskAsync(int taskId)
@@ -334,7 +343,12 @@ namespace TeamWorkFlow.Core.Services
 		        .Where(to => to.TaskId == taskId)
 		        .FirstOrDefaultAsync();
 
-	        return operatorModel?.OperatorId ?? 0;
+	        if (operatorModel == null)
+	        {
+		        throw new UnExistingActionException("The operator with this assigned taskId does not exist");
+	        }
+
+			return operatorModel?.OperatorId ?? 0;
         }
 
         public async Task RemoveAssignedTaskFromUserCollection(int taskId, int operatorId)
@@ -349,6 +363,11 @@ namespace TeamWorkFlow.Core.Services
 			{
 				_repository.DeleteTaskOperator(toRemoveAssignedTask);
 				await _repository.SaveChangesAsync();
+			}
+
+			else
+			{
+				throw new UnExistingActionException("The task with this id does not exist");
 			}
 		}
     }
