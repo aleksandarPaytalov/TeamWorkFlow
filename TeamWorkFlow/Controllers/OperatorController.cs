@@ -17,9 +17,15 @@ namespace TeamWorkFlow.Controllers
 	    }
 
 		[HttpGet]
-	    public async Task <IActionResult> All()
+	    public async Task <IActionResult> All(int page = 1)
 	    {
-		    var model = await _operatorService.GetAllActiveOperatorsAsync();
+		    int pageSize = 10; // You can adjust this as needed
+		    var (operators, totalCount) = await _operatorService.GetAllActiveOperatorsAsync(page, pageSize);
+		    var model = new PaginatedOperatorsViewModel
+		    {
+			    Operators = operators,
+			    Pager = new TeamWorkFlow.Core.Models.Pager.PagerServiceModel(totalCount, page, pageSize)
+		    };
 
             return View(model);
         }

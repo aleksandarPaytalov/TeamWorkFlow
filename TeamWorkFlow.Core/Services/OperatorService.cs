@@ -41,6 +41,29 @@ namespace TeamWorkFlow.Core.Services
 				.ToListAsync();
 		}
 
+		public async Task<(ICollection<OperatorServiceModel> Operators, int TotalCount)> GetAllActiveOperatorsAsync(int page, int pageSize)
+		{
+			var query = _repository.AllReadOnly<Operator>().Where(o => o.IsActive);
+			var totalCount = await query.CountAsync();
+			var operators = await query
+				.OrderBy(o => o.Id)
+				.Skip((page - 1) * pageSize)
+				.Take(pageSize)
+				.Select(o => new OperatorServiceModel()
+				{
+					Id = o.Id,
+					FullName = o.FullName,
+					Email = o.Email,
+					PhoneNumber = o.PhoneNumber,
+					AvailabilityStatus = o.AvailabilityStatus.Name,
+					Capacity = o.Capacity,
+					IsActive = o.IsActive
+				})
+				.ToListAsync();
+
+			return (operators, totalCount);
+		}
+
 		public async Task<ICollection<AvailabilityStatusServiceModel>> GetAllOperatorStatusesAsync()
 		{
 			return await _repository.AllReadOnly<OperatorAvailabilityStatus>()

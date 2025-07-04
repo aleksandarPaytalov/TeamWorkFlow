@@ -1,4 +1,5 @@
 ﻿using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Models.Pager;
 
 namespace TeamWorkFlow.Core.Models.Operator
 {
@@ -17,5 +18,11 @@ namespace TeamWorkFlow.Core.Models.Operator
 		public bool IsActive { get; set; }
 
 		public int Capacity { get; set; }
+	}
+
+	public class PaginatedOperatorsViewModel
+	{
+		public IEnumerable<OperatorServiceModel> Operators { get; set; } = new List<OperatorServiceModel>();
+		public PagerServiceModel Pager { get; set; }
 	}
 }

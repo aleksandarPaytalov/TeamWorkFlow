@@ -1,4 +1,4 @@
-﻿@model ICollection<MachineServiceModel>
+﻿@model PaginatedMachinesViewModel
 @{
 	ViewData["Title"] = "List of available measuring machine";
 }
@@ -25,7 +25,7 @@
 			</tr>
 			</thead>
 			<tbody>
-			@foreach (var m in Model)
+			@foreach (var m in Model.Machines)
 			{
 				<tr>
 					<td>@m.Name</td>
@@ -52,6 +52,8 @@
 			</tbody>
 		</table>
 	</div>
+
+	<partial name="_PaginationPartial" model="Model.Pager" />
 
 }
 

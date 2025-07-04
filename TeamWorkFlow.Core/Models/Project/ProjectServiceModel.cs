@@ -1,4 +1,5 @@
 ﻿using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Models.Pager;
 
 namespace TeamWorkFlow.Core.Models.Project
 {
@@ -13,5 +14,11 @@ namespace TeamWorkFlow.Core.Models.Project
 		public string Status { get; set; } = string.Empty;
 
 		public int TotalParts { get; set; }
+	}
+
+	public class PaginatedProjectsViewModel
+	{
+		public IEnumerable<ProjectServiceModel> Projects { get; set; } = new List<ProjectServiceModel>();
+		public PagerServiceModel Pager { get; set; }
 	}
 }

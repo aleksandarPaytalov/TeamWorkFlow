@@ -18,11 +18,17 @@ namespace TeamWorkFlow.Controllers
 	    }
 
 	    [HttpGet]
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> All(int page = 1)
         {
-	        var projectsToDisplay = await _projectService.GetAllProjectsAsync();
-			
-            return View(projectsToDisplay);
+	        int pageSize = 10; // You can adjust this as needed
+	        var (projects, totalCount) = await _projectService.GetAllProjectsAsync(page, pageSize);
+	        var model = new PaginatedProjectsViewModel
+	        {
+		        Projects = projects,
+		        Pager = new TeamWorkFlow.Core.Models.Pager.PagerServiceModel(totalCount, page, pageSize)
+	        };
+
+            return View(model);
         }
 
 		[HttpGet]

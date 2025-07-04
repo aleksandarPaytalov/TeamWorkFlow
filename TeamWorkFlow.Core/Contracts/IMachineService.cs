@@ -6,6 +6,7 @@ namespace TeamWorkFlow.Core.Contracts
 	public interface IMachineService
 	{
 		Task<ICollection<MachineServiceModel>> GetAllMachinesAsync();
+		Task<(ICollection<MachineServiceModel> Machines, int TotalCount)> GetAllMachinesAsync(int page, int pageSize);
 		Task AddNewMachineAsync(MachineFormModel model);
 		Task<MachineFormModel?> GetMachineForEditAsync(int id);
 		Task EditMachineAsync(MachineFormModel model, int id);

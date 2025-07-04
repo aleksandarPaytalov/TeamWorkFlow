@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ProjectServiceModel>
+﻿@model PaginatedProjectsViewModel
 @{
 	ViewBag.Title = "All Project";
 }
@@ -14,7 +14,7 @@
 	}
 	
 <div class="text-center row">
-	@foreach (var p in Model)
+	@foreach (var p in Model.Projects)
 	{
 		<div class="card col-4" style="width: 20rem; margin-bottom: 20px;">
 			<div class="card-body">
@@ -51,6 +51,8 @@
 		</div>
 	}
 </div>
+
+<partial name="_PaginationPartial" model="Model.Pager" />
 }
 
 @section Scripts {

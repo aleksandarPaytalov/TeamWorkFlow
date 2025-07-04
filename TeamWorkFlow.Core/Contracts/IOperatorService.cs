@@ -7,6 +7,7 @@ namespace TeamWorkFlow.Core.Contracts
 	public interface IOperatorService
 	{
 		Task<ICollection<OperatorServiceModel>> GetAllActiveOperatorsAsync();
+		Task<(ICollection<OperatorServiceModel> Operators, int TotalCount)> GetAllActiveOperatorsAsync(int page, int pageSize);
 		Task<ICollection<AvailabilityStatusServiceModel>> GetAllOperatorStatusesAsync();
 		Task AddNewOperatorAsync(OperatorFormModel model, string userId);
 		Task<OperatorFormModel?> GetOperatorForEditAsync(int id);

@@ -17,9 +17,15 @@ namespace TeamWorkFlow.Controllers
 	    }
 
 		[HttpGet]
-	    public async Task<IActionResult> All()
+	    public async Task<IActionResult> All(int page = 1)
 	    {
-		    var model = await _machineService.GetAllMachinesAsync();
+		    int pageSize = 10; // You can adjust this as needed
+		    var (machines, totalCount) = await _machineService.GetAllMachinesAsync(page, pageSize);
+		    var model = new PaginatedMachinesViewModel
+		    {
+			    Machines = machines,
+			    Pager = new TeamWorkFlow.Core.Models.Pager.PagerServiceModel(totalCount, page, pageSize)
+		    };
 
             return View(model);
         }

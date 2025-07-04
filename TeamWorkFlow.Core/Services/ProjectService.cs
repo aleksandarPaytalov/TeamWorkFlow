@@ -46,6 +46,27 @@ namespace TeamWorkFlow.Core.Services
 		        .ToListAsync();
         }
 
+        public async Task<(IEnumerable<ProjectServiceModel> Projects, int TotalCount)> GetAllProjectsAsync(int page, int pageSize)
+        {
+	        var query = _repository.AllReadOnly<Project>();
+	        var totalCount = await query.CountAsync();
+	        var projects = await query
+		        .OrderBy(p => p.Id)
+		        .Skip((page - 1) * pageSize)
+		        .Take(pageSize)
+		        .Select(p => new ProjectServiceModel()
+		        {
+			        Id = p.Id,
+			        ProjectName = p.ProjectName,
+			        ProjectNumber = p.ProjectNumber,
+			        Status = p.ProjectStatus.Name,
+			        TotalParts = p.Parts.Count
+		        })
+		        .ToListAsync();
+
+	        return (projects, totalCount);
+        }
+
         public async Task<IEnumerable<ProjectStatusServiceModel>> GetAllProjectStatusesAsync()
         {
 	        return await _repository.AllReadOnly<ProjectStatus>()

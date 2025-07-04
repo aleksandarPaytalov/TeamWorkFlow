@@ -36,6 +36,27 @@ namespace TeamWorkFlow.Core.Services
 				.ToListAsync();
 		}
 
+		public async Task<(ICollection<MachineServiceModel> Machines, int TotalCount)> GetAllMachinesAsync(int page, int pageSize)
+		{
+			var query = _repository.AllReadOnly<Machine>().AsNoTracking();
+			var totalCount = await query.CountAsync();
+			var machines = await query
+				.OrderBy(m => m.Id)
+				.Skip((page - 1) * pageSize)
+				.Take(pageSize)
+				.Select(m => new MachineServiceModel
+				{
+					Id = m.Id,
+					Name = m.Name,
+					IsCalibrated = m.IsCalibrated,
+					CalibrationSchedule = m.CalibrationSchedule.ToString(DateFormat),
+					Capacity = m.Capacity
+				})
+				.ToListAsync();
+
+			return (machines, totalCount);
+		}
+
 		public async Task AddNewMachineAsync(MachineFormModel model)
 		{
 			bool isValidDate = DateTime.TryParseExact(model.CalibrationSchedule, DateFormat,
