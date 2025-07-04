@@ -1,4 +1,4 @@
-﻿@model ICollection<TaskServiceModel>
+﻿@model TeamWorkFlow.Core.Models.Task.PaginatedTasksViewModel
 @{
 	ViewData["Title"] = "All created Tasks";
 }
@@ -31,7 +31,7 @@
 			</tr>
 			</thead>
 			<tbody>
-			@foreach (var task in Model)
+			@foreach (var task in Model.Tasks)
 			{
 				<tr>
 					<td>@task.ProjectNumber</td>
@@ -72,6 +72,31 @@
 		</table>
 
 	</div>
+	<nav aria-label="Page navigation">
+		<ul class="pagination justify-content-center">
+			@if (Model.Pager != null && Model.Pager.TotalPages > 1)
+			{
+				if (Model.Pager.CurrentPage > 1)
+				{
+					<li class="page-item">
+						<a class="page-link" asp-action="All" asp-route-page="@(Model.Pager.CurrentPage - 1)">Previous</a>
+					</li>
+				}
+				for (int i = Model.Pager.StartPage; i <= Model.Pager.EndPage; i++)
+				{
+					<li class="page-item @(i == Model.Pager.CurrentPage ? "active" : "")">
+						<a class="page-link" asp-action="All" asp-route-page="@i">@i</a>
+					</li>
+				}
+				if (Model.Pager.CurrentPage < Model.Pager.TotalPages)
+				{
+					<li class="page-item">
+						<a class="page-link" asp-action="All" asp-route-page="@(Model.Pager.CurrentPage + 1)">Next</a>
+					</li>
+				}
+			}
+		</ul>
+	</nav>
 }
 
 

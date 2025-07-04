@@ -33,9 +33,10 @@ namespace TeamWorkFlow.Core.Contracts
         Task<TaskServiceModel?> GetTaskByIdAsync(int id);
         Task<bool> TaskExistInTaskOperatorTableByIdAsync(int taskId);
         Task RemoveFromCollection(int taskId, string userId);
-        Task<ICollection<TaskServiceModel>> GetAllAssignedTasksAsync();
+        Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetAllAssignedTasksAsync(int page, int pageSize);
         Task<int> GetOperatorIdByAssignedTaskId(int taskId);
         Task RemoveAssignedTaskFromUserCollection(int taskId, int operatorId);
+        Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetAllTasksAsync(int page, int pageSize);
 
 
     }

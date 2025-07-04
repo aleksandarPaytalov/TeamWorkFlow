@@ -13,13 +13,15 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
 			_taskService = taskService;
 		}
 
-		public async Task<IActionResult> AllAssigns()
+		public async Task<IActionResult> AllAssigns(int page = 1)
 		{
+			int pageSize = 10; // You can adjust this as needed
+			var (tasks, totalCount) = await _taskService.GetAllAssignedTasksAsync(page, pageSize);
 			var assignedTasks = new AssignedTasksServiceModel()
 			{
-				AllAssignedTasks = await _taskService.GetAllAssignedTasksAsync()
+				AllAssignedTasks = tasks,
+				Pager = new TeamWorkFlow.Core.Models.Pager.PagerServiceModel(totalCount, page, pageSize)
 			};
-
 			return View(assignedTasks);
 		}
 

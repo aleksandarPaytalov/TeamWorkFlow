@@ -351,5 +351,53 @@ namespace TeamWorkFlow.Core.Services
 				await _repository.SaveChangesAsync();
 			}
 		}
+
+        public async Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetAllAssignedTasksAsync(int page, int pageSize)
+        {
+            var query = _repository.AllReadOnly<TaskOperator>();
+            var totalCount = await query.CountAsync();
+            var tasks = await query
+                .OrderBy(to => to.Task.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(to => new TaskServiceModel
+                {
+                    Id = to.Task.Id,
+                    Name = to.Task.Name,
+                    Description = to.Task.Description,
+                    Status = to.Task.TaskStatus.Name,
+                    Priority = to.Task.Priority.Name,
+                    ProjectNumber = to.Task.Project.ProjectNumber,
+                    StartDate = to.Task.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
+                    EndDate = to.Task.EndDate != null ? to.Task.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+                    Deadline = to.Task.DeadLine != null ? to.Task.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty
+                })
+                .ToListAsync();
+            return (tasks, totalCount);
+        }
+
+        public async Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetAllTasksAsync(int page, int pageSize)
+        {
+            var query = _repository.AllReadOnly<Infrastructure.Data.Models.Task>();
+            var totalCount = await query.CountAsync();
+            var tasks = await query
+                .OrderBy(t => t.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(t => new TaskServiceModel
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Description = t.Description,
+                    Status = t.TaskStatus.Name,
+                    Priority = t.Priority.Name,
+                    ProjectNumber = t.Project.ProjectNumber,
+                    StartDate = t.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
+                    EndDate = t.EndDate != null ? t.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+                    Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty
+                })
+                .ToListAsync();
+            return (tasks, totalCount);
+        }
     }
 }

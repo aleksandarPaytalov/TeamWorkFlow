@@ -352,10 +352,10 @@ namespace UnitTests
 			Assert.That(task is not 0,  "Task is 0");
 
 			// Act
-			var result = await _taskService.GetAllAssignedTasksAsync();
+			var result = await _taskService.GetAllAssignedTasksAsync(1, 10);
 
 			// Assert
-			Assert.That(result.Count, Is.EqualTo(task));
+			Assert.That(result.Tasks.Count, Is.EqualTo(task));
 		}
 
 		[Test]
