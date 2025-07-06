@@ -1,8 +1,17 @@
-﻿@model TeamWorkFlow.Core.Models.Task.PaginatedTasksViewModel
+﻿@model AllTasksQueryModel
 @{
 	ViewData["Title"] = "All created Tasks";
 }
 
+@{
+	var previousPage = Model.CurrentPage - 1;
+	if (previousPage < 1)
+	{
+		previousPage = 1;
+	}
+
+	var maxPage = Math.Ceiling((decimal)Model.TotalTasksCount / (decimal)Model.TasksPerPage);
+}
 
 <h2 class="text-center">@ViewBag.Title</h2>
 
@@ -14,6 +23,42 @@
 		<a href="@Url.Action("Mine", "Task")" class="btn btn-purple">My Tasks</a>
 		<hr />
 	}
+
+	<form method="get">
+		<div class="row">
+			<div class="form-group col-md-4">
+				<div class="form-group">
+					<label asp-for="Search"></label>
+					<input asp-for="Search" class="form-control" placeholder="Search by task name or project number...">
+				</div>
+			</div>
+
+			<div class="form-group col-md-4">
+				<div class="form-group">
+					<label asp-for="Sorting"></label>
+					<select asp-for="Sorting" class="form-control" onchange="this.form.submit()">
+						<option value="0">Last created task</option>
+						<option value="1">By name ascending</option>
+						<option value="2">By name descending</option>
+						<option value="3">By project number ascending</option>
+						<option value="4">By project number descending</option>
+						<option value="5">By start date ascending</option>
+						<option value="6">By start date descending</option>
+						<option value="7">By deadline ascending</option>
+						<option value="8">By deadline descending</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="form-group mt-4 p-2">
+					<input type="submit" value="Search" class="btn btn-primary" />
+					<a asp-action="All" class="btn btn-secondary">Clear</a>
+				</div>
+			</div>
+		</div>
+	</form>
+	<hr />
 	
 	<div class="table-responsive">
 		<table class="table table-bordered">
@@ -72,7 +117,46 @@
 		</table>
 
 	</div>
-	<partial name="_PaginationPartial" model="Model.Pager" />
+
+	@if (maxPage > 1)
+	{
+		<nav aria-label="Page navigation">
+			<ul class="pagination justify-content-center">
+				@if (Model.CurrentPage > 1)
+				{
+					<li class="page-item">
+						<a class="page-link"
+						   asp-action="All"
+						   asp-route-currentPage="@(Model.CurrentPage - 1)"
+						   asp-route-search="@Model.Search"
+						   asp-route-sorting="@Model.Sorting">Previous</a>
+					</li>
+				}
+
+				@for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min((int)maxPage, Model.CurrentPage + 2); i++)
+				{
+					<li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+						<a class="page-link"
+						   asp-action="All"
+						   asp-route-currentPage="@i"
+						   asp-route-search="@Model.Search"
+						   asp-route-sorting="@Model.Sorting">@i</a>
+					</li>
+				}
+
+				@if (Model.CurrentPage < maxPage)
+				{
+					<li class="page-item">
+						<a class="page-link"
+						   asp-action="All"
+						   asp-route-currentPage="@(Model.CurrentPage + 1)"
+						   asp-route-search="@Model.Search"
+						   asp-route-sorting="@Model.Sorting">Next</a>
+					</li>
+				}
+			</ul>
+		</nav>
+	}
 }
 
 

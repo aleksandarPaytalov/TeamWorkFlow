@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Exceptions;
 using TeamWorkFlow.Core.Models.Task;
 using TeamWorkFlow.Infrastructure.Common;
@@ -37,6 +38,62 @@ namespace TeamWorkFlow.Core.Services
                     Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty
 				})
                 .ToListAsync();
+        }
+
+        public async Task<TaskQueryServiceModel> AllAsync(
+            TaskSorting sorting = TaskSorting.LastAdded,
+            string? search = null,
+            int tasksPerPage = 10,
+            int currentPage = 1)
+        {
+            IQueryable<Infrastructure.Data.Models.Task> tasksToBeDisplayed = _repository.AllReadOnly<Infrastructure.Data.Models.Task>();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string normalizedSearch = search.ToLower();
+                tasksToBeDisplayed = tasksToBeDisplayed
+                    .Where(t => t.Name.ToLower().Contains(normalizedSearch) ||
+                               t.Description.ToLower().Contains(normalizedSearch) ||
+                               t.Project.ProjectNumber.ToLower().Contains(normalizedSearch));
+            }
+
+            tasksToBeDisplayed = sorting switch
+            {
+                TaskSorting.NameAscending => tasksToBeDisplayed.OrderBy(t => t.Name),
+                TaskSorting.NameDescending => tasksToBeDisplayed.OrderByDescending(t => t.Name),
+                TaskSorting.ProjectNumberAscending => tasksToBeDisplayed.OrderBy(t => t.Project.ProjectNumber),
+                TaskSorting.ProjectNumberDescending => tasksToBeDisplayed.OrderByDescending(t => t.Project.ProjectNumber),
+                TaskSorting.StartDateAscending => tasksToBeDisplayed.OrderBy(t => t.StartDate),
+                TaskSorting.StartDateDescending => tasksToBeDisplayed.OrderByDescending(t => t.StartDate),
+                TaskSorting.DeadlineAscending => tasksToBeDisplayed.OrderBy(t => t.DeadLine),
+                TaskSorting.DeadlineDescending => tasksToBeDisplayed.OrderByDescending(t => t.DeadLine),
+                _ => tasksToBeDisplayed.OrderByDescending(t => t.Id)
+            };
+
+            var tasks = await tasksToBeDisplayed
+                .Skip((currentPage - 1) * tasksPerPage)
+                .Take(tasksPerPage)
+                .Select(t => new TaskServiceModel()
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Description = t.Description,
+                    Status = t.TaskStatus.Name,
+                    Priority = t.Priority.Name,
+                    ProjectNumber = t.Project.ProjectNumber,
+                    StartDate = t.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
+                    EndDate = t.EndDate != null ? t.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+                    Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty
+                })
+                .ToListAsync();
+
+            int totalTasks = await tasksToBeDisplayed.CountAsync();
+
+            return new TaskQueryServiceModel()
+            {
+                Tasks = tasks,
+                TotalTasksCount = totalTasks
+            };
         }
 
         public async Task<ICollection<TaskStatusServiceModel>> GetAllStatusesAsync()
