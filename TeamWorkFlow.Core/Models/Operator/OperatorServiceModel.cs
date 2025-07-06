@@ -23,6 +23,6 @@ namespace TeamWorkFlow.Core.Models.Operator
 	public class PaginatedOperatorsViewModel
 	{
 		public IEnumerable<OperatorServiceModel> Operators { get; set; } = new List<OperatorServiceModel>();
-		public PagerServiceModel Pager { get; set; }
+		public PagerServiceModel Pager { get; set; } = null!;
 	}
 }

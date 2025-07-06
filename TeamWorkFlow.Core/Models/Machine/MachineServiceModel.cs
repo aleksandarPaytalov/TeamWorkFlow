@@ -15,6 +15,6 @@ namespace TeamWorkFlow.Core.Models.Machine
     public class PaginatedMachinesViewModel
     {
         public IEnumerable<MachineServiceModel> Machines { get; set; } = new List<MachineServiceModel>();
-        public PagerServiceModel Pager { get; set; }
+        public PagerServiceModel Pager { get; set; } = null!;
     }
 }

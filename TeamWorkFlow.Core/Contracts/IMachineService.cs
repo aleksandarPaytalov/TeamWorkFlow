@@ -1,4 +1,5 @@
-﻿using TeamWorkFlow.Core.Models.Machine;
+﻿using TeamWorkFlow.Core.Enumerations;
+using TeamWorkFlow.Core.Models.Machine;
 using Task = System.Threading.Tasks.Task;
 
 namespace TeamWorkFlow.Core.Contracts
@@ -7,6 +8,11 @@ namespace TeamWorkFlow.Core.Contracts
 	{
 		Task<ICollection<MachineServiceModel>> GetAllMachinesAsync();
 		Task<(ICollection<MachineServiceModel> Machines, int TotalCount)> GetAllMachinesAsync(int page, int pageSize);
+		Task<MachineQueryServiceModel> AllAsync(
+			MachineSorting sorting = MachineSorting.LastAdded,
+			string? search = null,
+			int machinesPerPage = 10,
+			int currentPage = 1);
 		Task AddNewMachineAsync(MachineFormModel model);
 		Task<MachineFormModel?> GetMachineForEditAsync(int id);
 		Task EditMachineAsync(MachineFormModel model, int id);

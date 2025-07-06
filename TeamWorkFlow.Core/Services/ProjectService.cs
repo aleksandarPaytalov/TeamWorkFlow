@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Project;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
@@ -65,6 +66,58 @@ namespace TeamWorkFlow.Core.Services
 		        .ToListAsync();
 
 	        return (projects, totalCount);
+        }
+
+        public async Task<ProjectQueryServiceModel> AllAsync(
+            ProjectSorting sorting = ProjectSorting.LastAdded,
+            string? search = null,
+            int projectsPerPage = 10,
+            int currentPage = 1)
+        {
+	        IQueryable<Project> projectsToBeDisplayed = _repository.AllReadOnly<Project>();
+
+	        if (!string.IsNullOrWhiteSpace(search))
+	        {
+		        string normalizedSearch = search.ToLower();
+		        projectsToBeDisplayed = projectsToBeDisplayed
+			        .Where(p => p.ProjectName.ToLower().Contains(normalizedSearch) ||
+			                   p.ProjectNumber.ToLower().Contains(normalizedSearch) ||
+			                   (p.ClientName != null && p.ClientName.ToLower().Contains(normalizedSearch)));
+	        }
+
+	        projectsToBeDisplayed = sorting switch
+	        {
+		        ProjectSorting.NameAscending => projectsToBeDisplayed.OrderBy(p => p.ProjectName),
+		        ProjectSorting.NameDescending => projectsToBeDisplayed.OrderByDescending(p => p.ProjectName),
+		        ProjectSorting.ProjectNumberAscending => projectsToBeDisplayed.OrderBy(p => p.ProjectNumber),
+		        ProjectSorting.ProjectNumberDescending => projectsToBeDisplayed.OrderByDescending(p => p.ProjectNumber),
+		        ProjectSorting.StatusAscending => projectsToBeDisplayed.OrderBy(p => p.ProjectStatus.Name),
+		        ProjectSorting.StatusDescending => projectsToBeDisplayed.OrderByDescending(p => p.ProjectStatus.Name),
+		        ProjectSorting.TotalPartsAscending => projectsToBeDisplayed.OrderBy(p => p.Parts.Count),
+		        ProjectSorting.TotalPartsDescending => projectsToBeDisplayed.OrderByDescending(p => p.Parts.Count),
+		        _ => projectsToBeDisplayed.OrderByDescending(p => p.Id)
+	        };
+
+	        var projects = await projectsToBeDisplayed
+		        .Skip((currentPage - 1) * projectsPerPage)
+		        .Take(projectsPerPage)
+		        .Select(p => new ProjectServiceModel()
+		        {
+			        Id = p.Id,
+			        ProjectName = p.ProjectName,
+			        ProjectNumber = p.ProjectNumber,
+			        Status = p.ProjectStatus.Name,
+			        TotalParts = p.Parts.Count
+		        })
+		        .ToListAsync();
+
+	        int totalProjects = await projectsToBeDisplayed.CountAsync();
+
+	        return new ProjectQueryServiceModel()
+	        {
+		        Projects = projects,
+		        TotalProjectsCount = totalProjects
+	        };
         }
 
         public async Task<IEnumerable<ProjectStatusServiceModel>> GetAllProjectStatusesAsync()

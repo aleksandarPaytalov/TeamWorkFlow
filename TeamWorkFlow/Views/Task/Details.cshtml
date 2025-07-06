@@ -38,7 +38,7 @@
 				<p>Task assigned to CMM name: @Model.AssignedMachineName</p>
 				<p>Creator: @Model.Creator</p>
 				<div class="form-inline">
-					@if (User.Identity.IsAuthenticated && (User.IsAdmin() || User.IsOperator()))
+					@if (User.Identity?.IsAuthenticated == true && (User.IsAdmin() || User.IsOperator()))
 					{
 						<a class="btn btn-warning" asp-controller="Task" asp-action="Edit"
 						   asp-route-id="@Model.Id" asp-route-extension="@Model.GetTaskExtension()">Edit</a>

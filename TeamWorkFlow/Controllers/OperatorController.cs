@@ -17,15 +17,17 @@ namespace TeamWorkFlow.Controllers
 	    }
 
 		[HttpGet]
-	    public async Task <IActionResult> All(int page = 1)
+	    public async Task <IActionResult> All([FromQuery] AllOperatorsQueryModel model)
 	    {
-		    int pageSize = 10; // You can adjust this as needed
-		    var (operators, totalCount) = await _operatorService.GetAllActiveOperatorsAsync(page, pageSize);
-		    var model = new PaginatedOperatorsViewModel
-		    {
-			    Operators = operators,
-			    Pager = new TeamWorkFlow.Core.Models.Pager.PagerServiceModel(totalCount, page, pageSize)
-		    };
+		    var operators = await _operatorService.AllAsync(
+			    model.Sorting,
+			    model.Search,
+			    model.OperatorsPerPage,
+			    model.CurrentPage
+		    );
+
+		    model.TotalOperatorsCount = operators.TotalOperatorsCount;
+		    model.Operators = operators.Operators;
 
             return View(model);
         }
@@ -78,8 +80,8 @@ namespace TeamWorkFlow.Controllers
 
 				return View(model);
 	        }
-			
-	        await _operatorService.AddNewOperatorAsync(model, userId);
+
+	        await _operatorService.AddNewOperatorAsync(model, userId!);
 
 	        return RedirectToAction(nameof(All));
         }

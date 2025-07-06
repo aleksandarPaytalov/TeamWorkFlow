@@ -19,6 +19,6 @@ namespace TeamWorkFlow.Core.Models.Task
     public class PaginatedTasksViewModel
     {
         public IEnumerable<TaskServiceModel> Tasks { get; set; } = new List<TaskServiceModel>();
-        public PagerServiceModel Pager { get; set; }
+        public PagerServiceModel Pager { get; set; } = null!;
     }
 }

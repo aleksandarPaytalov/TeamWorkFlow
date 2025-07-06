@@ -1,4 +1,5 @@
-﻿using TeamWorkFlow.Core.Models.Admin.Operator;
+﻿using TeamWorkFlow.Core.Enumerations;
+using TeamWorkFlow.Core.Models.Admin.Operator;
 using TeamWorkFlow.Core.Models.Operator;
 using Task = System.Threading.Tasks.Task;
 
@@ -8,6 +9,11 @@ namespace TeamWorkFlow.Core.Contracts
 	{
 		Task<ICollection<OperatorServiceModel>> GetAllActiveOperatorsAsync();
 		Task<(ICollection<OperatorServiceModel> Operators, int TotalCount)> GetAllActiveOperatorsAsync(int page, int pageSize);
+		Task<OperatorQueryServiceModel> AllAsync(
+			OperatorSorting sorting = OperatorSorting.LastAdded,
+			string? search = null,
+			int operatorsPerPage = 10,
+			int currentPage = 1);
 		Task<ICollection<AvailabilityStatusServiceModel>> GetAllOperatorStatusesAsync();
 		Task AddNewOperatorAsync(OperatorFormModel model, string userId);
 		Task<OperatorFormModel?> GetOperatorForEditAsync(int id);

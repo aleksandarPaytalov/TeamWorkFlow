@@ -11,103 +11,103 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
         /// <summary>
         /// OperatorAvailabilityStatus seeding fields
         /// </summary>
-        public OperatorAvailabilityStatus AtWorkStatus { get; set; }
-        public OperatorAvailabilityStatus InSickLeaveStatus { get; set; }
-        public OperatorAvailabilityStatus OnVacation { get; set; }
-        public OperatorAvailabilityStatus OnTraining { get; set; }
+        public OperatorAvailabilityStatus AtWorkStatus { get; set; } = null!;
+        public OperatorAvailabilityStatus InSickLeaveStatus { get; set; } = null!;
+        public OperatorAvailabilityStatus OnVacation { get; set; } = null!;
+        public OperatorAvailabilityStatus OnTraining { get; set; } = null!;
 
         /// <summary>
         /// Operator seeding fields
         /// </summary>
-        public Operator OperatorOne { get; set; }
-        public Operator OperatorTwo { get; set; }
-        public Operator OperatorThree { get; set; }
+        public Operator OperatorOne { get; set; } = null!;
+        public Operator OperatorTwo { get; set; } = null!;
+        public Operator OperatorThree { get; set; } = null!;
 
 		/// <summary>
 		/// PartStatus seeding fields
 		/// </summary>
-		public PartStatus Released { get; set; }
-        public PartStatus NotReleased { get; set; }
-        public PartStatus ConditionalReleased { get; set; }
+		public PartStatus Released { get; set; } = null!;
+        public PartStatus NotReleased { get; set; } = null!;
+        public PartStatus ConditionalReleased { get; set; } = null!;
 
         /// <summary>
         /// Part seeding fields
         /// </summary>
-        public Part PartOne { get; set; }
-        public Part PartTwo { get; set; }
-        public Part PartThree { get; set; }
-        public Part PartFour { get; set; }
-        public Part PartFive { get; set; }
-        public Part PartSix { get; set; }
-        public Part PartSeven { get; set; }
-        public Part PartEight { get; set; }
+        public Part PartOne { get; set; } = null!;
+        public Part PartTwo { get; set; } = null!;
+        public Part PartThree { get; set; } = null!;
+        public Part PartFour { get; set; } = null!;
+        public Part PartFive { get; set; } = null!;
+        public Part PartSix { get; set; } = null!;
+        public Part PartSeven { get; set; } = null!;
+        public Part PartEight { get; set; } = null!;
 
 
 		/// <summary>
 		/// Priority seeding fields
 		/// </summary>
-		public Priority Low { get; set; }
-        public Priority Normal { get; set; }
-        public Priority High { get; set; }
+		public Priority Low { get; set; } = null!;
+        public Priority Normal { get; set; } = null!;
+        public Priority High { get; set; } = null!;
 
         /// <summary>
         /// ProjectStatus seeding fields
         /// </summary>
-        public ProjectStatus InProduction { get; set; }
-        public ProjectStatus InDevelopment { get; set; }
-        public ProjectStatus InAcl { get; set; }
+        public ProjectStatus InProduction { get; set; } = null!;
+        public ProjectStatus InDevelopment { get; set; } = null!;
+        public ProjectStatus InAcl { get; set; } = null!;
 
         /// <summary>
         /// TaskStatus seeding fields
         /// </summary>
-        public TaskStatus Open { get; set; }
-        public TaskStatus InProgress { get; set; }
-        public TaskStatus Finished { get; set; }
-        public TaskStatus Canceled { get; set; }
+        public TaskStatus Open { get; set; } = null!;
+        public TaskStatus InProgress { get; set; } = null!;
+        public TaskStatus Finished { get; set; } = null!;
+        public TaskStatus Canceled { get; set; } = null!;
 
         /// <summary>
         /// Task seeding fields
         /// </summary>
-		public Task TaskOne { get; set; }
-		public Task TaskTwo { get; set; }
-		public Task TaskThree { get; set; }
-		public Task TaskFour { get; set; }
-		public Task TaskFive { get; set; }
-		public Task TaskSix { get; set; }
+		public Task TaskOne { get; set; } = null!;
+		public Task TaskTwo { get; set; } = null!;
+		public Task TaskThree { get; set; } = null!;
+		public Task TaskFour { get; set; } = null!;
+		public Task TaskFive { get; set; } = null!;
+		public Task TaskSix { get; set; } = null!;
 
 		/// <summary>
-		/// Machine seeding fields 
+		/// Machine seeding fields
 		/// </summary>
-		public Machine ZeissConturaOne { get; set; }
-        public Machine ZeissInspect { get; set; }
-        public Machine ZeissMetrotom { get; set; }
-        public Machine MachineFour { get; set; }
-		public Machine MachineFive { get; set; }
-		public Machine MachineSix { get; set; }
+		public Machine ZeissConturaOne { get; set; } = null!;
+        public Machine ZeissInspect { get; set; } = null!;
+        public Machine ZeissMetrotom { get; set; } = null!;
+        public Machine MachineFour { get; set; } = null!;
+		public Machine MachineFive { get; set; } = null!;
+		public Machine MachineSix { get; set; } = null!;
 
 		/// <summary>
 		/// Project seeding fields
 		/// </summary>
-		public Project BmwHousingGx9 { get; set; }
-        public Project VwFrontPanel { get; set; }
-        public Project ToyotaClimaticModule { get; set; }
+		public Project BmwHousingGx9 { get; set; } = null!;
+        public Project VwFrontPanel { get; set; } = null!;
+        public Project ToyotaClimaticModule { get; set; } = null!;
 
         /// <summary>
         /// Project seeding fields
         /// </summary>
-        public IdentityUser GuestUser { get; set; }
-        public IdentityUser OperatorUser { get; set; }
-        public IdentityUser AdminUser { get; set; }
-        public IdentityUserClaim<string> GuestUserClaim { get; set; }
-        public IdentityUserClaim<string> OperatorUserClaim { get; set; }
-        public IdentityUserClaim<string> AdminUserClaim { get; set; }
+        public IdentityUser GuestUser { get; set; } = null!;
+        public IdentityUser OperatorUser { get; set; } = null!;
+        public IdentityUser AdminUser { get; set; } = null!;
+        public IdentityUserClaim<string> GuestUserClaim { get; set; } = null!;
+        public IdentityUserClaim<string> OperatorUserClaim { get; set; } = null!;
+        public IdentityUserClaim<string> AdminUserClaim { get; set; } = null!;
 
 		/// <summary>
 		/// TaskOperator seeding fields
 		/// </summary>
-		public TaskOperator TaskOperatorOne { get; set; }
-		public TaskOperator TaskOperatorTwo { get; set; }
-		public TaskOperator TaskOperatorThree { get; set; }
+		public TaskOperator TaskOperatorOne { get; set; } = null!;
+		public TaskOperator TaskOperatorTwo { get; set; } = null!;
+		public TaskOperator TaskOperatorThree { get; set; } = null!;
 
 		public SeedData()
         {

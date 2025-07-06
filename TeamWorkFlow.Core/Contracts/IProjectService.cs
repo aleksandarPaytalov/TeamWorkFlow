@@ -1,4 +1,5 @@
-﻿using TeamWorkFlow.Core.Models.Project;
+﻿using TeamWorkFlow.Core.Enumerations;
+using TeamWorkFlow.Core.Models.Project;
 
 namespace TeamWorkFlow.Core.Contracts
 {
@@ -8,6 +9,11 @@ namespace TeamWorkFlow.Core.Contracts
         Task<int?> GetProjectIdByProjectNumberAsync(string projectNumber);
         Task<IEnumerable<ProjectServiceModel>> GetAllProjectsAsync();
         Task<(IEnumerable<ProjectServiceModel> Projects, int TotalCount)> GetAllProjectsAsync(int page, int pageSize);
+        Task<ProjectQueryServiceModel> AllAsync(
+            ProjectSorting sorting = ProjectSorting.LastAdded,
+            string? search = null,
+            int projectsPerPage = 10,
+            int currentPage = 1);
         Task<IEnumerable<ProjectStatusServiceModel>> GetAllProjectStatusesAsync();
         Task<int> AddNewProjectsAsync(ProjectFormModel model);
         Task<bool> ProjectStatusExistAsync(int statusId);

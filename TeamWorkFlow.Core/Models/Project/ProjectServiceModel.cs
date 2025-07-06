@@ -19,6 +19,6 @@ namespace TeamWorkFlow.Core.Models.Project
 	public class PaginatedProjectsViewModel
 	{
 		public IEnumerable<ProjectServiceModel> Projects { get; set; } = new List<ProjectServiceModel>();
-		public PagerServiceModel Pager { get; set; }
+		public PagerServiceModel Pager { get; set; } = null!;
 	}
 }

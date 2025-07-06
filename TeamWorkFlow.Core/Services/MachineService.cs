@@ -2,6 +2,7 @@
 using System.Globalization;
 using TeamWorkFlow.Core.Constants;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Machine;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
@@ -56,6 +57,54 @@ namespace TeamWorkFlow.Core.Services
 
 			return (machines, totalCount);
 		}
+
+	public async Task<MachineQueryServiceModel> AllAsync(
+		MachineSorting sorting = MachineSorting.LastAdded,
+		string? search = null,
+		int machinesPerPage = 10,
+		int currentPage = 1)
+	{
+		IQueryable<Machine> machinesToBeDisplayed = _repository.AllReadOnly<Machine>().AsNoTracking();
+
+		if (!string.IsNullOrWhiteSpace(search))
+		{
+			string normalizedSearch = search.ToLower();
+			machinesToBeDisplayed = machinesToBeDisplayed
+				.Where(m => m.Name.ToLower().Contains(normalizedSearch));
+		}
+
+		machinesToBeDisplayed = sorting switch
+		{
+			MachineSorting.NameAscending => machinesToBeDisplayed.OrderBy(m => m.Name),
+			MachineSorting.NameDescending => machinesToBeDisplayed.OrderByDescending(m => m.Name),
+			MachineSorting.CalibrationDateAscending => machinesToBeDisplayed.OrderBy(m => m.CalibrationSchedule),
+			MachineSorting.CalibrationDateDescending => machinesToBeDisplayed.OrderByDescending(m => m.CalibrationSchedule),
+			MachineSorting.CapacityAscending => machinesToBeDisplayed.OrderBy(m => m.Capacity),
+			MachineSorting.CapacityDescending => machinesToBeDisplayed.OrderByDescending(m => m.Capacity),
+			_ => machinesToBeDisplayed.OrderByDescending(m => m.Id)
+		};
+
+		var machines = await machinesToBeDisplayed
+			.Skip((currentPage - 1) * machinesPerPage)
+			.Take(machinesPerPage)
+			.Select(m => new MachineServiceModel
+			{
+				Id = m.Id,
+				Name = m.Name,
+				IsCalibrated = m.IsCalibrated,
+				CalibrationSchedule = m.CalibrationSchedule.ToString(DateFormat),
+				Capacity = m.Capacity
+			})
+			.ToListAsync();
+
+		int totalMachines = await machinesToBeDisplayed.CountAsync();
+
+		return new MachineQueryServiceModel()
+		{
+			Machines = machines,
+			TotalMachinesCount = totalMachines
+		};
+	}
 
 		public async Task AddNewMachineAsync(MachineFormModel model)
 		{

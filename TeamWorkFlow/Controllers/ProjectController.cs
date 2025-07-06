@@ -18,15 +18,17 @@ namespace TeamWorkFlow.Controllers
 	    }
 
 	    [HttpGet]
-        public async Task<IActionResult> All(int page = 1)
+        public async Task<IActionResult> All([FromQuery] AllProjectsQueryModel model)
         {
-	        int pageSize = 10; // You can adjust this as needed
-	        var (projects, totalCount) = await _projectService.GetAllProjectsAsync(page, pageSize);
-	        var model = new PaginatedProjectsViewModel
-	        {
-		        Projects = projects,
-		        Pager = new TeamWorkFlow.Core.Models.Pager.PagerServiceModel(totalCount, page, pageSize)
-	        };
+	        var projects = await _projectService.AllAsync(
+		        model.Sorting,
+		        model.Search,
+		        model.ProjectsPerPage,
+		        model.CurrentPage
+	        );
+
+	        model.TotalProjectsCount = projects.TotalProjectsCount;
+	        model.Projects = projects.Projects;
 
             return View(model);
         }

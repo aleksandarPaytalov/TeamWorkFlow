@@ -7,6 +7,6 @@ namespace TeamWorkFlow.Core.Models.Admin
 	{
 		public IEnumerable<TaskServiceModel> AllAssignedTasks { get; set; }
 			= new List<TaskServiceModel>();
-		public PagerServiceModel Pager { get; set; }
+		public PagerServiceModel Pager { get; set; } = null!;
 	}
 }
