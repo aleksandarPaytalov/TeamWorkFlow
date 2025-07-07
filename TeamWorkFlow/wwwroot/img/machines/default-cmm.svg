@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="220" viewBox="0 0 400 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="220" fill="url(#gradient1)"/>
+  
+  <!-- CMM Machine Illustration -->
+  <g transform="translate(50, 30)">
+    <!-- Base -->
+    <rect x="0" y="120" width="300" height="40" rx="8" fill="#374151" opacity="0.8"/>
+    
+    <!-- Granite Table -->
+    <rect x="20" y="100" width="260" height="20" rx="4" fill="#6B7280"/>
+    
+    <!-- Y-Axis Bridge -->
+    <rect x="30" y="40" width="240" height="15" rx="4" fill="#8B5CF6"/>
+    <rect x="25" y="35" width="10" height="70" rx="3" fill="#8B5CF6"/>
+    <rect x="265" y="35" width="10" height="70" rx="3" fill="#8B5CF6"/>
+    
+    <!-- X-Axis Carriage -->
+    <rect x="120" y="30" width="60" height="25" rx="6" fill="#3B82F6"/>
+    
+    <!-- Z-Axis Spindle -->
+    <rect x="140" y="10" width="20" height="45" rx="4" fill="#10B981"/>
+    
+    <!-- Probe -->
+    <circle cx="150" cy="65" r="3" fill="#EF4444"/>
+    <line x1="150" y1="55" x2="150" y2="62" stroke="#EF4444" stroke-width="2"/>
+    
+    <!-- Control Panel -->
+    <rect x="280" y="60" width="40" height="30" rx="4" fill="#1F2937"/>
+    <rect x="285" y="65" width="30" height="20" rx="2" fill="#059669"/>
+    
+    <!-- Measurement Lines (indicating precision) -->
+    <g opacity="0.6">
+      <line x1="60" y1="80" x2="240" y2="80" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="2,2"/>
+      <line x1="60" y1="90" x2="240" y2="90" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="2,2"/>
+    </g>
+  </g>
+  
+  <!-- Gradient Definitions -->
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F8FAFC;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E2E8F0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Text Label -->
+  <text x="200" y="200" text-anchor="middle" fill="#64748B" font-family="Arial, sans-serif" font-size="14" font-weight="600">
+    CMM MACHINE
+  </text>
+</svg>

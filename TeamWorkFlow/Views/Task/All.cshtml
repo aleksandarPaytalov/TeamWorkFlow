@@ -1,105 +1,277 @@
-﻿@model TeamWorkFlow.Core.Models.Task.PaginatedTasksViewModel
+﻿@model AllTasksQueryModel
 @{
-	ViewData["Title"] = "All created Tasks";
+	ViewData["Title"] = "Project Tasks";
 }
 
-
-<h2 class="text-center">@ViewBag.Title</h2>
-
-@if (User?.Identity?.IsAuthenticated ?? false)
-{
-	if (User.IsAdmin() || User.IsOperator())
+@{
+	var previousPage = Model.CurrentPage - 1;
+	if (previousPage < 1)
 	{
-		<a href="@Url.Action("Add", "Task")" class="btn btn-success">Add Task</a>
-		<a href="@Url.Action("Mine", "Task")" class="btn btn-purple">My Tasks</a>
-		<hr />
+		previousPage = 1;
 	}
-	
-	<div class="table-responsive">
-		<table class="table table-bordered">
-			<thead>
-			<tr>
-				<th>Project Number</th>
-				<th>Name</th>
-				<th>Description</th>
-				<th>Status</th>
-				<th>Priority</th>
-				<th>Deadline</th>
-				<th>Start Date</th>
-				<th>End Date</th>
-				<th>Actions</th>
-			</tr>
-			</thead>
-			<tbody>
+
+	var maxPage = Math.Ceiling((decimal)Model.TotalTasksCount / (decimal)Model.TasksPerPage);
+}
+
+@section Styles {
+	<link rel="stylesheet" href="~/css/pages/tasks.css" asp-append-version="true" />
+}
+
+<div class="tasks-container">
+	<!-- Header Section -->
+	<div class="tasks-header">
+		<h1 class="tasks-title">@ViewData["Title"]</h1>
+		<p class="tasks-subtitle">Track and manage project tasks with deadlines and priorities</p>
+	</div>
+
+	@if (User?.Identity?.IsAuthenticated ?? false)
+	{
+		@if (User.IsAdmin() || User.IsOperator())
+		{
+			<div class="action-buttons">
+				<a class="btn-success" asp-area="" asp-controller="Task" asp-action="Add">
+					<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+					</svg>
+					Add Task
+				</a>
+				<a class="btn-purple" asp-area="" asp-controller="Task" asp-action="Mine">
+					<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+					</svg>
+					My Tasks
+				</a>
+			</div>
+		}
+
+		<!-- Search and Filter Section -->
+		<div class="search-section">
+			<form method="get" id="search-form" class="search-form">
+				<div class="form-group">
+					<label asp-for="Search" class="form-label">Search Tasks</label>
+					<input asp-for="Search" id="search-input" class="form-input" placeholder="Search by task name or project number...">
+				</div>
+
+				<div class="form-group">
+					<label asp-for="Sorting" class="form-label">Sort By</label>
+					<select asp-for="Sorting" id="sorting-select" class="form-select">
+						<option value="0">Last created task</option>
+						<option value="1">By name ascending</option>
+						<option value="2">By name descending</option>
+						<option value="3">By project number ascending</option>
+						<option value="4">By project number descending</option>
+						<option value="5">By start date ascending</option>
+						<option value="6">By start date descending</option>
+						<option value="7">By deadline ascending</option>
+						<option value="8">By deadline descending</option>
+					</select>
+				</div>
+
+				<div class="form-group">
+					<div class="search-buttons">
+						<input type="submit" value="Search" class="btn-primary" />
+						<a asp-action="All" id="clear-search" class="btn-secondary">Clear</a>
+					</div>
+				</div>
+			</form>
+		</div>
+		<!-- Tasks Grid -->
+		<div class="tasks-grid">
 			@foreach (var task in Model.Tasks)
 			{
-				<tr>
-					<td>@task.ProjectNumber</td>
-					<td>@task.Name</td>
-					<td>@task.Description</td>
-					<td>@task.Status</td>
-					<td>@task.Priority</td>
-					<td>@task.Deadline</td>
-					<td>@task.StartDate</td>
-					<td>@task.EndDate</td>
-					<td>
-							@if (User.IsAdmin() || User.IsOperator())
+				<div class="task-card fade-in">
+					<!-- Card Header -->
+					<div class="task-card-header">
+						<div class="task-project-number">Project #@task.ProjectNumber</div>
+						<h3 class="task-name">@task.Name</h3>
+						<div class="task-status-priority">
+							@{
+								string statusClass = "task-status-pending";
+								if (task.Status.ToLower().Contains("progress") || task.Status.ToLower().Contains("active"))
+								{
+									statusClass = "task-status-in-progress";
+								}
+								else if (task.Status.ToLower().Contains("completed") || task.Status.ToLower().Contains("done"))
+								{
+									statusClass = "task-status-completed";
+								}
+								else if (task.Status.ToLower().Contains("cancelled") || task.Status.ToLower().Contains("stopped"))
+								{
+									statusClass = "task-status-cancelled";
+								}
+							}
+							<span class="task-status @statusClass">@task.Status</span>
+
+							@{
+								string priorityClass = "task-priority-low";
+								if (task.Priority.ToLower().Contains("medium"))
+								{
+									priorityClass = "task-priority-medium";
+								}
+								else if (task.Priority.ToLower().Contains("high"))
+								{
+									priorityClass = "task-priority-high";
+								}
+								else if (task.Priority.ToLower().Contains("critical"))
+								{
+									priorityClass = "task-priority-critical";
+								}
+							}
+							<span class="task-priority @priorityClass">@task.Priority</span>
+						</div>
+					</div>
+
+					<!-- Card Content -->
+					<div class="task-card-content">
+						<!-- Task Description -->
+						<div class="task-description">@task.Description</div>
+
+						<!-- Task Details -->
+						<div class="task-details">
+							<div class="task-detail-item">
+								<span class="task-detail-label">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+									</svg>
+									Start Date
+								</span>
+								<span class="task-detail-value">@task.StartDate</span>
+							</div>
+
+							@if (!string.IsNullOrEmpty(task.EndDate))
 							{
-								<div class="dropdown">
-									<button class="btn btn-secondary dropdown-toggle" type="button" id="actionsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color: #007bff;">
-										...
-									</button>
-									<div class="dropdown-menu" aria-labelledby="actionsDropdown">
-										<a class="dropdown-item" href="@Url.Action("Edit", "Task", new { id = task.Id, extension = task.GetTaskExtension() })">
-											<span class="text-primary">Edit</span>
-										</a>
-										<a class="dropdown-item" href="@Url.Action("Delete", "Task", new { id = task.Id, extension = task.GetTaskExtension() })">
-											<span class="text-danger">Delete</span>
-										</a>
-										<a class="dropdown-item" href="@Url.Action("Details", "Task", new { id = task.Id, extension = task.GetTaskExtension() })">
-											<span class="text-info">Details</span>
-										</a>
-										<a class="dropdown-item" href="@Url.Action("AddToMine", "Task", new { id = task.Id, extension = task.GetTaskExtension() })">
-											<span class="text-purple">Add to My collection</span>
-										</a>
-									</div>
+								<div class="task-detail-item">
+									<span class="task-detail-label">
+										<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+										</svg>
+										End Date
+									</span>
+									<span class="task-detail-value">@task.EndDate</span>
 								</div>
 							}
-					</td>
-				</tr>
-			}
-			</tbody>
-		</table>
 
-	</div>
-	<nav aria-label="Page navigation">
-		<ul class="pagination justify-content-center">
-			@if (Model.Pager != null && Model.Pager.TotalPages > 1)
-			{
-				if (Model.Pager.CurrentPage > 1)
-				{
-					<li class="page-item">
-						<a class="page-link" asp-action="All" asp-route-page="@(Model.Pager.CurrentPage - 1)">Previous</a>
-					</li>
-				}
-				for (int i = Model.Pager.StartPage; i <= Model.Pager.EndPage; i++)
-				{
-					<li class="page-item @(i == Model.Pager.CurrentPage ? "active" : "")">
-						<a class="page-link" asp-action="All" asp-route-page="@i">@i</a>
-					</li>
-				}
-				if (Model.Pager.CurrentPage < Model.Pager.TotalPages)
-				{
-					<li class="page-item">
-						<a class="page-link" asp-action="All" asp-route-page="@(Model.Pager.CurrentPage + 1)">Next</a>
-					</li>
-				}
-			}
-		</ul>
-	</nav>
-}
+							@if (!string.IsNullOrEmpty(task.Deadline))
+							{
+								<div class="task-detail-item">
+									<span class="task-detail-label">
+										<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+										</svg>
+										Deadline
+									</span>
+									<span class="task-detail-value task-deadline">@task.Deadline</span>
+								</div>
+							}
+						</div>
 
+						<!-- Action Buttons -->
+						@if (User.IsAdmin() || User.IsOperator())
+						{
+							<div class="task-actions">
+								<a href="@Url.Action("Details", "Task", new { id = task.Id, extension = task.GetTaskExtension() })" class="action-btn action-btn-details">Details</a>
+								<a href="@Url.Action("Edit", "Task", new { id = task.Id, extension = task.GetTaskExtension() })" class="action-btn action-btn-edit">Edit</a>
+								<a href="@Url.Action("Delete", "Task", new { id = task.Id, extension = task.GetTaskExtension() })" class="action-btn action-btn-delete">Delete</a>
+								<a href="@Url.Action("AddToMine", "Task", new { id = task.Id, extension = task.GetTaskExtension() })" class="action-btn action-btn-add">Add to Mine</a>
+							</div>
+						}
+					</div>
+				</div>
+			}
+		</div>
+
+		@if (!Model.Tasks.Any())
+		{
+			<div class="empty-state">
+				<h2>No Tasks Found</h2>
+				<p>@(string.IsNullOrEmpty(Model.Search) ? "No tasks have been created yet." : "No tasks match your search criteria.")</p>
+				@if (User.IsAdmin() || User.IsOperator())
+				{
+					<a class="btn-success" asp-area="" asp-controller="Task" asp-action="Add" style="margin-top: 1rem;">
+						Create First Task
+					</a>
+				}
+			</div>
+		}
+
+		<!-- Pagination -->
+		@if (maxPage > 1)
+		{
+			<div class="pagination-container">
+				<nav aria-label="Page navigation">
+					<ul class="pagination">
+						@if (Model.CurrentPage > 1)
+						{
+							<li class="page-item">
+								<a class="page-link"
+								   asp-action="All"
+								   asp-route-currentPage="@previousPage"
+								   asp-route-search="@Model.Search"
+								   asp-route-sorting="@Model.Sorting">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+									</svg>
+									Previous
+								</a>
+							</li>
+						}
+						else
+						{
+							<li class="page-item disabled">
+								<span class="page-link">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+									</svg>
+									Previous
+								</span>
+							</li>
+						}
+
+						@for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min((int)maxPage, Model.CurrentPage + 2); i++)
+						{
+							<li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+								<a class="page-link"
+								   asp-action="All"
+								   asp-route-currentPage="@i"
+								   asp-route-search="@Model.Search"
+								   asp-route-sorting="@Model.Sorting">@i</a>
+							</li>
+						}
+
+						@if (Model.CurrentPage < maxPage)
+						{
+							<li class="page-item">
+								<a class="page-link"
+								   asp-action="All"
+								   asp-route-currentPage="@(Model.CurrentPage + 1)"
+								   asp-route-search="@Model.Search"
+								   asp-route-sorting="@Model.Sorting">
+									Next
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+									</svg>
+								</a>
+							</li>
+						}
+						else
+						{
+							<li class="page-item disabled">
+								<span class="page-link">
+									Next
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+									</svg>
+								</span>
+							</li>
+						}
+					</ul>
+				</nav>
+			</div>
+		}
+	}
+</div>
 
 @section Scripts {
+	<script src="~/js/pages/tasks.js" asp-append-version="true"></script>
 	<partial name="_ValidationScriptsPartial" />
 }

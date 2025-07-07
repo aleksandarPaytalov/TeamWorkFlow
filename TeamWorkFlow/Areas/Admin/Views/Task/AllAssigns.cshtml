@@ -1,81 +1,154 @@
 ﻿@model AssignedTasksServiceModel
 @{
-	ViewData["Title"] = "All assigned Tasks";
+	ViewData["Title"] = "All Assigned Tasks";
 }
 
-<h2 class="text-center">@ViewBag.Title</h2>
+@section Styles {
+	<link rel="stylesheet" href="~/css/admin/admin.css" asp-append-version="true" />
+}
 
-@if (Model.AllAssignedTasks.Any() && User.IsAdmin())
-{
-	<div class="table-responsive">
-		<table class="table table-bordered">
-			<thead>
-			<tr>
-				<th>Project Number</th>
-				<th>Name</th>
-				<th>Description</th>
-				<th>Status</th>
-				<th>Priority</th>
-				<th>Deadline</th>
-				<th>Start Date</th>
-				<th>End Date</th>
-				<th>Actions</th>
-			</tr>
-			</thead>
-			<tbody>
-			@foreach (var task in Model.AllAssignedTasks)
-			{
-				<tr>
-					<td>@task.ProjectNumber</td>
-					<td>@task.Name</td>
-					<td>@task.Description</td>
-					<td>@task.Status</td>
-					<td>@task.Priority</td>
-					<td>@task.Deadline</td>
-					<td>@task.StartDate</td>
-					<td>@task.EndDate</td>
-					<td>
-						<form class="input-group-sm" asp-area="Admin" asp-controller="Task" asp-action="RemoveFromCollection" asp-route-id="@task.Id">
-							<input type="submit" value="Remove" class="fs-6 btn btn-success mb-3 p-2" />
-						</form>
-					</td>
-				</tr>
-			}
-			</tbody>
-		</table>
+<div class="admin-container">
+	<!-- Admin Header -->
+	<div class="admin-header">
+		<h1 class="admin-title">All Assigned Tasks</h1>
+		<p class="admin-subtitle">Monitor and manage all tasks assigned to operators across the organization</p>
+		<span class="admin-badge">Task Management</span>
 	</div>
-	<nav aria-label="Page navigation">
-		<ul class="pagination justify-content-center">
-			@if (Model.Pager != null && Model.Pager.TotalPages > 1)
-			{
-				if (Model.Pager.CurrentPage > 1)
-				{
-					<li class="page-item">
-						<a class="page-link" asp-action="AllAssigns" asp-route-page="@(Model.Pager.CurrentPage - 1)">Previous</a>
-					</li>
-				}
-				for (int i = Model.Pager.StartPage; i <= Model.Pager.EndPage; i++)
-				{
-					<li class="page-item @(i == Model.Pager.CurrentPage ? "active" : "")">
-						<a class="page-link" asp-action="AllAssigns" asp-route-page="@i">@i</a>
-					</li>
-				}
-				if (Model.Pager.CurrentPage < Model.Pager.TotalPages)
-				{
-					<li class="page-item">
-						<a class="page-link" asp-action="AllAssigns" asp-route-page="@(Model.Pager.CurrentPage + 1)">Next</a>
-					</li>
-				}
-			}
-		</ul>
-	</nav>
-}
-else
-{
-	<h2 class="text-center" style="color:red">There is no assigned Tasks at the moment!</h2>
-}
 
+	@if (Model.AllAssignedTasks.Any() && User.IsAdmin())
+	{
+		<!-- Tasks Table Container -->
+		<div class="admin-table-container">
+			<div class="admin-table-header">
+				<h2 class="admin-table-title">Assigned Tasks Overview</h2>
+			</div>
+
+			<div class="table-responsive">
+				<table class="admin-table">
+					<thead>
+						<tr>
+							<th>Project #</th>
+							<th>Task Name</th>
+							<th>Description</th>
+							<th>Status</th>
+							<th>Priority</th>
+							<th>Deadline</th>
+							<th>Start Date</th>
+							<th>End Date</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var task in Model.AllAssignedTasks)
+						{
+							<tr>
+								<td>
+									<span style="font-weight: 600; color: #8b5cf6;">#@task.ProjectNumber</span>
+								</td>
+								<td>
+									<span style="font-weight: 600; color: #111827;">@task.Name</span>
+								</td>
+								<td>
+									<span style="color: #6b7280; font-size: 0.875rem;">
+										@(task.Description.Length > 50 ? task.Description.Substring(0, 50) + "..." : task.Description)
+									</span>
+								</td>
+								<td>
+									@{
+										string statusClass = "status-inactive";
+										string statusText = task.Status;
+										if (task.Status.ToLower().Contains("progress") || task.Status.ToLower().Contains("active"))
+										{
+											statusClass = "status-active";
+										}
+									}
+									<span class="@statusClass">
+										<span class="status-indicator"></span>
+										@statusText
+									</span>
+								</td>
+								<td>
+									@{
+										string priorityColor = "#6b7280";
+										if (task.Priority.ToLower().Contains("high"))
+										{
+											priorityColor = "#dc2626";
+										}
+										else if (task.Priority.ToLower().Contains("medium"))
+										{
+											priorityColor = "#d97706";
+										}
+										else if (task.Priority.ToLower().Contains("critical"))
+										{
+											priorityColor = "#7c2d12";
+										}
+									}
+									<span style="color: @priorityColor; font-weight: 600;">@task.Priority</span>
+								</td>
+								<td>
+									@if (!string.IsNullOrEmpty(task.Deadline))
+									{
+										<span style="color: #dc2626; font-weight: 600;">@task.Deadline</span>
+									}
+									else
+									{
+										<span style="color: #6b7280;">-</span>
+									}
+								</td>
+								<td>
+									<span style="color: #374151;">@task.StartDate</span>
+								</td>
+								<td>
+									@if (!string.IsNullOrEmpty(task.EndDate))
+									{
+										<span style="color: #059669; font-weight: 600;">@task.EndDate</span>
+									}
+									else
+									{
+										<span style="color: #6b7280;">-</span>
+									}
+								</td>
+								<td>
+									<form asp-area="Admin" asp-controller="Task" asp-action="RemoveFromCollection" asp-route-id="@task.Id" style="display: inline;">
+										<button type="submit" class="admin-btn admin-btn-danger" data-tooltip="Remove task from assigned collection">
+											<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+											</svg>
+											Remove
+										</button>
+									</form>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- Pagination -->
+		@if (Model.Pager != null)
+		{
+			<div class="admin-pagination-container">
+				<partial name="_PaginationPartial" model="Model.Pager" />
+			</div>
+		}
+	}
+	else
+	{
+		<div class="admin-empty-state">
+			<h2>No Assigned Tasks Found</h2>
+			<p>There are currently no tasks assigned to operators in the system.</p>
+			<a asp-area="" asp-controller="Task" asp-action="All" class="dashboard-card-action" style="margin-top: 1rem;">
+				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+				</svg>
+				View All Tasks
+			</a>
+		</div>
+	}
+</div>
 
 @section Scripts {
+	<script src="~/js/admin/admin.js" asp-append-version="true"></script>
 	<partial name="_ValidationScriptsPartial" />
 }

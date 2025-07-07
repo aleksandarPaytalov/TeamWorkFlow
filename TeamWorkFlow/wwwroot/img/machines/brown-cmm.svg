@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="220" viewBox="0 0 400 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="220" fill="url(#brownGradient)"/>
+  
+  <!-- CMM Machine Illustration -->
+  <g transform="translate(50, 30)">
+    <!-- Base -->
+    <rect x="0" y="120" width="300" height="40" rx="8" fill="#92400E" opacity="0.9"/>
+    
+    <!-- Granite Table -->
+    <rect x="20" y="100" width="260" height="20" rx="4" fill="#B45309"/>
+    
+    <!-- Y-Axis Bridge -->
+    <rect x="30" y="40" width="240" height="15" rx="4" fill="#D97706"/>
+    <rect x="25" y="35" width="10" height="70" rx="3" fill="#D97706"/>
+    <rect x="265" y="35" width="10" height="70" rx="3" fill="#D97706"/>
+    
+    <!-- X-Axis Carriage -->
+    <rect x="120" y="30" width="60" height="25" rx="6" fill="#F59E0B"/>
+    
+    <!-- Z-Axis Spindle -->
+    <rect x="140" y="10" width="20" height="45" rx="4" fill="#FBBF24"/>
+    
+    <!-- Probe -->
+    <circle cx="150" cy="65" r="3" fill="#EF4444"/>
+    <line x1="150" y1="55" x2="150" y2="62" stroke="#EF4444" stroke-width="2"/>
+    
+    <!-- Control Panel -->
+    <rect x="280" y="60" width="40" height="30" rx="4" fill="#1F2937"/>
+    <rect x="285" y="65" width="30" height="20" rx="2" fill="#D97706"/>
+    
+    <!-- Brown Logo Area -->
+    <rect x="100" y="75" width="100" height="20" rx="4" fill="rgba(255,255,255,0.2)"/>
+    
+    <!-- Precision Lines -->
+    <g opacity="0.8">
+      <line x1="60" y1="80" x2="240" y2="80" stroke="#F59E0B" stroke-width="1" stroke-dasharray="3,2"/>
+      <line x1="60" y1="90" x2="240" y2="90" stroke="#F59E0B" stroke-width="1" stroke-dasharray="3,2"/>
+    </g>
+  </g>
+  
+  <!-- Gradient Definitions -->
+  <defs>
+    <linearGradient id="brownGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#92400E;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D97706;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Brand Label -->
+  <text x="200" y="200" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="700">
+    BROWN &amp; SHARPE
+  </text>
+</svg>

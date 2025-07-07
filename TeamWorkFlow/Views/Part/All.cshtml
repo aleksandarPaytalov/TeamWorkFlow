@@ -1,7 +1,6 @@
 ﻿@model AllPartsQueryModel
-
 @{
-    ViewBag.Title = "All Parts";
+	ViewBag.Title = "All Parts";
 }
 
 @{
@@ -14,96 +13,231 @@
 	var maxPage = Math.Ceiling((decimal)Model.TotalPartsCount / (decimal)Model.PartsPerPage);
 }
 
-<h2 class="text-center">@ViewBag.Title</h2>
+@section Styles {
+	<link rel="stylesheet" href="~/css/pages/parts.css" asp-append-version="true" />
+}
 
-@if (User?.Identity?.IsAuthenticated ?? false)
-{
-	if (User.IsAdmin())
+<div class="parts-container">
+	<!-- Header Section -->
+	<div class="parts-header">
+		<h1 class="parts-title">@ViewBag.Title</h1>
+		<p class="parts-subtitle">Manage and track all your manufacturing parts and components</p>
+	</div>
+
+	@if (User?.Identity?.IsAuthenticated ?? false)
 	{
-		<div class="col-md-6 text-start">
-			<a href="@Url.Action("Add", "Part")" class="btn btn-success">Add new part</a>
-		</div>
-		<hr />
-	}
+		@if (User.IsAdmin())
+		{
+			<div class="mb-6">
+				<a class="btn-success" asp-area="" asp-controller="Part" asp-action="Add">
+					<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+					</svg>
+					Add New Part
+				</a>
+			</div>
+		}
 
-	<form method="get">
-		<div class="row">
-			<div class="form-group col-md-3 d-flex justify-content-between">
+		<!-- Search and Filter Section -->
+		<div class="search-section">
+			<form method="get" id="search-form" class="search-form">
 				<div class="form-group">
-					<label asp-for="Status"></label>
-					<select asp-for="Status" class="form-control">
-						<option value="">All</option>
+					<label asp-for="Status" class="form-label">Part Status</label>
+					<select asp-for="Status" id="status-select" class="form-select">
+						<option value="">All Statuses</option>
 						@foreach (var status in Model.Statuses)
 						{
 							<option value="@status">@status</option>
 						}
 					</select>
 				</div>
-			</div>
 
-			<div class="form-group col-md-3">
-				<label asp-for="Search"></label>
-				<input asp-for="Search" class="form-control" placeholder="...">
-			</div>
-
-			<div class="form-group col-md-3">
 				<div class="form-group">
-					<label asp-for="Sorting"></label>
-					<select asp-for="Sorting" class="form-control">
-						<option value="0">Last created part</option>
-						<option value="1">By project number ascending</option>
-						<option value="2">By project number descending</option>
+					<label asp-for="Search" class="form-label">Search Parts</label>
+					<input asp-for="Search" id="search-input" class="form-input" placeholder="Search by part name, article number, or tool number...">
+				</div>
+
+				<div class="form-group">
+					<label asp-for="Sorting" class="form-label">Sort By</label>
+					<select asp-for="Sorting" id="sorting-select" class="form-select">
+						<option value="0">Last Created</option>
+						<option value="1">Project Number (A-Z)</option>
+						<option value="2">Project Number (Z-A)</option>
 					</select>
 				</div>
-			</div>
 
-			<div class="col-md-3">
-				<div class="form-group mt-4 p-2">
-					<input type="submit" value="Search" class="btn btn-primary" />
+				<div class="search-buttons">
+					<input type="submit" value="Search" class="btn-primary" />
+					<a asp-action="All" id="clear-search" class="btn-secondary">Clear</a>
 				</div>
-			</div>
-		</div>
-	</form>
-
-	<div class="row mb-5">
-		<div class="col-md-6 d-grid gap-2 d-md-flex justify-content-md-start">
-			<a class="btn btn-primary @(Model.CurrentPage == 1 ? "disabled" : string.Empty)"
-			   asp-controller="Part"
-			   asp-action="All"
-			   asp-route-currentPage="@previousPage"
-			   asp-route-category="@Model.Status"
-			   asp-route-searchTerm="@Model.Search"
-			   asp-route-sorting="@((int)Model.Sorting)">Previous page</a>
+			</form>
 		</div>
 
-		@{
-			var shouldButtonBeDisabled = Model.CurrentPage == maxPage || !Model.Parts.Any();
-		}
-
-		<div class="col-md-6 d-grid gap-2 d-md-flex justify-content-md-end">
-			<a class="btn btn-primary @(shouldButtonBeDisabled ? "disabled" : string.Empty)"
-			   asp-controller="Part"
-			   asp-action="All"
-			   asp-route-currentPage="@(Model.CurrentPage + 1)"
-			   asp-route-category="@Model.Status"
-			   asp-route-searchTerm="@Model.Search"
-			   asp-route-sorting="@((int)Model.Sorting)">Next page</a>
-		</div>
-	</div>
-
-	<div class="row">
-		@if (Model.Parts.Any())
-		{
-			foreach (var part in Model.Parts)
+		<!-- Parts Grid -->
+		<div class="parts-grid">
+			@foreach (var p in Model.Parts)
 			{
-				<partial name="_PartPartial" model="@part" />
+				<div class="part-card fade-in">
+					<!-- Card Image -->
+					<div class="part-card-image-container">
+						<img src="@p.ImageUrl" alt="@p.Name" class="part-card-image" />
+						<div class="part-card-image-overlay"></div>
+					</div>
+
+					<!-- Card Content -->
+					<div class="part-card-content">
+						<!-- Card Header -->
+						<div class="part-card-header">
+							<h3 class="part-title">@p.Name</h3>
+							<span class="part-project">Project: @p.ProjectNumber</span>
+						</div>
+
+						<!-- Part Details -->
+						<div class="part-details">
+							<div class="part-detail-item">
+								<span class="part-detail-label">Article Number</span>
+								<span class="part-detail-value">@p.PartArticleNumber</span>
+							</div>
+							<div class="part-detail-item">
+								<span class="part-detail-label">Client Number</span>
+								<span class="part-detail-value">@p.PartClientNumber</span>
+							</div>
+							<div class="part-detail-item">
+								<span class="part-detail-label">Tool Number</span>
+								<span class="part-detail-value">@p.ToolNumber</span>
+							</div>
+							<div class="part-detail-item">
+								<span class="part-detail-label">3D Model</span>
+								<span class="part-detail-value">@p.PartModel</span>
+							</div>
+						</div>
+
+						<!-- Action Buttons -->
+						<div class="part-actions">
+							@if (User.IsAdmin())
+							{
+								<a asp-controller="Part" asp-action="Details" asp-route-id="@p.Id"
+								   asp-route-extension="@p.GetPartExtension()" class="action-btn action-btn-details">
+									<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+									</svg>
+									Details
+								</a>
+								<a asp-controller="Part" asp-action="Edit" asp-route-id="@p.Id"
+								   asp-route-extension="@p.GetPartExtension()" class="action-btn action-btn-edit">
+									<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+									</svg>
+									Edit
+								</a>
+								<a asp-controller="Part" asp-action="Delete" asp-route-id="@p.Id"
+								   asp-route-extension="@p.GetPartExtension()" class="action-btn action-btn-delete">
+									<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+									</svg>
+									Delete
+								</a>
+							}
+							else if (User.IsOperator())
+							{
+								<a asp-controller="Part" asp-action="Details" asp-route-id="@p.Id"
+								   asp-route-extension="@p.GetPartExtension()" class="action-btn action-btn-details w-full">
+									<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+									</svg>
+									View Details
+								</a>
+							}
+						</div>
+					</div>
+				</div>
 			}
-		}
-		else
+		</div>
+
+		@if (!Model.Parts.Any())
 		{
-			<h2 class="text-center">No parts with these criteria have been found!</h2>
+			<div class="empty-state">
+				<h2>No parts found</h2>
+				<p>No parts match your current search criteria. Try adjusting your filters or search terms.</p>
+			</div>
 		}
-	</div>
+
+		<!-- Pagination -->
+		@if (Model.Parts.Any() && maxPage > 1)
+		{
+			<div class="pagination-container">
+				<nav aria-label="Parts pagination">
+					<ul class="pagination">
+						@if (Model.CurrentPage > 1)
+						{
+							<li class="page-item">
+								<a class="page-link"
+								   asp-action="All"
+								   asp-route-currentPage="@previousPage"
+								   asp-route-search="@Model.Search"
+								   asp-route-status="@Model.Status"
+								   asp-route-sorting="@Model.Sorting">
+									<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+									</svg>
+									Previous
+								</a>
+							</li>
+						}
+
+						@for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min((int)maxPage, Model.CurrentPage + 2); i++)
+						{
+							<li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+								<a class="page-link"
+								   asp-action="All"
+								   asp-route-currentPage="@i"
+								   asp-route-search="@Model.Search"
+								   asp-route-status="@Model.Status"
+								   asp-route-sorting="@Model.Sorting">@i</a>
+							</li>
+						}
+
+						@if (Model.CurrentPage < maxPage)
+						{
+							<li class="page-item">
+								<a class="page-link"
+								   asp-action="All"
+								   asp-route-currentPage="@(Model.CurrentPage + 1)"
+								   asp-route-search="@Model.Search"
+								   asp-route-status="@Model.Status"
+								   asp-route-sorting="@Model.Sorting">
+									Next
+									<svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+									</svg>
+								</a>
+							</li>
+						}
+					</ul>
+				</nav>
+			</div>
+		}
+	}
+</div>
+
+@functions {
+	private string GetStatusClass(string status)
+	{
+		return status?.ToLower() switch
+		{
+			"approved" or "completed" or "finished" => "part-status-approved",
+			"pending" or "in review" or "waiting" => "part-status-pending",
+			"rejected" or "failed" or "cancelled" => "part-status-rejected",
+			"in progress" or "active" or "processing" => "part-status-in-progress",
+			_ => "part-status-pending"
+		};
+	}
+}
+
+@section Scripts {
+	<script src="~/js/pages/parts.js" asp-append-version="true"></script>
 }
 
 

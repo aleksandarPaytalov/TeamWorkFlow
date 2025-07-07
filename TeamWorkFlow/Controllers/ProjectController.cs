@@ -18,11 +18,19 @@ namespace TeamWorkFlow.Controllers
 	    }
 
 	    [HttpGet]
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> All([FromQuery] AllProjectsQueryModel model)
         {
-	        var projectsToDisplay = await _projectService.GetAllProjectsAsync();
-			
-            return View(projectsToDisplay);
+	        var projects = await _projectService.AllAsync(
+		        model.Sorting,
+		        model.Search,
+		        model.ProjectsPerPage,
+		        model.CurrentPage
+	        );
+
+	        model.TotalProjectsCount = projects.TotalProjectsCount;
+	        model.Projects = projects.Projects;
+
+            return View(model);
         }
 
 		[HttpGet]

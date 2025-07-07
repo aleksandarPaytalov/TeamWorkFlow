@@ -17,9 +17,17 @@ namespace TeamWorkFlow.Controllers
 	    }
 
 		[HttpGet]
-	    public async Task <IActionResult> All()
+	    public async Task <IActionResult> All([FromQuery] AllOperatorsQueryModel model)
 	    {
-		    var model = await _operatorService.GetAllActiveOperatorsAsync();
+		    var operators = await _operatorService.AllAsync(
+			    model.Sorting,
+			    model.Search,
+			    model.OperatorsPerPage,
+			    model.CurrentPage
+		    );
+
+		    model.TotalOperatorsCount = operators.TotalOperatorsCount;
+		    model.Operators = operators.Operators;
 
             return View(model);
         }
@@ -72,8 +80,8 @@ namespace TeamWorkFlow.Controllers
 
 				return View(model);
 	        }
-			
-	        await _operatorService.AddNewOperatorAsync(model, userId);
+
+	        await _operatorService.AddNewOperatorAsync(model, userId!);
 
 	        return RedirectToAction(nameof(All));
         }

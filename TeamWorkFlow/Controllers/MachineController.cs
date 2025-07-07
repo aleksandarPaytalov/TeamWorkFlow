@@ -17,9 +17,17 @@ namespace TeamWorkFlow.Controllers
 	    }
 
 		[HttpGet]
-	    public async Task<IActionResult> All()
+	    public async Task<IActionResult> All([FromQuery] AllMachinesQueryModel model)
 	    {
-		    var model = await _machineService.GetAllMachinesAsync();
+		    var machines = await _machineService.AllAsync(
+			    model.Sorting,
+			    model.Search,
+			    model.MachinesPerPage,
+			    model.CurrentPage
+		    );
+
+		    model.TotalMachinesCount = machines.TotalMachinesCount;
+		    model.Machines = machines.Machines;
 
             return View(model);
         }

@@ -57,5 +57,45 @@ section, section > div > p > a, section > form > div > p > a {
     border-color: red;
 }
 
+/* Navigation fixes */
+.navbar-nav {
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+.navbar-nav .nav-item {
+    display: list-item !important;
+}
+
+.navbar-nav .nav-link {
+    display: block !important;
+    padding: 0.5rem 1rem !important;
+    color: #212529 !important;
+    text-decoration: none !important;
+}
+
+.navbar-collapse {
+    display: flex !important;
+    justify-content: space-between !important;
+}
+
+/* Ensure login/register buttons are visible */
+.navbar-nav:last-child {
+    margin-left: auto !important;
+}
+
+/* Override any Tailwind conflicts */
+.navbar .navbar-nav .nav-item .nav-link {
+    color: #212529 !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0.5rem 1rem !important;
+    margin: 0 0.25rem !important;
+}
+
+.navbar .navbar-nav .nav-item .nav-link:hover {
+    color: #0056b3 !important;
+}
+
 
 

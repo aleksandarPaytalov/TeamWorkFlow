@@ -5,11 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TeamWorkFlow</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: {
+                preflight: false,
+            }
+        }
+    </script>
     <link rel="stylesheet" href="~/lib/toastr/toastr.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/styles.css" />
+    <link rel="stylesheet" href="~/css/navigation-fix.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TeamWorkFlow.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/navigation-override.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
@@ -20,7 +31,7 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between" style="display: flex !important; visibility: visible !important; opacity: 1 !important;">
                     @await Component.InvokeAsync(nameof(MainMenuComponent))
 	                <partial name="_LoginPartial"/>
                 </div>
@@ -42,6 +53,25 @@
 	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/toastr/toastr.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Ensure navigation is visible on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbar = document.querySelector('.navbar-collapse');
+            const navLinks = document.querySelectorAll('.navbar-nav');
+
+            if (navbar) {
+                navbar.style.display = 'flex';
+                navbar.style.visibility = 'visible';
+                navbar.style.opacity = '1';
+            }
+
+            navLinks.forEach(function(nav) {
+                nav.style.display = 'flex';
+                nav.style.visibility = 'visible';
+                nav.style.opacity = '1';
+            });
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
     @if (TempData[Messages.UserMessageSuccess] != null)
     {

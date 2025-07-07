@@ -1,58 +1,208 @@
-﻿@model IEnumerable<ProjectServiceModel>
+﻿@model AllProjectsQueryModel
 @{
-	ViewBag.Title = "All Project";
+	ViewBag.Title = "All Projects";
 }
 
-<h2 class="text-center">@ViewBag.Title</h2>
-
-@if (User?.Identity?.IsAuthenticated ?? false)
-{
-	if (User.IsAdmin())
+@{
+	var previousPage = Model.CurrentPage - 1;
+	if (previousPage < 1)
 	{
-		<a class="btn btn-success"  asp-area="" asp-controller="Project" asp-action="Add">Add Project</a>
-		<hr />
+		previousPage = 1;
 	}
-	
-<div class="text-center row">
-	@foreach (var p in Model)
-	{
-		<div class="card col-4" style="width: 20rem; margin-bottom: 20px;">
-			<div class="card-body">
-				<h4 class="card-title mt-1">@p.ProjectName</h4>
-				<h5 class="mb-0"><span class="fw-bold">Project Number: </span>@p.ProjectNumber</h5>
-				<h5 class="mb-0"><span class="fw-bold">Status: </span>@p.Status</h5>
-				<p class="mb-0"><span class="fw-bold">Total Parts: </span>@p.TotalParts</p>
-			</div>
 
-			<div class="row">
-				@if (User.IsAdmin())
-				{
-					<div class="col">
-						<a asp-controller="Project" asp-action="Details" asp-route-id="@p.Id" class="btn btn-warning mb-2 w-100 p-2 fw-bold"
-						   asp-route-extension="@p.GetProjectExtension()">Details</a>
-					</div>
-						<div class="col">
-							<a asp-controller="Project" asp-action="Edit" asp-route-id="@p.Id" class="btn btn-warning mb-2 w-100 p-2 fw-bold"
-							   asp-route-extension="@p.GetProjectExtension()">Edit</a>
-						</div>
-						<div class="col">
-							<a asp-controller="Project" asp-action="Delete" asp-route-id="@p.Id" class="btn btn-danger mb-2 w-100 p-2 fw-bold"
-							   asp-route-extension="@p.GetProjectExtension()">Delete</a>
-						</div>
-				}
-				else if (User.IsOperator())
-				{
-						<div class="col">
-							<a asp-controller="Project" asp-action="Details" asp-route-id="@p.Id" class="btn btn-warning mb-2 w-100 p-2 fw-bold"
-							   asp-route-extension="@p.GetProjectExtension()">Details</a>
-						</div>
-				}
+	var maxPage = Math.Ceiling((decimal)Model.TotalProjectsCount / (decimal)Model.ProjectsPerPage);
+}
+
+@section Styles {
+	<link rel="stylesheet" href="~/css/pages/projects.css" asp-append-version="true" />
+}
+
+<div class="projects-container">
+	<!-- Header Section -->
+	<div class="projects-header">
+		<h1 class="projects-title">@ViewBag.Title</h1>
+		<p class="projects-subtitle">Manage and track all your manufacturing projects</p>
+	</div>
+
+	@if (User?.Identity?.IsAuthenticated ?? false)
+	{
+		@if (User.IsAdmin())
+		{
+			<div class="mb-6">
+				<a class="btn-success" asp-area="" asp-controller="Project" asp-action="Add">
+					<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+					</svg>
+					Add New Project
+				</a>
 			</div>
+		}
+
+		<!-- Search and Filter Section -->
+		<div class="search-section">
+			<form method="get" id="search-form" class="search-form">
+				<div class="form-group">
+					<label asp-for="Search" class="form-label">Search Projects</label>
+					<input asp-for="Search" id="search-input" class="form-input" placeholder="Search by project name, number, or client...">
+				</div>
+
+				<div class="form-group">
+					<label asp-for="Sorting" class="form-label">Sort By</label>
+					<select asp-for="Sorting" id="sorting-select" class="form-select">
+						<option value="0">Last added project</option>
+						<option value="1">By name ascending</option>
+						<option value="2">By name descending</option>
+						<option value="3">By project number ascending</option>
+						<option value="4">By project number descending</option>
+						<option value="5">By status ascending</option>
+						<option value="6">By status descending</option>
+						<option value="7">By total parts ascending</option>
+						<option value="8">By total parts descending</option>
+					</select>
+				</div>
+
+				<div class="search-buttons">
+					<input type="submit" value="Search" class="btn-primary" />
+					<a asp-action="All" id="clear-search" class="btn-secondary">Clear</a>
+				</div>
+			</form>
 		</div>
+		<!-- Projects Grid -->
+		<div class="projects-grid">
+			@foreach (var p in Model.Projects)
+			{
+				<div class="project-card fade-in">
+					<!-- Card Header -->
+					<div class="project-card-header">
+						<h3 class="project-title">@p.ProjectName</h3>
+						<span class="project-number">@p.ProjectNumber</span>
+					</div>
+
+					<!-- Card Body -->
+					<div class="project-card-body">
+						<div class="project-info">
+							<div class="project-info-item">
+								<span class="project-info-label">Status:</span>
+								<span class="project-status @(GetStatusClass(p.Status))">@p.Status</span>
+							</div>
+							<div class="project-info-item">
+								<span class="project-info-label">Parts:</span>
+								<span class="project-parts-count">@p.TotalParts items</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- Card Actions -->
+					<div class="project-card-actions">
+						@if (User.IsAdmin())
+						{
+							<a asp-controller="Project" asp-action="Details" asp-route-id="@p.Id"
+							   asp-route-extension="@p.GetProjectExtension()" class="action-btn action-btn-details">
+								<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+								</svg>
+								Details
+							</a>
+							<a asp-controller="Project" asp-action="Edit" asp-route-id="@p.Id"
+							   asp-route-extension="@p.GetProjectExtension()" class="action-btn action-btn-edit">
+								<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+								</svg>
+								Edit
+							</a>
+							<a asp-controller="Project" asp-action="Delete" asp-route-id="@p.Id"
+							   asp-route-extension="@p.GetProjectExtension()" class="action-btn action-btn-delete">
+								<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+								</svg>
+								Delete
+							</a>
+						}
+						else if (User.IsOperator())
+						{
+							<a asp-controller="Project" asp-action="Details" asp-route-id="@p.Id"
+							   asp-route-extension="@p.GetProjectExtension()" class="action-btn action-btn-details w-full">
+								<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+								</svg>
+								View Details
+							</a>
+						}
+					</div>
+				</div>
+			}
+		</div>
+
+		<!-- Pagination -->
+		@if (maxPage > 1)
+		{
+			<div class="pagination-container">
+				<nav aria-label="Page navigation">
+					<ul class="pagination">
+						@if (Model.CurrentPage > 1)
+						{
+							<li class="page-item">
+								<a class="page-link"
+								   asp-action="All"
+								   asp-route-currentPage="@(Model.CurrentPage - 1)"
+								   asp-route-search="@Model.Search"
+								   asp-route-sorting="@Model.Sorting">
+									<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+									</svg>
+									Previous
+								</a>
+							</li>
+						}
+
+						@for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min((int)maxPage, Model.CurrentPage + 2); i++)
+						{
+							<li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+								<a class="page-link"
+								   asp-action="All"
+								   asp-route-currentPage="@i"
+								   asp-route-search="@Model.Search"
+								   asp-route-sorting="@Model.Sorting">@i</a>
+							</li>
+						}
+
+						@if (Model.CurrentPage < maxPage)
+						{
+							<li class="page-item">
+								<a class="page-link"
+								   asp-action="All"
+								   asp-route-currentPage="@(Model.CurrentPage + 1)"
+								   asp-route-search="@Model.Search"
+								   asp-route-sorting="@Model.Sorting">
+									Next
+									<svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+									</svg>
+								</a>
+							</li>
+						}
+					</ul>
+				</nav>
+			</div>
+		}
+}
+
+@functions {
+	private string GetStatusClass(string status)
+	{
+		return status?.ToLower() switch
+		{
+			"active" or "in production" => "status-active",
+			"pending" or "in development" => "status-pending",
+			"completed" or "finished" => "status-completed",
+			_ => "status-pending"
+		};
 	}
-</div>
 }
 
 @section Scripts {
 	<partial name="_ValidationScriptsPartial"/>
+	<script src="~/js/pages/projects.js" asp-append-version="true"></script>
 }

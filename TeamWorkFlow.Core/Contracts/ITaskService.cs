@@ -1,10 +1,16 @@
-﻿using TeamWorkFlow.Core.Models.Task;
+﻿using TeamWorkFlow.Core.Enumerations;
+using TeamWorkFlow.Core.Models.Task;
 
 namespace TeamWorkFlow.Core.Contracts
 {
     public interface ITaskService
     {
         Task<ICollection<TaskServiceModel>> GetAllTasksAsync();
+        Task<TaskQueryServiceModel> AllAsync(
+            TaskSorting sorting = TaskSorting.LastAdded,
+            string? search = null,
+            int tasksPerPage = 10,
+            int currentPage = 1);
         Task<ICollection<TaskStatusServiceModel>> GetAllStatusesAsync();
         Task<ICollection<TaskPriorityServiceModel>> GetAllPrioritiesAsync();
         Task<int> AddNewTaskAsync(TaskFormModel model, 

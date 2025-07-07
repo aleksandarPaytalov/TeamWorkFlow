@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Admin.Operator;
 using TeamWorkFlow.Core.Models.Operator;
 using TeamWorkFlow.Infrastructure.Common;
@@ -40,6 +41,83 @@ namespace TeamWorkFlow.Core.Services
 				})
 				.ToListAsync();
 		}
+
+		public async Task<(ICollection<OperatorServiceModel> Operators, int TotalCount)> GetAllActiveOperatorsAsync(int page, int pageSize)
+		{
+			var query = _repository.AllReadOnly<Operator>().Where(o => o.IsActive);
+			var totalCount = await query.CountAsync();
+			var operators = await query
+				.OrderBy(o => o.Id)
+				.Skip((page - 1) * pageSize)
+				.Take(pageSize)
+				.Select(o => new OperatorServiceModel()
+				{
+					Id = o.Id,
+					FullName = o.FullName,
+					Email = o.Email,
+					PhoneNumber = o.PhoneNumber,
+					AvailabilityStatus = o.AvailabilityStatus.Name,
+					Capacity = o.Capacity,
+					IsActive = o.IsActive
+				})
+				.ToListAsync();
+
+			return (operators, totalCount);
+		}
+
+	public async Task<OperatorQueryServiceModel> AllAsync(
+		OperatorSorting sorting = OperatorSorting.LastAdded,
+		string? search = null,
+		int operatorsPerPage = 10,
+		int currentPage = 1)
+	{
+		IQueryable<Operator> operatorsToBeDisplayed = _repository.AllReadOnly<Operator>().Where(o => o.IsActive);
+
+		if (!string.IsNullOrWhiteSpace(search))
+		{
+			string normalizedSearch = search.ToLower();
+			operatorsToBeDisplayed = operatorsToBeDisplayed
+				.Where(o => o.FullName.ToLower().Contains(normalizedSearch) ||
+						   o.Email.ToLower().Contains(normalizedSearch) ||
+						   o.PhoneNumber.ToLower().Contains(normalizedSearch));
+		}
+
+		operatorsToBeDisplayed = sorting switch
+		{
+			OperatorSorting.NameAscending => operatorsToBeDisplayed.OrderBy(o => o.FullName),
+			OperatorSorting.NameDescending => operatorsToBeDisplayed.OrderByDescending(o => o.FullName),
+			OperatorSorting.EmailAscending => operatorsToBeDisplayed.OrderBy(o => o.Email),
+			OperatorSorting.EmailDescending => operatorsToBeDisplayed.OrderByDescending(o => o.Email),
+			OperatorSorting.CapacityAscending => operatorsToBeDisplayed.OrderBy(o => o.Capacity),
+			OperatorSorting.CapacityDescending => operatorsToBeDisplayed.OrderByDescending(o => o.Capacity),
+			OperatorSorting.StatusAscending => operatorsToBeDisplayed.OrderBy(o => o.AvailabilityStatus.Name),
+			OperatorSorting.StatusDescending => operatorsToBeDisplayed.OrderByDescending(o => o.AvailabilityStatus.Name),
+			_ => operatorsToBeDisplayed.OrderByDescending(o => o.Id)
+		};
+
+		var operators = await operatorsToBeDisplayed
+			.Skip((currentPage - 1) * operatorsPerPage)
+			.Take(operatorsPerPage)
+			.Select(o => new OperatorServiceModel()
+			{
+				Id = o.Id,
+				FullName = o.FullName,
+				Email = o.Email,
+				PhoneNumber = o.PhoneNumber,
+				AvailabilityStatus = o.AvailabilityStatus.Name,
+				Capacity = o.Capacity,
+				IsActive = o.IsActive
+			})
+			.ToListAsync();
+
+		int totalOperators = await operatorsToBeDisplayed.CountAsync();
+
+		return new OperatorQueryServiceModel()
+		{
+			Operators = operators,
+			TotalOperatorsCount = totalOperators
+		};
+	}
 
 		public async Task<ICollection<AvailabilityStatusServiceModel>> GetAllOperatorStatusesAsync()
 		{

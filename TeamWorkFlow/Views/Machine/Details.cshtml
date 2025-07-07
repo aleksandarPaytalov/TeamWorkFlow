@@ -22,7 +22,7 @@
 					<p>Total machine load after last calibration: <b>@Model.TotalMachineLoad</b></p>
 
 					<div class="form-inline">
-						@if (User.Identity.IsAuthenticated && User.IsAdmin())
+						@if (User.Identity?.IsAuthenticated == true && User.IsAdmin())
 						{
 							<a class="btn btn-warning" asp-controller="Machine" asp-action="Edit"
 							   asp-route-id="@Model.Id" asp-route-extension="@Model.GetMachineExtension()">Edit</a>
