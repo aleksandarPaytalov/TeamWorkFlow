@@ -32,8 +32,8 @@ body > div > nav[aria-label="breadcrumb"] {
 /* Header Section */
 .details-header {
     text-align: center;
-    margin-bottom: 3rem;
-    padding: 2rem 0;
+    margin-bottom: 2rem;
+    padding: 1.5rem 0;
 }
 
 .details-title {
@@ -59,7 +59,7 @@ body > div > nav[aria-label="breadcrumb"] {
     display: grid;
     grid-template-columns: 1fr;
     gap: 2rem;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
 }
 
 .details-content.has-image {
