@@ -4,34 +4,142 @@
 	ViewBag.Title = "Machine Details";
 }
 
-<h2 class="text-center">@ViewBag.Title</h2>
-<hr />
+@section Styles {
+	<link rel="stylesheet" href="~/css/pages/details.css?v=@DateTime.Now.Ticks" />
+}
 
-<div class="container">
-	<div class="row">
-		<div class="col-lg-4 order-lg-2 mb-3 mb-lg-0">
-			<img class="card-img-top w-250" src="@Model.ImageUrl" alt="Part Image">
+<div class="details-container">
+
+
+	<!-- Header Section -->
+	<div class="details-header">
+		<h1 class="details-title">CMM Specifications</h1>
+		<p class="details-subtitle">Comprehensive machine information including calibration status, capacity metrics, and operational data</p>
+	</div>
+
+	<!-- Main Content -->
+	<div class="details-content has-image">
+		<!-- Machine Image -->
+		<div class="details-image-container">
+			@if (!string.IsNullOrEmpty(Model.ImageUrl))
+			{
+				<img src="@Model.ImageUrl" alt="@Model.Name" class="details-image" />
+			}
+			else
+			{
+				<div class="details-image-placeholder">
+					<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="48" height="48">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+					</svg>
+					<span>No image available</span>
+				</div>
+			}
 		</div>
-		<div class="col-lg-8 order-lg-1">
-			<div class="card border-0">
-				<div class="card-body">
-					<p style="font-size: 20px;"><u>@Model.Name</u></p>
-					<p>Next calibration date: <b>@Model.CalibrationSchedule</b></p>
-					<p>Is Calibrated: @Model.IsCalibrated</p>
-					<p>Machine Capacity: @Model.Capacity</p>
-					<p>Total machine load after last calibration: <b>@Model.TotalMachineLoad</b></p>
 
-					<div class="form-inline">
-						@if (User.Identity?.IsAuthenticated == true && User.IsAdmin())
-						{
-							<a class="btn btn-warning" asp-controller="Machine" asp-action="Edit"
-							   asp-route-id="@Model.Id" asp-route-extension="@Model.GetMachineExtension()">Edit</a>
-							<a class="ml-2 btn btn-danger" asp-controller="Machine" asp-action="Delete"
-							   asp-route-id="@Model.Id" asp-route-extension="@Model.GetMachineExtension()">Delete</a>
-						}
+		<!-- Machine Details -->
+		<div class="details-card">
+			<div class="details-card-header">
+				<div class="details-id">CMM #@Model.Id</div>
+				<h2 class="details-name">@Model.Name</h2>
+			</div>
+
+			<div class="details-card-body">
+				<div class="details-grid">
+					<!-- Calibration Information -->
+					<div class="details-section">
+						<h3 class="details-section-title">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+							</svg>
+							Calibration Status
+						</h3>
+						<div class="detail-item">
+							<span class="detail-label">
+								<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+								</svg>
+								Next Calibration
+							</span>
+							<span class="detail-value"><strong style="color: #dc2626;">@Model.CalibrationSchedule</strong></span>
+						</div>
+						<div class="detail-item">
+							<span class="detail-label">
+								<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+								</svg>
+								Calibration Status
+							</span>
+							<span class="detail-value">
+								@{
+									string calibrationClass = Model.IsCalibrated ? "status-active" : "status-inactive";
+									string calibrationText = Model.IsCalibrated ? "Calibrated" : "Needs Calibration";
+								}
+								<span class="status-badge @calibrationClass">
+									<span class="status-indicator"></span>
+									@calibrationText
+								</span>
+							</span>
+						</div>
+					</div>
+
+					<!-- Capacity & Performance -->
+					<div class="details-section">
+						<h3 class="details-section-title">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+							</svg>
+							Capacity & Performance
+						</h3>
+						<div class="detail-item">
+							<span class="detail-label">
+								<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+								</svg>
+								Machine Capacity
+							</span>
+							<span class="detail-value"><strong>@Model.Capacity</strong> units</span>
+						</div>
+						<div class="detail-item">
+							<span class="detail-label">
+								<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+								</svg>
+								Total Load
+							</span>
+							<span class="detail-value"><strong>@Model.TotalMachineLoad</strong> since last calibration</span>
+						</div>
 					</div>
 				</div>
+
+				<!-- Action Buttons -->
+				@if (User.Identity?.IsAuthenticated == true && User.IsAdmin())
+				{
+					<div class="details-actions">
+						<a href="@Url.Action("All", "Machine")" class="details-btn details-btn-back">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+							</svg>
+							Back to CMMs
+						</a>
+						<a href="@Url.Action("Edit", "Machine", new { id = Model.Id, extension = Model.GetMachineExtension() })" class="details-btn details-btn-edit">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+							</svg>
+							Edit Machine
+						</a>
+						<a href="@Url.Action("Delete", "Machine", new { id = Model.Id, extension = Model.GetMachineExtension() })" class="details-btn details-btn-delete">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+							</svg>
+							Delete Machine
+						</a>
+					</div>
+				}
 			</div>
 		</div>
 	</div>
 </div>
+
+@section Scripts {
+	<script src="~/js/pages/details.js?v=@DateTime.Now.Ticks"></script>
+}
