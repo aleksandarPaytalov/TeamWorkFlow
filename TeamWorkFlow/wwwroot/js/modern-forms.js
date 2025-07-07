@@ -12,7 +12,27 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeAccessibility();
     initializeResponsiveFeatures();
     initializeDateFormatting();
+    resetAllSubmitButtons();
 });
+
+/**
+ * Reset all submit buttons on page load
+ */
+function resetAllSubmitButtons() {
+    const submitButtons = document.querySelectorAll('.modern-submit-btn');
+    submitButtons.forEach(button => {
+        resetSubmitButton(button);
+    });
+
+    // Also check for server-side validation errors and ensure buttons are enabled
+    const hasValidationErrors = document.querySelector('.field-validation-error, .validation-summary-errors, .text-danger');
+    if (hasValidationErrors) {
+        console.log('Server-side validation errors detected, ensuring submit buttons are enabled');
+        submitButtons.forEach(button => {
+            resetSubmitButton(button);
+        });
+    }
+}
 
 /**
  * Initialize form enhancements
@@ -21,20 +41,61 @@ function initializeFormEnhancements() {
     const forms = document.querySelectorAll('form');
     
     forms.forEach(form => {
-        // Add loading state on submit
-        form.addEventListener('submit', function() {
+        // Add loading state on submit with validation check
+        form.addEventListener('submit', function(e) {
             const submitBtn = form.querySelector('.modern-submit-btn');
-            if (submitBtn) {
+
+            // Validate form before setting loading state
+            const isFormValid = validateFormBeforeSubmit(form);
+
+            if (isFormValid && submitBtn) {
                 submitBtn.classList.add('loading');
                 submitBtn.disabled = true;
+
+                // Reset button state after a timeout in case of server-side validation errors
+                setTimeout(() => {
+                    resetSubmitButton(submitBtn);
+                }, 5000); // Reset after 5 seconds if no redirect occurs
+            } else if (!isFormValid) {
+                // Prevent submission if form is invalid
+                e.preventDefault();
+
+                // Ensure button is not in loading state
+                if (submitBtn) {
+                    resetSubmitButton(submitBtn);
+                }
+
+                // Show validation summary
+                showValidationSummary(form);
+
+                // Focus on first invalid field
+                const firstInvalidField = form.querySelector('.modern-form-input.error, .modern-form-select.error, .modern-form-textarea.error, .modern-form-input.modern-form-error, .modern-form-select.modern-form-error, .modern-form-textarea.modern-form-error');
+                if (firstInvalidField) {
+                    firstInvalidField.focus();
+                    firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
             }
         });
         
-        // Auto-save functionality (optional)
+        // Auto-save functionality and button state management
         const inputs = form.querySelectorAll('.modern-form-input, .modern-form-select, .modern-form-textarea');
         inputs.forEach(input => {
             input.addEventListener('change', function() {
                 saveFormData(form);
+
+                // Re-enable submit button if it was disabled due to validation errors
+                const submitBtn = form.querySelector('.modern-submit-btn');
+                if (submitBtn && submitBtn.disabled && !submitBtn.classList.contains('loading')) {
+                    resetSubmitButton(submitBtn);
+                }
+            });
+
+            input.addEventListener('input', function() {
+                // Re-enable submit button on input change
+                const submitBtn = form.querySelector('.modern-submit-btn');
+                if (submitBtn && submitBtn.disabled && !submitBtn.classList.contains('loading')) {
+                    resetSubmitButton(submitBtn);
+                }
             });
         });
     });
@@ -51,7 +112,20 @@ function initializeValidation() {
         input.addEventListener('blur', function() {
             validateField(this);
         });
-        
+
+        // Real-time validation on input for immediate feedback
+        input.addEventListener('input', function() {
+            // Only validate if field has been touched (blurred at least once)
+            if (this.dataset.touched === 'true') {
+                validateField(this);
+            }
+        });
+
+        // Mark field as touched on first blur
+        input.addEventListener('blur', function() {
+            this.dataset.touched = 'true';
+        }, { once: true });
+
         // Clear validation on focus
         input.addEventListener('focus', function() {
             clearFieldValidation(this);
@@ -68,6 +142,22 @@ function initializeValidation() {
             input.addEventListener('input', function() {
                 formatPhoneNumber(this);
             });
+        }
+
+        // Special handling for select elements
+        if (input.tagName === 'SELECT') {
+            input.addEventListener('change', function() {
+                validateSelectField(this);
+            });
+
+            input.addEventListener('blur', function() {
+                validateSelectField(this);
+            });
+        }
+
+        // Add character counter for text inputs with maxlength
+        if ((input.type === 'text' || input.tagName === 'TEXTAREA') && input.hasAttribute('maxlength')) {
+            addCharacterCounter(input);
         }
         
         if (input.type === 'date' || input.classList.contains('date-input')) {
@@ -93,21 +183,89 @@ function initializeValidation() {
 }
 
 /**
- * Validate individual field
+ * Validate individual field based on model constraints
  */
 function validateField(field) {
     const value = field.value.trim();
     const isRequired = field.hasAttribute('aria-required') || field.required;
-    
+    const fieldName = field.getAttribute('name') || field.getAttribute('id') || 'Field';
+
     // Clear previous validation
     clearFieldValidation(field);
-    
+
     // Required field validation
     if (isRequired && !value) {
-        showFieldError(field, 'This field is required');
+        showFieldError(field, `${getFieldDisplayName(fieldName)} is required`);
         return false;
     }
-    
+
+    // Skip further validation if field is empty and not required
+    if (!value && !isRequired) {
+        return true;
+    }
+
+    // Model-specific validation based on field names
+    if (fieldName.toLowerCase() === 'name' || fieldName.toLowerCase() === 'taskname') {
+        // Task Name: 5-100 characters
+        if (value.length < 5) {
+            showFieldError(field, 'Task name must be at least 5 characters');
+            return false;
+        }
+        if (value.length > 100) {
+            showFieldError(field, 'Task name cannot exceed 100 characters');
+            return false;
+        }
+    }
+
+    if (fieldName.toLowerCase() === 'description') {
+        // Task Description: 5-1500 characters
+        if (value.length < 5) {
+            showFieldError(field, 'Description must be at least 5 characters');
+            return false;
+        }
+        if (value.length > 1500) {
+            showFieldError(field, 'Description cannot exceed 1500 characters');
+            return false;
+        }
+    }
+
+    if (fieldName.toLowerCase() === 'projectnumber') {
+        // Project Number: 6-10 characters, digits only
+        if (value.length < 6) {
+            showFieldError(field, 'Project number must be at least 6 characters');
+            return false;
+        }
+        if (value.length > 10) {
+            showFieldError(field, 'Project number cannot exceed 10 characters');
+            return false;
+        }
+        if (!/^\d+$/.test(value)) {
+            showFieldError(field, 'Project number must contain only digits');
+            return false;
+        }
+    }
+
+    // Machine name validation (3-50 characters)
+    if (fieldName.toLowerCase() === 'machinename') {
+        if (value.length < 3) {
+            showFieldError(field, 'Machine name must be at least 3 characters');
+            return false;
+        }
+        if (value.length > 50) {
+            showFieldError(field, 'Machine name cannot exceed 50 characters');
+            return false;
+        }
+    }
+
+    // Capacity validation (positive number)
+    if (fieldName.toLowerCase() === 'capacity') {
+        const numValue = parseFloat(value);
+        if (isNaN(numValue) || numValue <= 0) {
+            showFieldError(field, 'Capacity must be a positive number');
+            return false;
+        }
+    }
+
     // Email validation
     if (field.type === 'email' && value) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -116,28 +274,151 @@ function validateField(field) {
             return false;
         }
     }
-    
-    // Phone validation
-    if (field.type === 'tel' && value) {
-        const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-        if (!phoneRegex.test(value.replace(/\s/g, ''))) {
-            showFieldError(field, 'Please enter a valid phone number');
+
+    // Number validation
+    if (field.type === 'number' && value) {
+        const numValue = parseFloat(value);
+        if (isNaN(numValue)) {
+            showFieldError(field, 'Please enter a valid number');
+            return false;
+        }
+
+        // Check min/max constraints
+        const min = field.getAttribute('min');
+        const max = field.getAttribute('max');
+
+        if (min !== null && numValue < parseFloat(min)) {
+            showFieldError(field, `Value must be at least ${min}`);
+            return false;
+        }
+
+        if (max !== null && numValue > parseFloat(max)) {
+            showFieldError(field, `Value must be no more than ${max}`);
             return false;
         }
     }
-    
-    // URL validation
-    if (field.type === 'url' && value) {
-        try {
-            new URL(value);
-        } catch {
-            showFieldError(field, 'Please enter a valid URL');
+
+    // Custom date validation for dd/MM/yyyy format
+    if (field.placeholder === 'dd/MM/yyyy' && value) {
+        return validateCustomDate(field);
+    }
+
+    // Pattern validation
+    const pattern = field.getAttribute('pattern');
+    if (pattern && value) {
+        const regex = new RegExp(pattern);
+        if (!regex.test(value)) {
+            const title = field.getAttribute('title') || 'Please enter a valid format';
+            showFieldError(field, title);
             return false;
         }
     }
-    
-    // Success state
-    showFieldSuccess(field);
+
+    // Success state - only show for important validations
+    if (value && (fieldName.toLowerCase() === 'name' || fieldName.toLowerCase() === 'description' || fieldName.toLowerCase() === 'projectnumber')) {
+        showFieldSuccess(field, false); // Don't show success message, just green border
+    }
+
+    return true;
+}
+
+/**
+ * Get user-friendly field display name
+ */
+function getFieldDisplayName(fieldName) {
+    const displayNames = {
+        'email': 'Email',
+        'password': 'Password',
+        'confirmPassword': 'Confirm Password',
+        'firstName': 'First Name',
+        'lastName': 'Last Name',
+        'phoneNumber': 'Phone Number',
+        'startDate': 'Start Date',
+        'endDate': 'End Date',
+        'deadline': 'Deadline',
+        'projectNumber': 'Project Number',
+        'name': 'Name',
+        'description': 'Description',
+        'capacity': 'Capacity',
+        'totalHours': 'Total Hours',
+        'priorityId': 'Priority',
+        'statusId': 'Status',
+        'operatorId': 'Operator'
+    };
+
+    return displayNames[fieldName] || fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
+}
+
+/**
+ * Add character counter to input field
+ */
+function addCharacterCounter(input) {
+    const maxLength = parseInt(input.getAttribute('maxlength'));
+    const minLength = parseInt(input.getAttribute('minlength')) || 0;
+
+    if (!maxLength) return;
+
+    // Create counter element
+    const counter = document.createElement('div');
+    counter.className = 'character-counter';
+    counter.style.cssText = `
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        text-align: right;
+        margin-top: 0.25rem;
+        font-weight: 400;
+    `;
+
+    // Update counter function
+    function updateCounter() {
+        const currentLength = input.value.length;
+        const remaining = maxLength - currentLength;
+
+        if (currentLength < minLength) {
+            counter.textContent = `${currentLength}/${maxLength} (min: ${minLength})`;
+            counter.style.color = 'rgba(255, 255, 255, 0.6)';
+        } else if (remaining <= 10) {
+            counter.textContent = `${currentLength}/${maxLength}`;
+            counter.style.color = '#fbbf24'; // Warning color
+        } else {
+            counter.textContent = `${currentLength}/${maxLength}`;
+            counter.style.color = 'rgba(255, 255, 255, 0.6)';
+        }
+    }
+
+    // Add counter after the input
+    input.parentNode.appendChild(counter);
+
+    // Update counter on input
+    input.addEventListener('input', updateCounter);
+
+    // Initial update
+    updateCounter();
+}
+
+/**
+ * Validate select field
+ */
+function validateSelectField(selectField) {
+    const value = selectField.value;
+    const isRequired = selectField.hasAttribute('aria-required') || selectField.required;
+    const fieldName = selectField.getAttribute('name') || selectField.getAttribute('id') || 'Field';
+
+    // Clear previous validation
+    clearFieldValidation(selectField);
+
+    // Required field validation
+    if (isRequired && (!value || value === '' || value === '0')) {
+        showFieldError(selectField, `${getFieldDisplayName(fieldName)} is required`);
+        return false;
+    }
+
+    // Success state - no message, just clean validation
+    if (value && value !== '' && value !== '0') {
+        showFieldSuccess(selectField, false);
+        return true;
+    }
+
     return true;
 }
 
@@ -161,14 +442,32 @@ function showFieldError(field, message) {
 /**
  * Show field success
  */
-function showFieldSuccess(field) {
+function showFieldSuccess(field, showMessage = false) {
     field.classList.add('modern-form-success');
     field.classList.remove('modern-form-error');
-    
+
     // Remove error message
     const errorElement = field.parentNode.querySelector('.modern-validation-message');
     if (errorElement) {
         errorElement.remove();
+    }
+
+    // Optionally show success message for important fields
+    if (showMessage) {
+        const successElement = field.parentNode.querySelector('.modern-validation-success');
+        if (!successElement) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'modern-validation-success';
+            successDiv.textContent = 'Valid';
+            field.parentNode.appendChild(successDiv);
+
+            // Auto-remove success message after 2 seconds
+            setTimeout(() => {
+                if (successDiv.parentNode) {
+                    successDiv.remove();
+                }
+            }, 2000);
+        }
     }
 }
 
@@ -177,10 +476,15 @@ function showFieldSuccess(field) {
  */
 function clearFieldValidation(field) {
     field.classList.remove('modern-form-error', 'modern-form-success');
-    
+
     const errorElement = field.parentNode.querySelector('.modern-validation-message');
     if (errorElement) {
         errorElement.remove();
+    }
+
+    const successElement = field.parentNode.querySelector('.modern-validation-success');
+    if (successElement) {
+        successElement.remove();
     }
 }
 
@@ -613,7 +917,7 @@ function validateCustomDate(input) {
     const match = value.match(dateRegex);
 
     if (!match) {
-        showFieldError(input, 'Please enter date in dd/MM/yyyy format');
+        showFieldError(input, 'Date format should be dd/MM/yyyy');
         return false;
     }
 
@@ -635,7 +939,7 @@ function validateCustomDate(input) {
     // Create date object and validate
     const date = new Date(year, month - 1, day);
     if (date.getDate() !== day || date.getMonth() !== month - 1 || date.getFullYear() !== year) {
-        showFieldError(input, 'Please enter a valid date');
+        showFieldError(input, 'Invalid date');
         return false;
     }
 
@@ -679,6 +983,156 @@ function showFormError(message) {
     setTimeout(() => {
         errorDiv.remove();
     }, 5000);
+}
+
+/**
+ * Validate entire form before submission
+ */
+function validateFormBeforeSubmit(form) {
+    let isValid = true;
+
+    // Check all required fields
+    const requiredFields = form.querySelectorAll('.modern-form-input[required], .modern-form-select[required], .modern-form-textarea[required]');
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            showFieldError(field, 'This field is required');
+            isValid = false;
+        }
+    });
+
+    // Check all fields with error class
+    const errorFields = form.querySelectorAll('.modern-form-input.error, .modern-form-select.error, .modern-form-textarea.error, .modern-form-input.modern-form-error, .modern-form-select.modern-form-error, .modern-form-textarea.modern-form-error');
+    if (errorFields.length > 0) {
+        isValid = false;
+    }
+
+    // Validate date fields specifically
+    const dateFields = form.querySelectorAll('input[placeholder="dd/MM/yyyy"]');
+    dateFields.forEach(field => {
+        if (field.value && !validateCustomDate(field)) {
+            isValid = false;
+        }
+    });
+
+    // Validate email fields
+    const emailFields = form.querySelectorAll('input[type="email"]');
+    emailFields.forEach(field => {
+        if (field.value && !validateEmail(field)) {
+            isValid = false;
+        }
+    });
+
+    // Validate number fields
+    const numberFields = form.querySelectorAll('input[type="number"]');
+    numberFields.forEach(field => {
+        if (field.value && !validateNumber(field)) {
+            isValid = false;
+        }
+    });
+
+    return isValid;
+}
+
+/**
+ * Reset submit button state
+ */
+function resetSubmitButton(button) {
+    if (button) {
+        button.classList.remove('loading');
+        button.disabled = false;
+    }
+}
+
+/**
+ * Handle page visibility change to reset button states
+ */
+function handleVisibilityChange() {
+    if (!document.hidden) {
+        // Page became visible again, reset any loading buttons
+        const loadingButtons = document.querySelectorAll('.modern-submit-btn.loading');
+        loadingButtons.forEach(button => {
+            resetSubmitButton(button);
+        });
+    }
+}
+
+// Add visibility change listener
+document.addEventListener('visibilitychange', handleVisibilityChange);
+
+// Add window focus listener to reset button states
+window.addEventListener('focus', function() {
+    const loadingButtons = document.querySelectorAll('.modern-submit-btn.loading');
+    loadingButtons.forEach(button => {
+        resetSubmitButton(button);
+    });
+});
+
+/**
+ * Show validation summary for form errors
+ */
+function showValidationSummary(form) {
+    // Remove existing summary
+    const existingSummary = form.querySelector('.validation-summary');
+    if (existingSummary) {
+        existingSummary.remove();
+    }
+
+    // Collect all error messages
+    const errorMessages = [];
+    const errorFields = form.querySelectorAll('.modern-form-input.modern-form-error, .modern-form-select.modern-form-error, .modern-form-textarea.modern-form-error');
+
+    errorFields.forEach(field => {
+        const errorElement = field.parentNode.querySelector('.modern-validation-message');
+        if (errorElement) {
+            const fieldName = getFieldDisplayName(field.getAttribute('name') || field.getAttribute('id') || 'Field');
+            errorMessages.push(`${fieldName}: ${errorElement.textContent.replace('⚠️', '').trim()}`);
+        }
+    });
+
+    if (errorMessages.length > 0) {
+        const summaryDiv = document.createElement('div');
+        summaryDiv.className = 'validation-summary';
+        summaryDiv.style.cssText = `
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #ef4444;
+            font-size: 0.875rem;
+            animation: slideDown 0.3s ease;
+        `;
+
+        const title = document.createElement('h4');
+        title.textContent = 'Please correct the following errors:';
+        title.style.cssText = 'margin: 0 0 0.5rem 0; font-size: 0.9rem; font-weight: 600;';
+        summaryDiv.appendChild(title);
+
+        const errorList = document.createElement('ul');
+        errorList.style.cssText = 'margin: 0; padding-left: 1.5rem;';
+
+        errorMessages.forEach(message => {
+            const listItem = document.createElement('li');
+            listItem.textContent = message;
+            listItem.style.cssText = 'margin-bottom: 0.25rem;';
+            errorList.appendChild(listItem);
+        });
+
+        summaryDiv.appendChild(errorList);
+
+        // Insert at the top of the form
+        form.insertBefore(summaryDiv, form.firstChild);
+
+        // Scroll to summary
+        summaryDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // Auto-remove after 10 seconds
+        setTimeout(() => {
+            if (summaryDiv.parentNode) {
+                summaryDiv.remove();
+            }
+        }, 10000);
+    }
 }
 
 // CSS animations

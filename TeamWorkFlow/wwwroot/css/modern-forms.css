@@ -153,12 +153,49 @@
 
 /* Validation Messages */
 .modern-validation-message {
-    color: #fca5a5;
-    font-size: 0.875rem;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
     font-weight: 500;
-    margin-top: 0.5rem;
-    padding-left: 1rem;
+    margin-top: 0.25rem;
+    padding: 0.375rem 0.5rem;
     display: block;
+    animation: fadeIn 0.2s ease;
+}
+
+/* Success validation message */
+.modern-validation-success {
+    color: rgba(16, 185, 129, 0.9);
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 400;
+    margin-top: 0.25rem;
+    padding: 0.375rem 0.5rem;
+    display: block;
+    animation: fadeIn 0.2s ease;
+}
+
+/* ASP.NET Core server-side validation messages */
+.field-validation-error,
+.text-danger,
+.validation-summary-errors {
+    color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-top: 0.25rem;
+    padding: 0.375rem 0.5rem;
+    display: block;
+}
+
+.field-validation-valid {
+    display: none;
 }
 
 
@@ -318,15 +355,15 @@
     box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
 }
 
-/* Error State */
+/* Error State - Keep clean, no red styling */
 .modern-form-error {
-    border-color: #ef4444;
-    background: rgba(239, 68, 68, 0.1);
+    /* No visual changes to the field itself */
 }
 
 .modern-form-error:focus {
-    border-color: #ef4444;
-    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+    /* Keep normal focus styling */
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
 }
 
 /* Date Format Hint */
@@ -455,5 +492,30 @@
     .modern-form-textarea {
         padding: 0.875rem 1rem;
         font-size: 0.9rem;
+    }
+}
+
+/* Validation Animations */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 100px;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }

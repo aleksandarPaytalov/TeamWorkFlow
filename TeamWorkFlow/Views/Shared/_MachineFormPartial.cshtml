@@ -10,13 +10,21 @@
 		<div class="modern-form-grid two-columns">
 			<div class="modern-form-group">
 				<label asp-for="@Model.Name" class="modern-form-label">Machine Name</label>
-				<input asp-for="@Model.Name" class="modern-form-input" aria-required="true" placeholder="Enter machine name..." />
+				<input asp-for="@Model.Name" class="modern-form-input"
+					   required
+					   minlength="3"
+					   maxlength="50"
+					   placeholder="Enter machine name..." />
 				<span asp-validation-for="@Model.Name" class="modern-validation-message"></span>
 			</div>
 
 			<div class="modern-form-group">
 				<label asp-for="@Model.Capacity" class="modern-form-label">Machine Capacity</label>
-				<input asp-for="@Model.Capacity" class="modern-form-input" type="number" aria-required="true" placeholder="Enter capacity..." />
+				<input asp-for="@Model.Capacity" class="modern-form-input"
+					   type="number"
+					   required
+					   min="1"
+					   placeholder="Enter capacity..." />
 				<span asp-validation-for="@Model.Capacity" class="modern-validation-message"></span>
 			</div>
 		</div>
@@ -30,7 +38,7 @@
 
 			<div class="modern-form-group">
 				<label asp-for="@Model.IsCalibrated" class="modern-form-label">Calibration Status</label>
-				<select asp-for="@Model.IsCalibrated" class="modern-form-select" aria-required="true">
+				<select asp-for="@Model.IsCalibrated" class="modern-form-select" required>
 					<option disabled selected value="">Select Status...</option>
 					<option value="true">Calibrated</option>
 					<option value="false">Not Calibrated</option>
@@ -41,7 +49,12 @@
 
 		<div class="modern-form-group">
 			<label asp-for="@Model.ImageUrl" class="modern-form-label">Machine Image URL</label>
-			<input asp-for="@Model.ImageUrl" class="modern-form-input" type="url" aria-required="true" placeholder="Enter image URL..." />
+			<input asp-for="@Model.ImageUrl" class="modern-form-input"
+				   type="url"
+				   required
+				   minlength="10"
+				   maxlength="300"
+				   placeholder="Enter image URL..." />
 			<span asp-validation-for="@Model.ImageUrl" class="modern-validation-message"></span>
 		</div>
 
