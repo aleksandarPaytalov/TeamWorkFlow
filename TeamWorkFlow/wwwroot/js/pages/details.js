@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializePrintFeatures();
     initializeStatusIndicators();
     initializeCopyFeatures();
+    initializeTouchFeatures();
+    initializeAccessibilityFeatures();
 });
 
 /**
@@ -203,7 +205,8 @@ function initializeResponsiveFeatures() {
 function adjustLayoutForScreenSize() {
     const content = document.querySelector('.details-content');
     const screenWidth = window.innerWidth;
-    
+    const screenHeight = window.innerHeight;
+
     if (content && content.classList.contains('has-image')) {
         if (screenWidth < 1024) {
             content.style.gridTemplateColumns = '1fr';
@@ -211,6 +214,44 @@ function adjustLayoutForScreenSize() {
             content.style.gridTemplateColumns = '1fr 400px';
         }
     }
+
+    // Adjust for very small screens
+    if (screenWidth <= 360) {
+        document.body.classList.add('extra-small-screen');
+    } else {
+        document.body.classList.remove('extra-small-screen');
+    }
+
+    // Adjust for landscape mobile
+    if (screenWidth > screenHeight && screenHeight <= 500) {
+        document.body.classList.add('mobile-landscape');
+    } else {
+        document.body.classList.remove('mobile-landscape');
+    }
+
+    // Optimize image containers for mobile
+    const imageContainers = document.querySelectorAll('.details-image-container');
+    imageContainers.forEach(container => {
+        if (screenWidth <= 768) {
+            container.style.maxWidth = '100%';
+            container.style.margin = '0';
+        } else if (screenWidth <= 1024) {
+            container.style.maxWidth = '400px';
+            container.style.margin = '0 auto';
+        }
+    });
+
+    // Adjust grid layout for different screen sizes
+    const grids = document.querySelectorAll('.details-grid');
+    grids.forEach(grid => {
+        if (screenWidth <= 768) {
+            grid.style.gridTemplateColumns = '1fr';
+        } else if (screenWidth <= 1024) {
+            grid.style.gridTemplateColumns = '1fr';
+        } else {
+            grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
+        }
+    });
 }
 
 /**
@@ -394,15 +435,153 @@ function formatDate(dateString) {
  */
 function getRelativeTime(dateString) {
     if (!dateString) return '-';
-    
+
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now - date);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
     return `${Math.floor(diffDays / 30)} months ago`;
+}
+
+/**
+ * Initialize touch-friendly features for mobile devices
+ */
+function initializeTouchFeatures() {
+    // Add touch feedback for buttons
+    const buttons = document.querySelectorAll('.details-btn');
+    buttons.forEach(button => {
+        button.addEventListener('touchstart', function() {
+            this.style.transform = 'scale(0.98)';
+        });
+
+        button.addEventListener('touchend', function() {
+            this.style.transform = '';
+        });
+    });
+
+    // Improve touch targets for small elements
+    const smallElements = document.querySelectorAll('.status-badge, .priority-badge');
+    smallElements.forEach(element => {
+        if (window.innerWidth <= 768) {
+            element.style.minHeight = '44px';
+            element.style.display = 'inline-flex';
+            element.style.alignItems = 'center';
+            element.style.padding = '0.5rem 0.75rem';
+        }
+    });
+
+    // Add swipe gesture for image modal
+    let startX = 0;
+    let startY = 0;
+
+    document.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    });
+
+    document.addEventListener('touchend', function(e) {
+        if (!startX || !startY) return;
+
+        const endX = e.changedTouches[0].clientX;
+        const endY = e.changedTouches[0].clientY;
+
+        const diffX = startX - endX;
+        const diffY = startY - endY;
+
+        // Close modal on swipe down
+        const modal = document.querySelector('.image-modal');
+        if (modal && Math.abs(diffY) > Math.abs(diffX) && diffY < -50) {
+            document.body.removeChild(modal);
+        }
+
+        startX = 0;
+        startY = 0;
+    });
+}
+
+/**
+ * Initialize accessibility features
+ */
+function initializeAccessibilityFeatures() {
+    // Add ARIA labels for better screen reader support
+    const statusBadges = document.querySelectorAll('.status-badge');
+    statusBadges.forEach(badge => {
+        const status = badge.textContent.trim();
+        badge.setAttribute('aria-label', `Status: ${status}`);
+    });
+
+    const priorityBadges = document.querySelectorAll('.priority-badge');
+    priorityBadges.forEach(badge => {
+        const priority = badge.textContent.trim();
+        badge.setAttribute('aria-label', `Priority: ${priority}`);
+    });
+
+    // Add skip links for keyboard navigation
+    const mainContent = document.querySelector('.details-card-body');
+    if (mainContent) {
+        const skipLink = document.createElement('a');
+        skipLink.href = '#main-content';
+        skipLink.textContent = 'Skip to main content';
+        skipLink.className = 'sr-only';
+        skipLink.style.cssText = `
+            position: absolute;
+            left: -10000px;
+            top: auto;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        `;
+
+        skipLink.addEventListener('focus', function() {
+            this.style.cssText = `
+                position: absolute;
+                left: 6px;
+                top: 7px;
+                z-index: 999999;
+                padding: 8px 16px;
+                background: #000;
+                color: #fff;
+                text-decoration: none;
+                border-radius: 3px;
+            `;
+        });
+
+        skipLink.addEventListener('blur', function() {
+            this.style.cssText = `
+                position: absolute;
+                left: -10000px;
+                top: auto;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+            `;
+        });
+
+        document.body.insertBefore(skipLink, document.body.firstChild);
+        mainContent.id = 'main-content';
+    }
+
+    // Improve focus management
+    const focusableElements = document.querySelectorAll('a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])');
+    focusableElements.forEach(element => {
+        element.addEventListener('focus', function() {
+            this.style.outline = '2px solid #8b5cf6';
+            this.style.outlineOffset = '2px';
+        });
+
+        element.addEventListener('blur', function() {
+            this.style.outline = '';
+            this.style.outlineOffset = '';
+        });
+    });
+
+    // Add high contrast mode detection
+    if (window.matchMedia && window.matchMedia('(prefers-contrast: high)').matches) {
+        document.body.classList.add('high-contrast');
+    }
 }
