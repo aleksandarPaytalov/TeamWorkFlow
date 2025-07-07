@@ -1,13 +1,15 @@
 ﻿@model TaskFormModel
 @{
-	ViewData["Title"] = "Edit a Task from the List";
+	ViewData["Title"] = "Edit Task";
 }
 
-<h2 class="text-center">@ViewBag.Title</h2>
-<hr />
+@section Styles {
+	<link rel="stylesheet" href="~/css/modern-forms.css" asp-append-version="true" />
+}
 
 <partial name="_TaskFormPartial" model="@Model" />
 
 @section Scripts {
 	<partial name="_ValidationScriptsPartial" />
+	<script src="~/js/modern-forms.js" asp-append-version="true"></script>
 }
