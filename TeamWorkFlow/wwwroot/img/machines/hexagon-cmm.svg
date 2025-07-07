@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="220" viewBox="0 0 400 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="220" fill="url(#hexagonGradient)"/>
+  
+  <!-- CMM Machine Illustration -->
+  <g transform="translate(50, 30)">
+    <!-- Base -->
+    <rect x="0" y="120" width="300" height="40" rx="8" fill="#047857" opacity="0.9"/>
+    
+    <!-- Granite Table -->
+    <rect x="20" y="100" width="260" height="20" rx="4" fill="#059669"/>
+    
+    <!-- Y-Axis Bridge -->
+    <rect x="30" y="40" width="240" height="15" rx="4" fill="#10B981"/>
+    <rect x="25" y="35" width="10" height="70" rx="3" fill="#10B981"/>
+    <rect x="265" y="35" width="10" height="70" rx="3" fill="#10B981"/>
+    
+    <!-- X-Axis Carriage -->
+    <rect x="120" y="30" width="60" height="25" rx="6" fill="#34D399"/>
+    
+    <!-- Z-Axis Spindle -->
+    <rect x="140" y="10" width="20" height="45" rx="4" fill="#6EE7B7"/>
+    
+    <!-- Probe -->
+    <circle cx="150" cy="65" r="3" fill="#FBBF24"/>
+    <line x1="150" y1="55" x2="150" y2="62" stroke="#FBBF24" stroke-width="2"/>
+    
+    <!-- Control Panel -->
+    <rect x="280" y="60" width="40" height="30" rx="4" fill="#1F2937"/>
+    <rect x="285" y="65" width="30" height="20" rx="2" fill="#10B981"/>
+    
+    <!-- Hexagon Logo Area -->
+    <polygon points="150,75 160,80 160,90 150,95 140,90 140,80" fill="rgba(255,255,255,0.3)" stroke="white" stroke-width="1"/>
+    
+    <!-- Precision Lines -->
+    <g opacity="0.8">
+      <line x1="60" y1="80" x2="240" y2="80" stroke="#34D399" stroke-width="1" stroke-dasharray="3,2"/>
+      <line x1="60" y1="90" x2="240" y2="90" stroke="#34D399" stroke-width="1" stroke-dasharray="3,2"/>
+    </g>
+  </g>
+  
+  <!-- Gradient Definitions -->
+  <defs>
+    <linearGradient id="hexagonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#059669;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#10B981;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Brand Label -->
+  <text x="200" y="200" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="700">
+    HEXAGON CMM
+  </text>
+</svg>

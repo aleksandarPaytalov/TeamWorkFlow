@@ -1,7 +1,6 @@
-﻿
-@model AllOperatorsQueryModel
+﻿@model AllOperatorsQueryModel
 @{
-    ViewData["Title"] = "Operators list";
+	ViewData["Title"] = "Team Operators";
 }
 
 @{
@@ -14,29 +13,42 @@
 	var maxPage = Math.Ceiling((decimal)Model.TotalOperatorsCount / (decimal)Model.OperatorsPerPage);
 }
 
-<h2 class="text-center">@ViewBag.Title</h2>
+@section Styles {
+	<link rel="stylesheet" href="~/css/pages/operators.css" asp-append-version="true" />
+}
 
-@if (User?.Identity?.IsAuthenticated ?? false)
-{
-	if (User.IsAdmin())
+<div class="operators-container">
+	<!-- Header Section -->
+	<div class="operators-header">
+		<h1 class="operators-title">@ViewData["Title"]</h1>
+		<p class="operators-subtitle">Manage your skilled workforce and track operator availability</p>
+	</div>
+
+	@if (User?.Identity?.IsAuthenticated ?? false)
 	{
-		<a href="@Url.Action("Add", "Operator")" class="btn btn-success">Add Operator</a>
-		<hr/>
-	}
-
-	<form method="get">
-		<div class="row">
-			<div class="form-group col-md-4">
-				<div class="form-group">
-					<label asp-for="Search"></label>
-					<input asp-for="Search" class="form-control" placeholder="Search by operator name or email...">
-				</div>
+		@if (User.IsAdmin())
+		{
+			<div class="mb-6">
+				<a class="btn-success" asp-area="" asp-controller="Operator" asp-action="Add">
+					<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+					</svg>
+					Add New Operator
+				</a>
 			</div>
+		}
 
-			<div class="form-group col-md-4">
+		<!-- Search and Filter Section -->
+		<div class="search-section">
+			<form method="get" id="search-form" class="search-form">
 				<div class="form-group">
-					<label asp-for="Sorting"></label>
-					<select asp-for="Sorting" class="form-control" onchange="this.form.submit()">
+					<label asp-for="Search" class="form-label">Search Operators</label>
+					<input asp-for="Search" id="search-input" class="form-input" placeholder="Search by operator name or email...">
+				</div>
+
+				<div class="form-group">
+					<label asp-for="Sorting" class="form-label">Sort By</label>
+					<select asp-for="Sorting" id="sorting-select" class="form-select">
 						<option value="0">Last added operator</option>
 						<option value="1">By name ascending</option>
 						<option value="2">By name descending</option>
@@ -48,105 +60,212 @@
 						<option value="8">By status descending</option>
 					</select>
 				</div>
-			</div>
 
-			<div class="col-md-4">
-				<div class="form-group mt-4 p-2">
-					<input type="submit" value="Search" class="btn btn-primary" />
-					<a asp-action="All" class="btn btn-secondary">Clear</a>
+				<div class="form-group">
+					<div class="search-buttons">
+						<input type="submit" value="Search" class="btn-primary" />
+						<a asp-action="All" id="clear-search" class="btn-secondary">Clear</a>
+					</div>
 				</div>
-			</div>
+			</form>
 		</div>
-	</form>
-	<hr />
-	
-	<div class="table-responsive">
-		<table class="table table-bordered">
-			<thead>
-			<tr>
-				<th>Full Name</th>
-				<th>Availability Status</th>
-				<th>Email</th>
-				<th>Phone number</th>
-				<th>Is active</th>
-				<th>Capacity</th>
-				<th>Action buttons</th>
-			</tr>
-			</thead>
-			<tbody>
+		<!-- Operators Grid -->
+		<div class="operators-grid">
 			@foreach (var o in Model.Operators)
 			{
-				<tr>
-					<td>@o.FullName</td>
-					<td>@o.AvailabilityStatus</td>
-					<td>@o.Email</td>
-					<td>@o.PhoneNumber</td>
-					<td>@o.IsActive</td>
-					<td>@o.Capacity</td>
-					
-					@if (User.IsAdmin())
-					{
-						<td>
-							<a href="@Url.Action("Edit", "Operator", new { id = o.Id, extension = o.GetOperatorExtension()})" class="btn btn-primary">Edit</a>
-							<a href="@Url.Action("Delete", "Operator", new { id = o.Id, extension = o.GetOperatorExtension() })" class="btn btn-danger">Delete</a>
-							<a href="@Url.Action("Details", "Operator", new { id = o.Id, extension = o.GetOperatorExtension() })" class="btn btn-primary">Details</a>
-						</td>
-					}
-					else if (User.IsOperator())
-					{
-							<td>
-								<a href="@Url.Action("Details", "Operator", new { id = o.Id, extension = o.GetOperatorExtension() })" class="btn btn-primary">Details</a>
-							</td>
-					}
-				</tr>
+				<div class="operator-card fade-in">
+					<!-- Card Header -->
+					<div class="operator-card-header">
+						@{
+							string initials = "";
+							if (!string.IsNullOrEmpty(o.FullName))
+							{
+								var nameParts = o.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+								initials = string.Join("", nameParts.Take(2).Select(part => part.Substring(0, 1).ToUpper()));
+							}
+						}
+						<div class="operator-avatar">@initials</div>
+						<h3 class="operator-name">@o.FullName</h3>
+						@{
+							string statusClass = "operator-status-unavailable";
+							if (o.AvailabilityStatus.ToLower().Contains("available") || o.AvailabilityStatus.ToLower().Contains("ready"))
+							{
+								statusClass = "operator-status-available";
+							}
+							else if (o.AvailabilityStatus.ToLower().Contains("busy") || o.AvailabilityStatus.ToLower().Contains("working"))
+							{
+								statusClass = "operator-status-busy";
+							}
+						}
+						<span class="operator-status @statusClass">@o.AvailabilityStatus</span>
+					</div>
+
+					<!-- Card Content -->
+					<div class="operator-card-content">
+						<!-- Operator Details -->
+						<div class="operator-details">
+							<div class="operator-detail-item">
+								<span class="operator-detail-label">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+									</svg>
+									Email
+								</span>
+								<span class="operator-detail-value">@o.Email</span>
+							</div>
+
+							<div class="operator-detail-item">
+								<span class="operator-detail-label">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+									</svg>
+									Phone
+								</span>
+								<span class="operator-detail-value">@o.PhoneNumber</span>
+							</div>
+
+							<div class="operator-detail-item">
+								<span class="operator-detail-label">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+									</svg>
+									Status
+								</span>
+								<span class="operator-detail-value">
+									@if (o.IsActive)
+									{
+										<span style="color: #059669; font-weight: 600;">✓ Active</span>
+									}
+									else
+									{
+										<span style="color: #dc2626; font-weight: 600;">✗ Inactive</span>
+									}
+								</span>
+							</div>
+
+							<div class="operator-detail-item">
+								<span class="operator-detail-label">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+									</svg>
+									Capacity
+								</span>
+								<span class="operator-detail-value">
+									<span class="capacity-indicator">@o.Capacity%</span>
+								</span>
+							</div>
+						</div>
+
+						<!-- Action Buttons -->
+						<div class="operator-actions">
+							@if (User.IsAdmin())
+							{
+								<a href="@Url.Action("Details", "Operator", new { id = o.Id, extension = o.GetOperatorExtension() })" class="action-btn action-btn-details">Details</a>
+								<a href="@Url.Action("Edit", "Operator", new { id = o.Id, extension = o.GetOperatorExtension()})" class="action-btn action-btn-edit">Edit</a>
+								<a href="@Url.Action("Delete", "Operator", new { id = o.Id, extension = o.GetOperatorExtension() })" class="action-btn action-btn-delete">Delete</a>
+							}
+							else if (User.IsOperator())
+							{
+								<a href="@Url.Action("Details", "Operator", new { id = o.Id, extension = o.GetOperatorExtension() })" class="action-btn action-btn-details w-full">Details</a>
+							}
+						</div>
+					</div>
+				</div>
 			}
-			</tbody>
-		</table>
-	</div>
+		</div>
 
-	@if (maxPage > 1)
-	{
-		<nav aria-label="Page navigation">
-			<ul class="pagination justify-content-center">
-				@if (Model.CurrentPage > 1)
+		@if (!Model.Operators.Any())
+		{
+			<div class="empty-state">
+				<h2>No Operators Found</h2>
+				<p>@(string.IsNullOrEmpty(Model.Search) ? "No operators have been added yet." : "No operators match your search criteria.")</p>
+				@if (User.IsAdmin())
 				{
-					<li class="page-item">
-						<a class="page-link"
-						   asp-action="All"
-						   asp-route-currentPage="@(Model.CurrentPage - 1)"
-						   asp-route-search="@Model.Search"
-						   asp-route-sorting="@Model.Sorting">Previous</a>
-					</li>
+					<a class="btn-success" asp-area="" asp-controller="Operator" asp-action="Add" style="margin-top: 1rem;">
+						Add First Operator
+					</a>
 				}
+			</div>
+		}
 
-				@for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min((int)maxPage, Model.CurrentPage + 2); i++)
-				{
-					<li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-						<a class="page-link"
-						   asp-action="All"
-						   asp-route-currentPage="@i"
-						   asp-route-search="@Model.Search"
-						   asp-route-sorting="@Model.Sorting">@i</a>
-					</li>
-				}
+		<!-- Pagination -->
+		@if (maxPage > 1)
+		{
+			<div class="pagination-container">
+				<nav aria-label="Page navigation">
+					<ul class="pagination">
+						@if (Model.CurrentPage > 1)
+						{
+							<li class="page-item">
+								<a class="page-link"
+								   asp-action="All"
+								   asp-route-currentPage="@previousPage"
+								   asp-route-search="@Model.Search"
+								   asp-route-sorting="@Model.Sorting">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+									</svg>
+									Previous
+								</a>
+							</li>
+						}
+						else
+						{
+							<li class="page-item disabled">
+								<span class="page-link">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+									</svg>
+									Previous
+								</span>
+							</li>
+						}
 
-				@if (Model.CurrentPage < maxPage)
-				{
-					<li class="page-item">
-						<a class="page-link"
-						   asp-action="All"
-						   asp-route-currentPage="@(Model.CurrentPage + 1)"
-						   asp-route-search="@Model.Search"
-						   asp-route-sorting="@Model.Sorting">Next</a>
-					</li>
-				}
-			</ul>
-		</nav>
+						@for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min((int)maxPage, Model.CurrentPage + 2); i++)
+						{
+							<li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+								<a class="page-link"
+								   asp-action="All"
+								   asp-route-currentPage="@i"
+								   asp-route-search="@Model.Search"
+								   asp-route-sorting="@Model.Sorting">@i</a>
+							</li>
+						}
+
+						@if (Model.CurrentPage < maxPage)
+						{
+							<li class="page-item">
+								<a class="page-link"
+								   asp-action="All"
+								   asp-route-currentPage="@(Model.CurrentPage + 1)"
+								   asp-route-search="@Model.Search"
+								   asp-route-sorting="@Model.Sorting">
+									Next
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+									</svg>
+								</a>
+							</li>
+						}
+						else
+						{
+							<li class="page-item disabled">
+								<span class="page-link">
+									Next
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+									</svg>
+								</span>
+							</li>
+						}
+					</ul>
+				</nav>
+			</div>
+		}
 	}
-
-}
-
+</div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+	<script src="~/js/pages/operators.js" asp-append-version="true"></script>
+	<partial name="_ValidationScriptsPartial" />
 }

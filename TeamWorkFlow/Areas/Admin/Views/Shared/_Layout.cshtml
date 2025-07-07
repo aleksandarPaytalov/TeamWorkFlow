@@ -3,18 +3,25 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TeamWorkFlow</title>
+    <title>@ViewData["Title"] - TeamWorkFlow Admin</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/styles.css" />
+    <link rel="stylesheet" href="~/css/admin/admin.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TeamWorkFlow.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm admin-nav border-bottom box-shadow mb-3">
             <div class="container-fluid">
-	            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">WebApp</a>
+	            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: inline; margin-right: 0.5rem; width: 24px; height: 24px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                    TeamWorkFlow Admin
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -26,20 +33,21 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+
+    <footer class="admin-footer">
         <div class="container">
-            &copy; @DateTime.Now.Year - TeamWorkFlow <span class="text-center"> - </span> <span class="text-danger">Page for Administrators only!</span>
+            &copy; @DateTime.Now.Year - TeamWorkFlow Admin Panel <span class="text-center"> - </span> <span class="text-danger">Administrator Access Only</span>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/admin/admin.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
