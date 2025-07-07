@@ -1,0 +1,94 @@
+/* Navigation Override CSS - Loads last to ensure highest priority */
+
+/* Force show all navigation elements */
+.navbar,
+.navbar-collapse,
+.navbar-nav,
+.nav-item,
+.nav-link {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.navbar {
+    display: flex !important;
+}
+
+.navbar-collapse {
+    display: flex !important;
+}
+
+.navbar-nav {
+    display: flex !important;
+}
+
+/* Specific fixes for Bootstrap collapse behavior */
+.navbar-expand-sm .navbar-collapse {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.navbar-expand-sm .navbar-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Ensure login/register section is always visible */
+.navbar-nav:last-child {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin-left: auto !important;
+}
+
+.navbar-nav:last-child .nav-item {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.navbar-nav:last-child .nav-link {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: rgba(0,0,0,.55) !important;
+    padding: 0.5rem 1rem !important;
+}
+
+/* Override any framework conflicts */
+.navbar * {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Mobile responsive - only hide on very small screens */
+@media (max-width: 575px) {
+    .navbar-collapse {
+        display: none !important;
+    }
+    
+    .navbar-collapse.show {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+}
+
+/* Desktop - always show */
+@media (min-width: 576px) {
+    .navbar-collapse {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    .navbar-nav {
+        display: flex !important;
+        flex-direction: row !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
