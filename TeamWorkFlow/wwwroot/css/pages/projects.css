@@ -287,6 +287,16 @@
     transition: all 0.3s ease;
     border: none;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.action-btn svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
 }
 
 .action-btn-details {
@@ -398,13 +408,18 @@
     .search-section {
         padding: 1rem;
     }
-    
+
     .project-card-header,
     .project-card-body,
     .project-card-actions {
         padding: 1rem;
     }
-    
+
+    .action-btn svg {
+        width: 12px;
+        height: 12px;
+    }
+
     .pagination {
         flex-wrap: wrap;
         justify-content: center;
