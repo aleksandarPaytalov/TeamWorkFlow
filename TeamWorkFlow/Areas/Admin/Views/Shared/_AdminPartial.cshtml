@@ -1,16 +1,21 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using TeamWorkFlow.Infrastructure.Data.Models
 @using System.Security.Claims
+@using TeamWorkFlow.Extensions
+@using TeamWorkFlow.Core.Contracts
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
+@inject IOperatorService OperatorService
 
 @{
 	string userName = string.Empty;
 
 	if (SignInManager.IsSignedIn(User))
 	{
-		userName = User.FindFirstValue(TeamWorkFlow.Infrastructure.Constants.CustomClaimsConstants.UserName)
-			.Split("@")[0];
+		string userId = User.Id();
+		userName = await OperatorService.GetOperatorFullNameByUserIdAsync(userId) ??
+		           User.FindFirstValue(TeamWorkFlow.Infrastructure.Constants.CustomClaimsConstants.UserName)
+		               .Split("@")[0];
 	}
 }
 

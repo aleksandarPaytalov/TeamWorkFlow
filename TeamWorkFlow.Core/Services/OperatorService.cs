@@ -328,5 +328,14 @@ namespace TeamWorkFlow.Core.Services
 
             return null;
         }
+
+        public async Task<string?> GetOperatorFullNameByUserIdAsync(string userId)
+        {
+            var operatorModel = await _repository.AllReadOnly<Operator>()
+                .Where(o => o.UserId == userId)
+                .FirstOrDefaultAsync();
+
+            return operatorModel?.FullName;
+        }
 	}
 }
