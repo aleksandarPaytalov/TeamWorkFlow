@@ -1,7 +1,7 @@
 name: Application build, restore and tests
 
 on:
-  pull_request:
+  push:
     branches: [ "master", "development" ]
 
 jobs:
