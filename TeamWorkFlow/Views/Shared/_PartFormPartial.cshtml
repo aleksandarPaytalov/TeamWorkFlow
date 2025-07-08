@@ -1,57 +1,81 @@
 ﻿@model PartFormModel
 
-<div class="row">
-    <div class="col-sm-12 offset-lg-2 col-lg-8 offset-xl-3 col-xl-6">
-        <form method="post">
-            <div class="form-group">
-                <label asp-for="Name"></label>
-                <input asp-for="Name" class="form-control" placeholder="Name...">
-                <span asp-validation-for="Name" class="small text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PartArticleNumber"></label>
-                <input asp-for="PartArticleNumber" class="form-control" placeholder="Part article number...">
-                <span asp-validation-for="PartArticleNumber" class="small text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PartClientNumber"></label>
-                <input asp-for="PartClientNumber" class="form-control" placeholder="Part client number...">
-                <span asp-validation-for="PartClientNumber" class="small text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ImageUrl"></label>
-                <input asp-for="ImageUrl" class="form-control" placeholder="Picture of your part...">
-                <span asp-validation-for="ImageUrl" class="small text-danger"></span>
-            </div>
-            <div class="form-group">
-	            <label asp-for="ToolNumber"></label>
-	            <input asp-for="ToolNumber" class="form-control" placeholder="Part tool number...">
-	            <span asp-validation-for="ToolNumber" class="small text-danger"></span>
-            </div>
-            <div class="form-group">
-	            <label asp-for="PartModel"></label>
-	            <input asp-for="PartModel" class="form-control" placeholder="Part 3D model...">
-	            <span asp-validation-for="PartModel" class="small text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ProjectNumber"></label>
-                <input asp-for="ProjectNumber" class="form-control" placeholder="Project number that the part is from...">
-                <span asp-validation-for="ProjectNumber" class="small text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PartStatusId"></label>
-                <select asp-for="PartStatusId" class="form-control">
-                    @foreach (var status in Model.Statuses)
-                    {
-                        <option value="@status.Id">@status.Name</option>
-                    }
-                </select>
-                <span asp-validation-for="PartStatusId" class="small text-danger"></span>
-            </div>
+<div class="modern-form-container">
+	<div class="form-header">
+		<h1 class="form-title">Part Management</h1>
+		<p class="form-subtitle">Create or update part information with technical specifications</p>
+	</div>
 
-            <div class="text-center">
-                <input class="btn btn-primary mt-3" type="submit" value="Apply" />
-            </div>
-        </form>
-    </div>
+	<form method="post" id="part-form">
+		<div class="modern-form-grid two-columns">
+			<div class="modern-form-group">
+				<label asp-for="Name" class="modern-form-label">Part Name</label>
+				<input asp-for="Name" class="modern-form-input" aria-required="true" placeholder="Enter part name..." />
+				<span asp-validation-for="Name" class="modern-validation-message"></span>
+			</div>
+
+			<div class="modern-form-group">
+				<label asp-for="PartArticleNumber" class="modern-form-label">Article Number</label>
+				<input asp-for="PartArticleNumber" class="modern-form-input" aria-required="true" placeholder="Enter article number..." />
+				<span asp-validation-for="PartArticleNumber" class="modern-validation-message"></span>
+			</div>
+		</div>
+
+		<div class="modern-form-grid two-columns">
+			<div class="modern-form-group">
+				<label asp-for="PartClientNumber" class="modern-form-label">Client Number</label>
+				<input asp-for="PartClientNumber" class="modern-form-input" aria-required="true" placeholder="Enter client number..." />
+				<span asp-validation-for="PartClientNumber" class="modern-validation-message"></span>
+			</div>
+
+			<div class="modern-form-group">
+				<label asp-for="ToolNumber" class="modern-form-label">Tool Number</label>
+				<input asp-for="ToolNumber" class="modern-form-input" placeholder="Enter tool number..." />
+				<span asp-validation-for="ToolNumber" class="modern-validation-message"></span>
+			</div>
+		</div>
+
+		<div class="modern-form-grid two-columns">
+			<div class="modern-form-group">
+				<label asp-for="ImageUrl" class="modern-form-label">Image URL</label>
+				<input asp-for="ImageUrl" class="modern-form-input" type="url" placeholder="Enter image URL..." />
+				<span asp-validation-for="ImageUrl" class="modern-validation-message"></span>
+			</div>
+
+			<div class="modern-form-group">
+				<label asp-for="PartModel" class="modern-form-label">3D Model</label>
+				<input asp-for="PartModel" class="modern-form-input" placeholder="Enter 3D model reference..." />
+				<span asp-validation-for="PartModel" class="modern-validation-message"></span>
+			</div>
+		</div>
+
+		<div class="modern-form-grid two-columns">
+			<div class="modern-form-group">
+				<label asp-for="ProjectNumber" class="modern-form-label">Project Number</label>
+				<input asp-for="ProjectNumber" class="modern-form-input" placeholder="Enter project number..." />
+				<span asp-validation-for="ProjectNumber" class="modern-validation-message"></span>
+			</div>
+
+			<div class="modern-form-group">
+				<label asp-for="PartStatusId" class="modern-form-label">Part Status</label>
+				<select asp-for="PartStatusId" class="modern-form-select" aria-required="true">
+					<option disabled selected value="">Select Status...</option>
+					@foreach (var status in Model.Statuses)
+					{
+						<option value="@status.Id">@status.Name</option>
+					}
+				</select>
+				<span asp-validation-for="PartStatusId" class="modern-validation-message"></span>
+			</div>
+		</div>
+
+		<div class="modern-form-actions">
+			<button type="submit" class="modern-submit-btn">
+				Save Part
+			</button>
+			<a href="@Url.Action("All", "Part")" class="modern-cancel-btn">
+				Cancel
+			</a>
+		</div>
+	</form>
 </div>

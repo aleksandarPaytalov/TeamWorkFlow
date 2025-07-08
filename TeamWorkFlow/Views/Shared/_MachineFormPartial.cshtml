@@ -1,36 +1,70 @@
 ﻿@model MachineFormModel
 
-<div class="row">
-	<div class="col-sm-12 offset-lg-2 col-lg-8 offset-xl-3 col-xl-6">
-		<form method="post">
-			<div class="mb-3">
-				<label asp-for="@Model.ImageUrl" class="form-label-add-edit">Machine picture</label>
-				<input asp-for="@Model.ImageUrl" class="form-control" aria-required="true" placeholder="Image Url" />
-				<span asp-validation-for="@Model.ImageUrl" class="text-danger"></span>
-			</div>
-			<div class="mb-3">
-				<label asp-for="@Model.Name" class="form-label-add-edit">Name</label>
-				<input asp-for="@Model.Name" class="form-control" aria-required="true" placeholder="Machine name" />
-				<span asp-validation-for="@Model.Name" class="text-danger"></span>
-			</div>
-			<div class="mb-3">
-				<label asp-for="@Model.Capacity" class="form-label-add-edit">Capacity</label>
-				<input asp-for="@Model.Capacity" class="form-control" aria-required="true"/>
-				<span asp-validation-for="@Model.Capacity" class="text-danger"></span>
-			</div>
-			<div class="mb-3">
-				<label asp-for="@Model.CalibrationSchedule" class="form-label-add-edit">Next calibration date</label>
-				<input asp-for="@Model.CalibrationSchedule" class="form-control" aria-required="true" placeholder="@Messages.DateFormat" />
-				<span asp-validation-for="@Model.CalibrationSchedule" class="text-danger"></span>
-			</div>
-			<div class="mb-3">
-				<label asp-for="@Model.IsCalibrated" class="form-label-add-edit">Machine is calibrated</label>
-				<input asp-for="@Model.IsCalibrated" class="form-control" aria-required="true" placeholder="True or False" />
-				<span asp-validation-for="@Model.IsCalibrated" class="text-danger"></span>
-			</div>
-			<div class="mb-3">
-				<input class="btn btn-warning mb-2 w-25 p-2 fw-bold" type="submit" value="Apply" />
-			</div>
-		</form>
+<div class="modern-form-container">
+	<div class="form-header">
+		<h1 class="form-title">Machine Management</h1>
+		<p class="form-subtitle">Create or update CMM machine information and calibration schedule</p>
 	</div>
+
+	<form method="post" id="machine-form">
+		<div class="modern-form-grid two-columns">
+			<div class="modern-form-group">
+				<label asp-for="@Model.Name" class="modern-form-label">Machine Name</label>
+				<input asp-for="@Model.Name" class="modern-form-input"
+					   required
+					   minlength="3"
+					   maxlength="50"
+					   placeholder="Enter machine name..." />
+				<span asp-validation-for="@Model.Name" class="modern-validation-message"></span>
+			</div>
+
+			<div class="modern-form-group">
+				<label asp-for="@Model.Capacity" class="modern-form-label">Machine Capacity</label>
+				<input asp-for="@Model.Capacity" class="modern-form-input"
+					   type="number"
+					   required
+					   min="1"
+					   placeholder="Enter capacity..." />
+				<span asp-validation-for="@Model.Capacity" class="modern-validation-message"></span>
+			</div>
+		</div>
+
+		<div class="modern-form-grid two-columns">
+			<div class="modern-form-group">
+				<label asp-for="@Model.CalibrationSchedule" class="modern-form-label">Next Calibration Date</label>
+				<input asp-for="@Model.CalibrationSchedule" class="modern-form-input future-date" type="date" aria-required="true" />
+				<span asp-validation-for="@Model.CalibrationSchedule" class="modern-validation-message"></span>
+			</div>
+
+			<div class="modern-form-group">
+				<label asp-for="@Model.IsCalibrated" class="modern-form-label">Calibration Status</label>
+				<select asp-for="@Model.IsCalibrated" class="modern-form-select" required>
+					<option disabled selected value="">Select Status...</option>
+					<option value="true">Calibrated</option>
+					<option value="false">Not Calibrated</option>
+				</select>
+				<span asp-validation-for="@Model.IsCalibrated" class="modern-validation-message"></span>
+			</div>
+		</div>
+
+		<div class="modern-form-group">
+			<label asp-for="@Model.ImageUrl" class="modern-form-label">Machine Image URL</label>
+			<input asp-for="@Model.ImageUrl" class="modern-form-input"
+				   type="url"
+				   required
+				   minlength="10"
+				   maxlength="300"
+				   placeholder="Enter image URL..." />
+			<span asp-validation-for="@Model.ImageUrl" class="modern-validation-message"></span>
+		</div>
+
+		<div class="modern-form-actions">
+			<button type="submit" class="modern-submit-btn">
+				Save Machine
+			</button>
+			<a href="@Url.Action("All", "Machine")" class="modern-cancel-btn">
+				Cancel
+			</a>
+		</div>
+	</form>
 </div>

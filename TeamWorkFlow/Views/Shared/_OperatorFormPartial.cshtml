@@ -1,47 +1,71 @@
 ﻿@model OperatorFormModel
 
-<div class="row">
-	<div class="col-sm-12 offset-lg-2 col-lg-8 offset-xl-3 col-xl-6">
-		<form method="post">
-			<div class="mb-3">
-				<label asp-for="@Model.FullName" class="form-label-add-edit">Full name</label>
-				<input asp-for="@Model.FullName" class="form-control" aria-required="true" />
-				<span asp-validation-for="@Model.FullName" class="text-danger"></span>
+<div class="modern-form-container">
+	<div class="form-header">
+		<h1 class="form-title">Operator Management</h1>
+		<p class="form-subtitle">Create or update operator information and availability status</p>
+	</div>
+
+	<form method="post" id="operator-form">
+		<div class="modern-form-grid two-columns">
+			<div class="modern-form-group">
+				<label asp-for="@Model.FullName" class="modern-form-label">Full Name</label>
+				<input asp-for="@Model.FullName" class="modern-form-input" aria-required="true" placeholder="Enter full name..." />
+				<span asp-validation-for="@Model.FullName" class="modern-validation-message"></span>
 			</div>
-			<div class="mb-3">
-				<label asp-for="@Model.Email" class="form-label-add-edit">Email address</label>
-				<input asp-for="@Model.Email" class="form-control" aria-required="true" />
-				<span asp-validation-for="@Model.Email" class="text-danger"></span>
+
+			<div class="modern-form-group">
+				<label asp-for="@Model.Email" class="modern-form-label">Email Address</label>
+				<input asp-for="@Model.Email" class="modern-form-input" type="email" aria-required="true" placeholder="Enter email address..." />
+				<span asp-validation-for="@Model.Email" class="modern-validation-message"></span>
 			</div>
-			<div class="mb-3">
-				<label asp-for="@Model.PhoneNumber" class="form-label-add-edit">Phone number</label>
-				<input asp-for="@Model.PhoneNumber" class="form-control" aria-required="true" />
-				<span asp-validation-for="@Model.PhoneNumber" class="text-danger"></span>
+		</div>
+
+		<div class="modern-form-grid two-columns">
+			<div class="modern-form-group">
+				<label asp-for="@Model.PhoneNumber" class="modern-form-label">Phone Number</label>
+				<input asp-for="@Model.PhoneNumber" class="modern-form-input" type="tel" aria-required="true" placeholder="Enter phone number..." />
+				<span asp-validation-for="@Model.PhoneNumber" class="modern-validation-message"></span>
 			</div>
-			<div class="mb-3">
-				<label asp-for="@Model.Capacity" class="form-label-add-edit">Capacity</label>
-				<input asp-for="@Model.Capacity" class="form-control" aria-required="true" />
-				<span asp-validation-for="@Model.Capacity" class="text-danger"></span>
+
+			<div class="modern-form-group">
+				<label asp-for="@Model.Capacity" class="modern-form-label">Capacity</label>
+				<input asp-for="@Model.Capacity" class="modern-form-input" type="number" aria-required="true" placeholder="Enter capacity..." />
+				<span asp-validation-for="@Model.Capacity" class="modern-validation-message"></span>
 			</div>
-			<div class="mb-3">
-				<label asp-for="@Model.IsActive" class="form-label-add-edit">Is active</label>
-				<input asp-for="@Model.IsActive" class="form-control" aria-required="true" />
-				<span asp-validation-for="@Model.IsActive" class="text-danger"></span>
+		</div>
+
+		<div class="modern-form-grid two-columns">
+			<div class="modern-form-group">
+				<label asp-for="@Model.IsActive" class="modern-form-label">Active Status</label>
+				<select asp-for="@Model.IsActive" class="modern-form-select" aria-required="true">
+					<option disabled selected value="">Select Status...</option>
+					<option value="true">Active</option>
+					<option value="false">Inactive</option>
+				</select>
+				<span asp-validation-for="@Model.IsActive" class="modern-validation-message"></span>
 			</div>
-			<div class="mb-3">
-				<label asp-for="@Model.AvailabilityStatusId" class="form-label-add-edit">Select status</label>
-				<select asp-for="@Model.AvailabilityStatusId" class="form-control" aria-required="true">
-					<option disabled selected value="">Select Category...</option>
+
+			<div class="modern-form-group">
+				<label asp-for="@Model.AvailabilityStatusId" class="modern-form-label">Availability Status</label>
+				<select asp-for="@Model.AvailabilityStatusId" class="modern-form-select" aria-required="true">
+					<option disabled selected value="">Select Availability...</option>
 					@foreach (var s in Model.AvailabilityStatusModels)
 					{
 						<option value="@s.Id">@s.Name</option>
 					}
 				</select>
-				<span asp-validation-for="@Model.AvailabilityStatusId" class="text-danger"></span>
+				<span asp-validation-for="@Model.AvailabilityStatusId" class="modern-validation-message"></span>
 			</div>
-			<div class="mb-3">
-				<input class="btn btn-warning mb-2 w-100 p-3 fw-bold" type="submit" value="Apply changes" />
-			</div>
-		</form>
-	</div>
+		</div>
+
+		<div class="modern-form-actions">
+			<button type="submit" class="modern-submit-btn">
+				Save Operator
+			</button>
+			<a href="@Url.Action("All", "Operator")" class="modern-cancel-btn">
+				Cancel
+			</a>
+		</div>
+	</form>
 </div>

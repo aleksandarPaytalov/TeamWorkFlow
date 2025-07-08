@@ -4,33 +4,159 @@
 	ViewBag.Title = "Project Details";
 }
 
-<h2 class="text-center">@ViewBag.Title</h2>
-<hr />
+@section Styles {
+	<link rel="stylesheet" href="~/css/pages/details.css?v=@DateTime.Now.Ticks" />
+}
 
-<div class="container">
-	<div class="row">
-		</div>
-	<div class="col-lg-6 order-lg-1">
-		<div class="card border-0">
-			<div class="card-body">
-				<p style="font-size: 30px;"><u>@Model.ProjectName</u></p>
-				<p>Project Number: <b>@Model.ProjectNumber</b></p>
-				<p>Status: @Model.Status</p>
-				<p>Client Name: @Model.ClientName</p>
-				<p>Area of appliance: @Model.Appliance</p>
-				<p>Parts Count: @Model.TotalParts</p>
-				<p>Hours spent: @Model.TotalHoursSpent</p>
+<div class="details-container">
 
-				<div class="form-inline">
-					@if (User.Identity?.IsAuthenticated == true && User.IsAdmin())
-					{
-						<a class="btn btn-warning" asp-controller="Project" asp-action="Edit"
-						   asp-route-id="@Model.Id" asp-route-extension="@Model.GetProjectExtension()">Edit</a>
-						<a class="ml-2 btn btn-danger" asp-controller="Project" asp-action="Delete"
-						   asp-route-id="@Model.Id" asp-route-extension="@Model.GetProjectExtension()">Delete</a>
-					}
+
+	<!-- Header Section -->
+	<div class="details-header">
+		<h1 class="details-title">Project Overview</h1>
+		<p class="details-subtitle">Comprehensive project information including client details, progress tracking, and resource allocation</p>
+	</div>
+
+	<!-- Main Content -->
+	<div class="details-content">
+		<div class="details-card">
+			<div class="details-card-header">
+				<div class="details-id">Project #@Model.ProjectNumber</div>
+				<h2 class="details-name">@Model.ProjectName</h2>
+			</div>
+
+			<div class="details-card-body">
+				<div class="details-grid">
+					<!-- Project Information -->
+					<div class="details-section">
+						<h3 class="details-section-title">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+							</svg>
+							Project Information
+						</h3>
+						<div class="detail-item">
+							<span class="detail-label">
+								<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+								</svg>
+								Project Number
+							</span>
+							<span class="detail-value" data-copyable><strong>@Model.ProjectNumber</strong></span>
+						</div>
+						<div class="detail-item">
+							<span class="detail-label">
+								<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+								</svg>
+								Status
+							</span>
+							<span class="detail-value">
+								@{
+									string statusClass = Model.Status.ToLower() switch
+									{
+										"completed" => "status-completed",
+										"active" => "status-active",
+										"in progress" => "status-in-progress",
+										"pending" => "status-pending",
+										_ => "status-inactive"
+									};
+								}
+								<span class="status-badge @statusClass">
+									<span class="status-indicator"></span>
+									@Model.Status
+								</span>
+							</span>
+						</div>
+					</div>
+
+					<!-- Client Information -->
+					<div class="details-section">
+						<h3 class="details-section-title">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+							</svg>
+							Client Information
+						</h3>
+						<div class="detail-item">
+							<span class="detail-label">
+								<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+								</svg>
+								Client Name
+							</span>
+							<span class="detail-value">@Model.ClientName</span>
+						</div>
+						<div class="detail-item">
+							<span class="detail-label">
+								<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+								</svg>
+								Area of Appliance
+							</span>
+							<span class="detail-value">@Model.Appliance</span>
+						</div>
+					</div>
+
+					<!-- Project Metrics -->
+					<div class="details-section">
+						<h3 class="details-section-title">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+							</svg>
+							Project Metrics
+						</h3>
+						<div class="detail-item">
+							<span class="detail-label">
+								<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+								</svg>
+								Total Parts
+							</span>
+							<span class="detail-value"><strong>@Model.TotalParts</strong> parts</span>
+						</div>
+						<div class="detail-item">
+							<span class="detail-label">
+								<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+								</svg>
+								Hours Spent
+							</span>
+							<span class="detail-value"><strong>@Model.TotalHoursSpent</strong> hours</span>
+						</div>
+					</div>
 				</div>
+
+				<!-- Action Buttons -->
+				@if (User.Identity?.IsAuthenticated == true && User.IsAdmin())
+				{
+					<div class="details-actions">
+						<a href="@Url.Action("All", "Project")" class="details-btn details-btn-back">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+							</svg>
+							Back to Projects
+						</a>
+						<a href="@Url.Action("Edit", "Project", new { id = Model.Id, extension = Model.GetProjectExtension() })" class="details-btn details-btn-edit">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+							</svg>
+							Edit Project
+						</a>
+						<a href="@Url.Action("Delete", "Project", new { id = Model.Id, extension = Model.GetProjectExtension() })" class="details-btn details-btn-delete">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+							</svg>
+							Delete Project
+						</a>
+					</div>
+				}
 			</div>
 		</div>
 	</div>
 </div>
+
+@section Scripts {
+	<script src="~/js/pages/details.js?v=@DateTime.Now.Ticks"></script>
+}

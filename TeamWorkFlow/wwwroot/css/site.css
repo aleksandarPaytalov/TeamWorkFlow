@@ -17,3 +17,15 @@ body {
     margin-bottom: 60px;
     background-color: #86B6F6;
 }
+
+/* Hide any unwanted breadcrumb navigation elements */
+body > ol,
+body > ul.breadcrumb,
+body > .breadcrumb,
+body > nav[aria-label="breadcrumb"],
+.container > ol,
+.container > ul.breadcrumb,
+.container > .breadcrumb,
+.container > nav[aria-label="breadcrumb"] {
+    display: none !important;
+}
