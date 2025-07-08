@@ -3,47 +3,394 @@
 	ViewData["Title"] = "My Tasks";
 }
 
-<h2 class="text-center">@ViewBag.Title</h2>
+@section Styles {
+	<link rel="stylesheet" href="~/css/admin/admin.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/pages/my-tasks.css" asp-append-version="true" />
+}
 
-<div class="table-responsive">
-	<table class="table table-bordered">
-		<thead>
-		<tr>
-			<th>Project Number</th>
-			<th>Name</th>
-			<th>Description</th>
-			<th>Status</th>
-			<th>Priority</th>
-			<th>Deadline</th>
-			<th>Start Date</th>
-			<th>End Date</th>
-			<th>Actions</th>
-		</tr>
-		</thead>
-		<tbody>
-		@foreach (var task in Model)
-		{
-			<tr>
-				<td>@task.ProjectNumber</td>
-				<td>@task.Name</td>
-				<td>@task.Description</td>
-				<td>@task.Status</td>
-				<td>@task.Priority</td>
-				<td>@task.Deadline</td>
-				<td>@task.StartDate</td>
-				<td>@task.EndDate</td>
-				<td>
-					<form class="input-group-sm" asp-controller="Task" asp-action="RemoveFromCollection" asp-route-id="@task.Id">
-						<input type="submit" value="Remove" class="fs-6 btn btn-success mb-3 p-2" />
-					</form>
-				</td>
-			</tr>
-		}
-		</tbody>
-	</table>
+<div class="admin-container">
+	<!-- Admin Header -->
+	<div class="admin-header">
+		<h1 class="admin-title">My Tasks</h1>
+		<p class="admin-subtitle">Personal task collection and progress tracking dashboard</p>
+		<span class="admin-badge">Personal Dashboard</span>
+	</div>
 
+	@if (Model.Any())
+	{
+		<!-- Tasks Table Container -->
+		<div class="admin-table-container">
+			<div class="admin-table-header">
+				<h2 class="admin-table-title">
+					<svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+					</svg>
+					My Task Collection (@Model.Count() tasks)
+				</h2>
+				<p class="admin-table-description">Manage your assigned tasks and track progress</p>
+			</div>
+
+			<!-- Desktop Table View -->
+			<div class="table-responsive">
+				<table class="admin-table my-tasks-table">
+					<thead>
+						<tr>
+							<th>
+								<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+								</svg>
+								Project #
+							</th>
+							<th>
+								<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+								</svg>
+								Task Name
+							</th>
+							<th>
+								<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+								</svg>
+								Description
+							</th>
+							<th>
+								<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+								</svg>
+								Status
+							</th>
+							<th>
+								<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+								</svg>
+								Priority
+							</th>
+							<th>
+								<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+								</svg>
+								Deadline
+							</th>
+							<th>
+								<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+								</svg>
+								Start Date
+							</th>
+							<th>
+								<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+								</svg>
+								End Date
+							</th>
+							<th>
+								<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+								</svg>
+								Actions
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var task in Model)
+						{
+							<tr class="task-row">
+								<td>
+									<span class="project-number">#@task.ProjectNumber</span>
+								</td>
+								<td>
+									<span class="task-name">@task.Name</span>
+								</td>
+								<td>
+									<span class="task-description">
+										@(task.Description.Length > 60 ? task.Description.Substring(0, 60) + "..." : task.Description)
+									</span>
+								</td>
+								<td>
+									@{
+										string statusClass = "status-pending";
+										if (task.Status.ToLower().Contains("progress") || task.Status.ToLower().Contains("active"))
+										{
+											statusClass = "status-in-progress";
+										}
+										else if (task.Status.ToLower().Contains("completed") || task.Status.ToLower().Contains("done"))
+										{
+											statusClass = "status-completed";
+										}
+										else if (task.Status.ToLower().Contains("cancelled") || task.Status.ToLower().Contains("stopped"))
+										{
+											statusClass = "status-cancelled";
+										}
+									}
+									<span class="status-badge @statusClass">@task.Status</span>
+								</td>
+								<td>
+									@{
+										string priorityClass = "priority-low";
+										if (task.Priority.ToLower().Contains("medium"))
+										{
+											priorityClass = "priority-medium";
+										}
+										else if (task.Priority.ToLower().Contains("high"))
+										{
+											priorityClass = "priority-high";
+										}
+										else if (task.Priority.ToLower().Contains("critical"))
+										{
+											priorityClass = "priority-critical";
+										}
+									}
+									<span class="priority-badge @priorityClass">@task.Priority</span>
+								</td>
+								<td>
+									<span class="date-value">@task.Deadline</span>
+								</td>
+								<td>
+									<span class="date-value">@task.StartDate</span>
+								</td>
+								<td>
+									<span class="date-value">@task.EndDate</span>
+								</td>
+								<td>
+									<form asp-controller="Task" asp-action="RemoveFromCollection" asp-route-id="@task.Id" class="remove-form">
+										<button type="submit" class="admin-btn admin-btn-danger" data-tooltip="Remove task from my collection">
+											<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+											</svg>
+											Remove
+										</button>
+									</form>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+
+			<!-- Mobile Cards View -->
+			<div class="mobile-cards-container">
+				@foreach (var task in Model)
+				{
+					string statusClass = "status-pending";
+					if (task.Status.ToLower().Contains("progress") || task.Status.ToLower().Contains("active"))
+					{
+						statusClass = "status-in-progress";
+					}
+					else if (task.Status.ToLower().Contains("completed") || task.Status.ToLower().Contains("done"))
+					{
+						statusClass = "status-completed";
+					}
+					else if (task.Status.ToLower().Contains("cancelled") || task.Status.ToLower().Contains("stopped"))
+					{
+						statusClass = "status-cancelled";
+					}
+
+					string priorityClass = "priority-low";
+					string cardPriorityClass = "";
+					if (task.Priority.ToLower().Contains("medium"))
+					{
+						priorityClass = "priority-medium";
+					}
+					else if (task.Priority.ToLower().Contains("high"))
+					{
+						priorityClass = "priority-high";
+						cardPriorityClass = "priority-high";
+					}
+					else if (task.Priority.ToLower().Contains("critical"))
+					{
+						priorityClass = "priority-critical";
+						cardPriorityClass = "priority-critical";
+					}
+
+					<div class="task-mobile-card @cardPriorityClass">
+						<div class="task-mobile-card-header">
+							<div class="task-mobile-project">
+								<span class="task-mobile-project-number">#@task.ProjectNumber</span>
+							</div>
+							<h3 class="task-mobile-name">@task.Name</h3>
+							<div class="task-mobile-status-priority">
+								<span class="status-badge @statusClass">@task.Status</span>
+								<span class="priority-badge @priorityClass">@task.Priority</span>
+							</div>
+						</div>
+
+						<div class="task-mobile-card-body">
+							<div class="task-mobile-description">
+								@task.Description
+							</div>
+
+							<div class="task-mobile-dates">
+								<div class="task-mobile-date-item">
+									<div class="task-mobile-date-label">
+										<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+										</svg>
+										Deadline
+									</div>
+									<div class="task-mobile-date-value">@task.Deadline</div>
+								</div>
+								<div class="task-mobile-date-item">
+									<div class="task-mobile-date-label">
+										<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+										</svg>
+										Start Date
+									</div>
+									<div class="task-mobile-date-value">@task.StartDate</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="task-mobile-actions">
+							<form asp-controller="Task" asp-action="RemoveFromCollection" asp-route-id="@task.Id" class="remove-form">
+								<button type="submit" class="task-mobile-remove-btn">
+									<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+									</svg>
+									Remove from My Tasks
+								</button>
+							</form>
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+	}
+	else
+	{
+		<div class="admin-empty-state">
+			<svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+			</svg>
+			<h2>No Tasks in Your Collection</h2>
+			<p>You haven't added any tasks to your personal collection yet. Browse available tasks and add them to get started.</p>
+			<a asp-controller="Task" asp-action="All" class="dashboard-card-action" style="margin-top: 1rem;">
+				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+				</svg>
+				Browse All Tasks
+			</a>
+		</div>
+	}
 </div>
 
 @section Scripts {
+	<script src="~/js/admin/admin.js" asp-append-version="true"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			// Add priority classes to table rows
+			const rows = document.querySelectorAll('.task-row');
+			rows.forEach(row => {
+				const priorityBadge = row.querySelector('.priority-badge');
+				if (priorityBadge) {
+					if (priorityBadge.classList.contains('priority-critical')) {
+						row.classList.add('priority-critical');
+					} else if (priorityBadge.classList.contains('priority-high')) {
+						row.classList.add('priority-high');
+					}
+				}
+			});
+
+			// Enhanced remove button confirmation for both desktop and mobile
+			const removeForms = document.querySelectorAll('.remove-form');
+			removeForms.forEach(form => {
+				const desktopButton = form.querySelector('.admin-btn-danger');
+				const mobileButton = form.querySelector('.task-mobile-remove-btn');
+				const button = desktopButton || mobileButton;
+
+				if (!button) return;
+
+				let clickCount = 0;
+				const isMobile = button.classList.contains('task-mobile-remove-btn');
+
+				button.addEventListener('click', function(e) {
+					clickCount++;
+
+					if (clickCount === 1) {
+						e.preventDefault();
+
+						if (isMobile) {
+							button.innerHTML = `
+								<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+								</svg>
+								Tap Again to Confirm Removal
+							`;
+						} else {
+							button.innerHTML = `
+								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+								</svg>
+								Click Again to Confirm
+							`;
+						}
+
+						button.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+						form.classList.add('confirming');
+
+						// Reset after 3 seconds
+						setTimeout(() => {
+							if (clickCount === 1) {
+								if (isMobile) {
+									button.innerHTML = `
+										<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+										</svg>
+										Remove from My Tasks
+									`;
+								} else {
+									button.innerHTML = `
+										<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+										</svg>
+										Remove
+									`;
+								}
+								button.style.background = '';
+								form.classList.remove('confirming');
+								clickCount = 0;
+							}
+						}, 3000);
+					}
+				});
+			});
+
+			// Add loading state on form submission
+			removeForms.forEach(form => {
+				form.addEventListener('submit', function() {
+					const table = document.querySelector('.my-tasks-table');
+					if (table) {
+						table.classList.add('loading');
+					}
+				});
+			});
+
+			// Add stagger animation to table rows and mobile cards
+			const tableRows = document.querySelectorAll('.task-row');
+			tableRows.forEach((row, index) => {
+				row.style.animationDelay = `${index * 0.1}s`;
+				row.style.animation = 'fadeInUp 0.6s ease-out forwards';
+				row.style.opacity = '0';
+			});
+
+			const mobileCards = document.querySelectorAll('.task-mobile-card');
+			mobileCards.forEach((card, index) => {
+				card.style.animationDelay = `${index * 0.15}s`;
+				card.style.animation = 'fadeInUp 0.8s ease-out forwards';
+				card.style.opacity = '0';
+			});
+
+			// Add touch feedback for mobile cards
+			mobileCards.forEach(card => {
+				card.addEventListener('touchstart', function() {
+					this.style.transform = 'scale(0.98)';
+				});
+
+				card.addEventListener('touchend', function() {
+					this.style.transform = '';
+				});
+			});
+		});
+	</script>
 	<partial name="_ValidationScriptsPartial" />
 }

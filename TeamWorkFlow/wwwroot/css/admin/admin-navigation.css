@@ -1,0 +1,331 @@
+/* Enhanced Admin Navigation Styling */
+/* Professional blue/gray theme for admin area navigation */
+
+/* Admin Navigation Bar */
+.admin-nav {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%) !important;
+    border-bottom: none !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    padding: 0.75rem 1.5rem !important;
+    min-height: 70px !important;
+    position: relative !important;
+    z-index: 1000 !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+.admin-nav::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(51, 65, 85, 0.95) 50%, rgba(71, 85, 105, 0.95) 100%);
+    z-index: -1;
+}
+
+/* Admin Brand Styling */
+.admin-nav .navbar-brand {
+    color: white !important;
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    transition: all 0.3s ease !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.admin-nav .navbar-brand:hover {
+    color: #e2e8f0 !important;
+    text-decoration: none !important;
+    transform: translateY(-1px) !important;
+}
+
+.admin-nav .navbar-brand svg {
+    width: 24px !important;
+    height: 24px !important;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3)) !important;
+}
+
+/* Admin Navigation Buttons */
+.admin-nav .navbar-nav .nav-item {
+    margin: 0 0.25rem !important;
+}
+
+.admin-nav .navbar-nav .nav-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 0.625rem 1.25rem !important;
+    border-radius: 0.5rem !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    white-space: nowrap !important;
+    border: 2px solid transparent !important;
+    position: relative !important;
+    overflow: hidden !important;
+    letter-spacing: 0.025em !important;
+    color: white !important;
+}
+
+/* Admin Button Styling */
+.admin-nav .custom-button-color {
+    background: rgba(255, 255, 255, 0.45) !important;
+    color: white !important;
+    border: 2px solid rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8), 0 0 8px rgba(255, 255, 255, 0.3) !important;
+    font-weight: 500 !important;
+}
+
+.admin-nav .custom-button-color::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+    z-index: 0;
+}
+
+.admin-nav .custom-button-color:hover::before {
+    left: 100%;
+}
+
+/* Ensure SVG icons are visible */
+.admin-nav .custom-button-color svg,
+.admin-nav .custom-button-color-admin svg {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.3)) !important;
+    color: white !important;
+    fill: white !important;
+}
+
+/* Ensure text content is visible */
+.admin-nav .custom-button-color *,
+.admin-nav .custom-button-color-admin * {
+    color: white !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.admin-nav .custom-button-color:hover {
+    background: rgba(255, 255, 255, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.8) !important;
+    color: white !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
+    text-decoration: none !important;
+    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Special Admin Action Button */
+.admin-nav .custom-button-color-admin {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+    color: white !important;
+    border: 2px solid rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 6px 15px rgba(59, 130, 246, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8), 0 0 8px rgba(255, 255, 255, 0.4) !important;
+    font-weight: 500 !important;
+}
+
+.admin-nav .custom-button-color-admin:hover {
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
+    border-color: rgba(255, 255, 255, 0.9) !important;
+    color: white !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 12px 35px rgba(59, 130, 246, 0.6) !important;
+    text-decoration: none !important;
+    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* User Section in Admin Nav */
+.admin-nav .navbar-nav:last-child {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    margin-left: auto !important;
+}
+
+.admin-nav .navbar-nav:last-child .nav-item {
+    margin: 0 !important;
+}
+
+.admin-nav .navbar-nav:last-child .nav-link {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    border-radius: 0.375rem !important;
+    transition: all 0.3s ease !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+.admin-nav .navbar-nav:last-child .nav-link:hover {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    transform: translateY(-1px) !important;
+    text-decoration: none !important;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Admin Logout Button */
+.admin-nav .navbar-nav:last-child form button {
+    background: rgba(71, 85, 105, 0.8) !important;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    border-radius: 0.375rem !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.admin-nav .navbar-nav:last-child form button:hover {
+    background: rgba(71, 85, 105, 1) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(71, 85, 105, 0.3) !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Mobile Toggle Button */
+.admin-nav .navbar-toggler {
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 0.375rem !important;
+    padding: 0.375rem 0.5rem !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    transition: all 0.3s ease !important;
+}
+
+.admin-nav .navbar-toggler:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.admin-nav .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* Responsive Design */
+@media (max-width: 991px) {
+    .admin-nav {
+        padding: 0.5rem 1rem !important;
+        min-height: 60px !important;
+    }
+    
+    .admin-nav .navbar-collapse {
+        margin-top: 1rem !important;
+        padding-top: 1rem !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    .admin-nav .navbar-nav.flex-grow-1 {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .admin-nav .navbar-nav:last-child {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+    }
+    
+    .admin-nav .navbar-nav .nav-link,
+    .admin-nav .navbar-nav:last-child .nav-link,
+    .admin-nav .navbar-nav:last-child form button {
+        width: 100% !important;
+        text-align: center !important;
+        padding: 0.75rem 1rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-nav {
+        padding: 0.375rem 0.75rem !important;
+        min-height: 56px !important;
+    }
+    
+    .admin-nav .navbar-brand {
+        font-size: 1.1rem !important;
+    }
+    
+    .admin-nav .navbar-nav .nav-link {
+        font-size: 0.875rem !important;
+        padding: 0.625rem 1rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-nav {
+        padding: 0.25rem 0.5rem !important;
+        min-height: 52px !important;
+    }
+    
+    .admin-nav .navbar-brand {
+        font-size: 1rem !important;
+    }
+    
+    .admin-nav .navbar-nav .nav-link {
+        font-size: 0.8rem !important;
+        padding: 0.5rem 0.875rem !important;
+    }
+}
+
+/* Focus states for accessibility */
+.admin-nav .navbar-nav .nav-link:focus,
+.admin-nav .navbar-nav:last-child .nav-link:focus,
+.admin-nav .navbar-nav:last-child form button:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.8) !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Force maximum text visibility */
+.admin-nav .navbar-nav .nav-link.custom-button-color,
+.admin-nav .navbar-nav .nav-link.custom-button-color-admin {
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 10px rgba(255, 255, 255, 0.5), 0 2px 4px rgba(0, 0, 0, 0.7) !important;
+    font-weight: 500 !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+.admin-nav .navbar-nav .nav-link.custom-button-color:hover,
+.admin-nav .navbar-nav .nav-link.custom-button-color-admin:hover {
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 1), 0 0 12px rgba(255, 255, 255, 0.7), 0 2px 6px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .admin-nav {
+        background: #1a202c !important;
+        border-bottom: 2px solid #ffffff !important;
+    }
+
+    .admin-nav .custom-button-color {
+        background: #ffffff !important;
+        color: #1a202c !important;
+        border-color: #ffffff !important;
+    }
+
+    .admin-nav .custom-button-color:hover {
+        background: #f0f0f0 !important;
+        color: #1a202c !important;
+    }
+}
