@@ -20,32 +20,54 @@ namespace UnitTests
 		private TeamWorkFlowDbContext _dbContext;
 		private Mock<UserManager<IdentityUser>> _mockUserManager;
 
-		[SetUp]
-		public void Setup()
-		{
-			var mockUserStore = new Mock<IUserStore<IdentityUser>>();
-			_mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null, null, null, null, null, null, null, null);
+	[SetUp]
+public void Setup()
+{
+    var mockUserStore = new Mock<IUserStore<IdentityUser>>();
+    _mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null, null, null, null, null, null, null, null);
 
-			_mockUserManager.Setup(x => x.IsInRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
-				.ReturnsAsync((IdentityUser user, string role) => role == "Operator" || role == "Admin");
+    _mockUserManager.Setup(x => x.IsInRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
+        .ReturnsAsync((IdentityUser user, string role) => role == "Operator" || role == "Admin");
 
-			var configuration = new ConfigurationBuilder()
-				.AddUserSecrets<OperatorServiceUnitTests>()
-				.Build();
+    // Check if running in CI/CD environment
+    bool useInMemoryDatabase = Environment.GetEnvironmentVariable("USE_IN_MEMORY_DATABASE") == "true";
 
-			var connectionString = configuration.GetConnectionString("Test");
+    if (useInMemoryDatabase)
+    {
+        // Use in-memory database for CI/CD
+        var options = new DbContextOptionsBuilder<TeamWorkFlowDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
 
-			var options = new DbContextOptionsBuilder<TeamWorkFlowDbContext>()
-				.UseSqlServer(connectionString)
-			.Options;
+        _dbContext = new TeamWorkFlowDbContext(options);
+    }
+    else
+    {
+        // Use real SQL Server for local development
+        var configuration = new ConfigurationBuilder()
+            .AddUserSecrets<OperatorServiceUnitTests>()
+            .Build();
 
-			_dbContext = new TeamWorkFlowDbContext(options);
-			_repository = new Repository(_dbContext);
-			_operatorService = new OperatorService(_repository, _mockUserManager.Object);
+        var connectionString = configuration.GetConnectionString("Test");
 
-			_dbContext.Database.EnsureDeleted();
-			_dbContext.Database.EnsureCreated();
-		}
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException("Test connection string is not configured. Please set up user secrets with 'Test' connection string.");
+        }
+
+        var options = new DbContextOptionsBuilder<TeamWorkFlowDbContext>()
+            .UseSqlServer(connectionString)
+            .Options;
+
+        _dbContext = new TeamWorkFlowDbContext(options);
+    }
+
+    _repository = new Repository(_dbContext);
+    _operatorService = new OperatorService(_repository,  _mockUserManager.Object);
+
+    _dbContext.Database.EnsureDeleted();
+    _dbContext.Database.EnsureCreated();
+}
 
 		[Test]
 		public async Task GetAllActiveOperatorsAsync_ShouldReturnAllActiveOperators()

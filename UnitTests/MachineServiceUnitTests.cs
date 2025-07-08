@@ -23,31 +23,53 @@ namespace UnitTests
 		private Mock<UserManager<IdentityUser>> _mockUserManager;
 
 		[SetUp]
-		public void Setup()
+	public void Setup()
+	{
+		var mockUserStore = new Mock<IUserStore<IdentityUser>>();
+		_mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null, null, null, null, null, null, null, null);
+
+		_mockUserManager.Setup(x => x.IsInRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
+			.ReturnsAsync((IdentityUser user, string role) => role == "Operator" || role == "Admin");
+
+		// Check if running in CI/CD environment
+		bool useInMemoryDatabase = Environment.GetEnvironmentVariable("USE_IN_MEMORY_DATABASE") == "true";
+
+		if (useInMemoryDatabase)
 		{
-			var mockUserStore = new Mock<IUserStore<IdentityUser>>();
-			_mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null, null, null, null, null, null, null, null);
+        // Use in-memory database for CI/CD
+        var options = new DbContextOptionsBuilder<TeamWorkFlowDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
 
-			_mockUserManager.Setup(x => x.IsInRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
-				.ReturnsAsync((IdentityUser user, string role) => role == "Operator" || role == "Admin");
+        _dbContext = new TeamWorkFlowDbContext(options);
+    }
+    else
+    {
+        // Use real SQL Server for local development
+        var configuration = new ConfigurationBuilder()
+            .AddUserSecrets<MachineServiceUnitTests>()
+            .Build();
 
-			var configuration = new ConfigurationBuilder()
-				.AddUserSecrets<MachineServiceUnitTests>()
-				.Build();
+        var connectionString = configuration.GetConnectionString("Test");
 
-			var connectionString = configuration.GetConnectionString("Test");
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException("Test connection string is not configured. Please set up user secrets with 'Test' connection string.");
+        }
 
-			var options = new DbContextOptionsBuilder<TeamWorkFlowDbContext>()
-				.UseSqlServer(connectionString)
-				.Options;
+        var options = new DbContextOptionsBuilder<TeamWorkFlowDbContext>()
+            .UseSqlServer(connectionString)
+            .Options;
 
-			_dbContext = new TeamWorkFlowDbContext(options);
-			_repository = new Repository(_dbContext);
-			_machineService = new MachineService(_repository);
+        _dbContext = new TeamWorkFlowDbContext(options);
+    }
 
-			_dbContext.Database.EnsureDeleted();
-			_dbContext.Database.EnsureCreated();
-		}
+    _repository = new Repository(_dbContext);
+    _machineService = new MachineService(_repository);
+
+    _dbContext.Database.EnsureDeleted();
+    _dbContext.Database.EnsureCreated();
+}
 
 		[Test]
 		public async Task GetAllMachinesAsync_ShouldReturnAllMachines()
