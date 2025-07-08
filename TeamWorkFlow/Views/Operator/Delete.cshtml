@@ -3,33 +3,141 @@
 	ViewBag.Title = "Delete Operator";
 }
 
-<h2 class="text-center">@ViewBag.Title</h2>
-<hr />
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/delete.css" />
+}
 
-<div class="row justify-content-center">
-	<div class="col-md-6">
-		<div class="card">
-			<div class="card-body">
-				<h3 class="card-title text-center">@Model.FullName</h3>
-				<p class="mb-0"><strong>Phone No.:</strong> @Model.PhoneNumber</p>
-				<p class="mb-0"><strong>Email Address:</strong> @Model.Email</p>
-				<p class="mb-0"><strong>Active status</strong> @Model.IsActive</p>
-			</div>
-			<div class="card-footer">
-				@if (!Model.IsActive)
-				{
-					<p class="text-danger mt-3">"Are you sure you want to delete @Model.FullName?"</p>
-					<form asp-action="DeleteConfirmation" method="post">
-						<input type="hidden" asp-for="Id"/>
-						<button type="submit" class="btn btn-danger">Confirm Delete</button>
-						<a asp-action="All" class="btn btn-secondary">Cancel</a>
-					</form>
-				}
-				else
-				{
-					<p class="text-danger mt-3">"You can not remove active Operator"</p>
-				}				
-			</div>
-		</div>
-	</div>
+<div class="delete-container fade-in-delete">
+    <!-- Header Section -->
+    <div class="delete-header">
+        <h1 class="delete-title">Delete Operator</h1>
+        <p class="delete-subtitle">Permanently remove operator from system</p>
+    </div>
+
+    <!-- Main Content Card -->
+    <div class="delete-card slide-in-delete">
+        @if (!Model.IsActive)
+        {
+            <!-- Warning Banner -->
+            <div class="delete-warning-banner">
+                <div class="delete-warning-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+                <p class="delete-warning-text">Warning: This action cannot be undone</p>
+                <p class="delete-warning-subtext">All data associated with this operator will be permanently deleted</p>
+            </div>
+
+            <!-- Content Section -->
+            <div class="delete-content">
+                <div class="delete-item-preview">
+                    <h2 class="delete-item-title">@Model.FullName</h2>
+
+                    <div class="delete-item-details">
+                        <div class="delete-detail-row">
+                            <span class="delete-detail-label">Full Name:</span>
+                            <span class="delete-detail-value">@Model.FullName</span>
+                        </div>
+                        <div class="delete-detail-row">
+                            <span class="delete-detail-label">Phone Number:</span>
+                            <span class="delete-detail-value">@Model.PhoneNumber</span>
+                        </div>
+                        <div class="delete-detail-row">
+                            <span class="delete-detail-label">Email Address:</span>
+                            <span class="delete-detail-value">@Model.Email</span>
+                        </div>
+                        <div class="delete-detail-row">
+                            <span class="delete-detail-label">Active Status:</span>
+                            <span class="delete-detail-value">@(Model.IsActive ? "Active" : "Inactive")</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirmation Message -->
+                <div class="delete-confirmation-message">
+                    <p class="delete-confirmation-text">Are you sure you want to delete "@Model.FullName"?</p>
+                    <p class="delete-confirmation-subtext">This operator and all their associated data will be permanently removed from the system.</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="delete-actions">
+                <form asp-action="DeleteConfirmation" method="post" style="display: inline;">
+                    <input type="hidden" asp-for="Id" />
+                    <button type="submit" class="delete-btn delete-btn-confirm" onclick="return confirmDelete(this)">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Confirm Delete
+                    </button>
+                </form>
+                <a asp-action="All" class="delete-btn delete-btn-cancel">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    Cancel
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- Error Banner for Active Operator -->
+            <div class="delete-warning-banner" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b;">
+                <div class="delete-warning-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <p class="delete-warning-text" style="color: #92400e;">Cannot Delete Active Operator</p>
+                <p class="delete-warning-subtext" style="color: #78350f;">Active operators cannot be deleted from the system</p>
+            </div>
+
+            <!-- Content Section -->
+            <div class="delete-content">
+                <div class="delete-item-preview">
+                    <h2 class="delete-item-title">@Model.FullName</h2>
+
+                    <div class="delete-item-details">
+                        <div class="delete-detail-row">
+                            <span class="delete-detail-label">Full Name:</span>
+                            <span class="delete-detail-value">@Model.FullName</span>
+                        </div>
+                        <div class="delete-detail-row">
+                            <span class="delete-detail-label">Phone Number:</span>
+                            <span class="delete-detail-value">@Model.PhoneNumber</span>
+                        </div>
+                        <div class="delete-detail-row">
+                            <span class="delete-detail-label">Email Address:</span>
+                            <span class="delete-detail-value">@Model.Email</span>
+                        </div>
+                        <div class="delete-detail-row">
+                            <span class="delete-detail-label">Active Status:</span>
+                            <span class="delete-detail-value" style="color: #10b981; font-weight: 600;">Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div class="delete-confirmation-message" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b;">
+                    <p class="delete-confirmation-text" style="color: #92400e;">You cannot remove an active operator</p>
+                    <p class="delete-confirmation-subtext" style="color: #78350f;">Please deactivate the operator first before attempting to delete them.</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="delete-actions">
+                <a asp-action="All" class="delete-btn delete-btn-cancel">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path>
+                    </svg>
+                    Back to List
+                </a>
+            </div>
+        }
+    </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/pages/delete.js"></script>
+}
