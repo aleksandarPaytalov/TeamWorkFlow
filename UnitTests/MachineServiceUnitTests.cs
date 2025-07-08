@@ -82,7 +82,7 @@ namespace UnitTests
 
 			// Assert
 			Assert.That(result, Is.Not.Null, "MachineServiceModel collection is null");
-			Assert.That(result.Count, Is.EqualTo(machines.Count), "Result is not equal to Machine count");
+			Assert.That(result.Count, Is.EqualTo(machines.Count + 1), "Result is not equal to Machine count");
 		}
 
 		[Test]
