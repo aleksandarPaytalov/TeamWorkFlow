@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Operator;
 using TeamWorkFlow.Core.Services;
 using TeamWorkFlow.Infrastructure.Common;
@@ -350,6 +351,689 @@ public void Setup()
 			// Assert
 			Assert.That(result, Is.Not.Null, "Result is null");
 		}
+
+		// ============================================================================
+		// ADDITIONAL TESTS FOR 90%+ COVERAGE
+		// ============================================================================
+
+		#region AllAsync Method Tests (Query and Search Functionality)
+
+		[Test]
+		public async Task AllAsync_WithNoParameters_ReturnsAllActiveOperators()
+		{
+			// Arrange
+			var expectedOperatorCount = await _repository.AllReadOnly<Operator>()
+				.Where(o => o.IsActive)
+				.CountAsync();
+
+			// Act
+			var result = await _operatorService.AllAsync();
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.TotalOperatorsCount, Is.EqualTo(expectedOperatorCount));
+			Assert.That(result.Operators, Is.Not.Null);
+			Assert.That(result.Operators.Count(), Is.LessThanOrEqualTo(10)); // Default page size
+		}
+
+		[Test]
+		public async Task AllAsync_WithSearchParameter_ReturnsFilteredOperators()
+		{
+			// Arrange
+			string searchTerm = "Aleksandar"; // Search for operators containing "Aleksandar"
+
+			// Act
+			var result = await _operatorService.AllAsync(search: searchTerm);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Operators, Is.Not.Null);
+			// Verify that returned operators contain the search term
+			foreach (var operatorModel in result.Operators)
+			{
+				bool containsSearchTerm = operatorModel.FullName.ToLower().Contains(searchTerm.ToLower()) ||
+										 operatorModel.Email.ToLower().Contains(searchTerm.ToLower()) ||
+										 operatorModel.PhoneNumber.ToLower().Contains(searchTerm.ToLower());
+				Assert.That(containsSearchTerm, Is.True, $"Operator {operatorModel.FullName} should contain search term {searchTerm}");
+			}
+		}
+
+		[Test]
+		public async Task AllAsync_WithEmptySearch_ReturnsAllActiveOperators()
+		{
+			// Arrange
+			var expectedOperatorCount = await _repository.AllReadOnly<Operator>()
+				.Where(o => o.IsActive)
+				.CountAsync();
+
+			// Act
+			var result = await _operatorService.AllAsync(search: "");
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.TotalOperatorsCount, Is.EqualTo(expectedOperatorCount));
+		}
+
+		[Test]
+		public async Task AllAsync_WithNonExistentSearch_ReturnsEmptyResult()
+		{
+			// Arrange
+			string nonExistentSearch = "NonExistentOperatorName12345";
+
+			// Act
+			var result = await _operatorService.AllAsync(search: nonExistentSearch);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Operators.Count(), Is.EqualTo(0));
+			Assert.That(result.TotalOperatorsCount, Is.EqualTo(0));
+		}
+
+		[Test]
+		public async Task AllAsync_WithSortingByNameAscending_ReturnsSortedOperators()
+		{
+			// Arrange & Act
+			var result = await _operatorService.AllAsync(sorting: OperatorSorting.NameAscending);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Operators, Is.Not.Null);
+			if (result.Operators.Count() > 1)
+			{
+				var operatorNames = result.Operators.Select(o => o.FullName).ToList();
+				var sortedNames = operatorNames.OrderBy(n => n).ToList();
+				Assert.That(operatorNames, Is.EqualTo(sortedNames), "Operators should be sorted by name ascending");
+			}
+		}
+
+		[Test]
+		public async Task AllAsync_WithSortingByNameDescending_ReturnsSortedOperators()
+		{
+			// Arrange & Act
+			var result = await _operatorService.AllAsync(sorting: OperatorSorting.NameDescending);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Operators, Is.Not.Null);
+			if (result.Operators.Count() > 1)
+			{
+				var operatorNames = result.Operators.Select(o => o.FullName).ToList();
+				var sortedNames = operatorNames.OrderByDescending(n => n).ToList();
+				Assert.That(operatorNames, Is.EqualTo(sortedNames), "Operators should be sorted by name descending");
+			}
+		}
+
+		[Test]
+		public async Task AllAsync_WithSortingByEmailAscending_ReturnsSortedOperators()
+		{
+			// Arrange & Act
+			var result = await _operatorService.AllAsync(sorting: OperatorSorting.EmailAscending);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Operators, Is.Not.Null);
+			if (result.Operators.Count() > 1)
+			{
+				var operatorEmails = result.Operators.Select(o => o.Email).ToList();
+				var sortedEmails = operatorEmails.OrderBy(e => e).ToList();
+				Assert.That(operatorEmails, Is.EqualTo(sortedEmails), "Operators should be sorted by email ascending");
+			}
+		}
+
+		[Test]
+		public async Task AllAsync_WithSortingByCapacityDescending_ReturnsSortedOperators()
+		{
+			// Arrange & Act
+			var result = await _operatorService.AllAsync(sorting: OperatorSorting.CapacityDescending);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Operators, Is.Not.Null);
+			if (result.Operators.Count() > 1)
+			{
+				var operatorCapacities = result.Operators.Select(o => o.Capacity).ToList();
+				var sortedCapacities = operatorCapacities.OrderByDescending(c => c).ToList();
+				Assert.That(operatorCapacities, Is.EqualTo(sortedCapacities), "Operators should be sorted by capacity descending");
+			}
+		}
+
+		[Test]
+		public async Task AllAsync_WithCustomPagination_ReturnsCorrectPage()
+		{
+			// Arrange
+			int operatorsPerPage = 2;
+			int currentPage = 1;
+
+			// Act
+			var result = await _operatorService.AllAsync(operatorsPerPage: operatorsPerPage, currentPage: currentPage);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Operators, Is.Not.Null);
+			Assert.That(result.Operators.Count(), Is.LessThanOrEqualTo(operatorsPerPage));
+		}
+
+		#endregion
+
+		#region Error Handling and Edge Cases
+
+		[Test]
+		public async Task OperatorStatusExistAsync_WithInvalidId_ReturnsFalse()
+		{
+			// Arrange
+			int invalidStatusId = 99999;
+
+			// Act
+			var result = await _operatorService.OperatorStatusExistAsync(invalidStatusId);
+
+			// Assert
+			Assert.That(result, Is.False);
+		}
+
+		[Test]
+		public async Task OperatorExistByIdAsync_WithInvalidId_ReturnsFalse()
+		{
+			// Arrange
+			int invalidOperatorId = 99999;
+
+			// Act
+			var result = await _operatorService.OperatorExistByIdAsync(invalidOperatorId);
+
+			// Assert
+			Assert.That(result, Is.False);
+		}
+
+		[Test]
+		public async Task GetOperatorDetailsByIdAsync_WithInvalidId_ReturnsNull()
+		{
+			// Arrange
+			int invalidOperatorId = 99999;
+
+			// Act
+			var result = await _operatorService.GetOperatorDetailsByIdAsync(invalidOperatorId);
+
+			// Assert
+			Assert.That(result, Is.Null);
+		}
+
+		[Test]
+		public async Task GetOperatorForEditAsync_WithInvalidId_ReturnsNull()
+		{
+			// Arrange
+			int invalidOperatorId = 99999;
+
+			// Act
+			var result = await _operatorService.GetOperatorForEditAsync(invalidOperatorId);
+
+			// Assert
+			Assert.That(result, Is.Null);
+		}
+
+		[Test]
+		public async Task GetOperatorModelForDeleteByIdAsync_WithInvalidId_ReturnsNull()
+		{
+			// Arrange
+			int invalidOperatorId = 99999;
+
+			// Act
+			var result = await _operatorService.GetOperatorModelForDeleteByIdAsync(invalidOperatorId);
+
+			// Assert
+			Assert.That(result, Is.Null);
+		}
+
+		[Test]
+		public async Task DeleteOperatorByIdAsync_WithInvalidId_DoesNotThrowException()
+		{
+			// Arrange
+			int invalidOperatorId = 99999;
+
+			// Act & Assert
+			Assert.DoesNotThrowAsync(async () => await _operatorService.DeleteOperatorByIdAsync(invalidOperatorId));
+		}
+
+		[Test]
+		public async Task GetAllCompletedTasksAssignedToOperatorByIdAsync_WithInvalidId_ReturnsZero()
+		{
+			// Arrange
+			int invalidOperatorId = 99999;
+
+			// Act
+			var result = await _operatorService.GetAllCompletedTasksAssignedToOperatorByIdAsync(invalidOperatorId);
+
+			// Assert
+			Assert.That(result, Is.EqualTo(0));
+		}
+
+		[Test]
+		public async Task GetAllActiveAssignedTaskToOperatorByIdAsync_WithInvalidId_ReturnsZero()
+		{
+			// Arrange
+			int invalidOperatorId = 99999;
+
+			// Act
+			var result = await _operatorService.GetAllActiveAssignedTaskToOperatorByIdAsync(invalidOperatorId);
+
+			// Assert
+			Assert.That(result, Is.EqualTo(0));
+		}
+
+		[Test]
+		public async Task AddNewOperatorAsync_WithInvalidIsActiveValue_ThrowsArgumentException()
+		{
+			// Arrange
+			var userId = "581bb1e2-1024-41fd-aba0-79bcce53551d";
+			_dbContext.Users.Add(new IdentityUser { Id = userId });
+			await _dbContext.SaveChangesAsync();
+
+			var model = new OperatorFormModel()
+			{
+				FullName = "Test Operator",
+				AvailabilityStatusId = 1,
+				Capacity = 8,
+				Email = "test@gmail.com",
+				PhoneNumber = "0888888000",
+				IsActive = "invalid_boolean_value", // Invalid boolean value
+				UserId = userId
+			};
+
+			// Act & Assert
+			var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+				await _operatorService.AddNewOperatorAsync(model, userId));
+			Assert.That(ex.Message, Contains.Substring("Incorrect input. It must be true or false."));
+		}
+
+		[Test]
+		public async Task EditOperatorAsync_WithInvalidIsActiveValue_ThrowsArgumentException()
+		{
+			// Arrange
+			var operatorModel = await _repository.AllReadOnly<Operator>().FirstOrDefaultAsync();
+			Assert.That(operatorModel, Is.Not.Null);
+
+			var model = new OperatorFormModel()
+			{
+				FullName = "Updated Operator",
+				AvailabilityStatusId = 1,
+				Capacity = 8,
+				Email = "updated@gmail.com",
+				PhoneNumber = "0888888000",
+				IsActive = "invalid_boolean_value" // Invalid boolean value
+			};
+
+			// Act & Assert
+			var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+				await _operatorService.EditOperatorAsync(model, operatorModel.Id));
+			Assert.That(ex.Message, Contains.Substring("Incorrect input. It must be true or false."));
+		}
+
+		[Test]
+		public async Task EditOperatorAsync_WithInvalidOperatorId_DoesNotThrowException()
+		{
+			// Arrange
+			int invalidOperatorId = 99999;
+			var model = new OperatorFormModel()
+			{
+				FullName = "Test Operator",
+				AvailabilityStatusId = 1,
+				Capacity = 8,
+				Email = "test@gmail.com",
+				PhoneNumber = "0888888000",
+				IsActive = "true"
+			};
+
+			// Act & Assert
+			Assert.DoesNotThrowAsync(async () =>
+				await _operatorService.EditOperatorAsync(model, invalidOperatorId));
+		}
+
+		#endregion
+
+		#region Additional Method Coverage Tests
+
+		[Test]
+		public async Task AllAsync_WithAllSortingOptions_ExecutesSuccessfully()
+		{
+			// Test all sorting enum values to ensure complete coverage
+			var sortingOptions = Enum.GetValues<OperatorSorting>();
+
+			foreach (var sorting in sortingOptions)
+			{
+				// Act
+				var result = await _operatorService.AllAsync(sorting: sorting);
+
+				// Assert
+				Assert.That(result, Is.Not.Null, $"Result should not be null for sorting: {sorting}");
+				Assert.That(result.Operators, Is.Not.Null, $"Operators should not be null for sorting: {sorting}");
+			}
+		}
+
+		[Test]
+		public async Task AllAsync_WithNullSearch_HandlesGracefully()
+		{
+			// Arrange & Act
+			var result = await _operatorService.AllAsync(search: null);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Operators, Is.Not.Null);
+		}
+
+		[Test]
+		public async Task AllAsync_WithWhitespaceSearch_HandlesGracefully()
+		{
+			// Arrange & Act
+			var result = await _operatorService.AllAsync(search: "   ");
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Operators, Is.Not.Null);
+		}
+
+		[Test]
+		public async Task GetAllActiveOperatorsAsync_WithPagination_ReturnsCorrectPage()
+		{
+			// Arrange
+			int page = 1;
+			int pageSize = 2;
+			var totalActiveOperators = await _repository.AllReadOnly<Operator>()
+				.Where(o => o.IsActive)
+				.CountAsync();
+
+			// Act
+			var result = await _operatorService.GetAllActiveOperatorsAsync(page, pageSize);
+
+			// Assert
+			Assert.That(result.Operators, Is.Not.Null);
+			Assert.That(result.TotalCount, Is.EqualTo(totalActiveOperators));
+			Assert.That(result.Operators.Count(), Is.LessThanOrEqualTo(pageSize));
+		}
+
+		[Test]
+		public async Task GetAllActiveOperatorsAsync_WithSecondPage_ReturnsCorrectOperators()
+		{
+			// Arrange
+			int page = 2;
+			int pageSize = 1;
+			var totalActiveOperators = await _repository.AllReadOnly<Operator>()
+				.Where(o => o.IsActive)
+				.CountAsync();
+
+			// Act
+			var result = await _operatorService.GetAllActiveOperatorsAsync(page, pageSize);
+
+			// Assert
+			Assert.That(result.Operators, Is.Not.Null);
+			Assert.That(result.TotalCount, Is.EqualTo(totalActiveOperators));
+			if (totalActiveOperators > 1)
+			{
+				Assert.That(result.Operators.Count(), Is.LessThanOrEqualTo(1));
+			}
+		}
+
+		[Test]
+		public async Task ActivateOperatorAsync_WithInactiveOperator_ActivatesOperator()
+		{
+			// Arrange - First create an inactive operator
+			var userId = "test-inactive-user-id";
+			_dbContext.Users.Add(new IdentityUser { Id = userId });
+			await _dbContext.SaveChangesAsync();
+
+			var inactiveOperator = new Operator()
+			{
+				FullName = "Inactive Test Operator",
+				Email = "inactive@test.com",
+				PhoneNumber = "0888888999",
+				AvailabilityStatusId = 1,
+				Capacity = 8,
+				IsActive = false,
+				UserId = userId
+			};
+
+			await _repository.AddAsync(inactiveOperator);
+			await _repository.SaveChangesAsync();
+
+			// Act
+			await _operatorService.ActivateOperatorAsync(inactiveOperator.Id);
+
+			// Assert
+			var activatedOperator = await _repository.GetByIdAsync<Operator>(inactiveOperator.Id);
+			Assert.That(activatedOperator, Is.Not.Null);
+			Assert.That(activatedOperator.IsActive, Is.True);
+		}
+
+		[Test]
+		public async Task ActivateOperatorAsync_WithAlreadyActiveOperator_DoesNotChangeStatus()
+		{
+			// Arrange
+			var activeOperator = await _repository.AllReadOnly<Operator>()
+				.Where(o => o.IsActive)
+				.FirstOrDefaultAsync();
+			Assert.That(activeOperator, Is.Not.Null);
+
+			// Act
+			await _operatorService.ActivateOperatorAsync(activeOperator.Id);
+
+			// Assert
+			var operatorAfterActivation = await _repository.GetByIdAsync<Operator>(activeOperator.Id);
+			Assert.That(operatorAfterActivation, Is.Not.Null);
+			Assert.That(operatorAfterActivation.IsActive, Is.True);
+		}
+
+		[Test]
+		public async Task ActivateOperatorAsync_WithInvalidId_DoesNotThrowException()
+		{
+			// Arrange
+			int invalidOperatorId = 99999;
+
+			// Act & Assert
+			Assert.DoesNotThrowAsync(async () =>
+				await _operatorService.ActivateOperatorAsync(invalidOperatorId));
+		}
+
+		[Test]
+		public async Task GetUserIdByEmailAsync_WithNonExistentEmail_ReturnsNull()
+		{
+			// Arrange
+			_mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+				.ReturnsAsync((IdentityUser)null);
+
+			// Act
+			var result = await _operatorService.GetUserIdByEmailAsync("nonexistent@test.com");
+
+			// Assert
+			Assert.That(result, Is.Null);
+		}
+
+		[Test]
+		public async Task GetOperatorFullNameByUserIdAsync_WithValidUserId_ReturnsFullName()
+		{
+			// Arrange
+			var operatorModel = await _repository.AllReadOnly<Operator>().FirstOrDefaultAsync();
+			Assert.That(operatorModel, Is.Not.Null);
+
+			// Act
+			var result = await _operatorService.GetOperatorFullNameByUserIdAsync(operatorModel.UserId);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result, Is.EqualTo(operatorModel.FullName));
+		}
+
+		[Test]
+		public async Task GetOperatorFullNameByUserIdAsync_WithInvalidUserId_ReturnsNull()
+		{
+			// Arrange
+			string invalidUserId = "invalid-user-id-12345";
+
+			// Act
+			var result = await _operatorService.GetOperatorFullNameByUserIdAsync(invalidUserId);
+
+			// Assert
+			Assert.That(result, Is.Null);
+		}
+
+		#endregion
+
+		#region Model Coverage Tests
+
+		[Test]
+		public void AllOperatorsQueryModel_DefaultValues_AreSetCorrectly()
+		{
+			// Arrange & Act
+			var model = new AllOperatorsQueryModel();
+
+			// Assert
+			Assert.That(model.OperatorsPerPage, Is.EqualTo(10));
+			Assert.That(model.CurrentPage, Is.EqualTo(1));
+			Assert.That(model.Sorting, Is.EqualTo(OperatorSorting.LastAdded));
+			Assert.That(model.Operators, Is.Not.Null);
+			Assert.That(model.Operators.Count(), Is.EqualTo(0));
+		}
+
+		[Test]
+		public void AllOperatorsQueryModel_Properties_CanBeSetAndRetrieved()
+		{
+			// Arrange
+			var operators = new List<OperatorServiceModel>
+			{
+				new OperatorServiceModel { Id = 1, FullName = "Test Operator 1" },
+				new OperatorServiceModel { Id = 2, FullName = "Test Operator 2" }
+			};
+
+			// Act
+			var model = new AllOperatorsQueryModel
+			{
+				Search = "test search",
+				Sorting = OperatorSorting.NameAscending,
+				CurrentPage = 2,
+				TotalOperatorsCount = 50,
+				Operators = operators
+			};
+
+			// Assert
+			Assert.That(model.Search, Is.EqualTo("test search"));
+			Assert.That(model.Sorting, Is.EqualTo(OperatorSorting.NameAscending));
+			Assert.That(model.CurrentPage, Is.EqualTo(2));
+			Assert.That(model.TotalOperatorsCount, Is.EqualTo(50));
+			Assert.That(model.Operators.Count(), Is.EqualTo(2));
+			Assert.That(model.Operators.First().FullName, Is.EqualTo("Test Operator 1"));
+		}
+
+		[Test]
+		public void PaginatedOperatorsViewModel_DefaultValues_AreSetCorrectly()
+		{
+			// Arrange & Act
+			var model = new PaginatedOperatorsViewModel();
+
+			// Assert
+			Assert.That(model.Operators, Is.Not.Null);
+			Assert.That(model.Operators.Count(), Is.EqualTo(0));
+		}
+
+		[Test]
+		public void PaginatedOperatorsViewModel_Properties_CanBeSetAndRetrieved()
+		{
+			// Arrange
+			var operators = new List<OperatorServiceModel>
+			{
+				new OperatorServiceModel { Id = 1, FullName = "Operator 1" },
+				new OperatorServiceModel { Id = 2, FullName = "Operator 2" }
+			};
+			var pager = new TeamWorkFlow.Core.Models.Pager.PagerServiceModel(20, 2, 5);
+
+			// Act
+			var model = new PaginatedOperatorsViewModel
+			{
+				Operators = operators,
+				Pager = pager
+			};
+
+			// Assert
+			Assert.That(model.Operators.Count(), Is.EqualTo(2));
+			Assert.That(model.Pager, Is.Not.Null);
+			Assert.That(model.Pager.TotalProjects, Is.EqualTo(20));
+			Assert.That(model.Pager.CurrentPage, Is.EqualTo(2));
+		}
+
+		[Test]
+		public void OperatorServiceModel_AllProperties_CanBeSetAndRetrieved()
+		{
+			// Arrange & Act
+			var model = new OperatorServiceModel
+			{
+				Id = 123,
+				FullName = "Test Operator Name",
+				AvailabilityStatus = "at work",
+				Email = "test@operator.com",
+				PhoneNumber = "0888123456",
+				IsActive = true,
+				Capacity = 8
+			};
+
+			// Assert
+			Assert.That(model.Id, Is.EqualTo(123));
+			Assert.That(model.FullName, Is.EqualTo("Test Operator Name"));
+			Assert.That(model.AvailabilityStatus, Is.EqualTo("at work"));
+			Assert.That(model.Email, Is.EqualTo("test@operator.com"));
+			Assert.That(model.PhoneNumber, Is.EqualTo("0888123456"));
+			Assert.That(model.IsActive, Is.True);
+			Assert.That(model.Capacity, Is.EqualTo(8));
+		}
+
+		[Test]
+		public void OperatorServiceModel_DefaultValues_AreSetCorrectly()
+		{
+			// Arrange & Act
+			var model = new OperatorServiceModel();
+
+			// Assert
+			Assert.That(model.Id, Is.EqualTo(0));
+			Assert.That(model.FullName, Is.EqualTo(string.Empty));
+			Assert.That(model.AvailabilityStatus, Is.EqualTo(string.Empty));
+			// Email is declared as = null! so it will be null by default
+			Assert.That(model.PhoneNumber, Is.EqualTo(string.Empty));
+			Assert.That(model.IsActive, Is.False);
+			Assert.That(model.Capacity, Is.EqualTo(0));
+		}
+
+		[Test]
+		public void OperatorQueryServiceModel_DefaultValues_AreSetCorrectly()
+		{
+			// Arrange & Act
+			var model = new OperatorQueryServiceModel();
+
+			// Assert
+			Assert.That(model.Operators, Is.Not.Null);
+			Assert.That(model.Operators.Count(), Is.EqualTo(0));
+			Assert.That(model.TotalOperatorsCount, Is.EqualTo(0));
+		}
+
+		[Test]
+		public void OperatorQueryServiceModel_Properties_CanBeSetAndRetrieved()
+		{
+			// Arrange
+			var operators = new List<OperatorServiceModel>
+			{
+				new OperatorServiceModel { Id = 1, FullName = "Query Operator 1" },
+				new OperatorServiceModel { Id = 2, FullName = "Query Operator 2" },
+				new OperatorServiceModel { Id = 3, FullName = "Query Operator 3" }
+			};
+
+			// Act
+			var model = new OperatorQueryServiceModel
+			{
+				TotalOperatorsCount = 100,
+				Operators = operators
+			};
+
+			// Assert
+			Assert.That(model.TotalOperatorsCount, Is.EqualTo(100));
+			Assert.That(model.Operators.Count(), Is.EqualTo(3));
+			Assert.That(model.Operators.First().FullName, Is.EqualTo("Query Operator 1"));
+			Assert.That(model.Operators.Last().FullName, Is.EqualTo("Query Operator 3"));
+		}
+
+		#endregion
 
 		[TearDown]
 		public void TearDown()
