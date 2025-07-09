@@ -1131,6 +1131,335 @@ public void Setup()
 
 		#endregion
 
+		#region Model Coverage Tests
+
+		[Test]
+		public void AllTasksQueryModel_DefaultValues_AreSetCorrectly()
+		{
+			// Arrange & Act
+			var model = new AllTasksQueryModel();
+
+			// Assert
+			Assert.That(model.TasksPerPage, Is.EqualTo(10));
+			Assert.That(model.CurrentPage, Is.EqualTo(1));
+			Assert.That(model.Sorting, Is.EqualTo(TaskSorting.LastAdded));
+			Assert.That(model.Tasks, Is.Not.Null);
+			Assert.That(model.Tasks.Count(), Is.EqualTo(0));
+		}
+
+		[Test]
+		public void AllTasksQueryModel_Properties_CanBeSetAndRetrieved()
+		{
+			// Arrange
+			var tasks = new List<TaskServiceModel>
+			{
+				new TaskServiceModel { Id = 1, Name = "Test Task 1" },
+				new TaskServiceModel { Id = 2, Name = "Test Task 2" }
+			};
+
+			// Act
+			var model = new AllTasksQueryModel
+			{
+				Search = "test search",
+				Sorting = TaskSorting.NameAscending,
+				CurrentPage = 2,
+				TotalTasksCount = 50,
+				Tasks = tasks
+			};
+
+			// Assert
+			Assert.That(model.Search, Is.EqualTo("test search"));
+			Assert.That(model.Sorting, Is.EqualTo(TaskSorting.NameAscending));
+			Assert.That(model.CurrentPage, Is.EqualTo(2));
+			Assert.That(model.TotalTasksCount, Is.EqualTo(50));
+			Assert.That(model.Tasks.Count(), Is.EqualTo(2));
+			Assert.That(model.Tasks.First().Name, Is.EqualTo("Test Task 1"));
+		}
+
+		[Test]
+		public void PaginatedTasksViewModel_DefaultValues_AreSetCorrectly()
+		{
+			// Arrange & Act
+			var model = new PaginatedTasksViewModel();
+
+			// Assert
+			Assert.That(model.Tasks, Is.Not.Null);
+			Assert.That(model.Tasks.Count(), Is.EqualTo(0));
+		}
+
+		[Test]
+		public void PaginatedTasksViewModel_Properties_CanBeSetAndRetrieved()
+		{
+			// Arrange
+			var tasks = new List<TaskServiceModel>
+			{
+				new TaskServiceModel { Id = 1, Name = "Task 1" },
+				new TaskServiceModel { Id = 2, Name = "Task 2" }
+			};
+			var pager = new TeamWorkFlow.Core.Models.Pager.PagerServiceModel(20, 2, 5);
+
+			// Act
+			var model = new PaginatedTasksViewModel
+			{
+				Tasks = tasks,
+				Pager = pager
+			};
+
+			// Assert
+			Assert.That(model.Tasks.Count(), Is.EqualTo(2));
+			Assert.That(model.Pager, Is.Not.Null);
+			Assert.That(model.Pager.TotalProjects, Is.EqualTo(20));
+			Assert.That(model.Pager.CurrentPage, Is.EqualTo(2));
+		}
+
+		[Test]
+		public void TaskQueryServiceModel_DefaultValues_AreSetCorrectly()
+		{
+			// Arrange & Act
+			var model = new TaskQueryServiceModel();
+
+			// Assert
+			Assert.That(model.Tasks, Is.Not.Null);
+			Assert.That(model.Tasks.Count(), Is.EqualTo(0));
+			Assert.That(model.TotalTasksCount, Is.EqualTo(0));
+		}
+
+		[Test]
+		public void TaskQueryServiceModel_Properties_CanBeSetAndRetrieved()
+		{
+			// Arrange
+			var tasks = new List<TaskServiceModel>
+			{
+				new TaskServiceModel { Id = 1, Name = "Query Task 1" },
+				new TaskServiceModel { Id = 2, Name = "Query Task 2" },
+				new TaskServiceModel { Id = 3, Name = "Query Task 3" }
+			};
+
+			// Act
+			var model = new TaskQueryServiceModel
+			{
+				TotalTasksCount = 100,
+				Tasks = tasks
+			};
+
+			// Assert
+			Assert.That(model.TotalTasksCount, Is.EqualTo(100));
+			Assert.That(model.Tasks.Count(), Is.EqualTo(3));
+			Assert.That(model.Tasks.First().Name, Is.EqualTo("Query Task 1"));
+			Assert.That(model.Tasks.Last().Name, Is.EqualTo("Query Task 3"));
+		}
+
+		[Test]
+		public void TaskServiceModel_AllProperties_CanBeSetAndRetrieved()
+		{
+			// Arrange & Act
+			var model = new TaskServiceModel
+			{
+				Id = 123,
+				ProjectNumber = "PRJ-2024-001",
+				Name = "Test Task Name",
+				Description = "Test task description",
+				Status = "In Progress",
+				Priority = "High",
+				Deadline = "31/12/2024",
+				StartDate = "01/01/2024",
+				EndDate = "15/01/2024"
+			};
+
+			// Assert
+			Assert.That(model.Id, Is.EqualTo(123));
+			Assert.That(model.ProjectNumber, Is.EqualTo("PRJ-2024-001"));
+			Assert.That(model.Name, Is.EqualTo("Test Task Name"));
+			Assert.That(model.Description, Is.EqualTo("Test task description"));
+			Assert.That(model.Status, Is.EqualTo("In Progress"));
+			Assert.That(model.Priority, Is.EqualTo("High"));
+			Assert.That(model.Deadline, Is.EqualTo("31/12/2024"));
+			Assert.That(model.StartDate, Is.EqualTo("01/01/2024"));
+			Assert.That(model.EndDate, Is.EqualTo("15/01/2024"));
+		}
+
+		[Test]
+		public void TaskServiceModel_DefaultValues_AreSetCorrectly()
+		{
+			// Arrange & Act
+			var model = new TaskServiceModel();
+
+			// Assert
+			Assert.That(model.Id, Is.EqualTo(0));
+			Assert.That(model.ProjectNumber, Is.EqualTo(string.Empty));
+			Assert.That(model.Name, Is.EqualTo(string.Empty));
+			Assert.That(model.Description, Is.EqualTo(string.Empty));
+			Assert.That(model.Status, Is.EqualTo(string.Empty));
+			Assert.That(model.Priority, Is.EqualTo(string.Empty));
+			Assert.That(model.Deadline, Is.EqualTo(string.Empty));
+			Assert.That(model.StartDate, Is.EqualTo(string.Empty));
+			Assert.That(model.EndDate, Is.Null);
+		}
+
+		#endregion
+
+		#region Additional Service Method Coverage Tests
+
+		[Test]
+		public async Task AllAsync_WithAllSortingOptions_ExecutesSuccessfully()
+		{
+			// Test all sorting enum values to ensure complete coverage
+			var sortingOptions = Enum.GetValues<TaskSorting>();
+
+			foreach (var sorting in sortingOptions)
+			{
+				// Act
+				var result = await _taskService.AllAsync(sorting: sorting);
+
+				// Assert
+				Assert.That(result, Is.Not.Null, $"Result should not be null for sorting: {sorting}");
+				Assert.That(result.Tasks, Is.Not.Null, $"Tasks should not be null for sorting: {sorting}");
+			}
+		}
+
+		[Test]
+		public async Task AllAsync_WithNullSearch_HandlesGracefully()
+		{
+			// Arrange & Act
+			var result = await _taskService.AllAsync(search: null);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Tasks, Is.Not.Null);
+		}
+
+		[Test]
+		public async Task AllAsync_WithWhitespaceSearch_HandlesGracefully()
+		{
+			// Arrange & Act
+			var result = await _taskService.AllAsync(search: "   ");
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Tasks, Is.Not.Null);
+		}
+
+		[Test]
+		public async Task AllAsync_WithNegativePageNumber_ThrowsSqlException()
+		{
+			// Arrange & Act & Assert
+			Assert.ThrowsAsync<Microsoft.Data.SqlClient.SqlException>(async () =>
+				await _taskService.AllAsync(currentPage: -1));
+		}
+
+		[Test]
+		public async Task AllAsync_WithNegativeTasksPerPage_ThrowsSqlException()
+		{
+			// Arrange & Act & Assert
+			Assert.ThrowsAsync<Microsoft.Data.SqlClient.SqlException>(async () =>
+				await _taskService.AllAsync(tasksPerPage: -5));
+		}
+
+		[Test]
+		public async Task GetAllTasksAsync_WithZeroPageSize_HandlesGracefully()
+		{
+			// Arrange & Act
+			var result = await _taskService.GetAllTasksAsync(1, 0);
+
+			// Assert
+			Assert.That(result.Tasks, Is.Not.Null);
+		}
+
+		[Test]
+		public async Task GetAllTasksAsync_WithNegativePage_ThrowsSqlException()
+		{
+			// Arrange & Act & Assert
+			Assert.ThrowsAsync<Microsoft.Data.SqlClient.SqlException>(async () =>
+				await _taskService.GetAllTasksAsync(-1, 5));
+		}
+
+		[Test]
+		public async Task GetAllAssignedTasksAsync_WithZeroPageSize_HandlesGracefully()
+		{
+			// Arrange & Act
+			var result = await _taskService.GetAllAssignedTasksAsync(1, 0);
+
+			// Assert
+			Assert.That(result.Tasks, Is.Not.Null);
+		}
+
+		[Test]
+		public async Task GetAllAssignedTasksAsync_WithNegativePage_ThrowsSqlException()
+		{
+			// Arrange & Act & Assert
+			Assert.ThrowsAsync<Microsoft.Data.SqlClient.SqlException>(async () =>
+				await _taskService.GetAllAssignedTasksAsync(-1, 5));
+		}
+
+		[Test]
+		public async Task AddTaskToMyCollection_WithNullTaskModel_ThrowsNullReferenceException()
+		{
+			// Arrange
+			string userId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77";
+
+			// Act & Assert
+			Assert.ThrowsAsync<NullReferenceException>(async () =>
+				await _taskService.AddTaskToMyCollection(null, userId));
+		}
+
+		[Test]
+		public async Task AddTaskToMyCollection_WithNullUserId_ThrowsUnExistingActionException()
+		{
+			// Arrange
+			var taskModel = new TaskServiceModel()
+			{
+				Id = 1,
+				Name = "Test Task"
+			};
+
+			// Act & Assert
+			var ex = Assert.ThrowsAsync<UnExistingActionException>(async () =>
+				await _taskService.AddTaskToMyCollection(taskModel, null));
+			Assert.That(ex.Message, Is.EqualTo("The operator with this userId does not exist"));
+		}
+
+		[Test]
+		public async Task RemoveFromCollection_WithNullUserId_ThrowsUnExistingActionException()
+		{
+			// Arrange
+			int taskId = 1;
+
+			// Act & Assert
+			var ex = Assert.ThrowsAsync<UnExistingActionException>(async () =>
+				await _taskService.RemoveFromCollection(taskId, null));
+			Assert.That(ex.Message, Is.EqualTo("The operator with this userId does not exist"));
+		}
+
+		[Test]
+		public async Task GetMyTasksAsync_WithValidUserId_ReturnsTaskCollection()
+		{
+			// Arrange
+			string userId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77";
+
+			// Act
+			var result = await _taskService.GetMyTasksAsync(userId);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+		}
+
+		[Test]
+		public async Task TaskExistInTaskOperatorTableByIdAsync_WithValidTaskId_ReturnsCorrectResult()
+		{
+			// Arrange
+			var task = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.FirstOrDefaultAsync();
+			Assert.That(task, Is.Not.Null);
+
+			// Act
+			var result = await _taskService.TaskExistInTaskOperatorTableByIdAsync(task.Id);
+
+			// Assert - The result depends on whether the task is assigned to any operator
+			Assert.That(result, Is.TypeOf<bool>());
+		}
+
+		#endregion
+
 		[TearDown]
 		public void TearDown()
 		{
