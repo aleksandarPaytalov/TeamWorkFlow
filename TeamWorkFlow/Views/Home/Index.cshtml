@@ -1,146 +1,377 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "TeamWorkFlow - Streamline Your Team's Productivity";
 }
 
-<link rel="stylesheet" type="text/css" href="styles.css">
+@section Styles {
+    <link rel="stylesheet" href="~/css/landing-page.css" asp-append-version="true" />
+}
 
-<div class="text-center">
-    <h1 class="index-page-greeting">TeAm WoRk FlOw</h1>
-    <h2 class="index-page-greeting-p">Your Tasks Management app</h2>
-
-    <img src="~/img/task.png" style="width: 100vh" />
-</div>
-
-<div class="mb-5"></div>
-
-<div class="row">
-    <div class="col-12 text-center">
-        <button class="btn btn-primary" id="summary-button">Show data summary</button>
+<!-- Loading Overlay -->
+<div class="loading-overlay" onclick="this.classList.add('hidden')" title="Click to dismiss">
+    <div class="loading-spinner"></div>
+    <div style="position: absolute; bottom: 2rem; color: white; font-size: 0.9rem; opacity: 0.8;">
+        Click anywhere to continue
     </div>
 </div>
 
-<div class="mt-4 p-5 bg-light d-none summary-container" id="summary">
-    <div class="table-left">
-        <table class="summary-table">
-            <thead>
-                <tr>
-                    <th colspan="2" class="tasks-header">Tasks Overview</th>
-                </tr>
-                <tr>
-                    <th>Total Tasks</th>
-                    <th>Finished Tasks</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td id="total-tasks" style="color: black;"></td>
-                    <td id="total-finishedTasks" style="color: black;"></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-container">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-text">✨ Streamline Your Workflow</span>
+            </div>
 
-    <div class="table-center">
-        <table class="summary-table">
-            <thead>
-                <tr>
-                    <th colspan="2" class="projects-header">Projects Overview</th>
-                </tr>
-                <tr>
-                    <th>Total Projects</th>
-                    <th>Projects in production</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td id="total-projects" style="color: black;"></td>
-                    <td id="total-projectsInProduction" style="color: black;"></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+            <h1 class="hero-title">
+                Transform Your Team's
+                <span class="hero-title-gradient">Productivity</span>
+            </h1>
 
-    <div class="table-right">
-        <table class="summary-table">
-            <thead>
-                <tr>
-                    <th colspan="2" class="parts-header">Parts Overview</th>
-                </tr>
-                <tr>
-                    <th>Total Parts</th>
-                    <th>Released Parts</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td id="total-parts" style="color: black;"></td>
-                    <td id="total-totalPartsWithStatusApproved" style="color: black;"></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+            <p class="hero-description">
+                TeamWorkFlow is the comprehensive solution for managing tasks, projects, and team collaboration.
+                Boost efficiency, track progress, and achieve your goals with our intuitive workflow management platform.
+            </p>
 
-<div class="mt-4 p-5 bg-light d-none summary-container" id="summary-bottom">
-    <div class="table-bottom-left">
-        <table class="summary-table">
-            <thead>
-                <tr>
-                    <th colspan="2" class="workers-header">Workers Overview</th>
-                </tr>
-                <tr>
-                    <th>Total Workers</th>
-                    <th>Available Workers</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td id="total-workers" style="color: black;"></td>
-                    <td id="total-totalAvailableWorkers" style="color: black;"></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+            <div class="hero-actions">
+                <a asp-area="Identity" asp-page="/Account/Register" class="btn-primary-hero">
+                    Get Started Free
+                    <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                </a>
+                <a asp-area="Identity" asp-page="/Account/Login" class="btn-secondary-hero">
+                    Sign In
+                </a>
+            </div>
 
-    <div class="table-bottom-right">
-        <table class="summary-table">
-            <thead>
-                <tr>
-                    <th colspan="2" class="machines-header">Machines Overview</th>
-                </tr>
-                <tr>
-                    <th>Total Machines</th>
-                    <th>Available Machines</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td id="total-machines" style="color: black;"></td>
-                    <td id="total-totalAvailableMachines" style="color: black;"></td>
-                </tr>
-            </tbody>
-        </table>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-tasks-hero">0</div>
+                    <div class="stat-label">Tasks Managed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="total-projects-hero">0</div>
+                    <div class="stat-label">Active Projects</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="total-workers-hero">0</div>
+                    <div class="stat-label">Team Members</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="hero-image-container">
+                <img src="~/img/task.png" alt="TeamWorkFlow Dashboard" class="hero-image" />
+                <div class="hero-image-overlay"></div>
+            </div>
+        </div>
     </div>
-</div>
+</section>
+
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="features-container">
+        <div class="features-header">
+            <h2 class="features-title">Everything You Need to Succeed</h2>
+            <p class="features-subtitle">Powerful features designed to streamline your workflow and boost team productivity</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Task Management</h3>
+                <p class="feature-description">Create, assign, and track tasks with deadlines, priorities, and progress monitoring.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Project Tracking</h3>
+                <p class="feature-description">Organize work into projects with clear timelines, milestones, and deliverables.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Team Collaboration</h3>
+                <p class="feature-description">Coordinate team members, assign roles, and track availability and workload.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Analytics & Reports</h3>
+                <p class="feature-description">Get insights into team performance, project progress, and productivity metrics.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Machine Management</h3>
+                <p class="feature-description">Track equipment, schedule maintenance, and monitor machine availability and capacity.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Parts Inventory</h3>
+                <p class="feature-description">Manage parts, track inventory levels, and monitor approval workflows efficiently.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits Section -->
+<section class="benefits-section">
+    <div class="benefits-container">
+        <div class="benefits-content">
+            <h2 class="benefits-title">Why Teams Choose TeamWorkFlow</h2>
+            <p class="benefits-subtitle">Join thousands of teams who have transformed their productivity</p>
+
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon">🚀</div>
+                    <h3 class="benefit-title">Boost Productivity</h3>
+                    <p class="benefit-description">Increase team efficiency by up to 40% with streamlined workflows and clear task management.</p>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="benefit-icon">📊</div>
+                    <h3 class="benefit-title">Real-time Insights</h3>
+                    <p class="benefit-description">Make data-driven decisions with comprehensive analytics and progress tracking.</p>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="benefit-icon">🎯</div>
+                    <h3 class="benefit-title">Meet Deadlines</h3>
+                    <p class="benefit-description">Never miss a deadline with automated reminders and priority-based task management.</p>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="benefit-icon">🤝</div>
+                    <h3 class="benefit-title">Better Collaboration</h3>
+                    <p class="benefit-description">Improve team communication and coordination with integrated collaboration tools.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="benefits-cta">
+            <h3 class="cta-title">Ready to Transform Your Workflow?</h3>
+            <p class="cta-description">Start your free trial today and see the difference TeamWorkFlow can make for your team.</p>
+            <a asp-area="Identity" asp-page="/Account/Register" class="btn-cta">
+                Start Free Trial
+                <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+            </a>
+        </div>
+    </div>
+</section>
 
 @section Scripts {
     <script>
-        $('#summary-button').on('click', ev => {
-            $.get('/api/summary', data => {
-                $('#total-tasks').text(data.totalTasks);
-                $('#total-finishedTasks').text(data.finishedTasks);
-                $('#total-projects').text(data.totalProjects);
-                $('#total-projectsInProduction').text(data.projectsInProduction);
-                $('#total-parts').text(data.totalParts); 
-                $('#total-totalPartsWithStatusApproved').text(data.totalApprovedParts);
-                $('#total-workers').text(data.totalWorkers);
-                $('#total-totalAvailableWorkers').text(data.totalAvailableWorkers);
-                $('#total-machines').text(data.totalMachines);
-                $('#total-totalAvailableMachines').text(data.totalAvailableMachines); 
-                $('#summary').removeClass('d-none');
-                $('#summary-bottom').removeClass('d-none');
-                $('#summary-button').hide();
-            });
+        $(document).ready(function() {
+            // Load hero statistics on page load with animation
+            loadHeroStats();
+
+            // Initialize scroll animations
+            initScrollAnimations();
+
+            // Initialize navbar scroll effects
+            initNavbarEffects();
+
+            // Initialize loading animation
+            initLoadingAnimation();
+
+            // Initialize smooth scrolling
+            initSmoothScrolling();
         });
+
+        function loadHeroStats() {
+            $.get('/api/summary', function(data) {
+                animateCounter('#total-tasks-hero', data.totalTasks || 0);
+                animateCounter('#total-projects-hero', data.totalProjects || 0);
+                animateCounter('#total-workers-hero', data.totalWorkers || 0);
+            }).fail(function() {
+                // Fallback values if API fails
+                animateCounter('#total-tasks-hero', 500);
+                animateCounter('#total-projects-hero', 50);
+                animateCounter('#total-workers-hero', 100);
+            });
+        }
+
+        function animateCounter(selector, targetValue) {
+            var $element = $(selector);
+            var currentValue = 0;
+            var increment = targetValue / 50;
+            var timer = setInterval(function() {
+                currentValue += increment;
+                if (currentValue >= targetValue) {
+                    currentValue = targetValue;
+                    clearInterval(timer);
+                }
+                $element.text(Math.floor(currentValue) + (targetValue > 100 ? '+' : ''));
+            }, 30);
+        }
+
+        function initScrollAnimations() {
+            function animateOnScroll() {
+                $('.feature-card, .benefit-item').each(function() {
+                    var elementTop = $(this).offset().top;
+                    var elementBottom = elementTop + $(this).outerHeight();
+                    var viewportTop = $(window).scrollTop();
+                    var viewportBottom = viewportTop + $(window).height();
+
+                    if (elementBottom > viewportTop && elementTop < viewportBottom) {
+                        $(this).addClass('animate-in');
+                    }
+                });
+            }
+
+            $(window).on('scroll', animateOnScroll);
+            animateOnScroll();
+        }
+
+        function initNavbarEffects() {
+            $(window).on('scroll', function() {
+                var scrollTop = $(window).scrollTop();
+                var navbar = $('.navbar');
+
+                if (scrollTop > 50) {
+                    navbar.addClass('scrolled');
+                } else {
+                    navbar.removeClass('scrolled');
+                }
+            });
+        }
+
+        function initLoadingAnimation() {
+            // Hide loading overlay after page load with multiple fallbacks
+            function hideLoadingOverlay() {
+                $('.loading-overlay').addClass('hidden');
+            }
+
+            // Primary: Hide on window load
+            $(window).on('load', function() {
+                setTimeout(hideLoadingOverlay, 500);
+            });
+
+            // Fallback 1: Hide after document ready + timeout
+            $(document).ready(function() {
+                setTimeout(hideLoadingOverlay, 2000);
+            });
+
+            // Fallback 2: Force hide after maximum time
+            setTimeout(hideLoadingOverlay, 3000);
+
+            // Fallback 3: Hide on any user interaction
+            $(document).one('click touchstart keydown', function() {
+                hideLoadingOverlay();
+            });
+        }
+
+        function initSmoothScrolling() {
+            // Add smooth scrolling for anchor links
+            $('a[href^="#"]').on('click', function(event) {
+                var target = $(this.getAttribute('href'));
+                if (target.length) {
+                    event.preventDefault();
+                    $('html, body').stop().animate({
+                        scrollTop: target.offset().top - 80
+                    }, 1000);
+                }
+            });
+        }
+
+        // Add parallax effect to hero section
+        $(window).on('scroll', function() {
+            var scrolled = $(window).scrollTop();
+            var parallax = $('.hero-section');
+            var speed = scrolled * 0.5;
+
+            parallax.css('transform', 'translateY(' + speed + 'px)');
+        });
+
+        // Add hover effects to buttons
+        $('.btn-primary-hero, .btn-secondary-hero, .btn-cta').hover(
+            function() {
+                $(this).addClass('animate__animated animate__pulse');
+            },
+            function() {
+                $(this).removeClass('animate__animated animate__pulse');
+            }
+        );
+
+        // Add typing effect to hero title (optional)
+        function typeWriter(element, text, speed = 100) {
+            let i = 0;
+            element.innerHTML = '';
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            type();
+        }
+
+        // Initialize intersection observer for better performance
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-in');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            document.querySelectorAll('.feature-card, .benefit-item').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // Vanilla JavaScript fallback for loading overlay (in case jQuery fails)
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                var loadingOverlay = document.querySelector('.loading-overlay');
+                if (loadingOverlay) {
+                    loadingOverlay.classList.add('hidden');
+                }
+            }, 1500);
+        });
+
+        // Ultimate fallback - hide loading after 2 seconds regardless
+        setTimeout(function() {
+            var loadingOverlay = document.querySelector('.loading-overlay');
+            if (loadingOverlay && !loadingOverlay.classList.contains('hidden')) {
+                loadingOverlay.classList.add('hidden');
+            }
+        }, 2000);
     </script>
 }
