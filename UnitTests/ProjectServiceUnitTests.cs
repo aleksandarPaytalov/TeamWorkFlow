@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using TeamWorkFlow.Core.Contracts;
+using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Project;
 using TeamWorkFlow.Core.Services;
 using TeamWorkFlow.Infrastructure.Common;
@@ -427,6 +428,597 @@ public void Setup()
 			Assert.That(result, Is.Not.Null, "Result is null");
 		}
 
+		// ============================================================================
+		// ADDITIONAL TESTS FOR 90%+ COVERAGE
+		// ============================================================================
+
+		#region AllAsync Method Tests (Query and Search Functionality)
+
+		[Test]
+		public async Task AllAsync_WithNoParameters_ReturnsAllProjects()
+		{
+			// Arrange
+			var expectedProjectCount = await _repository.AllReadOnly<Project>().CountAsync();
+
+			// Act
+			var result = await _projectService.AllAsync();
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.TotalProjectsCount, Is.EqualTo(expectedProjectCount));
+			Assert.That(result.Projects, Is.Not.Null);
+			Assert.That(result.Projects.Count(), Is.LessThanOrEqualTo(10)); // Default page size
+		}
+
+		[Test]
+		public async Task AllAsync_WithSearchParameter_ReturnsFilteredProjects()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>().FirstOrDefaultAsync();
+			Assert.That(project, Is.Not.Null, "Project is null");
+			string searchTerm = project.ProjectName.Substring(0, 3); // Search for part of project name
+
+			// Act
+			var result = await _projectService.AllAsync(search: searchTerm);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Projects, Is.Not.Null);
+			// Verify that returned projects contain the search term
+			foreach (var projectModel in result.Projects)
+			{
+				bool containsSearchTerm = projectModel.ProjectName.ToLower().Contains(searchTerm.ToLower()) ||
+										 projectModel.ProjectNumber.ToLower().Contains(searchTerm.ToLower());
+				Assert.That(containsSearchTerm, Is.True, $"Project {projectModel.ProjectName} should contain search term {searchTerm}");
+			}
+		}
+
+		[Test]
+		public async Task AllAsync_WithSearchByProjectNumber_ReturnsMatchingProjects()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>().FirstOrDefaultAsync();
+			Assert.That(project, Is.Not.Null, "Project is null");
+
+			// Act
+			var result = await _projectService.AllAsync(search: project.ProjectNumber);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Projects, Is.Not.Null);
+			Assert.That(result.Projects.Count(), Is.GreaterThan(0));
+		}
+
+		[Test]
+		public async Task AllAsync_WithSearchByClientName_ReturnsMatchingProjects()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>()
+				.Where(p => !string.IsNullOrEmpty(p.ClientName))
+				.FirstOrDefaultAsync();
+
+			if (project != null && !string.IsNullOrEmpty(project.ClientName))
+			{
+				// Act
+				var result = await _projectService.AllAsync(search: project.ClientName);
+
+				// Assert
+				Assert.That(result, Is.Not.Null);
+				Assert.That(result.Projects, Is.Not.Null);
+				Assert.That(result.Projects.Count(), Is.GreaterThan(0));
+			}
+			else
+			{
+				Assert.Pass("No projects with client names found for testing");
+			}
+		}
+
+		[Test]
+		public async Task AllAsync_WithNonExistentSearch_ReturnsEmptyResult()
+		{
+			// Arrange
+			string nonExistentSearch = "NonExistentProjectName12345";
+
+			// Act
+			var result = await _projectService.AllAsync(search: nonExistentSearch);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Projects.Count(), Is.EqualTo(0));
+			Assert.That(result.TotalProjectsCount, Is.EqualTo(0));
+		}
+
+		[Test]
+		public async Task AllAsync_WithSortingByNameAscending_ReturnsSortedProjects()
+		{
+			// Arrange & Act
+			var result = await _projectService.AllAsync(sorting: ProjectSorting.NameAscending);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Projects, Is.Not.Null);
+			if (result.Projects.Count() > 1)
+			{
+				var projectNames = result.Projects.Select(p => p.ProjectName).ToList();
+				var sortedNames = projectNames.OrderBy(n => n).ToList();
+				Assert.That(projectNames, Is.EqualTo(sortedNames), "Projects should be sorted by name ascending");
+			}
+		}
+
+		[Test]
+		public async Task AllAsync_WithSortingByNameDescending_ReturnsSortedProjects()
+		{
+			// Arrange & Act
+			var result = await _projectService.AllAsync(sorting: ProjectSorting.NameDescending);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Projects, Is.Not.Null);
+			if (result.Projects.Count() > 1)
+			{
+				var projectNames = result.Projects.Select(p => p.ProjectName).ToList();
+				var sortedNames = projectNames.OrderByDescending(n => n).ToList();
+				Assert.That(projectNames, Is.EqualTo(sortedNames), "Projects should be sorted by name descending");
+			}
+		}
+
+		[Test]
+		public async Task AllAsync_WithSortingByProjectNumberAscending_ReturnsSortedProjects()
+		{
+			// Arrange & Act
+			var result = await _projectService.AllAsync(sorting: ProjectSorting.ProjectNumberAscending);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Projects, Is.Not.Null);
+			if (result.Projects.Count() > 1)
+			{
+				var projectNumbers = result.Projects.Select(p => p.ProjectNumber).ToList();
+				var sortedNumbers = projectNumbers.OrderBy(n => n).ToList();
+				Assert.That(projectNumbers, Is.EqualTo(sortedNumbers), "Projects should be sorted by project number ascending");
+			}
+		}
+
+		[Test]
+		public async Task AllAsync_WithSortingByTotalPartsDescending_ReturnsSortedProjects()
+		{
+			// Arrange & Act
+			var result = await _projectService.AllAsync(sorting: ProjectSorting.TotalPartsDescending);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Projects, Is.Not.Null);
+			if (result.Projects.Count() > 1)
+			{
+				var totalParts = result.Projects.Select(p => p.TotalParts).ToList();
+				var sortedParts = totalParts.OrderByDescending(tp => tp).ToList();
+				Assert.That(totalParts, Is.EqualTo(sortedParts), "Projects should be sorted by total parts descending");
+			}
+		}
+
+		[Test]
+		public async Task AllAsync_WithAllSortingOptions_ExecutesSuccessfully()
+		{
+			// Test all sorting enum values to ensure complete coverage
+			var sortingOptions = Enum.GetValues<ProjectSorting>();
+
+			foreach (var sorting in sortingOptions)
+			{
+				// Act
+				var result = await _projectService.AllAsync(sorting: sorting);
+
+				// Assert
+				Assert.That(result, Is.Not.Null, $"Result should not be null for sorting: {sorting}");
+				Assert.That(result.Projects, Is.Not.Null, $"Projects should not be null for sorting: {sorting}");
+			}
+		}
+
+		[Test]
+		public async Task AllAsync_WithCustomPagination_ReturnsCorrectPage()
+		{
+			// Arrange
+			int projectsPerPage = 2;
+			int currentPage = 1;
+
+			// Act
+			var result = await _projectService.AllAsync(projectsPerPage: projectsPerPage, currentPage: currentPage);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Projects, Is.Not.Null);
+			Assert.That(result.Projects.Count(), Is.LessThanOrEqualTo(projectsPerPage));
+		}
+
+		#endregion
+
+		#region Pagination Method Tests
+
+		[Test]
+		public async Task GetAllProjectsAsync_WithPagination_ReturnsCorrectPage()
+		{
+			// Arrange
+			int page = 1;
+			int pageSize = 2;
+			var totalProjects = await _repository.AllReadOnly<Project>().CountAsync();
+
+			// Act
+			var result = await _projectService.GetAllProjectsAsync(page, pageSize);
+
+			// Assert
+			Assert.That(result.Projects, Is.Not.Null);
+			Assert.That(result.TotalCount, Is.EqualTo(totalProjects));
+			Assert.That(result.Projects.Count(), Is.LessThanOrEqualTo(pageSize));
+		}
+
+		[Test]
+		public async Task GetAllProjectsAsync_WithSecondPage_ReturnsCorrectProjects()
+		{
+			// Arrange
+			int page = 2;
+			int pageSize = 1;
+			var totalProjects = await _repository.AllReadOnly<Project>().CountAsync();
+
+			// Act
+			var result = await _projectService.GetAllProjectsAsync(page, pageSize);
+
+			// Assert
+			Assert.That(result.Projects, Is.Not.Null);
+			Assert.That(result.TotalCount, Is.EqualTo(totalProjects));
+			if (totalProjects > 1)
+			{
+				Assert.That(result.Projects.Count(), Is.LessThanOrEqualTo(1));
+			}
+		}
+
+		[Test]
+		public async Task GetAllProjectsAsync_WithLargePageSize_ReturnsAllProjects()
+		{
+			// Arrange
+			int page = 1;
+			int pageSize = 100;
+			var totalProjects = await _repository.AllReadOnly<Project>().CountAsync();
+
+			// Act
+			var result = await _projectService.GetAllProjectsAsync(page, pageSize);
+
+			// Assert
+			Assert.That(result.Projects, Is.Not.Null);
+			Assert.That(result.TotalCount, Is.EqualTo(totalProjects));
+			Assert.That(result.Projects.Count(), Is.EqualTo(totalProjects));
+		}
+
+		#endregion
+
+		#region Error Handling and Edge Cases
+
+		[Test]
+		public async Task GetProjectDetailsByIdAsync_WithInvalidId_ReturnsNull()
+		{
+			// Arrange
+			int invalidProjectId = 99999;
+
+			// Act
+			var result = await _projectService.GetProjectDetailsByIdAsync(invalidProjectId);
+
+			// Assert
+			Assert.That(result, Is.Null);
+		}
+
+		[Test]
+		public async Task GetProjectIdByProjectNumberAsync_WithInvalidProjectNumber_ReturnsNull()
+		{
+			// Arrange
+			string invalidProjectNumber = "INVALID-999999";
+
+			// Act
+			var result = await _projectService.GetProjectIdByProjectNumberAsync(invalidProjectNumber);
+
+			// Assert
+			Assert.That(result, Is.Null);
+		}
+
+		[Test]
+		public async Task AllAsync_WithNullSearch_HandlesGracefully()
+		{
+			// Arrange & Act
+			var result = await _projectService.AllAsync(search: null);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Projects, Is.Not.Null);
+		}
+
+		[Test]
+		public async Task AllAsync_WithEmptySearch_HandlesGracefully()
+		{
+			// Arrange & Act
+			var result = await _projectService.AllAsync(search: "");
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Projects, Is.Not.Null);
+		}
+
+		[Test]
+		public async Task AllAsync_WithWhitespaceSearch_HandlesGracefully()
+		{
+			// Arrange & Act
+			var result = await _projectService.AllAsync(search: "   ");
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Projects, Is.Not.Null);
+		}
+
+		[Test]
+		public async Task AddNewProjectsAsync_ReturnsCorrectProjectId()
+		{
+			// Arrange
+			var projectFormModel = new ProjectFormModel()
+			{
+				ProjectName = "Test Project for ID Return",
+				ProjectNumber = "249999",
+				ProjectStatusId = 1,
+				TotalHoursSpent = 50,
+				Appliance = "Test Appliance",
+				ClientName = "Test Client"
+			};
+
+			// Act
+			var returnedId = await _projectService.AddNewProjectsAsync(projectFormModel);
+
+			// Assert
+			Assert.That(returnedId, Is.GreaterThan(0));
+
+			// Verify the project was actually created with the returned ID
+			var createdProject = await _repository.GetByIdAsync<Project>(returnedId);
+			Assert.That(createdProject, Is.Not.Null);
+			Assert.That(createdProject.ProjectName, Is.EqualTo(projectFormModel.ProjectName));
+			Assert.That(createdProject.ProjectNumber, Is.EqualTo(projectFormModel.ProjectNumber));
+		}
+
+		[Test]
+		public async Task EditProjectAsync_WithValidData_UpdatesAllFields()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>().FirstOrDefaultAsync();
+			Assert.That(project, Is.Not.Null, "Project is null");
+
+			var projectFormModel = new ProjectFormModel()
+			{
+				ProjectName = "Updated Project Name",
+				ProjectNumber = "249998",
+				ProjectStatusId = 2,
+				TotalHoursSpent = 150,
+				Appliance = "Updated Appliance",
+				ClientName = "Updated Client"
+			};
+
+			// Act
+			await _projectService.EditProjectAsync(projectFormModel, project.Id);
+
+			// Assert
+			var updatedProject = await _repository.GetByIdAsync<Project>(project.Id);
+			Assert.That(updatedProject, Is.Not.Null);
+			Assert.That(updatedProject.ProjectName, Is.EqualTo(projectFormModel.ProjectName));
+			Assert.That(updatedProject.ProjectNumber, Is.EqualTo(projectFormModel.ProjectNumber));
+			Assert.That(updatedProject.ProjectStatusId, Is.EqualTo(projectFormModel.ProjectStatusId));
+			Assert.That(updatedProject.TotalHoursSpent, Is.EqualTo(projectFormModel.TotalHoursSpent));
+			Assert.That(updatedProject.Appliance, Is.EqualTo(projectFormModel.Appliance));
+			Assert.That(updatedProject.ClientName, Is.EqualTo(projectFormModel.ClientName));
+		}
+
+		#endregion
+
+		#region Model Coverage Tests
+
+		[Test]
+		public void ProjectQueryServiceModel_DefaultValues_AreSetCorrectly()
+		{
+			// Arrange & Act
+			var model = new ProjectQueryServiceModel();
+
+			// Assert
+			Assert.That(model.Projects, Is.Not.Null);
+			Assert.That(model.Projects.Count(), Is.EqualTo(0));
+			Assert.That(model.TotalProjectsCount, Is.EqualTo(0));
+		}
+
+		[Test]
+		public void ProjectQueryServiceModel_Properties_CanBeSetAndRetrieved()
+		{
+			// Arrange
+			var projects = new List<ProjectServiceModel>
+			{
+				new ProjectServiceModel { Id = 1, ProjectName = "Project 1", ProjectNumber = "PRJ-001" },
+				new ProjectServiceModel { Id = 2, ProjectName = "Project 2", ProjectNumber = "PRJ-002" }
+			};
+
+			// Act
+			var model = new ProjectQueryServiceModel
+			{
+				TotalProjectsCount = 100,
+				Projects = projects
+			};
+
+			// Assert
+			Assert.That(model.TotalProjectsCount, Is.EqualTo(100));
+			Assert.That(model.Projects.Count(), Is.EqualTo(2));
+			Assert.That(model.Projects.First().ProjectName, Is.EqualTo("Project 1"));
+			Assert.That(model.Projects.Last().ProjectName, Is.EqualTo("Project 2"));
+		}
+
+		[Test]
+		public void ProjectServiceModel_AllProperties_CanBeSetAndRetrieved()
+		{
+			// Arrange & Act
+			var model = new ProjectServiceModel
+			{
+				Id = 123,
+				ProjectName = "Test Project Name",
+				ProjectNumber = "TEST-123",
+				Status = "In Progress",
+				TotalParts = 25
+			};
+
+			// Assert
+			Assert.That(model.Id, Is.EqualTo(123));
+			Assert.That(model.ProjectName, Is.EqualTo("Test Project Name"));
+			Assert.That(model.ProjectNumber, Is.EqualTo("TEST-123"));
+			Assert.That(model.Status, Is.EqualTo("In Progress"));
+			Assert.That(model.TotalParts, Is.EqualTo(25));
+		}
+
+		[Test]
+		public void ProjectServiceModel_DefaultValues_AreSetCorrectly()
+		{
+			// Arrange & Act
+			var model = new ProjectServiceModel();
+
+			// Assert
+			Assert.That(model.Id, Is.EqualTo(0));
+			Assert.That(model.ProjectName, Is.EqualTo(string.Empty));
+			Assert.That(model.ProjectNumber, Is.EqualTo(string.Empty));
+			Assert.That(model.Status, Is.EqualTo(string.Empty));
+			Assert.That(model.TotalParts, Is.EqualTo(0));
+		}
+
+		[Test]
+		public void PaginatedProjectsViewModel_DefaultValues_AreSetCorrectly()
+		{
+			// Arrange & Act
+			var model = new PaginatedProjectsViewModel();
+
+			// Assert
+			Assert.That(model.Projects, Is.Not.Null);
+			Assert.That(model.Projects.Count(), Is.EqualTo(0));
+		}
+
+		[Test]
+		public void PaginatedProjectsViewModel_Properties_CanBeSetAndRetrieved()
+		{
+			// Arrange
+			var projects = new List<ProjectServiceModel>
+			{
+				new ProjectServiceModel { Id = 1, ProjectName = "Project 1" },
+				new ProjectServiceModel { Id = 2, ProjectName = "Project 2" }
+			};
+			var pager = new TeamWorkFlow.Core.Models.Pager.PagerServiceModel(20, 2, 5);
+
+			// Act
+			var model = new PaginatedProjectsViewModel
+			{
+				Projects = projects,
+				Pager = pager
+			};
+
+			// Assert
+			Assert.That(model.Projects.Count(), Is.EqualTo(2));
+			Assert.That(model.Pager, Is.Not.Null);
+			Assert.That(model.Pager.TotalProjects, Is.EqualTo(20));
+			Assert.That(model.Pager.CurrentPage, Is.EqualTo(2));
+		}
+
+		[Test]
+		public void ProjectStatusServiceModel_Properties_CanBeSetAndRetrieved()
+		{
+			// Arrange & Act
+			var model = new ProjectStatusServiceModel
+			{
+				Id = 5,
+				Name = "Completed"
+			};
+
+			// Assert
+			Assert.That(model.Id, Is.EqualTo(5));
+			Assert.That(model.Name, Is.EqualTo("Completed"));
+		}
+
+		[Test]
+		public void ProjectStatusServiceModel_DefaultValues_AreSetCorrectly()
+		{
+			// Arrange & Act
+			var model = new ProjectStatusServiceModel();
+
+			// Assert
+			Assert.That(model.Id, Is.EqualTo(0));
+			Assert.That(model.Name, Is.EqualTo(string.Empty));
+		}
+
+		[Test]
+		public void ProjectDeleteServiceModel_Properties_CanBeSetAndRetrieved()
+		{
+			// Arrange & Act
+			var model = new ProjectDeleteServiceModel
+			{
+				Id = 10,
+				ProjectName = "Project to Delete",
+				ProjectNumber = "DEL-123"
+			};
+
+			// Assert
+			Assert.That(model.Id, Is.EqualTo(10));
+			Assert.That(model.ProjectName, Is.EqualTo("Project to Delete"));
+			Assert.That(model.ProjectNumber, Is.EqualTo("DEL-123"));
+		}
+
+		[Test]
+		public void ProjectDeleteServiceModel_DefaultValues_AreSetCorrectly()
+		{
+			// Arrange & Act
+			var model = new ProjectDeleteServiceModel();
+
+			// Assert
+			Assert.That(model.Id, Is.EqualTo(0));
+			Assert.That(model.ProjectName, Is.EqualTo(string.Empty));
+			Assert.That(model.ProjectNumber, Is.EqualTo(string.Empty));
+		}
+
+		[Test]
+		public void ProjectDetailsServiceModel_Properties_CanBeSetAndRetrieved()
+		{
+			// Arrange & Act
+			var model = new ProjectDetailsServiceModel
+			{
+				Id = 15,
+				ProjectName = "Detailed Project",
+				ProjectNumber = "DET-789",
+				Appliance = "Test Appliance",
+				ClientName = "Test Client",
+				Status = "Ready",
+				TotalHoursSpent = 120,
+				TotalParts = 30
+			};
+
+			// Assert
+			Assert.That(model.Id, Is.EqualTo(15));
+			Assert.That(model.ProjectName, Is.EqualTo("Detailed Project"));
+			Assert.That(model.ProjectNumber, Is.EqualTo("DET-789"));
+			Assert.That(model.Appliance, Is.EqualTo("Test Appliance"));
+			Assert.That(model.ClientName, Is.EqualTo("Test Client"));
+			Assert.That(model.Status, Is.EqualTo("Ready"));
+			Assert.That(model.TotalHoursSpent, Is.EqualTo(120));
+			Assert.That(model.TotalParts, Is.EqualTo(30));
+		}
+
+		[Test]
+		public void ProjectDetailsServiceModel_DefaultValues_AreSetCorrectly()
+		{
+			// Arrange & Act
+			var model = new ProjectDetailsServiceModel();
+
+			// Assert
+			Assert.That(model.Id, Is.EqualTo(0));
+			Assert.That(model.ProjectName, Is.EqualTo(string.Empty));
+			Assert.That(model.ProjectNumber, Is.EqualTo(string.Empty));
+			Assert.That(model.Appliance, Is.EqualTo(string.Empty));
+			Assert.That(model.ClientName, Is.EqualTo(string.Empty));
+			Assert.That(model.Status, Is.EqualTo(string.Empty));
+			Assert.That(model.TotalHoursSpent, Is.EqualTo(0));
+			Assert.That(model.TotalParts, Is.EqualTo(0));
+		}
+
+		#endregion
 
 		[TearDown]
 		public void TearDown()
