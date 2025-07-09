@@ -162,7 +162,7 @@ public void Setup()
 			// Tasks: Only count tasks with "Finished" status for FinishedTasks
 			var totalTasksFromDb = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>().CountAsync();
 			var finishedTasksFromDb = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
-				.Where(t => t.TaskStatus.Name == "Finished")
+				.Where(t => t.TaskStatus.Name.ToLower() == "finished")
 				.CountAsync();
 
 			Assert.That(result.TotalTasks, Is.EqualTo(totalTasksFromDb));
@@ -181,7 +181,7 @@ public void Setup()
 			// Projects: Only count projects with "In Production" status for ProjectsInProduction
 			var totalProjectsFromDb = await _repository.AllReadOnly<Project>().CountAsync();
 			var projectsInProductionFromDb = await _repository.AllReadOnly<Project>()
-				.Where(p => p.ProjectStatus.Name == "In Production")
+				.Where(p => p.ProjectStatus.Name.ToLower() == "in production")
 				.CountAsync();
 
 			Assert.That(result.TotalProjects, Is.EqualTo(totalProjectsFromDb));
@@ -200,7 +200,7 @@ public void Setup()
 			// Parts: Only count parts with "Released" status for TotalApprovedParts
 			var totalPartsFromDb = await _repository.AllReadOnly<Part>().CountAsync();
 			var approvedPartsFromDb = await _repository.AllReadOnly<Part>()
-				.Where(p => p.PartStatus.Name == "Released")
+				.Where(p => p.PartStatus.Name.ToLower() == "released")
 				.CountAsync();
 
 			Assert.That(result.TotalParts, Is.EqualTo(totalPartsFromDb));
@@ -221,7 +221,7 @@ public void Setup()
 				.Where(o => o.IsActive)
 				.CountAsync();
 			var availableOperatorsFromDb = await _repository.AllReadOnly<Operator>()
-				.Where(o => o.IsActive && o.AvailabilityStatus.Name == "At Work")
+				.Where(o => o.IsActive && o.AvailabilityStatus.Name.ToLower() == "at work")
 				.CountAsync();
 
 			Assert.That(result.TotalWorkers, Is.EqualTo(totalActiveOperatorsFromDb));
