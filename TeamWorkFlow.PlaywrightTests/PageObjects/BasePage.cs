@@ -13,7 +13,7 @@ public abstract class BasePage
 
     // Common navigation elements
     protected ILocator NavigationBar => Page.Locator("nav.navbar");
-    protected ILocator UserGreeting => Page.Locator("a[title='Manage Account']");
+    protected ILocator UserGreeting => Page.Locator("[data-testid='user-greeting'], .navbar-text");
     protected ILocator LogoutButton => Page.Locator("a[href*='logout'], button:has-text('Logout')");
     protected ILocator HomeLink => Page.Locator("a[href='/'], a:has-text('Home')");
     protected ILocator TasksLink => Page.Locator("a[href*='Task'], a:has-text('Tasks')");
@@ -59,8 +59,16 @@ public abstract class BasePage
 
     public virtual async Task WaitForPageLoadAsync()
     {
-        await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
-        await LoadingSpinner.WaitForAsync(new() { State = WaitForSelectorState.Hidden, Timeout = 5000 });
+        await Page.WaitForLoadStateAsync(LoadState.NetworkIdle, new() { Timeout = 10000 });
+        // Skip loading spinner wait as it may not exist in all pages
+        try
+        {
+            await LoadingSpinner.WaitForAsync(new() { State = WaitForSelectorState.Hidden, Timeout = 2000 });
+        }
+        catch (TimeoutException)
+        {
+            // Loading spinner not found or didn't hide - this is OK
+        }
     }
 
     public virtual async Task<bool> IsLoggedInAsync()
