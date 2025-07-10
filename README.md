@@ -118,6 +118,7 @@ TeamWorkFlow is a modern, web-based manufacturing workflow management system des
 - **Version Control**: Git
 - **Package Manager**: NuGet
 - **Testing**: Comprehensive unit tests with NUnit (304 tests, 90.1% coverage)
+- **E2E Testing**: Playwright tests for end-to-end UI testing and workflows
 - **Code Coverage**: ReportGenerator for detailed coverage analysis
 - **Database Migrations**: Entity Framework Core Migrations
 - **CI/CD**: GitHub Actions for automated testing
@@ -145,13 +146,18 @@ TeamWorkFlow/
 │   ├── Migrations/              # Database migrations
 │   ├── Constants/               # Data constants
 │   └── Common/                  # Common infrastructure code
-└── UnitTests/                   # Comprehensive unit test suite (304 tests)
-    ├── TaskServiceUnitTests.cs      # 92.5% coverage
-    ├── OperatorServiceUnitTests.cs  # 100% coverage
-    ├── MachineServiceUnitTests.cs   # 96.4% coverage
-    ├── ProjectServiceUnitTests.cs   # 100% coverage
-    ├── PartServiceUnitTests.cs      # 100% coverage
-    └── SummaryServiceUnitTests.cs   # 100% coverage
+├── UnitTests/                   # Comprehensive unit test suite (304 tests)
+│   ├── TaskServiceUnitTests.cs      # 92.5% coverage
+│   ├── OperatorServiceUnitTests.cs  # 100% coverage
+│   ├── MachineServiceUnitTests.cs   # 96.4% coverage
+│   ├── ProjectServiceUnitTests.cs   # 100% coverage
+│   ├── PartServiceUnitTests.cs      # 100% coverage
+│   └── SummaryServiceUnitTests.cs   # 100% coverage
+└── TeamWorkFlow.PlaywrightTests/   # End-to-end UI tests
+    ├── PageObjects/                 # Page Object Model classes
+    ├── Tests/                       # E2E test classes
+    ├── appsettings.json            # Test configuration
+    └── playwright.config.ts        # Playwright configuration
 ```
 
 ### Key Design Patterns
@@ -412,15 +418,30 @@ UnitTests/
 ├── ProjectServiceUnitTests.cs   # 40+ tests with 100% coverage
 ├── PartServiceUnitTests.cs      # 35+ tests with 100% coverage
 └── SummaryServiceUnitTests.cs   # 13+ tests with 100% coverage
+
+TeamWorkFlow.PlaywrightTests/
+├── Tests/
+│   ├── AuthenticationTests.cs   # Login/logout and security tests
+│   ├── TaskManagementTests.cs   # Task CRUD workflow tests
+│   ├── ProjectManagementTests.cs # Project management tests
+│   ├── NavigationAndUITests.cs  # UI/UX and responsive design tests
+│   └── ...                      # Additional E2E test suites
+└── PageObjects/
+    ├── BasePage.cs              # Common page functionality
+    ├── LoginPage.cs             # Authentication page objects
+    ├── TasksPage.cs             # Task management page objects
+    └── ...                      # Additional page object models
 ```
 
 ### Quality Assurance
 
-- **All Tests Passing**: 304/304 tests pass consistently
+- **All Tests Passing**: 304/304 unit tests pass consistently
+- **E2E Testing**: Playwright tests for UI and workflow validation
 - **CI/CD Integration**: Automated testing in GitHub Actions
 - **Coverage Reporting**: Detailed HTML coverage reports
 - **Performance Testing**: Service performance validation
 - **Edge Case Coverage**: Comprehensive boundary testing
+- **Cross-Browser Testing**: Chrome, Firefox, Edge, and mobile browsers
 
 ## 🚀 Recent Improvements
 
