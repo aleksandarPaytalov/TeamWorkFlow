@@ -13,7 +13,7 @@ public abstract class BasePage
 
     // Common navigation elements
     protected ILocator NavigationBar => Page.Locator("nav.navbar");
-    protected ILocator UserGreeting => Page.Locator("[data-testid='user-greeting'], .navbar-text");
+    protected ILocator UserGreeting => Page.Locator("a[title='Manage Account']");
     protected ILocator LogoutButton => Page.Locator("a[href*='logout'], button:has-text('Logout')");
     protected ILocator HomeLink => Page.Locator("a[href='/'], a:has-text('Home')");
     protected ILocator TasksLink => Page.Locator("a[href*='Task'], a:has-text('Tasks')");

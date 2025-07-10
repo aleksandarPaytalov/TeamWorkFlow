@@ -10,7 +10,7 @@ public class LoginPage : BasePage
     // Page elements
     private ILocator EmailInput => Page.Locator("input[name='Input.Email'], input[type='email']");
     private ILocator PasswordInput => Page.Locator("input[name='Input.Password'], input[type='password']");
-    private ILocator RememberMeCheckbox => Page.Locator("input[name='Input.RememberMe'], input[type='checkbox']");
+    private ILocator RememberMeCheckbox => Page.Locator("input[name='Input.RememberMe'][type='checkbox']");
     private ILocator LoginButton => Page.Locator("button[type='submit']:has-text('Log in'), input[value*='Log in']");
     private ILocator RegisterLink => Page.Locator("a:has-text('Register'), a[href*='Register']");
     private ILocator ForgotPasswordLink => Page.Locator("a:has-text('Forgot'), a[href*='ForgotPassword']");

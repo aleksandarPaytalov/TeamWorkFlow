@@ -315,10 +315,10 @@ public class NavigationAndUITests : BaseTest
         await WaitForPageLoad();
     }
 
-    private ILocator TasksLink => Page.Locator("a[href*='Task'], a:has-text('Tasks')");
-    private ILocator ProjectsLink => Page.Locator("a[href*='Project'], a:has-text('Projects')");
-    private ILocator MachinesLink => Page.Locator("a[href*='Machine'], a:has-text('Machines')");
-    private ILocator OperatorsLink => Page.Locator("a[href*='Operator'], a:has-text('Operators')");
-    private ILocator PartsLink => Page.Locator("a[href*='Part'], a:has-text('Parts')");
-    private ILocator AdminLink => Page.Locator("a[href*='Admin'], a:has-text('Admin')");
+    private ILocator TasksLink => Page.Locator("nav a:has-text('Tasks')").First;
+    private ILocator ProjectsLink => Page.Locator("nav a:has-text('Projects')").First;
+    private ILocator MachinesLink => Page.Locator("nav a:has-text('Machines')").First;
+    private ILocator OperatorsLink => Page.Locator("nav a:has-text('Operators')").First;
+    private ILocator PartsLink => Page.Locator("nav a:has-text('Parts')").First;
+    private ILocator AdminLink => Page.Locator("nav a:has-text('Admin')").First;
 }

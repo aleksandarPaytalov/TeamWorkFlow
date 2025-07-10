@@ -20,7 +20,7 @@ public class HomePage : BasePage
     private ILocator QuickActionsContainer => Page.Locator(".quick-actions, [data-testid='quick-actions']");
     private ILocator CreateTaskButton => Page.Locator("a:has-text('Create Task'), button:has-text('Create Task')");
     private ILocator CreateProjectButton => Page.Locator("a:has-text('Create Project'), button:has-text('Create Project')");
-    private ILocator ViewAllTasksButton => Page.Locator("a:has-text('View All Tasks'), a[href*='Task']");
+    private ILocator ViewAllTasksButton => Page.Locator("a:has-text('View All Tasks')").First;
     private ILocator ViewAllProjectsButton => Page.Locator("a:has-text('View All Projects'), a[href*='Project']");
 
     // Recent activity section

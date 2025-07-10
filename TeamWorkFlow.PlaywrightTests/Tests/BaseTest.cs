@@ -30,10 +30,15 @@ public abstract class BaseTest : PageTest
         Page.SetDefaultTimeout(Config.Timeout);
         
         // Navigate to base URL to ensure the application is running
-        await Page.GotoAsync(Config.BaseUrl);
-        
-        // Wait for the page to load
-        await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        try
+        {
+            await Page.GotoAsync(Config.BaseUrl, new() { Timeout = 10000 });
+            await Page.WaitForLoadStateAsync(LoadState.NetworkIdle, new() { Timeout = 10000 });
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to connect to application at {Config.BaseUrl}. Make sure the TeamWorkFlow application is running. Error: {ex.Message}");
+        }
     }
 
     [TearDown]
@@ -70,13 +75,20 @@ public abstract class BaseTest : PageTest
     {
         try
         {
-            var userGreeting = Page.Locator("[data-testid='user-greeting'], .navbar-text");
-            await userGreeting.WaitForAsync(new() { Timeout = 3000 });
-            return true;
+            // Check for logout button or user greeting as indicators of being logged in
+            var logoutButton = Page.Locator("a[href*='logout'], button:has-text('Logout')");
+            var userGreeting = Page.Locator(".navbar-text, .user-greeting, .navbar .dropdown-toggle");
+
+            // Wait for either logout button or user greeting
+            await Page.WaitForSelectorAsync("a[href*='logout'], a[title='Manage Account']", new() { Timeout = 3000 });
+
+            return await logoutButton.IsVisibleAsync() || await userGreeting.IsVisibleAsync();
         }
         catch
         {
-            return false;
+            // Check if we're on a protected page (not login page)
+            var currentUrl = Page.Url;
+            return !currentUrl.Contains("Login") && !currentUrl.Contains("login");
         }
     }
 
