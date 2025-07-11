@@ -29,18 +29,18 @@ public class TestConfiguration
 
     public TestUser AdminUser => new()
     {
-        Email = _configuration["TestUsers:AdminUser:Email"] ?? "admin@teamworkflow.com",
-        Password = _configuration["TestUsers:AdminUser:Password"] ?? "Admin123!",
-        FirstName = _configuration["TestUsers:AdminUser:FirstName"] ?? "Admin",
-        LastName = _configuration["TestUsers:AdminUser:LastName"] ?? "User"
+        Email = GetSecureValue("TestUsers:AdminUser:Email", "TEST_ADMIN_EMAIL", "admin@teamworkflow.local"),
+        Password = GetSecureValue("TestUsers:AdminUser:Password", "TEST_ADMIN_PASSWORD", "TestAdmin123!"),
+        FirstName = _configuration["TestUsers:AdminUser:FirstName"] ?? "Test",
+        LastName = _configuration["TestUsers:AdminUser:LastName"] ?? "Admin"
     };
 
     public TestUser OperatorUser => new()
     {
-        Email = _configuration["TestUsers:OperatorUser:Email"] ?? "operator@teamworkflow.com",
-        Password = _configuration["TestUsers:OperatorUser:Password"] ?? "Operator123!",
-        FirstName = _configuration["TestUsers:OperatorUser:FirstName"] ?? "Operator",
-        LastName = _configuration["TestUsers:OperatorUser:LastName"] ?? "User"
+        Email = GetSecureValue("TestUsers:OperatorUser:Email", "TEST_OPERATOR_EMAIL", "operator@teamworkflow.local"),
+        Password = GetSecureValue("TestUsers:OperatorUser:Password", "TEST_OPERATOR_PASSWORD", "TestOperator123!"),
+        FirstName = _configuration["TestUsers:OperatorUser:FirstName"] ?? "Test",
+        LastName = _configuration["TestUsers:OperatorUser:LastName"] ?? "Operator"
     };
 
     public TestData SampleTask => new()
@@ -63,6 +63,34 @@ public class TestConfiguration
         Capacity = _configuration["TestData:SampleMachine:Capacity"] ?? "100",
         ImageUrl = _configuration["TestData:SampleMachine:ImageUrl"] ?? "https://example.com/test-machine.jpg"
     };
+
+    /// <summary>
+    /// Gets a secure value from environment variables first, then configuration, then fallback
+    /// </summary>
+    /// <param name="configKey">Configuration key</param>
+    /// <param name="envVarName">Environment variable name</param>
+    /// <param name="fallback">Fallback value</param>
+    /// <returns>The secure value</returns>
+    private string GetSecureValue(string configKey, string envVarName, string fallback)
+    {
+        // First try environment variable
+        var envValue = Environment.GetEnvironmentVariable(envVarName);
+        if (!string.IsNullOrEmpty(envValue))
+        {
+            return envValue;
+        }
+
+        // Then try configuration
+        var configValue = _configuration[configKey];
+        if (!string.IsNullOrEmpty(configValue) &&
+            !configValue.StartsWith("PLACEHOLDER_", StringComparison.OrdinalIgnoreCase))
+        {
+            return configValue;
+        }
+
+        // Finally use fallback
+        return fallback;
+    }
 }
 
 public class TestUser

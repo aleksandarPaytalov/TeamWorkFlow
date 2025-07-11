@@ -39,6 +39,15 @@ TeamWorkFlow.PlaywrightTests/
 └── playwright.config.ts       # Playwright configuration
 ```
 
+## 🔒 Security
+
+**Important**: This test suite uses secure credential management to prevent exposure of sensitive data.
+
+- **Configuration**: Uses environment variables and secure fallbacks
+- **Credentials**: Never commits real passwords to source control
+- **Setup**: Run `.\setup-test-environment.ps1 -Help` for secure setup
+- **Documentation**: See [SECURITY.md](SECURITY.md) for complete security guide
+
 ## 🚀 Getting Started
 
 ### Prerequisites

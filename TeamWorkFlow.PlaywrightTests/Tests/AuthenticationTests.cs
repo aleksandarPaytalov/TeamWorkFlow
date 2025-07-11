@@ -36,8 +36,8 @@ public class AuthenticationTests : BaseTest
 
         // Verify admin user name is displayed
         var greetingText = await userGreeting.TextContentAsync();
-        Assert.That(greetingText, Does.Contain("Aleksandar").Or.Contain("Paytalov").Or.Contain("Hi"),
-            "User greeting should contain user name or greeting");
+        Assert.That(greetingText, Does.Contain(Config.AdminUser.FirstName).Or.Contain(Config.AdminUser.LastName).Or.Contain("Hi"),
+            "User greeting should contain admin user name or greeting");
     }
 
     [Test]
@@ -60,7 +60,7 @@ public class AuthenticationTests : BaseTest
 
         // Verify operator user name is displayed
         var greetingText = await userGreeting.TextContentAsync();
-        Assert.That(greetingText, Does.Contain("Jon").Or.Contain("Doe").Or.Contain("Hi"),
+        Assert.That(greetingText, Does.Contain(Config.OperatorUser.FirstName).Or.Contain(Config.OperatorUser.LastName).Or.Contain("Hi"),
             "User greeting should contain operator user name");
     }
 

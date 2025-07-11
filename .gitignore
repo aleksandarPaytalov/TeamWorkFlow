@@ -361,3 +361,16 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# TeamWorkFlow Playwright Test Security
+# Exclude sensitive test configuration files
+TeamWorkFlow.PlaywrightTests/.env
+TeamWorkFlow.PlaywrightTests/appsettings.Production.json
+TeamWorkFlow.PlaywrightTests/appsettings.Staging.json
+TeamWorkFlow.PlaywrightTests/test-credentials.json
+
+# Playwright test artifacts
+TeamWorkFlow.PlaywrightTests/test-results/
+TeamWorkFlow.PlaywrightTests/playwright-report/
+TeamWorkFlow.PlaywrightTests/screenshots/
+TeamWorkFlow.PlaywrightTests/videos/
