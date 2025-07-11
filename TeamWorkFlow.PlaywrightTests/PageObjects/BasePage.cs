@@ -24,9 +24,9 @@ public abstract class BasePage
     protected ILocator AdminLink => Page.Locator("a[href*='Admin'], a:has-text('Admin')");
 
     // Common form elements
-    protected ILocator SubmitButton => Page.Locator("button[type='submit'], input[type='submit']");
+    protected ILocator SubmitButton => Page.Locator("button[type='submit'], input[type='submit'], input[value='Apply']");
     protected ILocator CancelButton => Page.Locator("button:has-text('Cancel'), a:has-text('Cancel')");
-    protected ILocator SaveButton => Page.Locator("button:has-text('Save'), input[value='Save']");
+    protected ILocator SaveButton => Page.Locator("button:has-text('Save'), input[value='Save'], input[value='Apply']");
     protected ILocator DeleteButton => Page.Locator("button:has-text('Delete'), a:has-text('Delete')");
     protected ILocator EditButton => Page.Locator("button:has-text('Edit'), a:has-text('Edit')");
     protected ILocator CreateButton => Page.Locator("button:has-text('Create'), a:has-text('Create')");
@@ -39,9 +39,9 @@ public abstract class BasePage
     protected ILocator ValidationErrors => Page.Locator(".field-validation-error, .validation-summary-errors");
 
     // Search and filter elements
-    protected ILocator SearchInput => Page.Locator("input[name='searchTerm'], input[placeholder*='Search']");
+    protected ILocator SearchInput => Page.Locator("input[name='Search'], input[name='searchTerm'], input[placeholder*='Search']");
     protected ILocator SearchButton => Page.Locator("button:has-text('Search'), input[value='Search']");
-    protected ILocator SortDropdown => Page.Locator("select[name*='sort'], select[name*='Sort']");
+    protected ILocator SortDropdown => Page.Locator("select[name='Sorting'], select[name*='sort'], select[name*='Sort']");
     protected ILocator FilterDropdown => Page.Locator("select[name*='filter'], select[name*='Filter']");
 
     // Pagination elements
