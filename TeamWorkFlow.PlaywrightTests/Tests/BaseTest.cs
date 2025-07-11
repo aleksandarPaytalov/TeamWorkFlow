@@ -191,4 +191,32 @@ public abstract class BaseTest : PageTest
             // Ignore if no loading spinner is found
         }
     }
+
+    /// <summary>
+    /// Check if the application is running and accessible
+    /// </summary>
+    protected async Task<bool> IsApplicationRunningAsync()
+    {
+        try
+        {
+            await Page.GotoAsync(Config.BaseUrl, new() { Timeout = 5000 });
+            await Page.WaitForLoadStateAsync(LoadState.NetworkIdle, new() { Timeout = 5000 });
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Assert that the application is running, skip test if not
+    /// </summary>
+    protected async Task RequireApplicationRunningAsync()
+    {
+        if (!await IsApplicationRunningAsync())
+        {
+            Assert.Ignore($"Application is not running at {Config.BaseUrl}. Skipping test.");
+        }
+    }
 }

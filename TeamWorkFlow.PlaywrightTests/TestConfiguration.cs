@@ -29,17 +29,17 @@ public class TestConfiguration
 
     public TestUser AdminUser => new()
     {
-        Email = GetSecureValue("TestUsers:AdminUser:Email", "TEST_ADMIN_EMAIL", "admin@teamworkflow.local"),
-        Password = GetSecureValue("TestUsers:AdminUser:Password", "TEST_ADMIN_PASSWORD", "TestAdmin123!"),
-        FirstName = _configuration["TestUsers:AdminUser:FirstName"] ?? "Test",
+        Email = GetSecureValue("TestUsers:AdminUser:Email", "TEST_ADMIN_EMAIL", "fake.admin@test.local"),
+        Password = GetSecureValue("TestUsers:AdminUser:Password", "TEST_ADMIN_PASSWORD", "FakeAdminPass123!"),
+        FirstName = _configuration["TestUsers:AdminUser:FirstName"] ?? "Fake",
         LastName = _configuration["TestUsers:AdminUser:LastName"] ?? "Admin"
     };
 
     public TestUser OperatorUser => new()
     {
-        Email = GetSecureValue("TestUsers:OperatorUser:Email", "TEST_OPERATOR_EMAIL", "operator@teamworkflow.local"),
-        Password = GetSecureValue("TestUsers:OperatorUser:Password", "TEST_OPERATOR_PASSWORD", "TestOperator123!"),
-        FirstName = _configuration["TestUsers:OperatorUser:FirstName"] ?? "Test",
+        Email = GetSecureValue("TestUsers:OperatorUser:Email", "TEST_OPERATOR_EMAIL", "fake.operator@test.local"),
+        Password = GetSecureValue("TestUsers:OperatorUser:Password", "TEST_OPERATOR_PASSWORD", "FakeOperatorPass456!"),
+        FirstName = _configuration["TestUsers:OperatorUser:FirstName"] ?? "Fake",
         LastName = _configuration["TestUsers:OperatorUser:LastName"] ?? "Operator"
     };
 
