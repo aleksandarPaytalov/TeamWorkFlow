@@ -23,15 +23,41 @@ public class NavigationAndUITests : BaseTest
         // Test if we can connect to the application
         try
         {
-            await Page.GotoAsync(Config.BaseUrl, new() { Timeout = 5000 });
-            await Page.WaitForLoadStateAsync(LoadState.NetworkIdle, new() { Timeout = 5000 });
-            TestContext.WriteLine("✅ Application is running and accessible");
-            Assert.Pass("Application connection test passed - application is running");
+            TestContext.WriteLine($"🔗 Testing connection to: {Config.BaseUrl}");
+
+            // Try to navigate to the application
+            await Page.GotoAsync(Config.BaseUrl, new() { Timeout = 10000 });
+
+            // Wait for the page to load
+            await Page.WaitForLoadStateAsync(LoadState.DOMContentLoaded, new() { Timeout = 10000 });
+
+            // Check if we got a valid response (not an error page)
+            var title = await Page.TitleAsync();
+            var url = Page.Url;
+
+            TestContext.WriteLine($"✅ Successfully connected to application");
+            TestContext.WriteLine($"✅ Page title: {title}");
+            TestContext.WriteLine($"✅ Current URL: {url}");
+
+            // Verify we're actually connected to our application
+            Assert.Multiple(() =>
+            {
+                Assert.That(url, Does.Contain(Config.BaseUrl.Replace("https://", "").Replace("http://", "")),
+                    "Should be connected to the correct application URL");
+                Assert.That(title, Is.Not.Null.And.Not.Empty, "Page should have a title");
+            });
+
+            TestContext.WriteLine("✅ Application connection test passed - application is running and accessible");
         }
-        catch
+        catch (TimeoutException ex)
         {
-            TestContext.WriteLine("⚠️ Application is not running - some tests will be skipped");
-            Assert.Ignore("Application is not running - this is expected for standalone testing");
+            TestContext.WriteLine($"❌ Connection timeout: {ex.Message}");
+            Assert.Fail($"Application connection failed due to timeout. Please ensure the application is running at {Config.BaseUrl}");
+        }
+        catch (Exception ex)
+        {
+            TestContext.WriteLine($"❌ Connection error: {ex.Message}");
+            Assert.Fail($"Application connection failed: {ex.Message}. Please ensure the application is running at {Config.BaseUrl}");
         }
     }
 
@@ -249,7 +275,7 @@ public class NavigationAndUITests : BaseTest
         await Page.WaitForTimeoutAsync(1000);
 
         // Assert - Check basic responsive behavior
-        var navigationBar = Page.Locator("nav, .navbar, header");
+        var navigationBar = Page.Locator("nav, .navbar, header").First;
         var isNavVisible = await navigationBar.IsVisibleAsync();
 
         if (isNavVisible)
@@ -267,7 +293,7 @@ public class NavigationAndUITests : BaseTest
         }
 
         // Check if content is still accessible on mobile
-        var mainContent = Page.Locator("main, .main-content, .container");
+        var mainContent = Page.Locator("main, .main-content, .container").First;
         var isContentVisible = await mainContent.IsVisibleAsync();
 
         if (isContentVisible)
@@ -302,7 +328,7 @@ public class NavigationAndUITests : BaseTest
 
         // Assert - Check for responsive design with flexible approach
         var dashboardCards = Page.Locator(".summary-card, .dashboard-card, .card, .widget, .panel");
-        var mainContent = Page.Locator("main, .main-content, .container, .content");
+        var mainContent = Page.Locator("main, .main-content, .container, .content").First;
 
         var cardCount = await dashboardCards.CountAsync();
         var hasMainContent = await mainContent.IsVisibleAsync();
@@ -342,8 +368,9 @@ public class NavigationAndUITests : BaseTest
             var greetingText = await HomePage.GetUserGreetingTextAsync();
             if (!string.IsNullOrWhiteSpace(greetingText))
             {
-                Assert.That(greetingText, Does.Contain("Fake").Or.Contain("Admin"),
-                    "User greeting should contain the fake user's name");
+                // The greeting should contain "Hi " followed by a username
+                Assert.That(greetingText, Does.Contain("Hi "),
+                    "User greeting should contain 'Hi ' followed by username");
                 TestContext.WriteLine($"✅ User greeting found: {greetingText}");
             }
             else
@@ -624,8 +651,8 @@ public class NavigationAndUITests : BaseTest
         await HomePage.NavigateAsync();
 
         // Assert - Check for basic accessibility features
-        var mainContent = Page.Locator("main, [role='main'], .main-content, .container");
-        var navigation = Page.Locator("nav, [role='navigation']");
+        var mainContent = Page.Locator("main, [role='main'], .main-content, .container").First;
+        var navigation = Page.Locator("nav, [role='navigation']").First;
         var headings = Page.Locator("h1, h2, h3");
 
         var hasMainContent = await mainContent.IsVisibleAsync();
