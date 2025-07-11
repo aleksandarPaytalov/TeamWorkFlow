@@ -28,8 +28,30 @@ public abstract class BaseTest : PageTest
 
         // Set up browser context options
         Page.SetDefaultTimeout(Config.Timeout);
-        
-        // Navigate to base URL to ensure the application is running
+
+        // Only navigate to base URL if the test requires application connection
+        // This allows tests to run without the application being started
+        if (RequiresApplicationConnection())
+        {
+            await EnsureApplicationIsRunningAsync();
+        }
+    }
+
+    /// <summary>
+    /// Override this method in derived test classes to specify if the test requires application connection
+    /// </summary>
+    protected virtual bool RequiresApplicationConnection()
+    {
+        // By default, assume tests require application connection
+        // Individual test classes can override this to return false for standalone tests
+        return true;
+    }
+
+    /// <summary>
+    /// Ensures the application is running and accessible
+    /// </summary>
+    protected async Task EnsureApplicationIsRunningAsync()
+    {
         try
         {
             await Page.GotoAsync(Config.BaseUrl, new() { Timeout = 10000 });

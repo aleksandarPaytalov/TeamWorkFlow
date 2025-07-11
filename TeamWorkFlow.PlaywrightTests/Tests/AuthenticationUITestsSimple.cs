@@ -7,6 +7,13 @@ namespace TeamWorkFlow.PlaywrightTests.Tests;
 [TestFixture]
 public class AuthenticationUITestsSimple : BaseTest
 {
+    /// <summary>
+    /// These tests require the application to be running to test the actual login page
+    /// </summary>
+    protected override bool RequiresApplicationConnection()
+    {
+        return true; // These tests need the application running
+    }
     [Test]
     public async Task LoginPage_ShouldLoadCorrectly()
     {
