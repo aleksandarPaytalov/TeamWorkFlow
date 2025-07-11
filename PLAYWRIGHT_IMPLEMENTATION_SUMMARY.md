@@ -141,16 +141,18 @@ Edit `TeamWorkFlow.PlaywrightTests/appsettings.json`:
   },
   "TestUsers": {
     "AdminUser": {
-      "Email": "admin@teamworkflow.com",     // Your admin user
-      "Password": "Admin123!"
+      "Email": "PLACEHOLDER_ADMIN_EMAIL",     // Use environment variables
+      "Password": "PLACEHOLDER_ADMIN_PASSWORD"
     },
     "OperatorUser": {
-      "Email": "operator@teamworkflow.com", // Your operator user
-      "Password": "Operator123!"
+      "Email": "PLACEHOLDER_OPERATOR_EMAIL", // Use environment variables
+      "Password": "PLACEHOLDER_OPERATOR_PASSWORD"
     }
   }
 }
 ```
+
+> **Security**: Use environment variables for real credentials. See the security documentation for setup instructions.
 
 ### 4. Run Tests
 

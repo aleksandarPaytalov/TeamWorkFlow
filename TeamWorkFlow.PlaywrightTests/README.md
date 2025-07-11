@@ -80,12 +80,14 @@ TeamWorkFlow.PlaywrightTests/
      },
      "TestUsers": {
        "AdminUser": {
-         "Email": "ap.softuni@gmail.com",
-         "Password": "1234aA!"
+         "Email": "admin@teamworkflow.local",
+         "Password": "SecurePassword123!"
        }
      }
    }
    ```
+
+   > **Security Note**: Use environment variables for production credentials. See [SECURITY.md](SECURITY.md) for secure setup.
 
 ## 🧪 Running Tests
 

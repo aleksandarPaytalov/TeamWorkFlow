@@ -219,10 +219,12 @@ dotnet ef database update --project TeamWorkFlow.Infrastructure --startup-projec
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=YOUR_SERVER;Database=TeamWorkFlowDb;Trusted_Connection=true;MultipleActiveResultSets=true"
+    "DefaultConnection": "[YOUR_CONNECTION_STRING_HERE]"
   }
 }
 ```
+
+> **Security Note**: Replace `[YOUR_CONNECTION_STRING_HERE]` with your actual connection string. Never commit real connection strings to source control.
 
 2. Apply migrations:
 
@@ -256,7 +258,7 @@ The application uses Entity Framework Core with SQL Server. Configuration is man
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=TeamWorkFlowDb;Trusted_Connection=True;MultipleActiveResultSets=true"
+    "DefaultConnection": "[YOUR_CONNECTION_STRING_HERE]"
   },
   "Logging": {
     "LogLevel": {
@@ -278,15 +280,17 @@ The application uses Entity Framework Core with SQL Server. Configuration is man
 The application seeds default user accounts:
 
 #### Administrator Account
-- **Email**: `ap.softuni@gmail.com`
+- **Email**: `admin@teamworkflow.local` (development)
 - **Role**: Administrator
 - **Access**: Full system access
 
 #### Operator Accounts
-- **Email**: `jon.doe@softuni.bg`
-- **Email**: `jane.doe@softuni.bg`
+- **Email**: `operator@teamworkflow.local` (development)
+- **Email**: `operator2@teamworkflow.local` (development)
 - **Role**: Operator
 - **Access**: Limited to operator functions
+
+> **Security Note**: The actual credentials are configured through environment variables or secure configuration files. The above are placeholder examples for development.
 
 ## 📖 Usage
 
