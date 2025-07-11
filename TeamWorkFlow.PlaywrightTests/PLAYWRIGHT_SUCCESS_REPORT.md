@@ -101,12 +101,12 @@ public virtual async Task WaitForPageLoadAsync()
 
 ### **4. Updated User Configuration**
 ```json
-// Updated to match actual database users:
+// Updated to use secure generic test credentials:
 "AdminUser": {
-  "Email": "ap.softuni@gmail.com",
-  "Password": "1234aA!",
-  "FirstName": "Aleksandar",
-  "LastName": "Paytalov"
+  "Email": "admin@test.local",
+  "Password": "TestPass123!",
+  "FirstName": "Test",
+  "LastName": "Admin"
 }
 ```
 

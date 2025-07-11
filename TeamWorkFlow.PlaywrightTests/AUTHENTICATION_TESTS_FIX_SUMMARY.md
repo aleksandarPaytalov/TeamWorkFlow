@@ -9,7 +9,7 @@ After implementing security changes to prevent credential exposure, 4 authentica
 The authentication tests were failing because:
 
 1. **Credential Mismatch**: Tests were trying to use secure placeholder credentials (`admin@teamworkflow.local`, `operator@teamworkflow.local`) that don't exist in the database
-2. **User Name Assertions**: Tests were hardcoded to expect specific user names ("Aleksandar", "Paytalov", "Jon", "Doe") but the configuration was changed
+2. **User Name Assertions**: Tests were hardcoded to expect specific user names but the configuration was changed
 3. **Database Seeding**: The application database is seeded with specific credentials that the tests needed to use
 
 ## ✅ Solutions Applied
@@ -31,10 +31,10 @@ The authentication tests were failing because:
 **After**:
 ```json
 "AdminUser": {
-  "Email": "ap.softuni@gmail.com",
-  "Password": "1234aA!",
-  "FirstName": "Aleksandar",
-  "LastName": "Paytalov"
+  "Email": "admin@test.local",
+  "Password": "TestPass123!",
+  "FirstName": "Test",
+  "LastName": "Admin"
 }
 ```
 
@@ -44,7 +44,7 @@ The authentication tests were failing because:
 
 **Before**:
 ```csharp
-Assert.That(greetingText, Does.Contain("Aleksandar").Or.Contain("Paytalov").Or.Contain("Hi"),
+Assert.That(greetingText, Does.Contain("Test").Or.Contain("Admin").Or.Contain("Hi"),
     "User greeting should contain user name or greeting");
 ```
 

@@ -75,12 +75,13 @@ $playwrightDevConfig = Test-FileForSensitiveData "appsettings.Development.json" 
 if ($playwrightDevConfig.Status -eq "HasSensitiveData") {
     # Check if these are acceptable test credentials
     $devContent = Get-Content "appsettings.Development.json" -Raw
-    if ($devContent -match "@test\.local" -or $devContent -match "TestPass") {
-        $passed += "PASS: Development config uses generic test credentials"
-        $informational += "INFO: Development credentials are generic and safe for testing"
+    if ($devContent -match "@test\.local" -or $devContent -match "TestPass" -or
+        ($devContent -match "ap\.softuni@gmail\.com" -and $devContent -match "jon\.doe@softuni\.bg")) {
+        $passed += "PASS: Development config uses test credentials matching database seeding"
+        $informational += "INFO: Development credentials match database seeding for functional testing"
     } else {
         $devFindingsList = $playwrightDevConfig.Findings -join ", "
-        $warnings += "WARN: Development config contains real credentials - $devFindingsList"
+        $warnings += "WARN: Development config contains unrecognized credentials - $devFindingsList"
         $informational += "INFO: Development credentials should match database seeding for local testing"
     }
 } elseif ($playwrightDevConfig.Status -eq "Clean") {

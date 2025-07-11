@@ -39,10 +39,10 @@ PASSED (11):
 **Security Improvement**:
 ```json
 // Before: Real-looking credentials
-"Email": "ap.softuni@gmail.com",
-"Password": "1234aA!"
+"Email": "[REAL-LOOKING-EMAIL]",
+"Password": "[REAL-PASSWORD]"
 
-// After: Generic test credentials  
+// After: Generic test credentials
 "Email": "admin@test.local",
 "Password": "TestPass123!"
 ```
