@@ -382,6 +382,16 @@ reportgenerator -reports:"TestResults\*\coverage.cobertura.xml" -targetdir:"Test
 
 # Run specific test project
 dotnet test UnitTests/UnitTests.csproj
+
+# Run Playwright E2E tests (requires running application)
+# 1. Start the application first:
+cd TeamWorkFlow && dotnet run
+
+# 2. In a separate terminal, run E2E tests:
+dotnet test TeamWorkFlow.PlaywrightTests/
+
+# Run specific Playwright test suite
+dotnet test TeamWorkFlow.PlaywrightTests/ --filter "TaskManagementTests"
 ```
 
 ### Service Coverage Statistics
@@ -425,16 +435,17 @@ UnitTests/
 
 TeamWorkFlow.PlaywrightTests/
 ├── Tests/
-│   ├── AuthenticationTests.cs   # Login/logout and security tests
-│   ├── TaskManagementTests.cs   # Task CRUD workflow tests
+│   ├── AuthenticationUITestsSimple.cs # Login/logout and security tests
+│   ├── TaskManagementTests.cs   # Task CRUD workflow tests (11 tests)
 │   ├── ProjectManagementTests.cs # Project management tests
 │   ├── NavigationAndUITests.cs  # UI/UX and responsive design tests
-│   └── ...                      # Additional E2E test suites
+│   └── BaseTest.cs              # Common test setup and utilities
 └── PageObjects/
     ├── BasePage.cs              # Common page functionality
     ├── LoginPage.cs             # Authentication page objects
     ├── TasksPage.cs             # Task management page objects
-    └── ...                      # Additional page object models
+    ├── ProjectsPage.cs          # Project management page objects
+    └── MachinesPage.cs          # Machine management page objects
 ```
 
 ### Quality Assurance

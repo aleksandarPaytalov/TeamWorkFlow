@@ -84,14 +84,21 @@ Write-Host "=====================================" -ForegroundColor Green
 
 Write-Host "`n📋 Next Steps:" -ForegroundColor Cyan
 Write-Host "1. Configure test settings in TeamWorkFlow.PlaywrightTests/appsettings.json" -ForegroundColor White
-Write-Host "2. Start your TeamWorkFlow application (dotnet run --project TeamWorkFlow/)" -ForegroundColor White
-Write-Host "3. Run Playwright tests:" -ForegroundColor White
+Write-Host "2. Start your TeamWorkFlow application:" -ForegroundColor White
+Write-Host "   cd TeamWorkFlow && dotnet run" -ForegroundColor Gray
+Write-Host "3. In a separate terminal, run Playwright tests:" -ForegroundColor White
 Write-Host "   • All tests: dotnet test TeamWorkFlow.PlaywrightTests/" -ForegroundColor Gray
-Write-Host "   • Specific test: dotnet test TeamWorkFlow.PlaywrightTests/ --filter 'TestName'" -ForegroundColor Gray
-Write-Host "   • With script: ./TeamWorkFlow.PlaywrightTests/run-playwright-tests.ps1" -ForegroundColor Gray
+Write-Host "   • TaskManagement tests: dotnet test TeamWorkFlow.PlaywrightTests/ --filter 'TaskManagementTests'" -ForegroundColor Gray
+Write-Host "   • With enhanced script: ./TeamWorkFlow.PlaywrightTests/run-playwright-tests.ps1" -ForegroundColor Gray
 
 Write-Host "`n📚 Documentation:" -ForegroundColor Cyan
-Write-Host "• Playwright Tests: TeamWorkFlow.PlaywrightTests/README.md" -ForegroundColor White
+Write-Host "• Playwright Tests Guide: TeamWorkFlow.PlaywrightTests/README.md" -ForegroundColor White
+Write-Host "• Security Guidelines: TeamWorkFlow.PlaywrightTests/SECURITY.md" -ForegroundColor White
 Write-Host "• Main Project: README.md" -ForegroundColor White
+
+Write-Host "`n⚠️  Important Notes:" -ForegroundColor Yellow
+Write-Host "• Application MUST be running before executing tests" -ForegroundColor White
+Write-Host "• Tests run against live application at https://localhost:7015" -ForegroundColor White
+Write-Host "• Use fake credentials for testing (see SECURITY.md)" -ForegroundColor White
 
 Write-Host "`n✨ Happy Testing! 🧪" -ForegroundColor Green

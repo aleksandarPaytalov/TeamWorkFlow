@@ -273,9 +273,31 @@ When UI changes, update selectors in page objects:
 - Reuse browser contexts when possible
 - Run tests in parallel for faster execution
 
+## 🧹 Project Maintenance
+
+### Recent Cleanup (2025-01-12)
+- ✅ Removed unnecessary documentation files
+- ✅ Removed outdated PowerShell scripts
+- ✅ Cleaned up build artifacts and temporary folders
+- ✅ Enhanced .gitignore for better artifact exclusion
+- ✅ Updated installation and usage instructions
+
+### File Structure (Clean)
+```
+TeamWorkFlow.PlaywrightTests/
+├── PageObjects/                 # Page Object Model classes
+├── Tests/                       # Test classes
+├── README.md                    # This documentation
+├── SECURITY.md                  # Security guidelines
+├── run-playwright-tests.ps1     # Enhanced test runner
+├── appsettings.json            # Test configuration
+└── TeamWorkFlow.PlaywrightTests.csproj
+```
+
 ## 📚 Resources
 
 - [Playwright Documentation](https://playwright.dev/dotnet/)
 - [NUnit Documentation](https://docs.nunit.org/)
 - [Page Object Model Pattern](https://playwright.dev/dotnet/pom)
 - [TeamWorkFlow Application Documentation](../README.md)
+- [Security Guidelines](SECURITY.md)
