@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TeamWorkFlow.Extensions;
+using TeamWorkFlow.Infrastructure.Data;
 
 namespace TeamWorkFlow
 {
@@ -21,6 +23,24 @@ namespace TeamWorkFlow
 			//builder.Services.AddMemoryCache();
 
 			var app = builder.Build();
+
+			// Initialize database for in-memory or development environments
+			using (var scope = app.Services.CreateScope())
+			{
+				var context = scope.ServiceProvider.GetRequiredService<TeamWorkFlowDbContext>();
+				bool useInMemoryDatabase = Environment.GetEnvironmentVariable("USE_IN_MEMORY_DATABASE") == "true";
+
+				if (useInMemoryDatabase)
+				{
+					// For in-memory database, ensure it's created and seeded
+					context.Database.EnsureCreated();
+				}
+				else if (app.Environment.IsDevelopment())
+				{
+					// For development with SQL Server, apply migrations
+					context.Database.Migrate();
+				}
+			}
 
 			if (app.Environment.IsDevelopment())
 			{
@@ -44,6 +64,31 @@ namespace TeamWorkFlow
 
             app.UseEndpoints(endpoints =>
             {
+				// Explicit routes to ensure proper authentication
+				endpoints.MapControllerRoute(
+					name: "TaskList",
+					pattern: "/Task",
+					defaults: new { Controller = "Task", Action = "All" }
+				);
+
+				endpoints.MapControllerRoute(
+					name: "TaskCreate",
+					pattern: "/Task/Create",
+					defaults: new { Controller = "Task", Action = "Create" }
+				);
+
+				endpoints.MapControllerRoute(
+					name: "ProjectList",
+					pattern: "/Project",
+					defaults: new { Controller = "Project", Action = "All" }
+				);
+
+				endpoints.MapControllerRoute(
+					name: "OperatorList",
+					pattern: "/Operator",
+					defaults: new { Controller = "Operator", Action = "All", Area = "" }
+				);
+
 				//TaskRouting
 				endpoints.MapEntityControllerRoutes("Task");
 

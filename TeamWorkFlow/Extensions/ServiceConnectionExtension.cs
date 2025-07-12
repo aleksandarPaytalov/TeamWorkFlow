@@ -22,14 +22,27 @@ namespace TeamWorkFlow.Extensions
 
 		public static IServiceCollection AddApplicationDbContext(this IServiceCollection services, IConfiguration config)
 		{
-			var connectionString = config.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-			services.AddDbContext<TeamWorkFlowDbContext>(options =>
-				options.UseSqlServer(connectionString));
+			// Check if running in CI/CD environment with in-memory database
+			bool useInMemoryDatabase = Environment.GetEnvironmentVariable("USE_IN_MEMORY_DATABASE") == "true";
+
+			if (useInMemoryDatabase)
+			{
+				// Use in-memory database for CI/CD
+				services.AddDbContext<TeamWorkFlowDbContext>(options =>
+					options.UseInMemoryDatabase(databaseName: "TeamWorkFlowInMemoryDb"));
+			}
+			else
+			{
+				// Use SQL Server for normal operation
+				var connectionString = config.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+				services.AddDbContext<TeamWorkFlowDbContext>(options =>
+					options.UseSqlServer(connectionString));
+			}
 
             services.AddScoped<IRepository, Repository>();
 
 			services.AddDatabaseDeveloperPageExceptionFilter();
-			
+
             return services;
 		}
 

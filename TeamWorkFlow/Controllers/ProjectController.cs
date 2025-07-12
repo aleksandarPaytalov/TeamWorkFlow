@@ -20,6 +20,11 @@ namespace TeamWorkFlow.Controllers
 	    [HttpGet]
         public async Task<IActionResult> All([FromQuery] AllProjectsQueryModel model)
         {
+            if (!User.Identity?.IsAuthenticated == true || (User.IsAdmin() == false && User.IsOperator() == false))
+            {
+                return Challenge();
+            }
+
 	        var projects = await _projectService.AllAsync(
 		        model.Sorting,
 		        model.Search,

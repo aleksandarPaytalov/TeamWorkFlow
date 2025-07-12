@@ -361,3 +361,47 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# TeamWorkFlow Security - Sensitive Configuration Files
+# Exclude sensitive test configuration files
+TeamWorkFlow.PlaywrightTests/.env
+TeamWorkFlow.PlaywrightTests/appsettings.Production.json
+TeamWorkFlow.PlaywrightTests/appsettings.Staging.json
+TeamWorkFlow.PlaywrightTests/test-credentials.json
+
+# Main application sensitive files
+TeamWorkFlow/appsettings.Production.json
+TeamWorkFlow/appsettings.Staging.json
+TeamWorkFlow/.env
+*.secrets.json
+**/secrets.json
+
+# Playwright test artifacts and build outputs
+TeamWorkFlow.PlaywrightTests/test-results/
+TeamWorkFlow.PlaywrightTests/playwright-report/
+TeamWorkFlow.PlaywrightTests/screenshots/
+TeamWorkFlow.PlaywrightTests/videos/
+TeamWorkFlow.PlaywrightTests/bin/
+TeamWorkFlow.PlaywrightTests/obj/
+TeamWorkFlow.PlaywrightTests/TestResults/
+
+# Playwright browser downloads and cache
+TeamWorkFlow.PlaywrightTests/.playwright/
+TeamWorkFlow.PlaywrightTests/node_modules/
+
+# Entity Framework build artifacts
+TeamWorkFlow.PlaywrightTests/obj/*.targets
+
+# Temporary build artifacts in test project
+TeamWorkFlow.PlaywrightTests/TeamWorkFlow.Infrastructure/
+TeamWorkFlow.PlaywrightTests/TeamWorkFlow.Core/
+TeamWorkFlow.PlaywrightTests/TeamWorkFlow/
+
+# Test coverage reports
+TeamWorkFlow.PlaywrightTests/coverage/
+TeamWorkFlow.PlaywrightTests/TestCoverage/
+
+# Temporary files and logs
+TeamWorkFlow.PlaywrightTests/*.tmp
+TeamWorkFlow.PlaywrightTests/*.log
+TeamWorkFlow.PlaywrightTests/trace.zip
