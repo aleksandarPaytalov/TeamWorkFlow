@@ -382,6 +382,9 @@ TeamWorkFlow.PlaywrightTests/TestResults/
 TeamWorkFlow.PlaywrightTests/.playwright/
 TeamWorkFlow.PlaywrightTests/node_modules/
 
+# Entity Framework build artifacts
+TeamWorkFlow.PlaywrightTests/obj/*.targets
+
 # Temporary build artifacts in test project
 TeamWorkFlow.PlaywrightTests/TeamWorkFlow.Infrastructure/
 TeamWorkFlow.PlaywrightTests/TeamWorkFlow.Core/
