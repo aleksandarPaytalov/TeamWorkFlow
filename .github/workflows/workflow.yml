@@ -42,13 +42,13 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build solution
-      run: dotnet build
+      run: dotnet build --configuration Release
     - name: Install Playwright
       run: pwsh TeamWorkFlow.PlaywrightTests/bin/Debug/net6.0/playwright.ps1 install chromium
     - name: Start application on GitHub runner
       run: |
         cd TeamWorkFlow
-        nohup dotnet run --no-build --configuration Release > app.log 2>&1 &
+        nohup dotnet run --configuration Release > app.log 2>&1 &
         APP_PID=$!
         echo "APP_PID=$APP_PID" >> $GITHUB_ENV
         echo "Application started on GitHub runner with PID: $APP_PID"
