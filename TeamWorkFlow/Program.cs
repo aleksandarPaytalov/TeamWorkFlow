@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TeamWorkFlow.Extensions;
+using TeamWorkFlow.Infrastructure.Data;
 
 namespace TeamWorkFlow
 {
@@ -21,6 +23,24 @@ namespace TeamWorkFlow
 			//builder.Services.AddMemoryCache();
 
 			var app = builder.Build();
+
+			// Initialize database for in-memory or development environments
+			using (var scope = app.Services.CreateScope())
+			{
+				var context = scope.ServiceProvider.GetRequiredService<TeamWorkFlowDbContext>();
+				bool useInMemoryDatabase = Environment.GetEnvironmentVariable("USE_IN_MEMORY_DATABASE") == "true";
+
+				if (useInMemoryDatabase)
+				{
+					// For in-memory database, ensure it's created and seeded
+					context.Database.EnsureCreated();
+				}
+				else if (app.Environment.IsDevelopment())
+				{
+					// For development with SQL Server, apply migrations
+					context.Database.Migrate();
+				}
+			}
 
 			if (app.Environment.IsDevelopment())
 			{
