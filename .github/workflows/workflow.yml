@@ -43,6 +43,8 @@ jobs:
       run: dotnet restore
     - name: Build solution
       run: dotnet build
+    - name: Install Playwright
+      run: pwsh TeamWorkFlow.PlaywrightTests/bin/Debug/net6.0/playwright.ps1 install chromium
     - name: Run Playwright Integration Tests
       run: dotnet test TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj
       env:
