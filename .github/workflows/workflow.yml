@@ -45,10 +45,42 @@ jobs:
       run: dotnet build
     - name: Install Playwright
       run: pwsh TeamWorkFlow.PlaywrightTests/bin/Debug/net6.0/playwright.ps1 install chromium
+    - name: Start application on GitHub runner
+      run: |
+        cd TeamWorkFlow
+        nohup dotnet run --no-build --configuration Release > app.log 2>&1 &
+        APP_PID=$!
+        echo "APP_PID=$APP_PID" >> $GITHUB_ENV
+        echo "Application started on GitHub runner with PID: $APP_PID"
+        sleep 15
+      env:
+        USE_IN_MEMORY_DATABASE: true
+        ASPNETCORE_URLS: "https://localhost:7015;http://localhost:5142"
+    - name: Wait for application to be ready
+      run: |
+        echo "Checking if application is ready on GitHub runner..."
+        for i in {1..30}; do
+          if curl -f -s -k https://localhost:7015 > /dev/null 2>&1; then
+            echo "Application is ready on GitHub runner!"
+            exit 0
+          fi
+          echo "Waiting for application... ($i/30)"
+          sleep 2
+        done
+        echo "Application failed to start on GitHub runner"
+        cat TeamWorkFlow/app.log
+        exit 1
     - name: Run Playwright Integration Tests
       run: dotnet test TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj
       env:
         USE_IN_MEMORY_DATABASE: true
         CI: true
+    - name: Stop application
+      if: always()
+      run: |
+        if [ ! -z "$APP_PID" ]; then
+          echo "Stopping application on GitHub runner"
+          kill $APP_PID || true
+        fi
 
 
