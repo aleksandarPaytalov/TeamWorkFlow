@@ -59,6 +59,8 @@ jobs:
         dotnet run --project TeamWorkFlow/TeamWorkFlow.csproj --urls "http://localhost:7015" &
         echo "Waiting for app to start..."
         sleep 10  # adjust if needed
+      env:
+        USE_IN_MEMORY_DATABASE: true
 
     - name: Run Playwright Integration Tests
       run: dotnet test TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj

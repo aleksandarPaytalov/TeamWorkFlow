@@ -20,7 +20,21 @@ public class TestConfiguration
 
     public static TestConfiguration Instance => _instance ??= new TestConfiguration();
 
-    public string BaseUrl => _configuration["TestSettings:BaseUrl"] ?? "https://localhost:7015";
+    public string BaseUrl
+    {
+        get
+        {
+            // Check environment variable first (for CI/CD)
+            var envUrl = Environment.GetEnvironmentVariable("APP_BASE_URL");
+            if (!string.IsNullOrEmpty(envUrl))
+            {
+                return envUrl;
+            }
+
+            // Fall back to configuration or default HTTP URL
+            return _configuration["TestSettings:BaseUrl"] ?? "http://localhost:7015";
+        }
+    }
     public int Timeout => int.Parse(_configuration["TestSettings:Timeout"] ?? "30000");
     public int DefaultWaitTime => int.Parse(_configuration["TestSettings:DefaultWaitTime"] ?? "5000");
     public bool ScreenshotOnFailure => bool.Parse(_configuration["TestSettings:ScreenshotOnFailure"] ?? "true");
