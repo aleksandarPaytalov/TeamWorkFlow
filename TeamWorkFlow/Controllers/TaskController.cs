@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using TeamWorkFlow.Core.Constants;
 using TeamWorkFlow.Core.Contracts;
@@ -10,6 +11,7 @@ using static TeamWorkFlow.Constants.MessageConstants;
 
 namespace TeamWorkFlow.Controllers
 {
+    [Authorize]
     public class TaskController : BaseController
     {
         private readonly ITaskService _taskService;
@@ -25,6 +27,11 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
         public async Task<IActionResult> All([FromQuery] AllTasksQueryModel model)
         {
+            if (!User.Identity.IsAuthenticated || (User.IsAdmin() == false && User.IsOperator() == false))
+            {
+                return Challenge();
+            }
+
             var tasks = await _taskService.AllAsync(
                 model.Sorting,
                 model.Search,
@@ -56,6 +63,13 @@ namespace TeamWorkFlow.Controllers
             };
 
 	        return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            // Redirect to Add action to maintain consistency
+            return await Add();
         }
 
         [HttpPost]
@@ -328,6 +342,11 @@ namespace TeamWorkFlow.Controllers
 
         public async Task<IActionResult> Confirmation(int id)
         {
+            if (!User.Identity.IsAuthenticated || (User.IsAdmin() == false && User.IsOperator() == false))
+            {
+                return Challenge();
+            }
+
 	        if (!await _taskService.TaskExistByIdAsync(id))
 	        {
 		        return BadRequest();

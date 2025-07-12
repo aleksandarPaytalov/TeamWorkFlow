@@ -19,6 +19,11 @@ namespace TeamWorkFlow.Controllers
 		[HttpGet]
 	    public async Task <IActionResult> All([FromQuery] AllOperatorsQueryModel model)
 	    {
+            if (!User.Identity.IsAuthenticated || (User.IsAdmin() == false && User.IsOperator() == false))
+            {
+                return Challenge();
+            }
+
 		    var operators = await _operatorService.AllAsync(
 			    model.Sorting,
 			    model.Search,

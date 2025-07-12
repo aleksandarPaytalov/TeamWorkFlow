@@ -44,6 +44,31 @@ namespace TeamWorkFlow
 
             app.UseEndpoints(endpoints =>
             {
+				// Explicit routes to ensure proper authentication
+				endpoints.MapControllerRoute(
+					name: "TaskList",
+					pattern: "/Task",
+					defaults: new { Controller = "Task", Action = "All" }
+				);
+
+				endpoints.MapControllerRoute(
+					name: "TaskCreate",
+					pattern: "/Task/Create",
+					defaults: new { Controller = "Task", Action = "Create" }
+				);
+
+				endpoints.MapControllerRoute(
+					name: "ProjectList",
+					pattern: "/Project",
+					defaults: new { Controller = "Project", Action = "All" }
+				);
+
+				endpoints.MapControllerRoute(
+					name: "OperatorList",
+					pattern: "/Operator",
+					defaults: new { Controller = "Operator", Action = "All", Area = "" }
+				);
+
 				//TaskRouting
 				endpoints.MapEntityControllerRoutes("Task");
 
