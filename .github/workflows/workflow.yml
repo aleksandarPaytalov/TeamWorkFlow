@@ -44,7 +44,7 @@ jobs:
     - name: Build solution
       run: dotnet build --configuration Release
     - name: Install Playwright
-      run: pwsh TeamWorkFlow.PlaywrightTests/bin/Debug/net6.0/playwright.ps1 install chromium
+      run: pwsh TeamWorkFlow.PlaywrightTests/bin/Release/net6.0/playwright.ps1 install chromium
     - name: Start application on GitHub runner
       run: |
         cd TeamWorkFlow
