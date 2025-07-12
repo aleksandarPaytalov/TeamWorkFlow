@@ -27,7 +27,7 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
         public async Task<IActionResult> All([FromQuery] AllTasksQueryModel model)
         {
-            if (!User.Identity.IsAuthenticated || (User.IsAdmin() == false && User.IsOperator() == false))
+            if (!User.Identity?.IsAuthenticated == true || (User.IsAdmin() == false && User.IsOperator() == false))
             {
                 return Challenge();
             }
@@ -342,7 +342,7 @@ namespace TeamWorkFlow.Controllers
 
         public async Task<IActionResult> Confirmation(int id)
         {
-            if (!User.Identity.IsAuthenticated || (User.IsAdmin() == false && User.IsOperator() == false))
+            if (!User.Identity?.IsAuthenticated == true || (User.IsAdmin() == false && User.IsOperator() == false))
             {
                 return Challenge();
             }
