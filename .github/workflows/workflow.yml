@@ -62,29 +62,75 @@ jobs:
 
     - name: Install Playwright browsers
       run: |
-        dotnet tool install --global Microsoft.Playwright.CLI
+        # Build the test project to restore Playwright packages
+        dotnet build TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj
+
+        # Install Playwright CLI globally
+        dotnet tool install --global Microsoft.Playwright.CLI || echo "Playwright CLI already installed"
+
+        # Install browsers only (skip system dependencies that cause issues)
         playwright install chromium
-        playwright install-deps chromium
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/ms-playwright
 
     - name: Start TeamWorkFlow application
       run: |
         cd TeamWorkFlow
-        dotnet run --configuration Release --no-build &
-        echo "APP_PID=$!" >> $GITHUB_ENV
-        sleep 30
+        # Start the application in background
+        nohup dotnet run --configuration Release --no-build > app.log 2>&1 &
+        APP_PID=$!
+        echo "APP_PID=$APP_PID" >> $GITHUB_ENV
+        echo "Application started with PID: $APP_PID"
+
+        # Wait for application to start
+        echo "Waiting for application to start..."
+        sleep 15
+
+        # Check if process is still running
+        if kill -0 $APP_PID 2>/dev/null; then
+          echo "Application is running"
+        else
+          echo "Application failed to start"
+          cat app.log
+          exit 1
+        fi
       env:
         ASPNETCORE_ENVIRONMENT: Development
         USE_IN_MEMORY_DATABASE: true
+        ASPNETCORE_URLS: "https://localhost:7015;http://localhost:5142"
 
     - name: Wait for application to be ready
       run: |
-        timeout 60 bash -c 'until curl -f -s https://localhost:7015 -k; do sleep 2; done' || (echo "Application failed to start" && exit 1)
+        echo "Checking application health..."
+        for i in {1..30}; do
+          if curl -f -s -k https://localhost:7015 > /dev/null 2>&1; then
+            echo "Application is ready!"
+            exit 0
+          fi
+          echo "Attempt $i: Application not ready yet, waiting..."
+          sleep 2
+        done
+        echo "Application failed to become ready"
+        if [ -f TeamWorkFlow/app.log ]; then
+          echo "Application logs:"
+          cat TeamWorkFlow/app.log
+        fi
+        exit 1
 
     - name: Run Playwright Integration Tests
-      run: dotnet test TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj --no-build --configuration Release --verbosity normal --logger trx --results-directory TestResults
+      run: |
+        echo "Starting Playwright tests..."
+        dotnet test TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj \
+          --no-build \
+          --configuration Release \
+          --verbosity normal \
+          --logger trx \
+          --results-directory TestResults \
+          --collect:"XPlat Code Coverage"
       env:
         USE_IN_MEMORY_DATABASE: true
         PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/ms-playwright
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
 
     - name: Stop application
       if: always()
