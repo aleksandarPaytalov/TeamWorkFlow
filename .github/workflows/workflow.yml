@@ -62,6 +62,20 @@ jobs:
       env:
         USE_IN_MEMORY_DATABASE: true
 
+    - name: Debug Test Configuration
+      run: |
+        echo "=== DEBUGGING TEST CONFIGURATION ==="
+        echo "Environment Variables:"
+        echo "TEST_ADMIN_EMAIL: ${TEST_ADMIN_EMAIL:-'NOT SET'}"
+        echo "TEST_OPERATOR_EMAIL: ${TEST_OPERATOR_EMAIL:-'NOT SET'}"
+        echo "USE_IN_MEMORY_DATABASE: ${USE_IN_MEMORY_DATABASE}"
+        echo "APP_BASE_URL: ${APP_BASE_URL}"
+        echo "=== END DEBUG ==="
+      env:
+        USE_IN_MEMORY_DATABASE: true
+        CI: true
+        APP_BASE_URL: http://localhost:7015
+
     - name: Run Only Failing Tests in Parallel (Debug)
       run: dotnet test TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj --filter "LoginWithFakeCredentials_ShouldFail|LoginWithFakeOperatorCredentials_ShouldFail" -- NUnit.NumberOfTestWorkers=2
       env:
