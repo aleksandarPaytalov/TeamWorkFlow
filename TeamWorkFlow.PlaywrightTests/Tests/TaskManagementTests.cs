@@ -51,7 +51,7 @@ public class TaskManagementTests : BaseTest
         var fakeAdminEmail = Config.AdminUser.Email; // This is "fake.admin@test.local"
         var fakeAdminPassword = Config.AdminUser.Password; // This is "FakeAdminPass123!"
 
-        TestContext.WriteLine($"🔍 DEBUG - Config email: {fakeAdminEmail}, Expected: fake.admin@test.local");
+
         TestContext.WriteLine($"🔐 Attempting login with fake admin: {fakeAdminEmail}");
         await LoginPage.LoginAsync(fakeAdminEmail, fakeAdminPassword);
 
