@@ -23,6 +23,11 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
         public async Task<IActionResult> All([FromQuery] AllPartsQueryModel model)
         {
+            if (!User.Identity?.IsAuthenticated == true || (User.IsAdmin() == false && User.IsOperator() == false))
+            {
+                return Challenge();
+            }
+
             var parts = await _partService.AllAsync(
                 model.Sorting,
                 model.Search,

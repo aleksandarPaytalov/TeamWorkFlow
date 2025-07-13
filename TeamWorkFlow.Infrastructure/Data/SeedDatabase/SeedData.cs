@@ -265,71 +265,71 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 	        AdminUser = new IdentityUser()
 	        {
 		        Id = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
-		        UserName = "ap.softuni@gmail.com",
-		        NormalizedUserName = "AP.SOFTUNI@GMAIL.COM",
-		        Email = "ap.softuni@gmail.com",
-		        NormalizedEmail = "AP.SOFTUNI@GMAIL.COM"
+		        UserName = "admin@test.local",
+		        NormalizedUserName = "ADMIN@TEST.LOCAL",
+		        Email = "admin@test.local",
+		        NormalizedEmail = "ADMIN@TEST.LOCAL"
 	        };
 
 	        AdminUserClaim = new IdentityUserClaim<string>()
 	        {
 		        Id = 1,
 		        ClaimType = UserName,
-		        ClaimValue = "ap.softuni@gmail.com",
+		        ClaimValue = "admin@test.local",
 		        UserId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77"
 	        };
 
-	        AdminUser.PasswordHash = hasher.HashPassword(AdminUser, "1234aA!");
+	        AdminUser.PasswordHash = hasher.HashPassword(AdminUser, "TestPass123!");
 
             //Operator
             OperatorUser = new IdentityUser()
             {
 	            Id = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
-	            UserName = "jon.doe@softuni.bg",
-	            NormalizedUserName = "JON.DOE@SOFTUNI.BG",
-	            Email = "jon.doe@softuni.bg",
-                NormalizedEmail = "JON.DOE@SOFTUNI.BG"
+	            UserName = "operator@test.local",
+	            NormalizedUserName = "OPERATOR@TEST.LOCAL",
+	            Email = "operator@test.local",
+                NormalizedEmail = "OPERATOR@TEST.LOCAL"
 			};
 
             OperatorUserClaim = new IdentityUserClaim<string>()
             {
 	            Id = 2,
 	            ClaimType = UserName,
-	            ClaimValue = "jon.doe@softuni.bg",
+	            ClaimValue = "operator@test.local",
 	            UserId = "7bf9623c-54d9-45ba-84c6-52806dcee7bd"
             };
 
-            OperatorUser.PasswordHash = hasher.HashPassword(OperatorUser, "1234bB!");
+            OperatorUser.PasswordHash = hasher.HashPassword(OperatorUser, "TestPass456!");
 
             //Guest
             GuestUser = new IdentityUser()
             {
 	            Id = "b806eee6-2ceb-4956-9643-e2e2e82289d2",
-	            UserName = "jane.doe@softuni.bg",
-	            NormalizedUserName = "JANE.DOE@SOFTUNI.BG",
-	            Email = "jane.doe@softuni.bg",
-	            NormalizedEmail = "JANE.DOE@SOFTUNI.BG"
+	            UserName = "guest@test.local",
+	            NormalizedUserName = "GUEST@TEST.LOCAL",
+	            Email = "guest@test.local",
+	            NormalizedEmail = "GUEST@TEST.LOCAL"
             };
 
             GuestUserClaim = new IdentityUserClaim<string>()
             {
 	            Id = 3,
 	            ClaimType = UserName,
-	            ClaimValue = "jane.doe@softuni.bg",
+	            ClaimValue = "guest@test.local",
 	            UserId = "b806eee6-2ceb-4956-9643-e2e2e82289d2"
             };
 
-            GuestUser.PasswordHash = hasher.HashPassword(GuestUser, "1234cC!");
+            GuestUser.PasswordHash = hasher.HashPassword(GuestUser, "TestPass789!");
         }
         private void SeedOperator()
         {
             OperatorOne = new Operator()
             {
                 Id = 1,
-                FullName = "Aleksandar Paytalov",
+                FullName = "Test Admin",
                 AvailabilityStatusId = 4,
-                Email = "ap.softuni@gmail.com",
-                PhoneNumber = "+359881234567",
+                Email = "admin@test.local",
+                PhoneNumber = "+1234567890",
                 IsActive = true,
                 Capacity = 8,
 				UserId = AdminUser.Id
@@ -338,10 +338,10 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
             OperatorTwo = new Operator()
             {
                 Id = 2,
-                FullName = "Jon Doe",
+                FullName = "Test Operator",
                 AvailabilityStatusId = 1,
-                Email = "jon.doe@softuni.bg",
-                PhoneNumber = "+359887654321",
+                Email = "operator@test.local",
+                PhoneNumber = "+1234567891",
                 IsActive = true,
                 Capacity = 4,
 				UserId = OperatorUser.Id
@@ -350,10 +350,10 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
             OperatorThree = new Operator()
             {
                 Id = 3,
-                FullName = "Jane Doe",
+                FullName = "Test Guest",
                 AvailabilityStatusId = 2,
-                Email = "jane.doe@softuni.bg",
-                PhoneNumber = "+359894567890",
+                Email = "guest@test.local",
+                PhoneNumber = "+1234567892",
                 IsActive = true,
                 Capacity = 8,
 				UserId = GuestUser.Id
