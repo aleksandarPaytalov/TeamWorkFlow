@@ -62,8 +62,8 @@ jobs:
       env:
         USE_IN_MEMORY_DATABASE: true
 
-    - name: Run Playwright Integration Tests
-      run: dotnet test TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj
+    - name: Run Only Failing Tests in Parallel (Debug)
+      run: dotnet test TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj --filter "LoginWithFakeCredentials_ShouldFail|LoginWithFakeOperatorCredentials_ShouldFail" --parallel
       env:
         USE_IN_MEMORY_DATABASE: true
         CI: true
