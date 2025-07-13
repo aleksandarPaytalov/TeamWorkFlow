@@ -63,7 +63,7 @@ jobs:
         USE_IN_MEMORY_DATABASE: true
 
     - name: Run Only Failing Tests in Parallel (Debug)
-      run: dotnet test TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj --filter "LoginWithFakeCredentials_ShouldFail|LoginWithFakeOperatorCredentials_ShouldFail" --parallel
+      run: dotnet test TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj --filter "LoginWithFakeCredentials_ShouldFail|LoginWithFakeOperatorCredentials_ShouldFail" -- NUnit.NumberOfTestWorkers=2
       env:
         USE_IN_MEMORY_DATABASE: true
         CI: true
