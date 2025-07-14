@@ -799,6 +799,7 @@ public void Setup()
 			var activatedOperator = await _repository.GetByIdAsync<Operator>(inactiveOperator.Id);
 			Assert.That(activatedOperator, Is.Not.Null);
 			Assert.That(activatedOperator.IsActive, Is.True);
+			Assert.That(activatedOperator.AvailabilityStatusId, Is.EqualTo(1)); // Should be set to "at work"
 		}
 
 		[Test]
@@ -817,6 +818,197 @@ public void Setup()
 			var operatorAfterActivation = await _repository.GetByIdAsync<Operator>(activeOperator.Id);
 			Assert.That(operatorAfterActivation, Is.Not.Null);
 			Assert.That(operatorAfterActivation.IsActive, Is.True);
+		}
+
+		[Test]
+		public async Task DeactivateOperatorAsync_WithActiveOperator_DeactivatesOperator()
+		{
+			// Arrange - First create an active operator
+			var userId = "test-deactivate-user-id";
+			_dbContext.Users.Add(new IdentityUser { Id = userId });
+			await _dbContext.SaveChangesAsync();
+
+			var activeOperator = new Operator()
+			{
+				FullName = "Active Test Operator",
+				Email = "active@test.com",
+				PhoneNumber = "0888777666",
+				AvailabilityStatusId = 1, // "at work"
+				Capacity = 8,
+				IsActive = true,
+				UserId = userId
+			};
+
+			await _repository.AddAsync(activeOperator);
+			await _repository.SaveChangesAsync();
+
+			// Act
+			await _operatorService.DeactivateOperatorAsync(activeOperator.Id);
+
+			// Assert
+			var deactivatedOperator = await _repository.GetByIdAsync<Operator>(activeOperator.Id);
+			Assert.That(deactivatedOperator, Is.Not.Null);
+			Assert.That(deactivatedOperator.IsActive, Is.False);
+		}
+
+		[Test]
+		public async Task DeactivateOperatorAsync_WithInactiveOperator_DoesNotChangeStatus()
+		{
+			// Arrange - First create an inactive operator
+			var userId = "test-inactive-deactivate-user-id";
+			_dbContext.Users.Add(new IdentityUser { Id = userId });
+			await _dbContext.SaveChangesAsync();
+
+			var inactiveOperator = new Operator()
+			{
+				FullName = "Inactive Test Operator",
+				Email = "inactive@test.com",
+				PhoneNumber = "0888555444",
+				AvailabilityStatusId = 2, // "on vacation"
+				Capacity = 8,
+				IsActive = false,
+				UserId = userId
+			};
+
+			await _repository.AddAsync(inactiveOperator);
+			await _repository.SaveChangesAsync();
+
+			// Act
+			await _operatorService.DeactivateOperatorAsync(inactiveOperator.Id);
+
+			// Assert
+			var operatorAfterDeactivation = await _repository.GetByIdAsync<Operator>(inactiveOperator.Id);
+			Assert.That(operatorAfterDeactivation, Is.Not.Null);
+			Assert.That(operatorAfterDeactivation.IsActive, Is.False);
+		}
+
+		[Test]
+		public async Task DeactivateOperatorWithStatusAsync_WithValidStatus_DeactivatesOperatorAndSetsStatus()
+		{
+			// Arrange - First create an active operator
+			var userId = "test-deactivate-status-user-id";
+			_dbContext.Users.Add(new IdentityUser { Id = userId });
+			await _dbContext.SaveChangesAsync();
+
+			var activeOperator = new Operator()
+			{
+				FullName = "Active Status Test Operator",
+				Email = "activestatus@test.com",
+				PhoneNumber = "0888333222",
+				AvailabilityStatusId = 1, // "at work"
+				Capacity = 8,
+				IsActive = true,
+				UserId = userId
+			};
+
+			await _repository.AddAsync(activeOperator);
+			await _repository.SaveChangesAsync();
+
+			int newStatusId = 2; // "on vacation" status
+
+			// Act
+			await _operatorService.DeactivateOperatorWithStatusAsync(activeOperator.Id, newStatusId);
+
+			// Assert
+			var deactivatedOperator = await _repository.GetByIdAsync<Operator>(activeOperator.Id);
+			Assert.That(deactivatedOperator, Is.Not.Null);
+			Assert.That(deactivatedOperator.IsActive, Is.False);
+			Assert.That(deactivatedOperator.AvailabilityStatusId, Is.EqualTo(newStatusId));
+		}
+
+		[Test]
+		public async Task DeactivateOperatorWithStatusAsync_WithAtWorkStatus_ThrowsInvalidOperationException()
+		{
+			// Arrange - First create an active operator
+			var userId = "test-invalid-status-user-id";
+			_dbContext.Users.Add(new IdentityUser { Id = userId });
+			await _dbContext.SaveChangesAsync();
+
+			var activeOperator = new Operator()
+			{
+				FullName = "Invalid Status Test Operator",
+				Email = "invalidstatus@test.com",
+				PhoneNumber = "0888111000",
+				AvailabilityStatusId = 1, // "at work"
+				Capacity = 8,
+				IsActive = true,
+				UserId = userId
+			};
+
+			await _repository.AddAsync(activeOperator);
+			await _repository.SaveChangesAsync();
+
+			int atWorkStatusId = 1; // "at work" status - should not be allowed for deactivation
+
+			// Act & Assert
+			var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+				await _operatorService.DeactivateOperatorWithStatusAsync(activeOperator.Id, atWorkStatusId));
+			Assert.That(ex.Message, Contains.Substring("Cannot deactivate operator with 'at work' status"));
+		}
+
+		[Test]
+		public async Task DeactivateOperatorWithStatusAsync_WithInvalidStatus_ThrowsArgumentException()
+		{
+			// Arrange - First create an active operator
+			var userId = "test-invalid-status-id-user-id";
+			_dbContext.Users.Add(new IdentityUser { Id = userId });
+			await _dbContext.SaveChangesAsync();
+
+			var activeOperator = new Operator()
+			{
+				FullName = "Invalid Status ID Test Operator",
+				Email = "invalidstatusid@test.com",
+				PhoneNumber = "0888999888",
+				AvailabilityStatusId = 1, // "at work"
+				Capacity = 8,
+				IsActive = true,
+				UserId = userId
+			};
+
+			await _repository.AddAsync(activeOperator);
+			await _repository.SaveChangesAsync();
+
+			int invalidStatusId = 99999; // Non-existent status
+
+			// Act & Assert
+			var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+				await _operatorService.DeactivateOperatorWithStatusAsync(activeOperator.Id, invalidStatusId));
+			Assert.That(ex.Message, Contains.Substring("Invalid availability status selected"));
+		}
+
+		[Test]
+		public async Task DeactivateOperatorWithStatusAsync_WithInactiveOperator_DoesNotChangeOperator()
+		{
+			// Arrange - First create an inactive operator
+			var userId = "test-inactive-status-user-id";
+			_dbContext.Users.Add(new IdentityUser { Id = userId });
+			await _dbContext.SaveChangesAsync();
+
+			var inactiveOperator = new Operator()
+			{
+				FullName = "Inactive Status Test Operator",
+				Email = "inactivestatus@test.com",
+				PhoneNumber = "0888777555",
+				AvailabilityStatusId = 2, // "on vacation"
+				Capacity = 8,
+				IsActive = false,
+				UserId = userId
+			};
+
+			await _repository.AddAsync(inactiveOperator);
+			await _repository.SaveChangesAsync();
+
+			int originalStatusId = inactiveOperator.AvailabilityStatusId;
+			int newStatusId = 3; // "sick leave" status
+
+			// Act
+			await _operatorService.DeactivateOperatorWithStatusAsync(inactiveOperator.Id, newStatusId);
+
+			// Assert - Should not change anything since operator is already inactive
+			var operatorAfterDeactivation = await _repository.GetByIdAsync<Operator>(inactiveOperator.Id);
+			Assert.That(operatorAfterDeactivation, Is.Not.Null);
+			Assert.That(operatorAfterDeactivation.IsActive, Is.False);
+			Assert.That(operatorAfterDeactivation.AvailabilityStatusId, Is.EqualTo(originalStatusId)); // Should remain unchanged
 		}
 
 		[Test]
