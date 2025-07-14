@@ -30,5 +30,6 @@ namespace TeamWorkFlow.Core.Contracts
 		Task ActivateOperatorAsync(int id);
 		Task<string?> GetUserIdByEmailAsync(string emailAddress);
 		Task<string?> GetOperatorFullNameByUserIdAsync(string userId);
+		Task EnforceActiveStatusBusinessRuleAsync();
 	}
 }

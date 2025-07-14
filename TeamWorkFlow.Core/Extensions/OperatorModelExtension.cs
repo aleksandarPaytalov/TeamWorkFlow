@@ -26,12 +26,14 @@ namespace TeamWorkFlow.Core.Extensions
 
         /// <summary>
         /// Calculates the capacity percentage based on working hours and activity status
+        /// Business rule: Only operators with "at work" status can be active and have capacity > 0%
         /// </summary>
         /// <param name="operatorModel">The operator model</param>
         /// <returns>Capacity percentage (0-100)</returns>
         public static int GetCapacityPercentage(this IOperatorModel operatorModel)
         {
-            // If operator is not active (sick leave, training, etc.), capacity is 0%
+            // If operator is not active, capacity is 0%
+            // Note: IsActive should only be true if availability status is "at work"
             if (!operatorModel.IsActive)
             {
                 return 0;

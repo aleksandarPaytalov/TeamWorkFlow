@@ -7,6 +7,7 @@ using TeamWorkFlow.Core.Models.Admin.Operator;
 using TeamWorkFlow.Core.Models.Operator;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
+using TeamWorkFlow.Infrastructure.Constants;
 using static TeamWorkFlow.Core.Constants.Messages;
 using Task = System.Threading.Tasks.Task;
 
@@ -134,6 +135,9 @@ namespace TeamWorkFlow.Core.Services
 		{
 			if (bool.TryParse(model.IsActive, out bool isActive))
 			{
+				// Business rule: Operator can only be active if availability status is "at work" (ID = 1)
+				bool actualIsActive = isActive && model.AvailabilityStatusId == DataConstants.AtWorkStatusId;
+
 				var operatorModel = new Operator()
 				{
 					Id = model.Id,
@@ -141,7 +145,7 @@ namespace TeamWorkFlow.Core.Services
 					Capacity = model.Capacity,
 					Email = model.Email,
 					FullName = model.FullName,
-					IsActive = isActive,
+					IsActive = actualIsActive,
 					PhoneNumber = model.PhoneNumber,
 					UserId = userId
                 };
@@ -185,10 +189,13 @@ namespace TeamWorkFlow.Core.Services
 
             if (operatorForEdit != null)
             {
+                // Business rule: Operator can only be active if availability status is "at work" (ID = 1)
+                bool actualIsActive = result && model.AvailabilityStatusId == DataConstants.AtWorkStatusId;
+
                 operatorForEdit.FullName = model.FullName;
                 operatorForEdit.Email = model.Email;
                 operatorForEdit.Capacity = model.Capacity;
-                operatorForEdit.IsActive = result;
+                operatorForEdit.IsActive = actualIsActive;
                 operatorForEdit.AvailabilityStatusId = model.AvailabilityStatusId;
                 operatorForEdit.PhoneNumber = model.PhoneNumber;
 
@@ -311,9 +318,16 @@ namespace TeamWorkFlow.Core.Services
 
 			if (operatorModel != null && operatorModel.IsActive == false)
 			{
-				operatorModel.IsActive = true;
-
-				await _repository.SaveChangesAsync();
+				// Business rule: Only operators with "at work" status can be activated
+				if (operatorModel.AvailabilityStatusId == DataConstants.AtWorkStatusId)
+				{
+					operatorModel.IsActive = true;
+					await _repository.SaveChangesAsync();
+				}
+				else
+				{
+					throw new InvalidOperationException("Operators can only be activated when their availability status is 'at work'.");
+				}
 			}
 		}
 
@@ -337,5 +351,26 @@ namespace TeamWorkFlow.Core.Services
 
             return operatorModel?.FullName;
         }
+
+		/// <summary>
+		/// Updates all existing operators to enforce the business rule:
+		/// Only operators with "at work" status can be active
+		/// </summary>
+		public async Task EnforceActiveStatusBusinessRuleAsync()
+		{
+			var operatorsToUpdate = await _repository.All<Operator>()
+				.Where(o => o.IsActive && o.AvailabilityStatusId != DataConstants.AtWorkStatusId)
+				.ToListAsync();
+
+			foreach (var operatorModel in operatorsToUpdate)
+			{
+				operatorModel.IsActive = false;
+			}
+
+			if (operatorsToUpdate.Any())
+			{
+				await _repository.SaveChangesAsync();
+			}
+		}
 	}
 }

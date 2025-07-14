@@ -73,10 +73,16 @@ namespace TeamWorkFlow.Controllers
 	        {
 				ModelState.AddModelError(nameof(model.IsActive),$"{BooleanInput}");
 	        }
-			
+
 			if (!await _operatorService.OperatorStatusExistAsync(model.AvailabilityStatusId))
 	        {
 		        ModelState.AddModelError(nameof(model.AvailabilityStatusId), $"{StatusNotExisting}");
+			}
+
+			// Validate business rule: Only "at work" status allows active operators
+			if (result && model.AvailabilityStatusId != 1) // 1 = "at work" status
+			{
+				ModelState.AddModelError(nameof(model.IsActive), "Operators can only be active when availability status is 'at work'.");
 			}
 			
 	        if (!ModelState.IsValid)
@@ -135,6 +141,12 @@ namespace TeamWorkFlow.Controllers
 	        {
 		        ModelState.AddModelError(nameof(model.AvailabilityStatusId), $"{StatusNotExisting}");
 	        }
+
+			// Validate business rule: Only "at work" status allows active operators
+			if (result && model.AvailabilityStatusId != 1) // 1 = "at work" status
+			{
+				ModelState.AddModelError(nameof(model.IsActive), "Operators can only be active when availability status is 'at work'.");
+			}
 
 	        if (!await _operatorService.OperatorExistByIdAsync(id))
 	        {
