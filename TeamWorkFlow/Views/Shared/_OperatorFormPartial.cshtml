@@ -29,8 +29,13 @@
 			</div>
 
 			<div class="modern-form-group">
-				<label asp-for="@Model.Capacity" class="modern-form-label">Capacity</label>
-				<input asp-for="@Model.Capacity" class="modern-form-input" type="number" aria-required="true" placeholder="Enter capacity..." />
+				<label asp-for="@Model.Capacity" class="modern-form-label">
+					Working Hours per Day
+					<small style="color: #6b7280; font-weight: normal; display: block; margin-top: 2px;">
+						Enter hours (4-12). 9 hours = 100% capacity
+					</small>
+				</label>
+				<input asp-for="@Model.Capacity" class="modern-form-input" type="number" min="4" max="12" aria-required="true" placeholder="Enter working hours (4-12)..." />
 				<span asp-validation-for="@Model.Capacity" class="modern-validation-message"></span>
 			</div>
 		</div>

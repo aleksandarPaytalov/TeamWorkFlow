@@ -1,4 +1,5 @@
-﻿@model ICollection<OperatorServiceModel>
+﻿@using TeamWorkFlow.Core.Extensions
+@model ICollection<OperatorServiceModel>
 @{
 	ViewData["Title"] = "Operator Management";
 }
@@ -106,12 +107,17 @@
 								</td>
 								<td>
 									@{
+										int capacityPercentage = o.GetCapacityPercentage();
 										string capacityColor = "#6b7280";
-										if (o.Capacity >= 80)
+										if (capacityPercentage == 0)
+										{
+											capacityColor = "#9ca3af";
+										}
+										else if (capacityPercentage >= 80)
 										{
 											capacityColor = "#059669";
 										}
-										else if (o.Capacity >= 50)
+										else if (capacityPercentage >= 50)
 										{
 											capacityColor = "#d97706";
 										}
@@ -120,7 +126,7 @@
 											capacityColor = "#dc2626";
 										}
 									}
-									<span style="color: @capacityColor; font-weight: 600;">@o.Capacity%</span>
+									<span style="color: @capacityColor; font-weight: 600;" title="@o.Capacity hours per day">@o.GetCapacityDisplay()</span>
 								</td>
 								<td>
 									@if (User.IsAdmin())

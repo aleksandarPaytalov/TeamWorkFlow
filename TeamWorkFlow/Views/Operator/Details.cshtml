@@ -1,4 +1,5 @@
-﻿@model OperatorDetailsServiceModel
+﻿@using TeamWorkFlow.Core.Extensions
+@model OperatorDetailsServiceModel
 
 @{
 	ViewBag.Title = "Operator Details";
@@ -121,7 +122,10 @@
 								</svg>
 								Daily Capacity
 							</span>
-							<span class="detail-value"><strong>@Model.Capacity hours</strong></span>
+							<span class="detail-value">
+								<strong>@Model.GetCapacityDisplay()</strong>
+								<span style="color: #6b7280; font-weight: normal;">(@Model.Capacity hours per day)</span>
+							</span>
 						</div>
 						<div class="detail-item">
 							<span class="detail-label">
