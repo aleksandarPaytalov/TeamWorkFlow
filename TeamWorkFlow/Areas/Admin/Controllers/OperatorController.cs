@@ -53,5 +53,47 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
 
 			return RedirectToAction(nameof(Activate));
 		}
+
+		[HttpPost]
+		public async Task<IActionResult> ToggleStatus(int id)
+		{
+			try
+			{
+				// Get the operator to check current status
+				var operatorDetails = await _operatorService.GetOperatorDetailsByIdAsync(id);
+
+				if (operatorDetails == null)
+				{
+					TempData["ErrorMessage"] = "Operator not found.";
+					return RedirectToAction(nameof(All));
+				}
+
+				if (operatorDetails.IsActive)
+				{
+					// Deactivate operator (always allowed)
+					await _operatorService.DeactivateOperatorAsync(id);
+					TempData["SuccessMessage"] = $"Operator {operatorDetails.FullName} has been deactivated.";
+				}
+				else
+				{
+					// Try to activate operator (only allowed if "at work" status)
+					await _operatorService.ActivateOperatorAsync(id);
+					TempData["SuccessMessage"] = $"Operator {operatorDetails.FullName} has been activated.";
+				}
+
+				// Clear cache to refresh data
+				_memoryCache.Remove(UserCacheKey);
+			}
+			catch (InvalidOperationException ex)
+			{
+				TempData["ErrorMessage"] = ex.Message;
+			}
+			catch (Exception)
+			{
+				TempData["ErrorMessage"] = "An error occurred while updating operator status.";
+			}
+
+			return RedirectToAction(nameof(All));
+		}
 	}
 }

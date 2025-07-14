@@ -16,6 +16,26 @@
 		<span class="admin-badge">Operator Directory</span>
 	</div>
 
+	<!-- Success/Error Messages -->
+	@if (TempData["SuccessMessage"] != null)
+	{
+		<div class="admin-alert admin-alert-success">
+			<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+			</svg>
+			@TempData["SuccessMessage"]
+		</div>
+	}
+	@if (TempData["ErrorMessage"] != null)
+	{
+		<div class="admin-alert admin-alert-error">
+			<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+			</svg>
+			@TempData["ErrorMessage"]
+		</div>
+	}
+
 	@if (Model.Any())
 	{
 		<!-- Operators Table Container -->
@@ -51,6 +71,12 @@
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 								</svg>
 								Status
+							</th>
+							<th style="text-align: center;">
+								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: inline; margin-right: 0.5rem;">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+								</svg>
+								Actions
 							</th>
 						</tr>
 					</thead>
@@ -95,6 +121,33 @@
 											Inactive (Unavailable)
 										</span>
 									}
+								</td>
+								<td style="text-align: center; padding: 0.75rem;">
+									<form method="post" action="@Url.Action("ToggleStatus", "Operator", new { area = "Admin" })" style="display: inline;">
+										<input type="hidden" name="id" value="@op.Id" />
+										@if (op.IsActive)
+										{
+											<button type="submit" class="admin-toggle-btn admin-toggle-btn-deactivate"
+													title="Deactivate operator"
+													onclick="return confirm('Are you sure you want to deactivate @op.FullName?');">
+												<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+												</svg>
+												Deactivate
+											</button>
+										}
+										else
+										{
+											<button type="submit" class="admin-toggle-btn admin-toggle-btn-activate"
+													title="Activate operator (only available for 'at work' status)"
+													onclick="return confirm('Are you sure you want to activate @op.FullName?');">
+												<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+												</svg>
+												Activate
+											</button>
+										}
+									</form>
 								</td>
 							</tr>
 						}

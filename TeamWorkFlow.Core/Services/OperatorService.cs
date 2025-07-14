@@ -286,6 +286,7 @@ namespace TeamWorkFlow.Core.Services
 			var model = await _repository.AllReadOnly<Operator>()
 				.Select(o => new OperatorAccessServiceModel()
 				{
+					Id = o.Id,
 					FullName = o.FullName,
 					Email = o.Email,
 					PhoneNumber = o.PhoneNumber,
@@ -328,6 +329,17 @@ namespace TeamWorkFlow.Core.Services
 				{
 					throw new InvalidOperationException("Operators can only be activated when their availability status is 'at work'.");
 				}
+			}
+		}
+
+		public async Task DeactivateOperatorAsync(int id)
+		{
+			var operatorModel = await _repository.GetByIdAsync<Operator>(id);
+
+			if (operatorModel != null && operatorModel.IsActive == true)
+			{
+				operatorModel.IsActive = false;
+				await _repository.SaveChangesAsync();
 			}
 		}
 
