@@ -339,6 +339,30 @@ namespace TeamWorkFlow.Core.Services
 			}
 		}
 
+		public async Task DeactivateOperatorWithStatusAsync(int id, int availabilityStatusId)
+		{
+			var operatorModel = await _repository.GetByIdAsync<Operator>(id);
+
+			if (operatorModel != null && operatorModel.IsActive == true)
+			{
+				// Validate that the status exists and is not "at work" (since we're deactivating)
+				var statusExists = await OperatorStatusExistAsync(availabilityStatusId);
+				if (!statusExists)
+				{
+					throw new ArgumentException("Invalid availability status selected.");
+				}
+
+				if (availabilityStatusId == DataConstants.AtWorkStatusId)
+				{
+					throw new InvalidOperationException("Cannot deactivate operator with 'at work' status. Use activation instead.");
+				}
+
+				operatorModel.IsActive = false;
+				operatorModel.AvailabilityStatusId = availabilityStatusId;
+				await _repository.SaveChangesAsync();
+			}
+		}
+
 		public async Task<string?> GetUserIdByEmailAsync(string emailAddress)
         {
             var user = await _userManager.FindByEmailAsync(emailAddress);

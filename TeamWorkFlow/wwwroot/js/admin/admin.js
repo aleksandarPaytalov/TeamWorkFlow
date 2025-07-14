@@ -216,9 +216,19 @@ function initializeConfirmations() {
     
     dangerButtons.forEach(button => {
         button.addEventListener('click', function(e) {
+            // Skip confirmation for buttons that open custom modals
+            if (this.hasAttribute('onclick') && this.getAttribute('onclick').includes('showDeactivationModal')) {
+                return; // Let the custom modal handle the confirmation
+            }
+
+            // Skip confirmation for buttons inside custom modals (they handle their own confirmation)
+            if (this.closest('.modal') || this.closest('#deactivationModal')) {
+                return; // Let the custom modal handle the confirmation
+            }
+
             const action = this.textContent.trim().toLowerCase();
             let message = 'Are you sure you want to perform this action?';
-            
+
             if (action.includes('delete')) {
                 message = 'Are you sure you want to delete this item? This action cannot be undone.';
             } else if (action.includes('remove')) {
@@ -226,7 +236,7 @@ function initializeConfirmations() {
             } else if (action.includes('deactivate')) {
                 message = 'Are you sure you want to deactivate this item?';
             }
-            
+
             if (!confirm(message)) {
                 e.preventDefault();
                 return false;

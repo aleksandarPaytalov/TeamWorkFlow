@@ -123,21 +123,21 @@
 									}
 								</td>
 								<td style="text-align: center; padding: 0.75rem;">
-									<form method="post" action="@Url.Action("ToggleStatus", "Operator", new { area = "Admin" })" style="display: inline;">
-										<input type="hidden" name="id" value="@op.Id" />
-										@if (op.IsActive)
-										{
-											<button type="submit" class="admin-toggle-btn admin-toggle-btn-deactivate"
-													title="Deactivate operator"
-													onclick="return confirm('Are you sure you want to deactivate @op.FullName?');">
-												<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-												</svg>
-												Deactivate
-											</button>
-										}
-										else
-										{
+									@if (op.IsActive)
+									{
+										<button type="button" class="admin-toggle-btn admin-toggle-btn-deactivate"
+												title="Deactivate operator"
+												onclick="showDeactivationModal(@op.Id, '@op.FullName')">
+											<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+											</svg>
+											Deactivate
+										</button>
+									}
+									else
+									{
+										<form method="post" action="@Url.Action("ToggleStatus", "Operator", new { area = "Admin" })" style="display: inline;">
+											<input type="hidden" name="id" value="@op.Id" />
 											<button type="submit" class="admin-toggle-btn admin-toggle-btn-activate"
 													title="Activate operator and set status to 'at work'"
 													onclick="return confirm('Are you sure you want to activate @op.FullName? This will set their status to \\'at work\\' automatically.');">
@@ -146,8 +146,8 @@
 												</svg>
 												Activate
 											</button>
-										}
-									</form>
+										</form>
+									}
 								</td>
 							</tr>
 						}
@@ -171,6 +171,136 @@
 	}
 </div>
 
+<!-- Deactivation Modal -->
+<div id="deactivationModal" class="modal" style="display: none;">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h3>Deactivate Operator</h3>
+			<span class="close" onclick="closeDeactivationModal()">&times;</span>
+		</div>
+		<div class="modal-body">
+			<p>You are about to deactivate <strong id="operatorName"></strong>.</p>
+			<p>Please select the availability status for this operator:</p>
+
+			<form id="deactivationForm" method="post" action="@Url.Action("DeactivateWithStatus", "Operator", new { area = "Admin" })">
+				@Html.AntiForgeryToken()
+				<input type="hidden" id="operatorId" name="id" />
+
+				<div class="form-group">
+					<label for="availabilityStatusId">Availability Status:</label>
+					<select id="availabilityStatusId" name="availabilityStatusId" class="form-control" required>
+						<option value="">Select status...</option>
+					</select>
+				</div>
+
+				<div class="modal-actions">
+					<button type="button" class="btn btn-secondary" onclick="closeDeactivationModal()">Cancel</button>
+					<button type="submit" class="btn btn-danger">Deactivate Operator</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
 @section Scripts {
 	<script src="~/js/admin/admin.js" asp-append-version="true"></script>
+	<script>
+		let availabilityStatuses = [];
+		let isSubmitting = false;
+
+		// Load availability statuses when page loads
+		document.addEventListener('DOMContentLoaded', function() {
+			loadAvailabilityStatuses();
+
+			// Add form submit handler to prevent double submission
+			const form = document.getElementById('deactivationForm');
+			if (form) {
+				form.addEventListener('submit', function(e) {
+					if (isSubmitting) {
+						e.preventDefault();
+						return false;
+					}
+
+					const statusSelect = document.getElementById('availabilityStatusId');
+					if (!statusSelect.value) {
+						e.preventDefault();
+						alert('Please select an availability status.');
+						return false;
+					}
+
+					isSubmitting = true;
+
+					// Show loading state
+					const submitBtn = form.querySelector('button[type="submit"]');
+					if (submitBtn) {
+						submitBtn.disabled = true;
+						submitBtn.textContent = 'Processing...';
+					}
+				});
+			}
+		});
+
+		async function loadAvailabilityStatuses() {
+			try {
+				const response = await fetch('@Url.Action("GetAvailabilityStatuses", "Operator", new { area = "Admin" })');
+				if (response.ok) {
+					availabilityStatuses = await response.json();
+				}
+			} catch (error) {
+				console.error('Error loading availability statuses:', error);
+			}
+		}
+
+		function showDeactivationModal(operatorId, operatorName) {
+			// Reset form state
+			isSubmitting = false;
+			const form = document.getElementById('deactivationForm');
+			if (form) {
+				const submitBtn = form.querySelector('button[type="submit"]');
+				if (submitBtn) {
+					submitBtn.disabled = false;
+					submitBtn.textContent = 'Deactivate Operator';
+				}
+			}
+
+			document.getElementById('operatorId').value = operatorId;
+			document.getElementById('operatorName').textContent = operatorName;
+
+			// Populate status dropdown
+			const statusSelect = document.getElementById('availabilityStatusId');
+			statusSelect.innerHTML = '<option value="">Select status...</option>';
+
+			availabilityStatuses.forEach(status => {
+				const option = document.createElement('option');
+				option.value = status.id;
+				option.textContent = status.name;
+				statusSelect.appendChild(option);
+			});
+
+			document.getElementById('deactivationModal').style.display = 'block';
+		}
+
+		function closeDeactivationModal() {
+			// Reset form state when closing
+			isSubmitting = false;
+			const form = document.getElementById('deactivationForm');
+			if (form) {
+				const submitBtn = form.querySelector('button[type="submit"]');
+				if (submitBtn) {
+					submitBtn.disabled = false;
+					submitBtn.textContent = 'Deactivate Operator';
+				}
+			}
+
+			document.getElementById('deactivationModal').style.display = 'none';
+		}
+
+		// Close modal when clicking outside of it
+		window.onclick = function(event) {
+			const modal = document.getElementById('deactivationModal');
+			if (event.target === modal) {
+				closeDeactivationModal();
+			}
+		}
+	</script>
 }

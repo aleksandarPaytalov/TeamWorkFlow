@@ -108,5 +108,74 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
 
 			return RedirectToAction(nameof(All));
 		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> DeactivateWithStatus(int id, int availabilityStatusId)
+		{
+			// Validate input parameters
+			if (id <= 0)
+			{
+				TempData["ErrorMessage"] = "Invalid operator ID.";
+				return RedirectToAction(nameof(All));
+			}
+
+			if (availabilityStatusId <= 0)
+			{
+				TempData["ErrorMessage"] = "Please select a valid availability status.";
+				return RedirectToAction(nameof(All));
+			}
+
+			try
+			{
+				var operatorDetails = await _operatorService.GetOperatorDetailsByIdAsync(id);
+				if (operatorDetails == null)
+				{
+					TempData["ErrorMessage"] = "Operator not found.";
+					return RedirectToAction(nameof(All));
+				}
+
+				// Verify the availability status exists
+				if (!await _operatorService.OperatorStatusExistAsync(availabilityStatusId))
+				{
+					TempData["ErrorMessage"] = "Invalid availability status selected.";
+					return RedirectToAction(nameof(All));
+				}
+
+				await _operatorService.DeactivateOperatorWithStatusAsync(id, availabilityStatusId);
+
+				// Get the status name for the success message
+				var statuses = await _operatorService.GetAllOperatorStatusesAsync();
+				var selectedStatus = statuses.FirstOrDefault(s => s.Id == availabilityStatusId);
+				string statusName = selectedStatus?.Name ?? "selected status";
+
+				TempData["SuccessMessage"] = $"Operator {operatorDetails.FullName} has been deactivated with status '{statusName}'.";
+
+				// Clear cache to refresh data
+				_memoryCache.Remove(UserCacheKey);
+			}
+			catch (Exception ex)
+			{
+				TempData["ErrorMessage"] = $"An error occurred while deactivating operator: {ex.Message}";
+			}
+
+			return RedirectToAction(nameof(All));
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> GetAvailabilityStatuses()
+		{
+			try
+			{
+				var statuses = await _operatorService.GetAllOperatorStatusesAsync();
+				// Filter out "at work" status since we're deactivating
+				var deactivationStatuses = statuses.Where(s => s.Id != 1).ToList();
+				return Json(deactivationStatuses);
+			}
+			catch (Exception)
+			{
+				return Json(new List<object>());
+			}
+		}
 	}
 }
