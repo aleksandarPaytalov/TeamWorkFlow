@@ -9,6 +9,14 @@
         public const int AvailabilityStatusNameMaxLength = 15;
 
         /// <summary>
+        /// AvailabilityStatus IDs - Only "at work" allows active status
+        /// </summary>
+        public const int AtWorkStatusId = 1;
+        public const int InSickLeaveStatusId = 2;
+        public const int OnVacationStatusId = 3;
+        public const int OnTrainingStatusId = 4;
+
+        /// <summary>
         /// Operator DataConstants
         /// </summary>
 

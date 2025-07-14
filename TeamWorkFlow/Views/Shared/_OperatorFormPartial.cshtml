@@ -29,8 +29,13 @@
 			</div>
 
 			<div class="modern-form-group">
-				<label asp-for="@Model.Capacity" class="modern-form-label">Capacity</label>
-				<input asp-for="@Model.Capacity" class="modern-form-input" type="number" aria-required="true" placeholder="Enter capacity..." />
+				<label asp-for="@Model.Capacity" class="modern-form-label">
+					Working Hours per Day
+					<small style="color: #6b7280; font-weight: normal; display: block; margin-top: 2px;">
+						Enter hours (4-12). 9 hours = 100% capacity
+					</small>
+				</label>
+				<input asp-for="@Model.Capacity" class="modern-form-input" type="number" min="4" max="12" aria-required="true" placeholder="Enter working hours (4-12)..." />
 				<span asp-validation-for="@Model.Capacity" class="modern-validation-message"></span>
 			</div>
 		</div>
@@ -47,8 +52,13 @@
 			</div>
 
 			<div class="modern-form-group">
-				<label asp-for="@Model.AvailabilityStatusId" class="modern-form-label">Availability Status</label>
-				<select asp-for="@Model.AvailabilityStatusId" class="modern-form-select" aria-required="true">
+				<label asp-for="@Model.AvailabilityStatusId" class="modern-form-label">
+					Availability Status
+					<small style="color: #6b7280; font-weight: normal; display: block; margin-top: 2px;">
+						Only "at work" status allows operator to be active
+					</small>
+				</label>
+				<select asp-for="@Model.AvailabilityStatusId" class="modern-form-select" aria-required="true" id="availabilityStatus">
 					<option disabled selected value="">Select Availability...</option>
 					@foreach (var s in Model.AvailabilityStatusModels)
 					{
@@ -56,6 +66,9 @@
 					}
 				</select>
 				<span asp-validation-for="@Model.AvailabilityStatusId" class="modern-validation-message"></span>
+				<div id="statusWarning" style="display: none; color: #f59e0b; font-size: 0.875rem; margin-top: 4px;">
+					⚠️ Operators with this status will be automatically marked as inactive
+				</div>
 			</div>
 		</div>
 
@@ -69,3 +82,28 @@
 		</div>
 	</form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const availabilityStatus = document.getElementById('availabilityStatus');
+    const statusWarning = document.getElementById('statusWarning');
+    const activeStatusSelect = document.querySelector('select[name="IsActive"]');
+
+    if (availabilityStatus && statusWarning) {
+        availabilityStatus.addEventListener('change', function() {
+            const selectedValue = parseInt(this.value);
+            const atWorkStatusId = 1; // "at work" status ID
+
+            if (selectedValue && selectedValue !== atWorkStatusId) {
+                statusWarning.style.display = 'block';
+                // Automatically set to inactive if not "at work"
+                if (activeStatusSelect) {
+                    activeStatusSelect.value = 'false';
+                }
+            } else {
+                statusWarning.style.display = 'none';
+            }
+        });
+    }
+});
+</script>

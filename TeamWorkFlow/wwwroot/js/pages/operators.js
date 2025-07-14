@@ -322,17 +322,26 @@ function initializeCapacityIndicators() {
     capacityElements.forEach(element => {
         const capacityText = element.textContent;
         const capacityValue = parseInt(capacityText);
-        
+
         if (!isNaN(capacityValue)) {
-            // Add capacity level classes
-            if (capacityValue >= 80) {
-                element.classList.add('capacity-high');
-            } else if (capacityValue >= 50) {
-                element.classList.add('capacity-medium');
-            } else {
-                element.classList.add('capacity-low');
+            // Add capacity level classes (these should already be applied by the server-side code)
+            // But we'll add them here as fallback for any elements that don't have them
+            if (!element.classList.contains('capacity-high') &&
+                !element.classList.contains('capacity-medium') &&
+                !element.classList.contains('capacity-low') &&
+                !element.classList.contains('capacity-zero')) {
+
+                if (capacityValue === 0) {
+                    element.classList.add('capacity-zero');
+                } else if (capacityValue >= 80) {
+                    element.classList.add('capacity-high');
+                } else if (capacityValue >= 50) {
+                    element.classList.add('capacity-medium');
+                } else {
+                    element.classList.add('capacity-low');
+                }
             }
-            
+
             // Add capacity bar
             const bar = document.createElement('div');
             bar.style.cssText = `

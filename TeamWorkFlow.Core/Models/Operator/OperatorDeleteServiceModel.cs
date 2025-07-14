@@ -8,6 +8,7 @@ namespace TeamWorkFlow.Core.Models.Operator
 		public string FullName { get; set; } = string.Empty;
 		public string Email { get; set; } = string.Empty;
 		public string PhoneNumber { get; set; } = string.Empty;
-		public bool IsActive { get; set; } 
+		public bool IsActive { get; set; }
+		public int Capacity { get; set; }
 	}
 }

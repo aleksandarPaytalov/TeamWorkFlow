@@ -28,7 +28,10 @@ namespace TeamWorkFlow.Core.Contracts
 		Task<ICollection<OperatorAccessServiceModel>> GetAllOperatorsAsync();
 		Task<ICollection<OperatorServiceModel>> GetAllUnActiveOperatorsAsync();
 		Task ActivateOperatorAsync(int id);
+		Task DeactivateOperatorAsync(int id);
+		Task DeactivateOperatorWithStatusAsync(int id, int availabilityStatusId);
 		Task<string?> GetUserIdByEmailAsync(string emailAddress);
 		Task<string?> GetOperatorFullNameByUserIdAsync(string userId);
+		Task EnforceActiveStatusBusinessRuleAsync();
 	}
 }

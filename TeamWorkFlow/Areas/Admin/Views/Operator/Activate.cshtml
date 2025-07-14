@@ -1,4 +1,5 @@
-﻿@model ICollection<OperatorServiceModel>
+﻿@using TeamWorkFlow.Core.Extensions
+@model ICollection<OperatorServiceModel>
 @{
 	ViewData["Title"] = "Operator Management";
 }
@@ -14,6 +15,26 @@
 		<p class="admin-subtitle">Activate and manage operator accounts to control system access</p>
 		<span class="admin-badge">Account Management</span>
 	</div>
+
+	<!-- Success/Error Messages -->
+	@if (TempData["SuccessMessage"] != null)
+	{
+		<div class="admin-alert admin-alert-success">
+			<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+			</svg>
+			@TempData["SuccessMessage"]
+		</div>
+	}
+	@if (TempData["ErrorMessage"] != null)
+	{
+		<div class="admin-alert admin-alert-error">
+			<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+			</svg>
+			@TempData["ErrorMessage"]
+		</div>
+	}
 
 	@if (Model.Any())
 	{
@@ -106,12 +127,17 @@
 								</td>
 								<td>
 									@{
+										int capacityPercentage = o.GetCapacityPercentage();
 										string capacityColor = "#6b7280";
-										if (o.Capacity >= 80)
+										if (capacityPercentage == 0)
+										{
+											capacityColor = "#9ca3af";
+										}
+										else if (capacityPercentage >= 80)
 										{
 											capacityColor = "#059669";
 										}
-										else if (o.Capacity >= 50)
+										else if (capacityPercentage >= 50)
 										{
 											capacityColor = "#d97706";
 										}
@@ -120,7 +146,7 @@
 											capacityColor = "#dc2626";
 										}
 									}
-									<span style="color: @capacityColor; font-weight: 600;">@o.Capacity%</span>
+									<span style="color: @capacityColor; font-weight: 600;" title="@o.Capacity hours per day">@o.GetCapacityDisplay()</span>
 								</td>
 								<td>
 									@if (User.IsAdmin())

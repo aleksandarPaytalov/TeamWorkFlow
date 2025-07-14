@@ -7,6 +7,7 @@ using TeamWorkFlow.Core.Models.Admin.Operator;
 using TeamWorkFlow.Core.Models.Operator;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
+using TeamWorkFlow.Infrastructure.Constants;
 using static TeamWorkFlow.Core.Constants.Messages;
 using Task = System.Threading.Tasks.Task;
 
@@ -134,6 +135,9 @@ namespace TeamWorkFlow.Core.Services
 		{
 			if (bool.TryParse(model.IsActive, out bool isActive))
 			{
+				// Business rule: Operator can only be active if availability status is "at work" (ID = 1)
+				bool actualIsActive = isActive && model.AvailabilityStatusId == DataConstants.AtWorkStatusId;
+
 				var operatorModel = new Operator()
 				{
 					Id = model.Id,
@@ -141,7 +145,7 @@ namespace TeamWorkFlow.Core.Services
 					Capacity = model.Capacity,
 					Email = model.Email,
 					FullName = model.FullName,
-					IsActive = isActive,
+					IsActive = actualIsActive,
 					PhoneNumber = model.PhoneNumber,
 					UserId = userId
                 };
@@ -159,7 +163,7 @@ namespace TeamWorkFlow.Core.Services
 		{
 			return await _repository.AllReadOnly<Operator>()
 				.Where(o => o.Id == id)
-				.Where(o => o.IsActive)
+				// Removed .Where(o => o.IsActive) to allow editing inactive operators
 				.Select(o => new OperatorFormModel()
 				{
 					FullName = o.FullName,
@@ -185,10 +189,13 @@ namespace TeamWorkFlow.Core.Services
 
             if (operatorForEdit != null)
             {
+                // Business rule: Operator can only be active if availability status is "at work" (ID = 1)
+                bool actualIsActive = result && model.AvailabilityStatusId == DataConstants.AtWorkStatusId;
+
                 operatorForEdit.FullName = model.FullName;
                 operatorForEdit.Email = model.Email;
                 operatorForEdit.Capacity = model.Capacity;
-                operatorForEdit.IsActive = result;
+                operatorForEdit.IsActive = actualIsActive;
                 operatorForEdit.AvailabilityStatusId = model.AvailabilityStatusId;
                 operatorForEdit.PhoneNumber = model.PhoneNumber;
 
@@ -217,7 +224,7 @@ namespace TeamWorkFlow.Core.Services
 
 			return await _repository.AllReadOnly<Operator>()
 				.Where(o => o.Id == id)
-				.Where(o => o.IsActive)
+				// Removed .Where(o => o.IsActive) to allow getting inactive operators for activation
 				.Select(o => new OperatorDetailsServiceModel()
 				{
 					Id = o.Id,
@@ -251,7 +258,7 @@ namespace TeamWorkFlow.Core.Services
 		{
 			return await _repository.AllReadOnly<Operator>()
 				.Where(o => o.Id == operatorId)
-				.Where(o => o.IsActive)
+				// Removed .Where(o => o.IsActive) to allow deleting inactive operators
 				.Select(o => new OperatorDeleteServiceModel()
 				{
 					Id = o.Id,
@@ -279,6 +286,7 @@ namespace TeamWorkFlow.Core.Services
 			var model = await _repository.AllReadOnly<Operator>()
 				.Select(o => new OperatorAccessServiceModel()
 				{
+					Id = o.Id,
 					FullName = o.FullName,
 					Email = o.Email,
 					PhoneNumber = o.PhoneNumber,
@@ -311,8 +319,46 @@ namespace TeamWorkFlow.Core.Services
 
 			if (operatorModel != null && operatorModel.IsActive == false)
 			{
+				// Automatically set availability status to "at work" when activating
+				// This ensures the operator can be activated without errors
+				operatorModel.AvailabilityStatusId = DataConstants.AtWorkStatusId;
 				operatorModel.IsActive = true;
 
+				await _repository.SaveChangesAsync();
+			}
+		}
+
+		public async Task DeactivateOperatorAsync(int id)
+		{
+			var operatorModel = await _repository.GetByIdAsync<Operator>(id);
+
+			if (operatorModel != null && operatorModel.IsActive == true)
+			{
+				operatorModel.IsActive = false;
+				await _repository.SaveChangesAsync();
+			}
+		}
+
+		public async Task DeactivateOperatorWithStatusAsync(int id, int availabilityStatusId)
+		{
+			var operatorModel = await _repository.GetByIdAsync<Operator>(id);
+
+			if (operatorModel != null && operatorModel.IsActive == true)
+			{
+				// Validate that the status exists and is not "at work" (since we're deactivating)
+				var statusExists = await OperatorStatusExistAsync(availabilityStatusId);
+				if (!statusExists)
+				{
+					throw new ArgumentException("Invalid availability status selected.");
+				}
+
+				if (availabilityStatusId == DataConstants.AtWorkStatusId)
+				{
+					throw new InvalidOperationException("Cannot deactivate operator with 'at work' status. Use activation instead.");
+				}
+
+				operatorModel.IsActive = false;
+				operatorModel.AvailabilityStatusId = availabilityStatusId;
 				await _repository.SaveChangesAsync();
 			}
 		}
@@ -337,5 +383,26 @@ namespace TeamWorkFlow.Core.Services
 
             return operatorModel?.FullName;
         }
+
+		/// <summary>
+		/// Updates all existing operators to enforce the business rule:
+		/// Only operators with "at work" status can be active
+		/// </summary>
+		public async Task EnforceActiveStatusBusinessRuleAsync()
+		{
+			var operatorsToUpdate = await _repository.All<Operator>()
+				.Where(o => o.IsActive && o.AvailabilityStatusId != DataConstants.AtWorkStatusId)
+				.ToListAsync();
+
+			foreach (var operatorModel in operatorsToUpdate)
+			{
+				operatorModel.IsActive = false;
+			}
+
+			if (operatorsToUpdate.Any())
+			{
+				await _repository.SaveChangesAsync();
+			}
+		}
 	}
 }
