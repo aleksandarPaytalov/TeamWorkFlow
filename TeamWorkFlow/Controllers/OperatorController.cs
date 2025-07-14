@@ -80,9 +80,10 @@ namespace TeamWorkFlow.Controllers
 			}
 
 			// Validate business rule: Only "at work" status allows active operators
+			// Note: Admin activation automatically sets status to "at work", but manual form entry still requires validation
 			if (result && model.AvailabilityStatusId != 1) // 1 = "at work" status
 			{
-				ModelState.AddModelError(nameof(model.IsActive), "Operators can only be active when availability status is 'at work'.");
+				ModelState.AddModelError(nameof(model.IsActive), "Operators can only be active when availability status is 'at work'. Use the admin toggle to automatically set the correct status.");
 			}
 			
 	        if (!ModelState.IsValid)
@@ -143,9 +144,10 @@ namespace TeamWorkFlow.Controllers
 	        }
 
 			// Validate business rule: Only "at work" status allows active operators
+			// Note: Admin activation automatically sets status to "at work", but manual form entry still requires validation
 			if (result && model.AvailabilityStatusId != 1) // 1 = "at work" status
 			{
-				ModelState.AddModelError(nameof(model.IsActive), "Operators can only be active when availability status is 'at work'.");
+				ModelState.AddModelError(nameof(model.IsActive), "Operators can only be active when availability status is 'at work'. Use the admin toggle to automatically set the correct status.");
 			}
 
 	        if (!await _operatorService.OperatorExistByIdAsync(id))

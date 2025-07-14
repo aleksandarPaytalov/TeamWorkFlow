@@ -47,9 +47,26 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
 			return View(model);
 		}
 
+		[HttpPost]
 		public async Task<IActionResult> Activate(int id)
 		{
-			await _operatorService.ActivateOperatorAsync(id);
+			try
+			{
+				var operatorDetails = await _operatorService.GetOperatorDetailsByIdAsync(id);
+				if (operatorDetails != null)
+				{
+					await _operatorService.ActivateOperatorAsync(id);
+					TempData["SuccessMessage"] = $"Operator {operatorDetails.FullName} has been activated and status set to 'at work'.";
+				}
+				else
+				{
+					TempData["ErrorMessage"] = "Operator not found.";
+				}
+			}
+			catch (Exception ex)
+			{
+				TempData["ErrorMessage"] = $"An error occurred while activating operator: {ex.Message}";
+			}
 
 			return RedirectToAction(nameof(Activate));
 		}
@@ -57,17 +74,17 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
 		[HttpPost]
 		public async Task<IActionResult> ToggleStatus(int id)
 		{
+			// Get the operator to check current status
+			var operatorDetails = await _operatorService.GetOperatorDetailsByIdAsync(id);
+
+			if (operatorDetails == null)
+			{
+				TempData["ErrorMessage"] = "Operator not found.";
+				return RedirectToAction(nameof(All));
+			}
+
 			try
 			{
-				// Get the operator to check current status
-				var operatorDetails = await _operatorService.GetOperatorDetailsByIdAsync(id);
-
-				if (operatorDetails == null)
-				{
-					TempData["ErrorMessage"] = "Operator not found.";
-					return RedirectToAction(nameof(All));
-				}
-
 				if (operatorDetails.IsActive)
 				{
 					// Deactivate operator (always allowed)
@@ -76,21 +93,17 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
 				}
 				else
 				{
-					// Try to activate operator (only allowed if "at work" status)
+					// Activate operator (automatically sets status to "at work")
 					await _operatorService.ActivateOperatorAsync(id);
-					TempData["SuccessMessage"] = $"Operator {operatorDetails.FullName} has been activated.";
+					TempData["SuccessMessage"] = $"Operator {operatorDetails.FullName} has been activated and status set to 'at work'.";
 				}
 
 				// Clear cache to refresh data
 				_memoryCache.Remove(UserCacheKey);
 			}
-			catch (InvalidOperationException ex)
+			catch (Exception ex)
 			{
-				TempData["ErrorMessage"] = ex.Message;
-			}
-			catch (Exception)
-			{
-				TempData["ErrorMessage"] = "An error occurred while updating operator status.";
+				TempData["ErrorMessage"] = $"An error occurred while updating operator status: {ex.Message}";
 			}
 
 			return RedirectToAction(nameof(All));
