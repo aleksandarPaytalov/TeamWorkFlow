@@ -401,7 +401,7 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 		        Id = 1,
 		        Name = "Zeiss Contura",
 		        CalibrationSchedule = new DateTime(2024,04,04),
-		        Capacity = 20,
+		        Capacity = 24,
                 TotalMachineLoad = 0,
                 ImageUrl = "https://www.researchgate.net/profile/Nermina_Zaimovic-Uzunovic2/publication/343880067/figure/fig2/AS:928740968255491@1598440510374/Measurement-of-the-top-surface-Fig4-CMM-Zeiss-Contura-G2_Q320.jpg"
 			};
@@ -411,7 +411,7 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 		        Id = 2,
 		        Name = "Zeiss O-inspect",
 		        CalibrationSchedule = new DateTime(2024, 04, 04),
-		        Capacity = 20,
+		        Capacity = 24,
                 TotalMachineLoad = 0,
                 ImageUrl = "https://www.qpluslabs.com/wp-content/uploads/2019/11/Zeiss-O-Inspect-863-475px.jpg"
 			};

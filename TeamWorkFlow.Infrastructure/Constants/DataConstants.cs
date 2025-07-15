@@ -65,7 +65,7 @@
         public const int MachineImageUrlMaxLength = 300;
 
         public const int MachineCapacityMinValue = 1;
-        public const int MachineCapacityMaxValue = 20;
+        public const int MachineCapacityMaxValue = 24;
 
 		/// <summary>
 		/// PartStatus DataConstants

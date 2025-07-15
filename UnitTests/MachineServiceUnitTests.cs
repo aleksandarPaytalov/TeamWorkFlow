@@ -795,7 +795,7 @@ namespace UnitTests
 			{
 				Name = "Test Machine",
 				CalibrationSchedule = "01/01/2025",
-				Capacity = 25, // Above limit of 20
+				Capacity = 25, // Above limit of 24
 				IsCalibrated = "true",
 				ImageUrl = "https://test.com/image.jpg"
 			};
