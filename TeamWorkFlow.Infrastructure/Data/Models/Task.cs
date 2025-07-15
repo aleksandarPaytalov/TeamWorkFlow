@@ -82,5 +82,17 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public Project Project { get; set; } = null!;
 
         public ICollection<TaskOperator> TasksOperators { get; set; } = new List<TaskOperator>();
+
+        [Comment("Indicates if task is included in current sprint")]
+        public bool IsInSprint { get; set; } = false;
+
+        [Comment("Order position in sprint for drag-and-drop functionality")]
+        public int SprintOrder { get; set; } = 0;
+
+        [Comment("Planned start date in sprint")]
+        public DateTime? PlannedStartDate { get; set; }
+
+        [Comment("Planned completion date in sprint")]
+        public DateTime? PlannedEndDate { get; set; }
     }
 }
