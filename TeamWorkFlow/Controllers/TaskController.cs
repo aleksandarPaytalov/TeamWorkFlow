@@ -413,6 +413,26 @@ namespace TeamWorkFlow.Controllers
 			return RedirectToAction(nameof(Mine));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Archive([FromQuery] AllTasksQueryModel query)
+        {
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Unauthorized();
+	        }
+
+	        var result = await _taskService.GetArchivedTasksAsync(
+		        query.CurrentPage,
+		        query.TasksPerPage,
+		        query.Search,
+		        query.Sorting);
+
+	        query.Tasks = result.Tasks;
+	        query.TotalTasksCount = result.TotalCount;
+
+	        return View(query);
+        }
+
         // Machine assignment actions
         [HttpPost]
         [ValidateAntiForgeryToken]

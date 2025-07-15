@@ -27,6 +27,8 @@ namespace TeamWorkFlow.Core.Services
         public async Task<ICollection<TaskServiceModel>> GetAllTasksAsync()
         {
             return await _repository.AllReadOnly<Infrastructure.Data.Models.Task>()
+                .Include(t => t.TaskStatus)
+                .Where(t => t.TaskStatus.Name.ToLower() != "finished") // Exclude finished tasks
                 .Select(t => new TaskServiceModel()
                 {
                     Id = t.Id,
@@ -48,7 +50,9 @@ namespace TeamWorkFlow.Core.Services
             int tasksPerPage = 10,
             int currentPage = 1)
         {
-            IQueryable<Infrastructure.Data.Models.Task> tasksToBeDisplayed = _repository.AllReadOnly<Infrastructure.Data.Models.Task>();
+            IQueryable<Infrastructure.Data.Models.Task> tasksToBeDisplayed = _repository.AllReadOnly<Infrastructure.Data.Models.Task>()
+                .Include(t => t.TaskStatus)
+                .Where(t => t.TaskStatus.Name.ToLower() != "finished"); // Exclude finished tasks from main list
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -273,7 +277,7 @@ namespace TeamWorkFlow.Core.Services
 	        var operatorId = await GetOperatorIdByUserId(userId);
 
             var model = await _repository.AllReadOnly<TaskOperator>()
-	            .Where(to => to.OperatorId == operatorId)
+	            .Where(to => to.OperatorId == operatorId && to.Task.TaskStatus.Name.ToLower() != "finished") // Exclude finished tasks
 	            .Select(to => new TaskServiceModel()
 	            {
 					Id = to.Task.Id,
@@ -380,6 +384,7 @@ namespace TeamWorkFlow.Core.Services
         public async Task<ICollection<TaskServiceModel>> GetAllAssignedTasksAsync()
         {
 	        var model = await _repository.AllReadOnly<TaskOperator>()
+		        .Where(to => to.Task.TaskStatus.Name.ToLower() != "finished") // Exclude finished tasks
 		        .Select(to => new TaskServiceModel()
 				{
 					Id = to.Task.Id,
@@ -423,7 +428,8 @@ namespace TeamWorkFlow.Core.Services
 
         public async Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetAllAssignedTasksAsync(int page, int pageSize)
         {
-            var query = _repository.AllReadOnly<TaskOperator>();
+            var query = _repository.AllReadOnly<TaskOperator>()
+                .Where(to => to.Task.TaskStatus.Name.ToLower() != "finished"); // Exclude finished tasks
             var totalCount = await query.CountAsync();
             var tasks = await query
                 .OrderBy(to => to.Task.Id)
@@ -447,7 +453,15 @@ namespace TeamWorkFlow.Core.Services
 
         public async Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetAllTasksAsync(int page, int pageSize)
         {
-            var query = _repository.AllReadOnly<Infrastructure.Data.Models.Task>();
+            var query = _repository.AllReadOnly<Infrastructure.Data.Models.Task>()
+                .Include(t => t.TaskStatus)
+                .Include(t => t.Priority)
+                .Include(t => t.Project)
+                .Include(t => t.Machine)
+                .Include(t => t.TasksOperators)
+                .ThenInclude(to => to.Operator)
+                .Where(t => t.TaskStatus.Name.ToLower() != "finished"); // Exclude finished tasks from main list
+
             var totalCount = await query.CountAsync();
             var tasks = await query
                 .OrderBy(t => t.Id)
@@ -463,9 +477,89 @@ namespace TeamWorkFlow.Core.Services
                     ProjectNumber = t.Project.ProjectNumber,
                     StartDate = t.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
                     EndDate = t.EndDate != null ? t.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
-                    Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty
+                    Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+                    MachineId = t.MachineId,
+                    MachineName = t.Machine != null ? t.Machine.Name : null,
+                    Operators = t.TasksOperators.Select(to => new TaskOperatorModel
+                    {
+                        OperatorId = to.OperatorId,
+                        OperatorName = to.Operator.FullName
+                    }).ToList()
                 })
                 .ToListAsync();
+            return (tasks, totalCount);
+        }
+
+        // Archive methods
+        public async Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetArchivedTasksAsync(int page, int pageSize)
+        {
+            return await GetArchivedTasksAsync(page, pageSize, null, TaskSorting.LastAdded);
+        }
+
+        public async Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetArchivedTasksAsync(int page, int pageSize, string? search, TaskSorting sorting)
+        {
+            var currentPage = page;
+            var tasksPerPage = pageSize;
+
+            var archivedTasksQuery = _repository.AllReadOnly<Infrastructure.Data.Models.Task>()
+                .Include(t => t.TaskStatus)
+                .Include(t => t.Priority)
+                .Include(t => t.Project)
+                .Include(t => t.Machine)
+                .Include(t => t.TasksOperators)
+                .ThenInclude(to => to.Operator)
+                .Where(t => t.TaskStatus.Name.ToLower() == "finished"); // Only finished tasks
+
+            // Apply search filter
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string normalizedSearch = search.ToLower();
+                archivedTasksQuery = archivedTasksQuery.Where(t =>
+                    t.Name.ToLower().Contains(normalizedSearch) ||
+                    t.Description.ToLower().Contains(normalizedSearch) ||
+                    t.Project.ProjectNumber.ToLower().Contains(normalizedSearch));
+            }
+
+            // Apply sorting
+            archivedTasksQuery = sorting switch
+            {
+                TaskSorting.NameAscending => archivedTasksQuery.OrderBy(t => t.Name),
+                TaskSorting.NameDescending => archivedTasksQuery.OrderByDescending(t => t.Name),
+                TaskSorting.ProjectNumberAscending => archivedTasksQuery.OrderBy(t => t.Project.ProjectNumber),
+                TaskSorting.ProjectNumberDescending => archivedTasksQuery.OrderByDescending(t => t.Project.ProjectNumber),
+                TaskSorting.StartDateAscending => archivedTasksQuery.OrderBy(t => t.StartDate),
+                TaskSorting.StartDateDescending => archivedTasksQuery.OrderByDescending(t => t.StartDate),
+                TaskSorting.DeadlineAscending => archivedTasksQuery.OrderBy(t => t.DeadLine),
+                TaskSorting.DeadlineDescending => archivedTasksQuery.OrderByDescending(t => t.DeadLine),
+                _ => archivedTasksQuery.OrderByDescending(t => t.EndDate ?? t.StartDate) // Default: most recently finished first
+            };
+
+            var totalCount = await archivedTasksQuery.CountAsync();
+
+            var tasks = await archivedTasksQuery
+                .Skip((currentPage - 1) * tasksPerPage)
+                .Take(tasksPerPage)
+                .Select(t => new TaskServiceModel()
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Description = t.Description,
+                    Status = t.TaskStatus.Name,
+                    Priority = t.Priority.Name,
+                    ProjectNumber = t.Project.ProjectNumber,
+                    StartDate = t.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
+                    EndDate = t.EndDate != null ? t.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+                    Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+                    MachineId = t.MachineId,
+                    MachineName = t.Machine != null ? t.Machine.Name : null,
+                    Operators = t.TasksOperators.Select(to => new TaskOperatorModel
+                    {
+                        OperatorId = to.OperatorId,
+                        OperatorName = to.Operator.FullName
+                    }).ToList()
+                })
+                .ToListAsync();
+
             return (tasks, totalCount);
         }
 

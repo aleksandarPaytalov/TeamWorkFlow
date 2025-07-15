@@ -58,5 +58,9 @@ namespace TeamWorkFlow.Core.Contracts
         Task<ICollection<OperatorServiceModel>> GetAvailableOperatorsForTaskAsync(int taskId);
         Task<ICollection<OperatorServiceModel>> GetAssignedOperatorsForTaskAsync(int taskId);
 
+        // Archive methods
+        Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetArchivedTasksAsync(int page, int pageSize);
+        Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetArchivedTasksAsync(int page, int pageSize, string? search, TaskSorting sorting);
+
     }
 }
