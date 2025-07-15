@@ -17,6 +17,8 @@
 	<link rel="stylesheet" href="~/css/pages/tasks.css" asp-append-version="true" />
 }
 
+@Html.AntiForgeryToken()
+
 <div class="tasks-container">
 	<!-- Header Section -->
 	<div class="tasks-header">
@@ -163,6 +165,60 @@
 									<span class="task-detail-value task-deadline">@task.Deadline</span>
 								</div>
 							}
+
+							<!-- Machine Assignment -->
+							<div class="task-detail-item">
+								<span class="task-detail-label">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+									</svg>
+									Machine
+								</span>
+								<span class="task-detail-value">
+									@if (task.HasMachine)
+									{
+										<span class="machine-assigned">@task.MachineName</span>
+										<button class="btn-icon unassign-machine-btn" data-task-id="@task.Id" title="Unassign Machine">
+											<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+											</svg>
+										</button>
+									}
+									else
+									{
+										<button class="assign-machine-btn" data-task-id="@task.Id">Assign Machine</button>
+									}
+								</span>
+							</div>
+
+							<!-- Operator Assignment -->
+							<div class="task-detail-item">
+								<span class="task-detail-label">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+									</svg>
+									Operators
+								</span>
+								<span class="task-detail-value">
+									@if (task.HasOperators)
+									{
+										<div class="operators-list">
+											@foreach (var op in task.Operators)
+											{
+												<span class="operator-badge">
+													@op.OperatorName
+													<button class="btn-icon unassign-operator-btn" data-task-id="@task.Id" data-operator-id="@op.OperatorId" title="Unassign Operator">
+														<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+															<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+														</svg>
+													</button>
+												</span>
+											}
+										</div>
+									}
+									<button class="assign-operator-btn" data-task-id="@task.Id">Assign Operator</button>
+								</span>
+							</div>
 						</div>
 
 						<!-- Action Buttons -->

@@ -17,15 +17,15 @@ namespace UnitTests
 	public class SummaryServiceUnitTests
 	{
 		private IRepository _repository;
-		private ISummaryService _summaryService;
-		private TeamWorkFlowDbContext _dbContext;
-		private Mock<UserManager<IdentityUser>> _mockUserManager;
+		private ISummaryService _summaryService = null!;
+		private TeamWorkFlowDbContext _dbContext = null!;
+		private Mock<UserManager<IdentityUser>> _mockUserManager = null!;
 
 		[SetUp]
 public void Setup()
 {
     var mockUserStore = new Mock<IUserStore<IdentityUser>>();
-    _mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null, null, null, null, null, null, null, null);
+    _mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null!, null!, null!, null!, null!, null!, null!, null!);
 
     _mockUserManager.Setup(x => x.IsInRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
         .ReturnsAsync((IdentityUser user, string role) => role == "Operator" || role == "Admin");

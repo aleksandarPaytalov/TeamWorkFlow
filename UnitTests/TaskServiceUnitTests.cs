@@ -17,16 +17,16 @@ namespace UnitTests
 	[TestFixture]
 	public class TaskUnitTests
 	{
-		private IRepository _repository;
-		private ITaskService _taskService;
-		private TeamWorkFlowDbContext _dbContext;
-		private Mock<UserManager<IdentityUser>> _mockUserManager;
+		private IRepository _repository = null!;
+		private ITaskService _taskService = null!;
+		private TeamWorkFlowDbContext _dbContext = null!;
+		private Mock<UserManager<IdentityUser>> _mockUserManager = null!;
 		
 		[SetUp]
 public void Setup()
 {
     var mockUserStore = new Mock<IUserStore<IdentityUser>>();
-    _mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null, null, null, null, null, null, null, null);
+    _mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null!, null!, null!, null!, null!, null!, null!, null!);
 
     _mockUserManager.Setup(x => x.IsInRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
         .ReturnsAsync((IdentityUser user, string role) => role == "Operator" || role == "Admin");
@@ -98,6 +98,7 @@ public void Setup()
 
 			// Assert
 			Assert.NotNull(result);
+			Assert.That(result, Is.Not.Null);
 			Assert.That(result!.Id, Is.EqualTo(task?.Id));
 		}
 
@@ -542,7 +543,7 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task GetOperatorIdByUserId_ReturnUnExistingActionExceptionIfOperatorDoesNotExist()
+		public void GetOperatorIdByUserId_ReturnUnExistingActionExceptionIfOperatorDoesNotExist()
 		{
 			// Arrange
 			string userId = "f700189f-d9a5-42ca-aaac-6f73e43614a9";
@@ -1450,18 +1451,18 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task AddTaskToMyCollection_WithNullTaskModel_ThrowsNullReferenceException()
+		public void AddTaskToMyCollection_WithNullTaskModel_ThrowsNullReferenceException()
 		{
 			// Arrange
 			string userId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77";
 
 			// Act & Assert
 			Assert.ThrowsAsync<NullReferenceException>(async () =>
-				await _taskService.AddTaskToMyCollection(null, userId));
+				await _taskService.AddTaskToMyCollection(null!, userId));
 		}
 
 		[Test]
-		public async Task AddTaskToMyCollection_WithNullUserId_ThrowsUnExistingActionException()
+		public void AddTaskToMyCollection_WithNullUserId_ThrowsUnExistingActionException()
 		{
 			// Arrange
 			var taskModel = new TaskServiceModel()
@@ -1472,19 +1473,19 @@ public void Setup()
 
 			// Act & Assert
 			var ex = Assert.ThrowsAsync<UnExistingActionException>(async () =>
-				await _taskService.AddTaskToMyCollection(taskModel, null));
+				await _taskService.AddTaskToMyCollection(taskModel, null!));
 			Assert.That(ex.Message, Is.EqualTo("The operator with this userId does not exist"));
 		}
 
 		[Test]
-		public async Task RemoveFromCollection_WithNullUserId_ThrowsUnExistingActionException()
+		public void RemoveFromCollection_WithNullUserId_ThrowsUnExistingActionException()
 		{
 			// Arrange
 			int taskId = 1;
 
 			// Act & Assert
 			var ex = Assert.ThrowsAsync<UnExistingActionException>(async () =>
-				await _taskService.RemoveFromCollection(taskId, null));
+				await _taskService.RemoveFromCollection(taskId, null!));
 			Assert.That(ex.Message, Is.EqualTo("The operator with this userId does not exist"));
 		}
 

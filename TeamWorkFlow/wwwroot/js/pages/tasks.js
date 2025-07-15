@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeStatusIndicators();
     initializePriorityIndicators();
     initializeDeadlineWarnings();
+    initializeAssignmentButtons();
 });
 
 /**
@@ -391,4 +392,416 @@ function getRelativeTime(dateString) {
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
     return `${Math.floor(diffDays / 30)} months ago`;
+}
+
+/**
+ * Initialize machine and operator assignment buttons
+ */
+function initializeAssignmentButtons() {
+    // Machine assignment
+    initializeMachineAssignment();
+
+    // Operator assignment
+    initializeOperatorAssignment();
+}
+
+/**
+ * Initialize machine assignment functionality
+ */
+function initializeMachineAssignment() {
+    // Assign machine buttons
+    const assignMachineButtons = document.querySelectorAll('.assign-machine-btn');
+    assignMachineButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const taskId = this.getAttribute('data-task-id');
+            showMachineSelectionModal(taskId);
+        });
+    });
+
+    // Unassign machine buttons
+    const unassignMachineButtons = document.querySelectorAll('.unassign-machine-btn');
+    unassignMachineButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const taskId = this.getAttribute('data-task-id');
+            unassignMachine(taskId);
+        });
+    });
+}
+
+/**
+ * Show machine selection modal
+ */
+function showMachineSelectionModal(taskId) {
+    // Create modal container
+    const modalContainer = document.createElement('div');
+    modalContainer.className = 'modal-container';
+    modalContainer.id = 'machine-selection-modal';
+
+    // Create modal content
+    modalContainer.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Assign Machine</h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Select a machine to assign to this task:</p>
+                <div class="loading-spinner">Loading available machines...</div>
+                <div class="machines-list"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-cancel-btn">Cancel</button>
+            </div>
+        </div>
+    `;
+
+    // Add modal to body
+    document.body.appendChild(modalContainer);
+
+    // Add event listeners
+    modalContainer.querySelector('.modal-close-btn').addEventListener('click', () => {
+        document.body.removeChild(modalContainer);
+    });
+
+    modalContainer.querySelector('.modal-cancel-btn').addEventListener('click', () => {
+        document.body.removeChild(modalContainer);
+    });
+
+    // Load available machines
+    fetch(`/Task/GetAvailableMachines?taskId=${taskId}`)
+        .then(response => response.json())
+        .then(data => {
+            const loadingSpinner = modalContainer.querySelector('.loading-spinner');
+            const machinesList = modalContainer.querySelector('.machines-list');
+
+            loadingSpinner.style.display = 'none';
+
+            if (data.success && data.machines.length > 0) {
+                data.machines.forEach(machine => {
+                    const machineItem = document.createElement('div');
+                    machineItem.className = 'machine-item';
+                    machineItem.innerHTML = `
+                        <div class="machine-info">
+                            <span class="machine-name">${machine.name}</span>
+                            <span class="machine-capacity">${machine.capacity} hours/day</span>
+                        </div>
+                        <button class="assign-btn" data-machine-id="${machine.id}">Assign</button>
+                    `;
+                    machinesList.appendChild(machineItem);
+
+                    // Add event listener to assign button
+                    machineItem.querySelector('.assign-btn').addEventListener('click', () => {
+                        assignMachine(taskId, machine.id);
+                        document.body.removeChild(modalContainer);
+                    });
+                });
+            } else {
+                machinesList.innerHTML = '<p class="no-machines">No available machines found. Machines must be calibrated and not assigned to other tasks.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading machines:', error);
+            const machinesList = modalContainer.querySelector('.machines-list');
+            const loadingSpinner = modalContainer.querySelector('.loading-spinner');
+            loadingSpinner.style.display = 'none';
+            machinesList.innerHTML = '<p class="error-message">Error loading machines. Please try again.</p>';
+        });
+}
+
+/**
+ * Get anti-forgery token
+ */
+function getAntiForgeryToken() {
+    return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+}
+
+/**
+ * Assign machine to task
+ */
+function assignMachine(taskId, machineId) {
+    // Validate assignment first
+    fetch(`/Task/ValidateMachineAssignment?taskId=${taskId}&machineId=${machineId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(validation => {
+            if (validation.canAssign) {
+                // Proceed with assignment
+                const token = getAntiForgeryToken();
+                fetch('/Task/AssignMachine', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': token
+                    },
+                    body: `taskId=${taskId}&machineId=${machineId}&__RequestVerificationToken=${encodeURIComponent(token)}`
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showNotification('Machine assigned successfully', 'success');
+                        // Reload page to reflect changes
+                        window.location.reload();
+                    } else {
+                        showNotification(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error assigning machine:', error);
+                    showNotification('Error assigning machine. Please try again.', 'error');
+                });
+            } else {
+                showNotification(validation.reason, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error validating machine assignment:', error);
+            showNotification('Error validating machine assignment. Please try again.', 'error');
+        });
+}
+
+/**
+ * Unassign machine from task
+ */
+function unassignMachine(taskId) {
+    if (confirm('Are you sure you want to unassign this machine from the task?')) {
+        const token = getAntiForgeryToken();
+        fetch('/Task/UnassignMachine', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': token
+            },
+            body: `taskId=${taskId}&__RequestVerificationToken=${encodeURIComponent(token)}`
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showNotification('Machine unassigned successfully', 'success');
+                // Reload page to reflect changes
+                window.location.reload();
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error unassigning machine:', error);
+            showNotification('Error unassigning machine. Please try again.', 'error');
+        });
+    }
+}
+
+/**
+ * Initialize operator assignment functionality
+ */
+function initializeOperatorAssignment() {
+    // Assign operator buttons
+    const assignOperatorButtons = document.querySelectorAll('.assign-operator-btn');
+    assignOperatorButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const taskId = this.getAttribute('data-task-id');
+            showOperatorSelectionModal(taskId);
+        });
+    });
+
+    // Unassign operator buttons
+    const unassignOperatorButtons = document.querySelectorAll('.unassign-operator-btn');
+    unassignOperatorButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const taskId = this.getAttribute('data-task-id');
+            const operatorId = this.getAttribute('data-operator-id');
+            unassignOperator(taskId, operatorId);
+        });
+    });
+}
+
+/**
+ * Show operator selection modal
+ */
+function showOperatorSelectionModal(taskId) {
+    // Create modal container
+    const modalContainer = document.createElement('div');
+    modalContainer.className = 'modal-container';
+    modalContainer.id = 'operator-selection-modal';
+
+    // Create modal content
+    modalContainer.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Assign Operator</h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Select an operator to assign to this task:</p>
+                <div class="loading-spinner">Loading available operators...</div>
+                <div class="operators-list"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-cancel-btn">Cancel</button>
+            </div>
+        </div>
+    `;
+
+    // Add modal to body
+    document.body.appendChild(modalContainer);
+
+    // Add event listeners
+    modalContainer.querySelector('.modal-close-btn').addEventListener('click', () => {
+        document.body.removeChild(modalContainer);
+    });
+
+    modalContainer.querySelector('.modal-cancel-btn').addEventListener('click', () => {
+        document.body.removeChild(modalContainer);
+    });
+
+    // Load available operators
+    fetch(`/Task/GetAvailableOperators?taskId=${taskId}`)
+        .then(response => response.json())
+        .then(data => {
+            const loadingSpinner = modalContainer.querySelector('.loading-spinner');
+            const operatorsList = modalContainer.querySelector('.operators-list');
+
+            loadingSpinner.style.display = 'none';
+
+            if (data.success && data.operators.length > 0) {
+                data.operators.forEach(operator => {
+                    const operatorItem = document.createElement('div');
+                    operatorItem.className = 'operator-item';
+                    operatorItem.innerHTML = `
+                        <div class="operator-info">
+                            <span class="operator-name">${operator.fullName}</span>
+                            <span class="operator-status">${operator.availabilityStatus}</span>
+                        </div>
+                        <button class="assign-btn" data-operator-id="${operator.id}">Assign</button>
+                    `;
+                    operatorsList.appendChild(operatorItem);
+
+                    // Add event listener to assign button
+                    operatorItem.querySelector('.assign-btn').addEventListener('click', () => {
+                        assignOperator(taskId, operator.id);
+                        document.body.removeChild(modalContainer);
+                    });
+                });
+            } else {
+                operatorsList.innerHTML = '<p class="no-operators">No available operators found.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading operators:', error);
+            const operatorsList = modalContainer.querySelector('.operators-list');
+            const loadingSpinner = modalContainer.querySelector('.loading-spinner');
+            loadingSpinner.style.display = 'none';
+            operatorsList.innerHTML = '<p class="error-message">Error loading operators. Please try again.</p>';
+        });
+}
+
+/**
+ * Assign operator to task
+ */
+function assignOperator(taskId, operatorId) {
+    const token = getAntiForgeryToken();
+    fetch('/Task/AssignOperator', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'RequestVerificationToken': token
+        },
+        body: `taskId=${taskId}&operatorId=${operatorId}&__RequestVerificationToken=${encodeURIComponent(token)}`
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            showNotification('Operator assigned successfully', 'success');
+            // Reload page to reflect changes
+            window.location.reload();
+        } else {
+            showNotification(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error assigning operator:', error);
+        showNotification('Error assigning operator. Please try again.', 'error');
+    });
+}
+
+/**
+ * Unassign operator from task
+ */
+function unassignOperator(taskId, operatorId) {
+    if (confirm('Are you sure you want to unassign this operator from the task?')) {
+        const token = getAntiForgeryToken();
+        fetch('/Task/UnassignOperator', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': token
+            },
+            body: `taskId=${taskId}&operatorId=${operatorId}&__RequestVerificationToken=${encodeURIComponent(token)}`
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showNotification('Operator unassigned successfully', 'success');
+                // Reload page to reflect changes
+                window.location.reload();
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error unassigning operator:', error);
+            showNotification('Error unassigning operator. Please try again.', 'error');
+        });
+    }
+}
+
+/**
+ * Show notification
+ */
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span class="notification-message">${message}</span>
+            <button class="notification-close">&times;</button>
+        </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Add event listener to close button
+    notification.querySelector('.notification-close').addEventListener('click', () => {
+        document.body.removeChild(notification);
+    });
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (document.body.contains(notification)) {
+            document.body.removeChild(notification);
+        }
+    }, 5000);
 }
