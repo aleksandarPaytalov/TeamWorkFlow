@@ -462,7 +462,7 @@ function initializeCapacityIndicators() {
         }
 
         // Add tooltip with capacity details
-        indicator.title = `Daily capacity: ${capacityValue} parts per day`;
+        indicator.title = `Daily capacity: ${capacityValue} hours per day`;
     });
 }
 

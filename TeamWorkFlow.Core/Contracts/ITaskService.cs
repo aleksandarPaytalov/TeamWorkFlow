@@ -1,5 +1,7 @@
 ﻿using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Task;
+using TeamWorkFlow.Core.Models.Machine;
+using TeamWorkFlow.Core.Models.Operator;
 
 namespace TeamWorkFlow.Core.Contracts
 {
@@ -44,6 +46,21 @@ namespace TeamWorkFlow.Core.Contracts
         Task RemoveAssignedTaskFromUserCollection(int taskId, int operatorId);
         Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetAllTasksAsync(int page, int pageSize);
 
+        // Machine assignment methods
+        Task<(bool Success, string Message)> AssignMachineToTaskAsync(int taskId, int machineId);
+        Task<(bool Success, string Message)> UnassignMachineFromTaskAsync(int taskId);
+        Task<ICollection<MachineServiceModel>> GetAvailableMachinesForTaskAsync(int taskId);
+        Task<(bool CanAssign, string Reason)> ValidateMachineAssignmentAsync(int taskId, int machineId);
+
+        // Operator assignment methods
+        Task<(bool Success, string Message)> AssignOperatorToTaskAsync(int taskId, int operatorId);
+        Task<(bool Success, string Message)> UnassignOperatorFromTaskAsync(int taskId, int operatorId);
+        Task<ICollection<OperatorServiceModel>> GetAvailableOperatorsForTaskAsync(int taskId);
+        Task<ICollection<OperatorServiceModel>> GetAssignedOperatorsForTaskAsync(int taskId);
+
+        // Archive methods
+        Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetArchivedTasksAsync(int page, int pageSize);
+        Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetArchivedTasksAsync(int page, int pageSize, string? search, TaskSorting sorting);
 
     }
 }

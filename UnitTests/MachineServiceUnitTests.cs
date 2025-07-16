@@ -18,16 +18,16 @@ namespace UnitTests
 	[TestFixture]
 	public class MachineServiceUnitTests
 	{
-		private IRepository _repository;
-		private IMachineService _machineService;
-		private TeamWorkFlowDbContext _dbContext;
-		private Mock<UserManager<IdentityUser>> _mockUserManager;
+		private IRepository _repository = null!;
+		private IMachineService _machineService = null!;
+		private TeamWorkFlowDbContext _dbContext = null!;
+		private Mock<UserManager<IdentityUser>> _mockUserManager = null!;
 
 		[SetUp]
 	public void Setup()
 	{
 		var mockUserStore = new Mock<IUserStore<IdentityUser>>();
-		_mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null, null, null, null, null, null, null, null);
+		_mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null!, null!, null!, null!, null!, null!, null!, null!);
 
 		_mockUserManager.Setup(x => x.IsInRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
 			.ReturnsAsync((IdentityUser user, string role) => role == "Operator" || role == "Admin");
@@ -771,7 +771,7 @@ namespace UnitTests
 		}
 
 		[Test]
-		public async Task AddNewMachineAsync_WithNegativeCapacity_ThrowsArgumentException()
+		public void AddNewMachineAsync_WithNegativeCapacity_ThrowsArgumentException()
 		{
 			// Arrange
 			var model = new MachineFormModel
@@ -788,14 +788,14 @@ namespace UnitTests
 		}
 
 		[Test]
-		public async Task AddNewMachineAsync_WithCapacityAboveLimit_ThrowsArgumentException()
+		public void AddNewMachineAsync_WithCapacityAboveLimit_ThrowsArgumentException()
 		{
 			// Arrange
 			var model = new MachineFormModel
 			{
 				Name = "Test Machine",
 				CalibrationSchedule = "01/01/2025",
-				Capacity = 25, // Above limit of 20
+				Capacity = 25, // Above limit of 24
 				IsCalibrated = "true",
 				ImageUrl = "https://test.com/image.jpg"
 			};

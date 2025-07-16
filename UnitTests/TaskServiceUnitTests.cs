@@ -17,16 +17,16 @@ namespace UnitTests
 	[TestFixture]
 	public class TaskUnitTests
 	{
-		private IRepository _repository;
-		private ITaskService _taskService;
-		private TeamWorkFlowDbContext _dbContext;
-		private Mock<UserManager<IdentityUser>> _mockUserManager;
+		private IRepository _repository = null!;
+		private ITaskService _taskService = null!;
+		private TeamWorkFlowDbContext _dbContext = null!;
+		private Mock<UserManager<IdentityUser>> _mockUserManager = null!;
 		
 		[SetUp]
 public void Setup()
 {
     var mockUserStore = new Mock<IUserStore<IdentityUser>>();
-    _mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null, null, null, null, null, null, null, null);
+    _mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null!, null!, null!, null!, null!, null!, null!, null!);
 
     _mockUserManager.Setup(x => x.IsInRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
         .ReturnsAsync((IdentityUser user, string role) => role == "Operator" || role == "Admin");
@@ -72,11 +72,13 @@ public void Setup()
 }
 
 		[Test]
-		public async Task GetAllTasksAsync_ReturnsNumberOfTasks()
+		public async Task GetAllTasksAsync_ReturnsNumberOfNonFinishedTasks()
 		{
-			// Arrange
-			var expectedResult =
-				await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>().CountAsync();
+			// Arrange - Count only non-finished tasks (excludes tasks with "finished" status)
+			var expectedResult = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.Include(t => t.TaskStatus)
+				.Where(t => t.TaskStatus.Name.ToLower() != "finished")
+				.CountAsync();
 
 			// Act
 			var result = await _taskService.GetAllTasksAsync();
@@ -98,6 +100,7 @@ public void Setup()
 
 			// Assert
 			Assert.NotNull(result);
+			Assert.That(result, Is.Not.Null);
 			Assert.That(result!.Id, Is.EqualTo(task?.Id));
 		}
 
@@ -367,36 +370,41 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task GetAllAssignedTasksAsync_ReturnsAssignedTasks()
+		public async Task GetAllAssignedTasksAsync_ReturnsNonFinishedAssignedTasks()
 		{
-			// Arrange
-			var task = await _repository.AllReadOnly<TaskOperator>()
+			// Arrange - Count only assigned tasks that are not finished
+			var expectedCount = await _repository.AllReadOnly<TaskOperator>()
+				.Include(to => to.Task)
+				.ThenInclude(t => t.TaskStatus)
+				.Where(to => to.Task.TaskStatus.Name.ToLower() != "finished")
 				.CountAsync();
-			Assert.That(task is not 0,  "Task is 0");
+			Assert.That(expectedCount is not 0, "Expected count is 0");
 
 			// Act
 			var result = await _taskService.GetAllAssignedTasksAsync(1, 10);
 
 			// Assert
-			Assert.That(result.Tasks.Count(), Is.EqualTo(task));
+			Assert.That(result.Tasks.Count(), Is.EqualTo(expectedCount));
 		}
 
 		[Test]
-		public async Task GetMyTasksAsync_ReturnsMyTasks()
+		public async Task GetMyTasksAsync_ReturnsMyNonFinishedTasks()
 		{
 			// Arrange
 			string userId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77";
 			int operatorId = await _taskService.GetOperatorIdByUserId(userId);
 
-			int assignedTasks = await _repository.AllReadOnly<TaskOperator>()
-				.Where(t => t.OperatorId == operatorId)
+			int assignedNonFinishedTasks = await _repository.AllReadOnly<TaskOperator>()
+				.Include(to => to.Task)
+				.ThenInclude(t => t.TaskStatus)
+				.Where(to => to.OperatorId == operatorId && to.Task.TaskStatus.Name.ToLower() != "finished")
 				.CountAsync();
 
 			// Act
 			var result = await _taskService.GetMyTasksAsync(userId);
 
 			// Assert
-			Assert.That(result.Count(), Is.EqualTo(assignedTasks));
+			Assert.That(result.Count(), Is.EqualTo(assignedNonFinishedTasks));
 		}
 
 		[Test]
@@ -542,7 +550,7 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task GetOperatorIdByUserId_ReturnUnExistingActionExceptionIfOperatorDoesNotExist()
+		public void GetOperatorIdByUserId_ReturnUnExistingActionExceptionIfOperatorDoesNotExist()
 		{
 			// Arrange
 			string userId = "f700189f-d9a5-42ca-aaac-6f73e43614a9";
@@ -561,10 +569,13 @@ public void Setup()
 		#region AllAsync Method Tests (Query and Search Functionality)
 
 		[Test]
-		public async Task AllAsync_WithNoParameters_ReturnsAllTasks()
+		public async Task AllAsync_WithNoParameters_ReturnsAllNonFinishedTasks()
 		{
-			// Arrange
-			var expectedTaskCount = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>().CountAsync();
+			// Arrange - Count only non-finished tasks
+			var expectedTaskCount = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.Include(t => t.TaskStatus)
+				.Where(t => t.TaskStatus.Name.ToLower() != "finished")
+				.CountAsync();
 
 			// Act
 			var result = await _taskService.AllAsync();
@@ -599,10 +610,13 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task AllAsync_WithEmptySearch_ReturnsAllTasks()
+		public async Task AllAsync_WithEmptySearch_ReturnsAllNonFinishedTasks()
 		{
-			// Arrange
-			var expectedTaskCount = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>().CountAsync();
+			// Arrange - Count only non-finished tasks
+			var expectedTaskCount = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.Include(t => t.TaskStatus)
+				.Where(t => t.TaskStatus.Name.ToLower() != "finished")
+				.CountAsync();
 
 			// Act
 			var result = await _taskService.AllAsync(search: "");
@@ -746,15 +760,18 @@ public void Setup()
 			// Arrange
 			int tasksPerPage = 1;
 			int currentPage = 2;
-			var totalTasks = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>().CountAsync();
+			var totalNonFinishedTasks = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.Include(t => t.TaskStatus)
+				.Where(t => t.TaskStatus.Name.ToLower() != "finished")
+				.CountAsync();
 
 			// Act
 			var result = await _taskService.AllAsync(tasksPerPage: tasksPerPage, currentPage: currentPage);
 
 			// Assert
 			Assert.That(result, Is.Not.Null);
-			Assert.That(result.TotalTasksCount, Is.EqualTo(totalTasks));
-			if (totalTasks > 1)
+			Assert.That(result.TotalTasksCount, Is.EqualTo(totalNonFinishedTasks));
+			if (totalNonFinishedTasks > 1)
 			{
 				Assert.That(result.Tasks.Count(), Is.EqualTo(1));
 			}
@@ -893,14 +910,17 @@ public void Setup()
 			// Arrange
 			int page = 1;
 			int pageSize = 2;
-			var totalTasks = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>().CountAsync();
+			var totalNonFinishedTasks = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.Include(t => t.TaskStatus)
+				.Where(t => t.TaskStatus.Name.ToLower() != "finished")
+				.CountAsync();
 
 			// Act
 			var result = await _taskService.GetAllTasksAsync(page, pageSize);
 
 			// Assert
 			Assert.That(result.Tasks, Is.Not.Null);
-			Assert.That(result.TotalCount, Is.EqualTo(totalTasks));
+			Assert.That(result.TotalCount, Is.EqualTo(totalNonFinishedTasks));
 			Assert.That(result.Tasks.Count(), Is.LessThanOrEqualTo(pageSize));
 		}
 
@@ -910,15 +930,18 @@ public void Setup()
 			// Arrange
 			int page = 2;
 			int pageSize = 1;
-			var totalTasks = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>().CountAsync();
+			var totalNonFinishedTasks = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.Include(t => t.TaskStatus)
+				.Where(t => t.TaskStatus.Name.ToLower() != "finished")
+				.CountAsync();
 
 			// Act
 			var result = await _taskService.GetAllTasksAsync(page, pageSize);
 
 			// Assert
 			Assert.That(result.Tasks, Is.Not.Null);
-			Assert.That(result.TotalCount, Is.EqualTo(totalTasks));
-			if (totalTasks > 1)
+			Assert.That(result.TotalCount, Is.EqualTo(totalNonFinishedTasks));
+			if (totalNonFinishedTasks > 1)
 			{
 				Assert.That(result.Tasks.Count(), Is.EqualTo(1));
 			}
@@ -930,14 +953,18 @@ public void Setup()
 			// Arrange
 			int page = 1;
 			int pageSize = 2;
-			var totalAssignedTasks = await _repository.AllReadOnly<TaskOperator>().CountAsync();
+			var totalNonFinishedAssignedTasks = await _repository.AllReadOnly<TaskOperator>()
+				.Include(to => to.Task)
+				.ThenInclude(t => t.TaskStatus)
+				.Where(to => to.Task.TaskStatus.Name.ToLower() != "finished")
+				.CountAsync();
 
 			// Act
 			var result = await _taskService.GetAllAssignedTasksAsync(page, pageSize);
 
 			// Assert
 			Assert.That(result.Tasks, Is.Not.Null);
-			Assert.That(result.TotalCount, Is.EqualTo(totalAssignedTasks));
+			Assert.That(result.TotalCount, Is.EqualTo(totalNonFinishedAssignedTasks));
 			Assert.That(result.Tasks.Count(), Is.LessThanOrEqualTo(pageSize));
 		}
 
@@ -1102,19 +1129,22 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task AllAsync_WithLargePageSize_ReturnsAllTasks()
+		public async Task AllAsync_WithLargePageSize_ReturnsAllNonFinishedTasks()
 		{
 			// Arrange
 			int largePageSize = 1000;
-			var totalTasks = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>().CountAsync();
+			var totalNonFinishedTasks = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.Include(t => t.TaskStatus)
+				.Where(t => t.TaskStatus.Name.ToLower() != "finished")
+				.CountAsync();
 
 			// Act
 			var result = await _taskService.AllAsync(tasksPerPage: largePageSize);
 
 			// Assert
 			Assert.That(result, Is.Not.Null);
-			Assert.That(result.Tasks.Count(), Is.EqualTo(totalTasks));
-			Assert.That(result.TotalTasksCount, Is.EqualTo(totalTasks));
+			Assert.That(result.Tasks.Count(), Is.EqualTo(totalNonFinishedTasks));
+			Assert.That(result.TotalTasksCount, Is.EqualTo(totalNonFinishedTasks));
 		}
 
 		[Test]
@@ -1450,18 +1480,18 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task AddTaskToMyCollection_WithNullTaskModel_ThrowsNullReferenceException()
+		public void AddTaskToMyCollection_WithNullTaskModel_ThrowsNullReferenceException()
 		{
 			// Arrange
 			string userId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77";
 
 			// Act & Assert
 			Assert.ThrowsAsync<NullReferenceException>(async () =>
-				await _taskService.AddTaskToMyCollection(null, userId));
+				await _taskService.AddTaskToMyCollection(null!, userId));
 		}
 
 		[Test]
-		public async Task AddTaskToMyCollection_WithNullUserId_ThrowsUnExistingActionException()
+		public void AddTaskToMyCollection_WithNullUserId_ThrowsUnExistingActionException()
 		{
 			// Arrange
 			var taskModel = new TaskServiceModel()
@@ -1472,19 +1502,19 @@ public void Setup()
 
 			// Act & Assert
 			var ex = Assert.ThrowsAsync<UnExistingActionException>(async () =>
-				await _taskService.AddTaskToMyCollection(taskModel, null));
+				await _taskService.AddTaskToMyCollection(taskModel, null!));
 			Assert.That(ex.Message, Is.EqualTo("The operator with this userId does not exist"));
 		}
 
 		[Test]
-		public async Task RemoveFromCollection_WithNullUserId_ThrowsUnExistingActionException()
+		public void RemoveFromCollection_WithNullUserId_ThrowsUnExistingActionException()
 		{
 			// Arrange
 			int taskId = 1;
 
 			// Act & Assert
 			var ex = Assert.ThrowsAsync<UnExistingActionException>(async () =>
-				await _taskService.RemoveFromCollection(taskId, null));
+				await _taskService.RemoveFromCollection(taskId, null!));
 			Assert.That(ex.Message, Is.EqualTo("The operator with this userId does not exist"));
 		}
 
@@ -1514,6 +1544,175 @@ public void Setup()
 
 			// Assert - The result depends on whether the task is assigned to any operator
 			Assert.That(result, Is.TypeOf<bool>());
+		}
+
+		#endregion
+
+		#region Archive Functionality Tests
+
+		[Test]
+		public async Task GetArchivedTasksAsync_ReturnsOnlyFinishedTasks()
+		{
+			// Arrange - Count only finished tasks
+			var expectedFinishedTaskCount = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.Include(t => t.TaskStatus)
+				.Where(t => t.TaskStatus.Name.ToLower() == "finished")
+				.CountAsync();
+
+			// Act
+			var result = await _taskService.GetArchivedTasksAsync(1, 10);
+
+			// Assert
+			Assert.That(result.TotalCount, Is.EqualTo(expectedFinishedTaskCount));
+			Assert.That(result.Tasks, Is.Not.Null);
+
+			// Verify all returned tasks are finished
+			foreach (var task in result.Tasks)
+			{
+				Assert.That(task.Status.ToLower(), Is.EqualTo("finished"));
+			}
+		}
+
+		[Test]
+		public async Task GetArchivedTasksAsync_WithPagination_ReturnsCorrectPage()
+		{
+			// Arrange
+			int page = 1;
+			int pageSize = 1;
+			var totalFinishedTasks = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.Include(t => t.TaskStatus)
+				.Where(t => t.TaskStatus.Name.ToLower() == "finished")
+				.CountAsync();
+
+			// Act
+			var result = await _taskService.GetArchivedTasksAsync(page, pageSize);
+
+			// Assert
+			Assert.That(result.Tasks, Is.Not.Null);
+			Assert.That(result.TotalCount, Is.EqualTo(totalFinishedTasks));
+			Assert.That(result.Tasks.Count(), Is.LessThanOrEqualTo(pageSize));
+
+			// Verify all returned tasks are finished
+			foreach (var task in result.Tasks)
+			{
+				Assert.That(task.Status.ToLower(), Is.EqualTo("finished"));
+			}
+		}
+
+		[Test]
+		public async Task GetArchivedTasksAsync_WithSearchParameter_ReturnsFilteredFinishedTasks()
+		{
+			// Arrange - Search for finished tasks containing "BMW"
+			string searchTerm = "BMW";
+
+			// Act
+			var result = await _taskService.GetArchivedTasksAsync(1, 10, searchTerm, TaskSorting.NameAscending);
+
+			// Assert
+			Assert.That(result.Tasks, Is.Not.Null);
+
+			// Verify all returned tasks are finished and contain search term
+			foreach (var task in result.Tasks)
+			{
+				Assert.That(task.Status.ToLower(), Is.EqualTo("finished"));
+				bool containsSearchTerm = task.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+										  task.ProjectNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
+				Assert.That(containsSearchTerm, Is.True, $"Task {task.Name} should contain search term {searchTerm}");
+			}
+		}
+
+		[Test]
+		public async Task GetArchivedTasksAsync_WithSortingByNameAscending_ReturnsSortedFinishedTasks()
+		{
+			// Arrange & Act
+			var result = await _taskService.GetArchivedTasksAsync(1, 10, null, TaskSorting.NameAscending);
+
+			// Assert
+			Assert.That(result.Tasks, Is.Not.Null);
+
+			// Verify all returned tasks are finished
+			foreach (var task in result.Tasks)
+			{
+				Assert.That(task.Status.ToLower(), Is.EqualTo("finished"));
+			}
+
+			// Verify sorting if there are multiple tasks
+			if (result.Tasks.Count() > 1)
+			{
+				var taskNames = result.Tasks.Select(t => t.Name).ToList();
+				var sortedNames = taskNames.OrderBy(n => n).ToList();
+				Assert.That(taskNames, Is.EqualTo(sortedNames), "Finished tasks should be sorted by name ascending");
+			}
+		}
+
+		[Test]
+		public async Task GetArchivedTasksAsync_WithNonExistentSearch_ReturnsEmptyResult()
+		{
+			// Arrange
+			string nonExistentSearch = "NonExistentFinishedTask12345";
+
+			// Act
+			var result = await _taskService.GetArchivedTasksAsync(1, 10, nonExistentSearch, TaskSorting.NameAscending);
+
+			// Assert
+			Assert.That(result.Tasks.Count(), Is.EqualTo(0));
+			Assert.That(result.TotalCount, Is.EqualTo(0));
+		}
+
+		[Test]
+		public async Task GetArchivedTasksAsync_WithEmptySearch_ReturnsAllFinishedTasks()
+		{
+			// Arrange
+			var expectedFinishedTaskCount = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.Include(t => t.TaskStatus)
+				.Where(t => t.TaskStatus.Name.ToLower() == "finished")
+				.CountAsync();
+
+			// Act
+			var result = await _taskService.GetArchivedTasksAsync(1, 10, "", TaskSorting.NameAscending);
+
+			// Assert
+			Assert.That(result.TotalCount, Is.EqualTo(expectedFinishedTaskCount));
+		}
+
+		[Test]
+		public async Task GetArchivedTasksAsync_WithLargePageSize_ReturnsAllFinishedTasks()
+		{
+			// Arrange
+			int largePageSize = 1000;
+			var totalFinishedTasks = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.Include(t => t.TaskStatus)
+				.Where(t => t.TaskStatus.Name.ToLower() == "finished")
+				.CountAsync();
+
+			// Act
+			var result = await _taskService.GetArchivedTasksAsync(1, largePageSize);
+
+			// Assert
+			Assert.That(result.Tasks.Count(), Is.EqualTo(totalFinishedTasks));
+			Assert.That(result.TotalCount, Is.EqualTo(totalFinishedTasks));
+		}
+
+		[Test]
+		public async Task GetArchivedTasksAsync_WithAllSortingOptions_ExecutesSuccessfully()
+		{
+			// Test all sorting enum values to ensure complete coverage for archived tasks
+			var sortingOptions = Enum.GetValues<TaskSorting>();
+
+			foreach (var sorting in sortingOptions)
+			{
+				// Act
+				var result = await _taskService.GetArchivedTasksAsync(1, 10, null, sorting);
+
+				// Assert
+				Assert.That(result.Tasks, Is.Not.Null, $"Tasks should not be null for sorting: {sorting}");
+
+				// Verify all returned tasks are finished
+				foreach (var task in result.Tasks)
+				{
+					Assert.That(task.Status.ToLower(), Is.EqualTo("finished"));
+				}
+			}
 		}
 
 		#endregion

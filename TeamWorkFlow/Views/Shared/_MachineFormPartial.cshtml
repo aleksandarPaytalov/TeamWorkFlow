@@ -19,12 +19,13 @@
 			</div>
 
 			<div class="modern-form-group">
-				<label asp-for="@Model.Capacity" class="modern-form-label">Machine Capacity</label>
+				<label asp-for="@Model.Capacity" class="modern-form-label">Machine Capacity (hours/day)</label>
 				<input asp-for="@Model.Capacity" class="modern-form-input"
 					   type="number"
 					   required
 					   min="1"
-					   placeholder="Enter capacity..." />
+					   max="24"
+					   placeholder="Enter capacity in hours per day..." />
 				<span asp-validation-for="@Model.Capacity" class="modern-validation-message"></span>
 			</div>
 		</div>

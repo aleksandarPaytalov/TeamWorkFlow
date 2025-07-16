@@ -1,0 +1,329 @@
+@model TeamWorkFlow.Core.Models.Sprint.SprintPlanningViewModel
+@{
+    ViewData["Title"] = "Sprint To Do";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/sprint.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.css" />
+}
+
+<div class="sprint-container">
+    <!-- Sprint Header -->
+    <div class="sprint-header">
+        <div class="sprint-title">
+            <h1>
+                <svg width="24" height="24" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+                    <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+                    <path d="M5 7a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 5 7zm0 2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 5 9z"/>
+                </svg>
+                Sprint To Do
+            </h1>
+            <p class="sprint-subtitle">Plan and track your sprint with capacity insights</p>
+        </div>
+        
+        <div class="sprint-actions">
+            <button type="button" class="btn btn-outline-primary" id="autoAssignBtn">
+                <i class="fas fa-magic"></i> Auto Assign
+            </button>
+            <button type="button" class="btn btn-outline-danger" id="clearSprintBtn">
+                <i class="fas fa-trash"></i> Clear Sprint
+            </button>
+            <button type="button" class="btn btn-primary" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Capacity Overview -->
+    <div class="capacity-overview">
+        <div class="capacity-card">
+            <div class="capacity-header">
+                <h3>Capacity Analysis</h3>
+                <span class="capacity-status" style="background-color: @Model.Capacity.GetStatusColor()">
+                    @Model.Capacity.GetCapacityStatus()
+                </span>
+            </div>
+            
+            <div class="capacity-metrics">
+                <div class="metric">
+                    <div class="metric-label">Operator Utilization</div>
+                    <div class="metric-value">@Model.Capacity.OperatorUtilization.ToString("F1")%</div>
+                    <div class="metric-bar">
+                        <div class="metric-fill" style="width: @Math.Min(100, Model.Capacity.OperatorUtilization)%"></div>
+                    </div>
+                </div>
+                
+                <div class="metric">
+                    <div class="metric-label">Machine Utilization</div>
+                    <div class="metric-value">@Model.Capacity.MachineUtilization.ToString("F1")%</div>
+                    <div class="metric-bar">
+                        <div class="metric-fill" style="width: @Math.Min(100, Model.Capacity.MachineUtilization)%"></div>
+                    </div>
+                </div>
+                
+                <div class="metric">
+                    <div class="metric-label">Sprint Health</div>
+                    <div class="metric-value" style="color: @Model.Summary.GetHealthColor()">
+                        @Model.Summary.GetSprintHealth()
+                    </div>
+                </div>
+            </div>
+            
+            @if (!Model.Capacity.CanCompleteAllTasks)
+            {
+                <div class="capacity-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>
+                        Warning: Sprint is over capacity! 
+                        @if (Model.Capacity.OperatorHoursDeficit > 0)
+                        {
+                            <span>Need @Model.Capacity.OperatorHoursDeficit more operator hours.</span>
+                        }
+                        @if (Model.Capacity.MachineHoursDeficit > 0)
+                        {
+                            <span>Need @Model.Capacity.MachineHoursDeficit more machine hours.</span>
+                        }
+                    </span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Sprint Board -->
+    <div class="sprint-board">
+        <!-- Sprint Column -->
+        <div class="sprint-column">
+            <div class="column-header">
+                <h3>
+                    <i class="fas fa-rocket"></i>
+                    Sprint Tasks (@Model.SprintTasks.Count)
+                </h3>
+                <div class="column-stats">
+                    <span class="stat">@Model.Summary.TotalEstimatedHours hours</span>
+                    <span class="stat">@Model.Summary.CompletionPercentage.ToString("F0")% complete</span>
+                </div>
+            </div>
+            
+            <div class="task-list" id="sprintTasks" data-type="sprint">
+                @foreach (var task in Model.SprintTasks.OrderBy(t => t.SprintOrder))
+                {
+                    <div class="task-card" data-task-id="@task.Id" data-sprint-order="@task.SprintOrder">
+                        <div class="task-header">
+                            <div class="task-title">
+                                <span class="task-name">@task.Name</span>
+                                <span class="task-project">@task.ProjectNumber</span>
+                            </div>
+                            <div class="task-actions">
+                                <button class="btn-icon edit-time-btn" title="Edit Time">
+                                    <i class="fas fa-clock"></i>
+                                </button>
+                                <button class="btn-icon remove-task-btn" title="Remove from Sprint">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="task-meta">
+                            <span class="task-status" style="background-color: @task.StatusColor">
+                                @task.TaskStatus
+                            </span>
+                            <span class="task-priority" style="background-color: @task.PriorityColor">
+                                @task.Priority
+                            </span>
+                            <span class="task-duration">@task.GetFormattedDuration()</span>
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(task.MachineName))
+                        {
+                            <div class="task-machine">
+                                <i class="fas fa-cog"></i> @task.MachineName
+                            </div>
+                        }
+                        
+                        @if (task.AssignedOperators.Any())
+                        {
+                            <div class="task-operators">
+                                <i class="fas fa-users"></i>
+                                @string.Join(", ", task.AssignedOperators)
+                            </div>
+                        }
+                        
+                        @if (task.PlannedStartDate.HasValue && task.PlannedEndDate.HasValue)
+                        {
+                            <div class="task-timeline">
+                                <i class="fas fa-calendar"></i>
+                                @task.PlannedStartDate.Value.ToString("dd/MM") - @task.PlannedEndDate.Value.ToString("dd/MM")
+                                <span class="timeline-status" style="color: @task.StatusColor">
+                                    @task.GetTimelineStatus()
+                                </span>
+                            </div>
+                        }
+                        
+                        <div class="task-description">
+                            @task.Description
+                        </div>
+                        
+                        <!-- Editable estimated time -->
+                        <div class="task-time-editor" style="display: none;">
+                            <input type="number" class="form-control form-control-sm" 
+                                   value="@task.EstimatedTime" min="1" max="1000" />
+                            <button class="btn btn-sm btn-success save-time-btn">Save</button>
+                            <button class="btn btn-sm btn-secondary cancel-time-btn">Cancel</button>
+                        </div>
+                    </div>
+                }
+                
+                @if (!Model.SprintTasks.Any())
+                {
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No tasks in sprint</p>
+                        <p class="text-muted">Drag tasks from the backlog or use auto-assign</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Backlog Column -->
+        <div class="sprint-column">
+            <div class="column-header">
+                <h3>
+                    <i class="fas fa-list"></i>
+                    Backlog (@Model.BacklogTasks.Count)
+                </h3>
+                
+                <!-- Filters -->
+                <div class="column-filters">
+                    <div class="filter-row">
+                        <input type="text" class="form-control form-control-sm" 
+                               placeholder="Search tasks..." id="searchInput" value="@Model.SearchTerm" />
+                        <select class="form-select form-select-sm" id="statusFilter">
+                            <option value="">All Statuses</option>
+                            <option value="Not Started" selected="@(Model.StatusFilter == "Not Started")">Not Started</option>
+                            <option value="In Progress" selected="@(Model.StatusFilter == "In Progress")">In Progress</option>
+                            <option value="On Hold" selected="@(Model.StatusFilter == "On Hold")">On Hold</option>
+                        </select>
+                    </div>
+                    <div class="filter-row">
+                        <select class="form-select form-select-sm" id="priorityFilter">
+                            <option value="">All Priorities</option>
+                            <option value="Critical" selected="@(Model.PriorityFilter == "Critical")">Critical</option>
+                            <option value="High" selected="@(Model.PriorityFilter == "High")">High</option>
+                            <option value="Medium" selected="@(Model.PriorityFilter == "Medium")">Medium</option>
+                            <option value="Low" selected="@(Model.PriorityFilter == "Low")">Low</option>
+                        </select>
+                        <select class="form-select form-select-sm" id="projectFilter">
+                            <option value="">All Projects</option>
+                            @foreach (var project in Model.BacklogTasks.Select(t => t.ProjectName).Distinct().OrderBy(p => p))
+                            {
+                                <option value="@project" selected="@(Model.ProjectFilter == project)">@project</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="task-list" id="backlogTasks" data-type="backlog">
+                @foreach (var task in Model.BacklogTasks)
+                {
+                    <div class="task-card" data-task-id="@task.Id">
+                        <div class="task-header">
+                            <div class="task-title">
+                                <span class="task-name">@task.Name</span>
+                                <span class="task-project">@task.ProjectNumber</span>
+                            </div>
+                            <div class="task-actions">
+                                <button class="btn-icon add-task-btn" title="Add to Sprint">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="task-meta">
+                            <span class="task-status" style="background-color: @task.StatusColor">
+                                @task.TaskStatus
+                            </span>
+                            <span class="task-priority" style="background-color: @task.PriorityColor">
+                                @task.Priority
+                            </span>
+                            <span class="task-duration">@task.GetFormattedDuration()</span>
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(task.MachineName))
+                        {
+                            <div class="task-machine">
+                                <i class="fas fa-cog"></i> @task.MachineName
+                            </div>
+                        }
+                        
+                        @if (task.AssignedOperators.Any())
+                        {
+                            <div class="task-operators">
+                                <i class="fas fa-users"></i>
+                                @string.Join(", ", task.AssignedOperators)
+                            </div>
+                        }
+                        
+                        @if (task.DeadLine.HasValue)
+                        {
+                            <div class="task-deadline">
+                                <i class="fas fa-calendar-times"></i>
+                                Due: @task.DeadLine.Value.ToString("dd/MM/yyyy")
+                            </div>
+                        }
+                        
+                        <div class="task-description">
+                            @task.Description
+                        </div>
+                    </div>
+                }
+                
+                @if (!Model.BacklogTasks.Any())
+                {
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <p>No tasks in backlog</p>
+                        <p class="text-muted">All tasks are either completed or in sprint</p>
+                    </div>
+                }
+            </div>
+            
+            <!-- Pagination -->
+            @if (Model.TotalPages > 1)
+            {
+                <div class="pagination-container">
+                    <nav aria-label="Backlog pagination">
+                        <ul class="pagination pagination-sm">
+                            @if (Model.CurrentPage > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="#" data-page="@(Model.CurrentPage - 1)">Previous</a>
+                                </li>
+                            }
+                            
+                            @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
+                            {
+                                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                    <a class="page-link" href="#" data-page="@i">@i</a>
+                                </li>
+                            }
+                            
+                            @if (Model.CurrentPage < Model.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="#" data-page="@(Model.CurrentPage + 1)">Next</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script src="~/js/sprint.js" asp-append-version="true"></script>
+}

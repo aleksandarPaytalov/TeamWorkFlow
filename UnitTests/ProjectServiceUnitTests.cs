@@ -17,15 +17,15 @@ namespace UnitTests
 	public class ProjectServiceUnitTests
 	{
 		private IRepository _repository;
-		private IProjectService _projectService;
-		private TeamWorkFlowDbContext _dbContext;
-		private Mock<UserManager<IdentityUser>> _mockUserManager;
+		private IProjectService _projectService = null!;
+		private TeamWorkFlowDbContext _dbContext = null!;
+		private Mock<UserManager<IdentityUser>> _mockUserManager = null!;
 
 		[SetUp]
 public void Setup()
 {
     var mockUserStore = new Mock<IUserStore<IdentityUser>>();
-    _mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null, null, null, null, null, null, null, null);
+    _mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null!, null!, null!, null!, null!, null!, null!, null!);
 
     _mockUserManager.Setup(x => x.IsInRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
         .ReturnsAsync((IdentityUser user, string role) => role == "Operator" || role == "Admin");
@@ -215,7 +215,7 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task EditProjectAsync_ShouldNotEditProject_WhenProjectNotExists()
+		public void EditProjectAsync_ShouldNotEditProject_WhenProjectNotExists()
 		{
 			// Arrange
 			var projectFormModel = new ProjectFormModel()
@@ -398,7 +398,7 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task DeleteProjectAsync_ShouldNotDeleteProject_WhenProjectNotExists()
+		public void DeleteProjectAsync_ShouldNotDeleteProject_WhenProjectNotExists()
 		{
 			// Act
 			Assert.ThrowsAsync<ArgumentException>(async () => await _projectService.ProjectDeleteAsync(100));

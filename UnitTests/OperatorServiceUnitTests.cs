@@ -17,15 +17,15 @@ namespace UnitTests
 	public class OperatorServiceUnitTests
 	{
 		private IRepository _repository;
-		private IOperatorService _operatorService;
-		private TeamWorkFlowDbContext _dbContext;
-		private Mock<UserManager<IdentityUser>> _mockUserManager;
+		private IOperatorService _operatorService = null!;
+		private TeamWorkFlowDbContext _dbContext = null!;
+		private Mock<UserManager<IdentityUser>> _mockUserManager = null!;
 
 	[SetUp]
 public void Setup()
 {
     var mockUserStore = new Mock<IUserStore<IdentityUser>>();
-    _mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null, null, null, null, null, null, null, null);
+    _mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null!, null!, null!, null!, null!, null!, null!, null!);
 
     _mockUserManager.Setup(x => x.IsInRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
         .ReturnsAsync((IdentityUser user, string role) => role == "Operator" || role == "Admin");
@@ -1027,7 +1027,7 @@ public void Setup()
 		{
 			// Arrange
 			_mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
-				.ReturnsAsync((IdentityUser)null);
+				.ReturnsAsync((IdentityUser?)null);
 
 			// Act
 			var result = await _operatorService.GetUserIdByEmailAsync("nonexistent@test.com");

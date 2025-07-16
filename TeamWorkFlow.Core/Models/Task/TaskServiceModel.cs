@@ -14,6 +14,21 @@ namespace TeamWorkFlow.Core.Models.Task
 		public string? Deadline { get; set; } = string.Empty;
         public string StartDate { get; set; } = string.Empty;
         public string? EndDate { get; set; }
+
+        // Machine information
+        public int? MachineId { get; set; }
+        public string? MachineName { get; set; }
+        public bool HasMachine => MachineId.HasValue;
+
+        // Operator information
+        public ICollection<TaskOperatorModel> Operators { get; set; } = new List<TaskOperatorModel>();
+        public bool HasOperators => Operators.Any();
+    }
+
+    public class TaskOperatorModel
+    {
+        public int OperatorId { get; set; }
+        public string OperatorName { get; set; } = string.Empty;
     }
 
     public class PaginatedTasksViewModel

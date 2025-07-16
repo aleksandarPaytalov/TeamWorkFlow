@@ -17,15 +17,15 @@ namespace UnitTests
 	public class PartServiceUnitTests
 	{
 		private IRepository _repository;
-		private IPartService _partService;
-		private TeamWorkFlowDbContext _dbContext;
-		private Mock<UserManager<IdentityUser>> _mockUserManager;
+		private IPartService _partService = null!;
+		private TeamWorkFlowDbContext _dbContext = null!;
+		private Mock<UserManager<IdentityUser>> _mockUserManager = null!;
 
 	[SetUp]
 	public void Setup()
 	{
 		var mockUserStore = new Mock<IUserStore<IdentityUser>>();
-		_mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null, null, null, null, null, null, null, null);
+		_mockUserManager = new Mock<UserManager<IdentityUser>>(mockUserStore.Object, null!, null!, null!, null!, null!, null!, null!, null!);
 
 		_mockUserManager.Setup(x => x.IsInRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
 			.ReturnsAsync((IdentityUser user, string role) => role == "Operator" || role == "Admin");
@@ -574,7 +574,7 @@ namespace UnitTests
 		#region Error Handling and Edge Cases
 
 		[Test]
-		public async Task PartDetailsByIdAsync_WithInvalidId_ThrowsException()
+		public void PartDetailsByIdAsync_WithInvalidId_ThrowsException()
 		{
 			// Arrange
 			int invalidPartId = 99999;
@@ -611,7 +611,7 @@ namespace UnitTests
 		}
 
 		[Test]
-		public async Task DeletePartByIdAsync_WithInvalidId_DoesNotThrowException()
+		public void DeletePartByIdAsync_WithInvalidId_DoesNotThrowException()
 		{
 			// Arrange
 			int invalidPartId = 99999;
@@ -622,7 +622,7 @@ namespace UnitTests
 		}
 
 		[Test]
-		public async Task EditAsync_WithInvalidId_DoesNotThrowException()
+		public void EditAsync_WithInvalidId_DoesNotThrowException()
 		{
 			// Arrange
 			int invalidPartId = 99999;

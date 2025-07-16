@@ -121,7 +121,7 @@ namespace TeamWorkFlow.Core.Services
 				throw new ArgumentException(BooleanInput);
 			}
 
-			if (model.Capacity is < 1 or > 20)
+			if (model.Capacity is < MachineCapacityMinValue or > MachineCapacityMaxValue)
 			{
 				throw new ArgumentException(string.Format(CapacityRange, MachineCapacityMinValue, MachineCapacityMaxValue));
 			}
@@ -185,7 +185,7 @@ namespace TeamWorkFlow.Core.Services
 					throw new ArgumentException(string.Format(InvalidDate, DateFormat));
 				}
 
-				if (model.Capacity is < 1 or > 20)
+				if (model.Capacity is < MachineCapacityMinValue or > MachineCapacityMaxValue)
 				{
 					throw new ArgumentException(string.Format(CapacityRange, MachineCapacityMinValue, MachineCapacityMaxValue));
 				}

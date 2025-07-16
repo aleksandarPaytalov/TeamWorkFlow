@@ -412,5 +412,127 @@ namespace TeamWorkFlow.Controllers
 
 			return RedirectToAction(nameof(Mine));
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Archive([FromQuery] AllTasksQueryModel query)
+        {
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Unauthorized();
+	        }
+
+	        var result = await _taskService.GetArchivedTasksAsync(
+		        query.CurrentPage,
+		        query.TasksPerPage,
+		        query.Search,
+		        query.Sorting);
+
+	        query.Tasks = result.Tasks;
+	        query.TotalTasksCount = result.TotalCount;
+
+	        return View(query);
+        }
+
+        // Machine assignment actions
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignMachine(int taskId, int machineId)
+        {
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Json(new { success = false, message = "Unauthorized" });
+	        }
+
+	        var result = await _taskService.AssignMachineToTaskAsync(taskId, machineId);
+	        return Json(new { success = result.Success, message = result.Message });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnassignMachine(int taskId)
+        {
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Json(new { success = false, message = "Unauthorized" });
+	        }
+
+	        var result = await _taskService.UnassignMachineFromTaskAsync(taskId);
+	        return Json(new { success = result.Success, message = result.Message });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableMachines(int taskId)
+        {
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Json(new { success = false, message = "Unauthorized" });
+	        }
+
+	        var machines = await _taskService.GetAvailableMachinesForTaskAsync(taskId);
+	        return Json(new { success = true, machines = machines });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ValidateMachineAssignment(int taskId, int machineId)
+        {
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Json(new { success = false, message = "Unauthorized" });
+	        }
+
+	        var validation = await _taskService.ValidateMachineAssignmentAsync(taskId, machineId);
+	        return Json(new { canAssign = validation.CanAssign, reason = validation.Reason });
+        }
+
+        // Operator assignment actions
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignOperator(int taskId, int operatorId)
+        {
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Json(new { success = false, message = "Unauthorized" });
+	        }
+
+	        var result = await _taskService.AssignOperatorToTaskAsync(taskId, operatorId);
+	        return Json(new { success = result.Success, message = result.Message });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnassignOperator(int taskId, int operatorId)
+        {
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Json(new { success = false, message = "Unauthorized" });
+	        }
+
+	        var result = await _taskService.UnassignOperatorFromTaskAsync(taskId, operatorId);
+	        return Json(new { success = result.Success, message = result.Message });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableOperators(int taskId)
+        {
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Json(new { success = false, message = "Unauthorized" });
+	        }
+
+	        var operators = await _taskService.GetAvailableOperatorsForTaskAsync(taskId);
+	        return Json(new { success = true, operators = operators });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAssignedOperators(int taskId)
+        {
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Json(new { success = false, message = "Unauthorized" });
+	        }
+
+	        var operators = await _taskService.GetAssignedOperatorsForTaskAsync(taskId);
+	        return Json(new { success = true, operators = operators });
+        }
 	}
 }
