@@ -109,6 +109,164 @@
 							<span class="detail-value"><strong>@Model.TotalMachineLoad</strong> since last calibration</span>
 						</div>
 					</div>
+
+					<!-- Assignment Information -->
+					<div class="details-section assignment-section">
+						<h3 class="details-section-title">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+							</svg>
+							Current Assignment
+						</h3>
+
+						@if (Model.IsOccupied)
+						{
+							<div class="assignment-status occupied">
+								<div class="assignment-header">
+									<svg class="assignment-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+									</svg>
+									<span class="status-text">Machine is currently occupied</span>
+								</div>
+
+								<div class="assignment-details">
+									<div class="detail-item">
+										<span class="detail-label">
+											<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+											</svg>
+											Assigned Task
+										</span>
+										<span class="detail-value">
+											<a href="@Url.Action("Details", "Task", new { id = Model.AssignedTaskId, extension = "task-details" })" class="task-link">
+												@Model.AssignedTaskName
+											</a>
+										</span>
+									</div>
+
+									<div class="detail-item">
+										<span class="detail-label">
+											<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+											</svg>
+											Project Number
+										</span>
+										<span class="detail-value"><strong>#@Model.AssignedTaskProjectNumber</strong></span>
+									</div>
+
+									@if (!string.IsNullOrEmpty(Model.AssignedTaskDescription))
+									{
+										<div class="detail-item">
+											<span class="detail-label">
+												<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+												</svg>
+												Description
+											</span>
+											<span class="detail-value">@Model.AssignedTaskDescription</span>
+										</div>
+									}
+
+									@if (!string.IsNullOrEmpty(Model.TaskStatus))
+									{
+										<div class="detail-item">
+											<span class="detail-label">
+												<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+												</svg>
+												Task Status
+											</span>
+											<span class="detail-value">
+												<span class="status-badge status-@Model.TaskStatus.ToLower().Replace(" ", "-")">
+													<span class="status-indicator"></span>
+													@Model.TaskStatus
+												</span>
+											</span>
+										</div>
+									}
+
+									@if (!string.IsNullOrEmpty(Model.AssignedTaskPriority))
+									{
+										<div class="detail-item">
+											<span class="detail-label">
+												<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+												</svg>
+												Priority
+											</span>
+											<span class="detail-value">
+												<span class="priority-badge priority-@Model.AssignedTaskPriority.ToLower()">@Model.AssignedTaskPriority</span>
+											</span>
+										</div>
+									}
+
+									@if (!string.IsNullOrEmpty(Model.AssignedTaskDeadline))
+									{
+										<div class="detail-item">
+											<span class="detail-label">
+												<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+												</svg>
+												Deadline
+											</span>
+											<span class="detail-value"><strong style="color: #dc2626;">@Model.AssignedTaskDeadline</strong></span>
+										</div>
+									}
+
+									@if (Model.AssignedOperators.Any())
+									{
+										<div class="detail-item operators-section">
+											<span class="detail-label">
+												<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+												</svg>
+												Assigned Operators
+											</span>
+											<div class="operators-list">
+												@foreach (var op in Model.AssignedOperators)
+												{
+													<div class="operator-card">
+														<div class="operator-info">
+															<div class="operator-name">@op.OperatorName</div>
+															<div class="operator-email">@op.OperatorEmail</div>
+														</div>
+													</div>
+												}
+											</div>
+										</div>
+									}
+								</div>
+							</div>
+						}
+						else
+						{
+							<div class="assignment-status available">
+								<div class="assignment-header">
+									<svg class="assignment-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+									</svg>
+									<span class="status-text">Machine is available for assignment</span>
+								</div>
+								<div class="availability-details">
+									@if (Model.IsCalibrated)
+									{
+										<p class="availability-message success">
+											This machine is calibrated and ready to be assigned to a new task.
+										</p>
+									}
+									else
+									{
+										<p class="availability-message warning">
+											<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+											</svg>
+											Machine requires calibration before it can be assigned to tasks.
+										</p>
+									}
+								</div>
+							</div>
+						}
+					</div>
 				</div>
 
 				<!-- Action Buttons -->

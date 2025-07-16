@@ -602,14 +602,29 @@ namespace TeamWorkFlow.Core.Services
         {
             return await _repository.AllReadOnly<Machine>()
                 .Include(m => m.Tasks)
-                .Where(m => m.IsCalibrated && !m.Tasks.Any(t => t.Id != taskId))
+                    .ThenInclude(t => t.TaskStatus)
+                .Include(m => m.Tasks)
+                    .ThenInclude(t => t.TasksOperators)
+                    .ThenInclude(to => to.Operator)
+                .Include(m => m.Tasks)
+                    .ThenInclude(t => t.Project)
+                .Where(m => m.IsCalibrated && !m.Tasks.Any(t => t.Id != taskId && t.TaskStatus.Name.ToLower() != "finished"))
                 .Select(m => new MachineServiceModel
                 {
                     Id = m.Id,
                     Name = m.Name,
                     IsCalibrated = m.IsCalibrated,
                     CalibrationSchedule = m.CalibrationSchedule.ToString(DateFormat),
-                    Capacity = m.Capacity
+                    Capacity = m.Capacity,
+                    IsOccupied = m.Tasks.Any(t => t.Id != taskId && t.TaskStatus.Name.ToLower() != "finished"),
+                    AssignedTaskId = m.Tasks.Where(t => t.Id != taskId && t.TaskStatus.Name.ToLower() != "finished").Select(t => (int?)t.Id).FirstOrDefault(),
+                    AssignedTaskName = m.Tasks.Where(t => t.Id != taskId && t.TaskStatus.Name.ToLower() != "finished").Select(t => t.Name).FirstOrDefault(),
+                    AssignedTaskProjectNumber = m.Tasks.Where(t => t.Id != taskId && t.TaskStatus.Name.ToLower() != "finished").Select(t => t.Project.ProjectNumber).FirstOrDefault(),
+                    TaskStatus = m.Tasks.Where(t => t.Id != taskId && t.TaskStatus.Name.ToLower() != "finished").Select(t => t.TaskStatus.Name).FirstOrDefault(),
+                    AssignedOperatorNames = string.Join(", ", m.Tasks
+                        .Where(t => t.Id != taskId && t.TaskStatus.Name.ToLower() != "finished")
+                        .SelectMany(t => t.TasksOperators)
+                        .Select(to => to.Operator.FullName))
                 })
                 .ToListAsync();
         }
@@ -618,6 +633,9 @@ namespace TeamWorkFlow.Core.Services
         {
             var machine = await _repository.AllReadOnly<Machine>()
                 .Include(m => m.Tasks)
+                    .ThenInclude(t => t.TaskStatus)
+                .Include(m => m.Tasks)
+                    .ThenInclude(t => t.Project)
                 .FirstOrDefaultAsync(m => m.Id == machineId);
 
             if (machine == null)
@@ -630,8 +648,11 @@ namespace TeamWorkFlow.Core.Services
                 return (false, "Machine is not calibrated and cannot be assigned to tasks");
             }
 
-            // Check if machine is already assigned to another task
-            var assignedTask = machine.Tasks.FirstOrDefault(t => t.Id != taskId);
+            // Check if machine is already assigned to another active (non-finished) task
+            var assignedTask = machine.Tasks
+                .Where(t => t.Id != taskId && t.TaskStatus.Name.ToLower() != "finished")
+                .FirstOrDefault();
+
             if (assignedTask != null)
             {
                 return (false, $"Machine is already assigned to task '{assignedTask.Name}' (Project #{assignedTask.Project?.ProjectNumber})");
