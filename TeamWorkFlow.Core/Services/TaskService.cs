@@ -662,7 +662,7 @@ namespace TeamWorkFlow.Core.Services
             var assignedTask = machine.Tasks
                 .Where(t => t.Id != taskId && t.TaskStatus.Name.ToLower() != "finished")
                 .FirstOrDefault();
-
+                
             if (assignedTask != null)
             {
                 return (false, $"Machine is already assigned to task '{assignedTask.Name}' (Project #{assignedTask.Project?.ProjectNumber})");
