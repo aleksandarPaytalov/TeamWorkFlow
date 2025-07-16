@@ -773,3 +773,294 @@
         height: 12px;
     }
 }
+
+/* Machine Assignment Styles */
+.machine-assignment-info {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 2px solid;
+    transition: all 0.3s ease;
+}
+
+.machine-assignment-info.occupied {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-color: #f59e0b;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+}
+
+.machine-assignment-info.available {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border-color: #10b981;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.assignment-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.assignment-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+}
+
+.assignment-icon.occupied {
+    color: #d97706;
+}
+
+.assignment-icon.available {
+    color: #059669;
+}
+
+.assignment-status {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.machine-assignment-info.occupied .assignment-status {
+    color: #92400e;
+}
+
+.machine-assignment-info.available .assignment-status {
+    color: #047857;
+}
+
+.assignment-details {
+    margin-left: 2.25rem;
+    font-size: 0.875rem;
+}
+
+.assignment-task,
+.assignment-project,
+.assignment-operators,
+.assignment-task-status {
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+
+.assignment-task strong,
+.assignment-project strong,
+.assignment-operators strong,
+.assignment-task-status strong {
+    color: #1f2937;
+}
+
+.task-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.task-status-badge.status-open {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.task-status-badge.status-in-progress {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.task-status-badge.status-review {
+    background: #e0e7ff;
+    color: #6366f1;
+}
+
+.availability-message {
+    color: #374151;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.availability-message.warning {
+    color: #d97706;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.availability-message.warning svg {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+}
+
+/* Details Page Assignment Styles */
+.assignment-section {
+    grid-column: 1 / -1;
+    margin-top: 2rem;
+}
+
+.assignment-status {
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 2px solid;
+    margin-top: 1rem;
+}
+
+.assignment-status.occupied {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-color: #f59e0b;
+}
+
+.assignment-status.available {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border-color: #10b981;
+}
+
+.assignment-status .assignment-header {
+    margin-bottom: 1.5rem;
+}
+
+.assignment-status .assignment-icon {
+    width: 2rem;
+    height: 2rem;
+}
+
+.assignment-status.occupied .assignment-icon,
+.assignment-status.occupied .status-text {
+    color: #d97706;
+}
+
+.assignment-status.available .assignment-icon,
+.assignment-status.available .status-text {
+    color: #059669;
+}
+
+.status-text {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.assignment-details .detail-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.assignment-details .detail-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.task-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.task-link:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+.priority-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.priority-badge.priority-low {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.priority-badge.priority-medium {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.priority-badge.priority-high {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.priority-badge.priority-urgent {
+    background: #fde2e7;
+    color: #be185d;
+}
+
+.operators-section .detail-label {
+    align-self: flex-start;
+    margin-top: 0.25rem;
+}
+
+.operators-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.operator-card {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.operator-card:hover {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.operator-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.operator-name {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.operator-email {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.availability-details {
+    margin-top: 1rem;
+}
+
+.availability-message.success {
+    color: #047857;
+    font-weight: 500;
+}
+
+/* Responsive Design for Assignment Info */
+@media (max-width: 768px) {
+    .assignment-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .assignment-details {
+        margin-left: 0;
+    }
+
+    .operators-list {
+        gap: 0.5rem;
+    }
+
+    .operator-card {
+        padding: 0.5rem;
+    }
+}

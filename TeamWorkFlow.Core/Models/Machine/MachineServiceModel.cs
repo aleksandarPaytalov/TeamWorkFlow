@@ -10,6 +10,14 @@ namespace TeamWorkFlow.Core.Models.Machine
 		public string CalibrationSchedule { get; set; } = string.Empty;
 	    public bool IsCalibrated { get; set; }
 		public int Capacity { get; set; }
+
+		// Assignment information
+		public bool IsOccupied { get; set; }
+		public int? AssignedTaskId { get; set; }
+		public string? AssignedTaskName { get; set; }
+		public string? AssignedTaskProjectNumber { get; set; }
+		public string? AssignedOperatorNames { get; set; }
+		public string? TaskStatus { get; set; }
     }
 
     public class PaginatedMachinesViewModel

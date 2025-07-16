@@ -162,6 +162,66 @@
 							</div>
 						</div>
 
+						<!-- Assignment Status -->
+						@if (m.IsOccupied)
+						{
+							<div class="machine-assignment-info occupied">
+								<div class="assignment-header">
+									<svg class="assignment-icon occupied" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+									</svg>
+									<span class="assignment-status">Currently Occupied</span>
+								</div>
+								<div class="assignment-details">
+									<div class="assignment-task">
+										<strong>Task:</strong> @m.AssignedTaskName
+									</div>
+									<div class="assignment-project">
+										<strong>Project:</strong> #@m.AssignedTaskProjectNumber
+									</div>
+									@if (!string.IsNullOrEmpty(m.AssignedOperatorNames))
+									{
+										<div class="assignment-operators">
+											<strong>Operators:</strong> @m.AssignedOperatorNames
+										</div>
+									}
+									@if (!string.IsNullOrEmpty(m.TaskStatus))
+									{
+										<div class="assignment-task-status">
+											<strong>Status:</strong> <span class="task-status-badge status-@m.TaskStatus.ToLower().Replace(" ", "-")">@m.TaskStatus</span>
+										</div>
+									}
+								</div>
+							</div>
+						}
+						else
+						{
+							<div class="machine-assignment-info available">
+								<div class="assignment-header">
+									<svg class="assignment-icon available" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+									</svg>
+									<span class="assignment-status">Available for Assignment</span>
+								</div>
+								@if (m.IsCalibrated)
+								{
+									<div class="assignment-details">
+										<div class="availability-message">
+											This machine is ready to be assigned to a new task.
+										</div>
+									</div>
+								}
+								else
+								{
+									<div class="assignment-details">
+										<div class="availability-message warning">
+											Machine requires calibration before it can be assigned to tasks.
+										</div>
+									</div>
+								}
+							</div>
+						}
+
 						<!-- Calibration Status Alert -->
 						@if (!m.IsCalibrated)
 						{
