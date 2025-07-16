@@ -40,5 +40,9 @@ namespace TeamWorkFlow.Core.Models.Task
 
 	    public int StatusId { get; set; }
 	    public ICollection<TaskStatusServiceModel> Statuses { get; set; } = new List<TaskStatusServiceModel>();
+
+	    [Required]
+	    [Range(1, 1000, ErrorMessage = "Estimated time must be between 1 and 1000 hours")]
+	    public int EstimatedTime { get; set; } = 1;
 	}
 }

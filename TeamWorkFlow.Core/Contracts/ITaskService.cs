@@ -62,5 +62,8 @@ namespace TeamWorkFlow.Core.Contracts
         Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetArchivedTasksAsync(int page, int pageSize);
         Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetArchivedTasksAsync(int page, int pageSize, string? search, TaskSorting sorting);
 
+        // Estimated time management
+        Task<(bool Success, string Message)> SetEstimatedTimeAsync(int taskId, int estimatedTime);
+
     }
 }

@@ -534,5 +534,24 @@ namespace TeamWorkFlow.Controllers
 	        var operators = await _taskService.GetAssignedOperatorsForTaskAsync(taskId);
 	        return Json(new { success = true, operators = operators });
         }
+
+        // Estimated time management
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetEstimatedTime(int taskId, int estimatedTime)
+        {
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Json(new { success = false, message = "Unauthorized" });
+	        }
+
+	        if (estimatedTime < 1 || estimatedTime > 1000)
+	        {
+		        return Json(new { success = false, message = "Estimated time must be between 1 and 1000 hours" });
+	        }
+
+	        var result = await _taskService.SetEstimatedTimeAsync(taskId, estimatedTime);
+	        return Json(new { success = result.Success, message = result.Message });
+        }
 	}
 }

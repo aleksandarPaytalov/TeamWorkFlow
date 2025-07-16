@@ -39,7 +39,8 @@ namespace TeamWorkFlow.Core.Services
                     ProjectNumber = t.Project.ProjectNumber,
                     StartDate = t.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
                     EndDate = t.EndDate != null ? t.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
-                    Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty
+                    Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+                    EstimatedTime = t.EstimatedTime
 				})
                 .ToListAsync();
         }
@@ -93,6 +94,7 @@ namespace TeamWorkFlow.Core.Services
                     StartDate = t.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
                     EndDate = t.EndDate != null ? t.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
                     Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+                    EstimatedTime = t.EstimatedTime,
                     MachineId = t.MachineId,
                     MachineName = t.Machine != null ? t.Machine.Name : null,
                     Operators = t.TasksOperators.Select(to => new TaskOperatorModel
@@ -151,7 +153,8 @@ namespace TeamWorkFlow.Core.Services
                 Name = model.Name,
                 PriorityId = model.PriorityId,
                 TaskStatusId = model.StatusId,
-                ProjectId = projectId
+                ProjectId = projectId,
+                EstimatedTime = model.EstimatedTime
             };
 
             await _repository.AddAsync(task);
@@ -205,6 +208,7 @@ namespace TeamWorkFlow.Core.Services
                     StartDate = t.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
                     EndDate = t.EndDate != null ? t.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
                     Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+                    EstimatedTime = t.EstimatedTime
 				})
 		        .FirstOrDefaultAsync();
 
@@ -236,6 +240,7 @@ namespace TeamWorkFlow.Core.Services
 		        task.ProjectId = projectId;
 		        task.PriorityId = model.PriorityId;
 		        task.TaskStatusId = model.StatusId;
+		        task.EstimatedTime = model.EstimatedTime;
 
 		        await _repository.SaveChangesAsync();
 	        }
@@ -288,7 +293,8 @@ namespace TeamWorkFlow.Core.Services
 					ProjectNumber = to.Task.Project.ProjectNumber,
 					StartDate = to.Task.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
 					EndDate = to.Task.EndDate != null ? to.Task.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
-					Deadline = to.Task.DeadLine != null ? to.Task.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty
+					Deadline = to.Task.DeadLine != null ? to.Task.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+					EstimatedTime = to.Task.EstimatedTime
 				})
 	            .ToListAsync();
 
@@ -348,7 +354,8 @@ namespace TeamWorkFlow.Core.Services
 				        : string.Empty,
 			        Deadline = t.DeadLine != null
 				        ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture)
-				        : string.Empty
+				        : string.Empty,
+			        EstimatedTime = t.EstimatedTime
 		        })
 		        .FirstOrDefaultAsync();
 
@@ -395,7 +402,8 @@ namespace TeamWorkFlow.Core.Services
 					ProjectNumber = to.Task.Project.ProjectNumber,
 					StartDate = to.Task.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
 					EndDate = to.Task.EndDate != null ? to.Task.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
-					Deadline = to.Task.DeadLine != null ? to.Task.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty
+					Deadline = to.Task.DeadLine != null ? to.Task.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+					EstimatedTime = to.Task.EstimatedTime
 				})
 				.ToListAsync();
 
@@ -478,6 +486,7 @@ namespace TeamWorkFlow.Core.Services
                     StartDate = t.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
                     EndDate = t.EndDate != null ? t.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
                     Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+                    EstimatedTime = t.EstimatedTime,
                     MachineId = t.MachineId,
                     MachineName = t.Machine != null ? t.Machine.Name : null,
                     Operators = t.TasksOperators.Select(to => new TaskOperatorModel
@@ -550,6 +559,7 @@ namespace TeamWorkFlow.Core.Services
                     StartDate = t.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
                     EndDate = t.EndDate != null ? t.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
                     Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+                    EstimatedTime = t.EstimatedTime,
                     MachineId = t.MachineId,
                     MachineName = t.Machine != null ? t.Machine.Name : null,
                     Operators = t.TasksOperators.Select(to => new TaskOperatorModel
@@ -752,6 +762,26 @@ namespace TeamWorkFlow.Core.Services
                     AvailabilityStatus = to.Operator.AvailabilityStatus.Name
                 })
                 .ToListAsync();
+        }
+
+        // Estimated time management
+        public async Task<(bool Success, string Message)> SetEstimatedTimeAsync(int taskId, int estimatedTime)
+        {
+            if (estimatedTime < 1 || estimatedTime > 1000)
+            {
+                return (false, "Estimated time must be between 1 and 1000 hours");
+            }
+
+            var task = await _repository.GetByIdAsync<Infrastructure.Data.Models.Task>(taskId);
+            if (task == null)
+            {
+                return (false, "Task not found");
+            }
+
+            task.EstimatedTime = estimatedTime;
+            await _repository.SaveChangesAsync();
+
+            return (true, "Estimated time updated successfully");
         }
     }
 }

@@ -14,6 +14,7 @@ namespace TeamWorkFlow.Core.Models.Task
 		public string? Deadline { get; set; } = string.Empty;
         public string StartDate { get; set; } = string.Empty;
         public string? EndDate { get; set; }
+        public int EstimatedTime { get; set; }
 
         // Machine information
         public int? MachineId { get; set; }

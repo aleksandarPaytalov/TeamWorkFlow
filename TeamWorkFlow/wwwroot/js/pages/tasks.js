@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializePriorityIndicators();
     initializeDeadlineWarnings();
     initializeAssignmentButtons();
+    initializeEstimatedTimeButtons();
 });
 
 /**
@@ -805,3 +806,111 @@ function showNotification(message, type = 'info') {
         }
     }, 5000);
 }
+
+/**
+ * Initialize estimated time buttons functionality
+ */
+function initializeEstimatedTimeButtons() {
+    const setTimeButtons = document.querySelectorAll('.set-time-btn');
+    setTimeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const taskId = this.getAttribute('data-task-id');
+            const currentTime = this.getAttribute('data-current-time');
+            showSetTimeModal(taskId, currentTime);
+        });
+    });
+}
+
+let currentTaskId = null;
+
+/**
+ * Show the set estimated time modal
+ */
+function showSetTimeModal(taskId, currentTime) {
+    currentTaskId = taskId;
+    const modal = document.getElementById('setTimeModal');
+    const input = document.getElementById('estimatedTimeInput');
+
+    if (modal && input) {
+        input.value = currentTime || '';
+        modal.style.display = 'flex';
+        input.focus();
+
+        // Handle Enter key
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                saveEstimatedTime();
+            }
+        });
+
+        // Handle Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeSetTimeModal();
+            }
+        });
+    }
+}
+
+/**
+ * Close the set estimated time modal
+ */
+function closeSetTimeModal() {
+    const modal = document.getElementById('setTimeModal');
+    if (modal) {
+        modal.style.display = 'none';
+        currentTaskId = null;
+    }
+}
+
+/**
+ * Save the estimated time
+ */
+function saveEstimatedTime() {
+    const input = document.getElementById('estimatedTimeInput');
+    const estimatedTime = parseInt(input.value);
+
+    if (!estimatedTime || estimatedTime < 1 || estimatedTime > 1000) {
+        showNotification('Please enter a valid time between 1 and 1000 hours', 'error');
+        return;
+    }
+
+    if (!currentTaskId) {
+        showNotification('Task ID not found', 'error');
+        return;
+    }
+
+    const token = getAntiForgeryToken();
+    fetch('/Task/SetEstimatedTime', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'RequestVerificationToken': token
+        },
+        body: `taskId=${currentTaskId}&estimatedTime=${estimatedTime}&__RequestVerificationToken=${encodeURIComponent(token)}`
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            showNotification('Estimated time updated successfully', 'success');
+            closeSetTimeModal();
+            // Reload page to reflect changes
+            window.location.reload();
+        } else {
+            showNotification(data.message || 'Failed to update estimated time', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error updating estimated time:', error);
+        showNotification('An error occurred while updating estimated time', 'error');
+    });
+}
+
+// Make functions globally available
+window.closeSetTimeModal = closeSetTimeModal;
+window.saveEstimatedTime = saveEstimatedTime;
