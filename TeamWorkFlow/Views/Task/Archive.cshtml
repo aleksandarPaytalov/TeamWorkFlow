@@ -46,36 +46,48 @@
 			</div>
 		}
 
-		<!-- Search and Filter Section -->
-		<div class="search-section">
-			<form method="get" class="search-form">
-				<div class="search-controls">
-					<div class="search-input-group">
+		<!-- Enhanced Search and Filter Section -->
+		<div class="archive-search-section">
+			<form method="get" class="archive-search-form">
+				<div class="search-container">
+					<div class="search-input-wrapper">
+						<div class="search-icon">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+							</svg>
+						</div>
 						<input type="text"
 							   name="Search"
 							   value="@Model.Search"
-							   placeholder="Search by task name or project number..."
-							   class="search-input">
-						<button type="submit" class="search-button">
-							<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-							</svg>
-						</button>
+							   placeholder="Search archived tasks..."
+							   class="archive-search-input">
 					</div>
 
-					<div class="sort-controls">
-						<select name="Sorting" class="sort-select">
-							<option value="0">Last created task</option>
-							<option value="1">By name ascending</option>
-							<option value="2">By name descending</option>
-							<option value="3">By project number ascending</option>
-							<option value="4">By project number descending</option>
-							<option value="5">By start date ascending</option>
-							<option value="6">By start date descending</option>
-							<option value="7">By deadline ascending</option>
-							<option value="8">By deadline descending</option>
+					<div class="sort-wrapper">
+						<div class="sort-icon">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
+							</svg>
+						</div>
+						<select name="Sorting" class="archive-sort-select">
+							<option value="0">Recently completed</option>
+							<option value="1">Name A-Z</option>
+							<option value="2">Name Z-A</option>
+							<option value="3">Project A-Z</option>
+							<option value="4">Project Z-A</option>
+							<option value="5">Start date ↑</option>
+							<option value="6">Start date ↓</option>
+							<option value="7">Deadline ↑</option>
+							<option value="8">Deadline ↓</option>
 						</select>
 					</div>
+
+					<button type="submit" class="archive-search-btn">
+						<svg class="search-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+						</svg>
+						<span class="search-btn-text">Search</span>
+					</button>
 				</div>
 			</form>
 		</div>
@@ -105,82 +117,143 @@
 			<div class="tasks-grid">
 				@foreach (var task in Model.Tasks)
 				{
-					<div class="task-card archived-task">
-						<div class="task-header">
+					<div class="archive-task-card">
+						<div class="archive-task-header">
 							<div class="task-title-section">
-								<h3 class="task-title">
-									<a href="@Url.Action("Details", new { id = task.Id, extension = task.GetTaskExtension() })" 
-									   class="task-link">
+								<h3 class="archive-task-title">
+									<a href="@Url.Action("Details", new { id = task.Id, extension = task.GetTaskExtension() })"
+									   class="archive-task-link">
 										@task.Name
 									</a>
 								</h3>
-								<span class="project-number">@task.ProjectNumber</span>
+								<div class="archive-project-info">
+									<span class="archive-project-number">@task.ProjectNumber</span>
+									<span class="archive-task-id">#@task.Id</span>
+								</div>
 							</div>
-							<div class="task-status-badges">
-								<span class="status-badge status-finished">@task.Status</span>
-								<span class="priority-badge priority-@task.Priority.ToLower()">@task.Priority</span>
+							<div class="archive-status-badges">
+								<span class="archive-status-badge">
+									<svg class="archive-status-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+									</svg>
+									@task.Status
+								</span>
+								<span class="archive-priority-badge priority-@task.Priority.ToLower()">@task.Priority</span>
 							</div>
 						</div>
 
-						<div class="task-content">
-							<p class="task-description">@task.Description</p>
-							
-							<div class="task-dates">
-								<div class="date-item">
-									<span class="date-label">Started:</span>
-									<span class="date-value">@task.StartDate</span>
-								</div>
-								@if (!string.IsNullOrEmpty(task.EndDate))
+						<div class="archive-task-content">
+							<p class="archive-task-description">@task.Description</p>
+
+							<!-- Compact Metrics -->
+							<div class="archive-metrics">
+								@{
+									var startDate = DateTime.TryParse(task.StartDate, out var start) ? start : DateTime.MinValue;
+									var endDate = DateTime.TryParse(task.EndDate, out var end) ? end : DateTime.MinValue;
+									var deadline = DateTime.TryParse(task.Deadline, out var dead) ? dead : DateTime.MinValue;
+
+									var duration = endDate != DateTime.MinValue && startDate != DateTime.MinValue
+										? (endDate - startDate).Days
+										: 0;
+
+									var isOnTime = deadline != DateTime.MinValue && endDate != DateTime.MinValue
+										? endDate <= deadline
+										: true;
+								}
+
+								@if (duration > 0)
 								{
-									<div class="date-item">
-										<span class="date-label">Completed:</span>
-										<span class="date-value">@task.EndDate</span>
+									<div class="archive-metric">
+										<svg class="archive-metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+										</svg>
+										<span>@duration day@(duration != 1 ? "s" : "")</span>
 									</div>
 								}
+
 								@if (!string.IsNullOrEmpty(task.Deadline))
 								{
-									<div class="date-item">
-										<span class="date-label">Deadline:</span>
-										<span class="date-value">@task.Deadline</span>
+									<div class="archive-metric @(isOnTime ? "on-time" : "overdue")">
+										<svg class="archive-metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="@(isOnTime ? "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" : "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z")"></path>
+										</svg>
+										<span>@(isOnTime ? "On Time" : "Overdue")</span>
 									</div>
 								}
 							</div>
 
-							@if (!string.IsNullOrEmpty(task.MachineName))
-							{
-								<div class="task-assignments">
-									<div class="assignment-item">
-										<span class="assignment-label">Machine:</span>
-										<span class="assignment-value">@task.MachineName</span>
-									</div>
+							<!-- Compact Timeline -->
+							<div class="archive-timeline">
+								<div class="archive-timeline-item">
+									<span class="archive-timeline-label">Started:</span>
+									<span class="archive-timeline-date">@task.StartDate</span>
 								</div>
-							}
 
-							@if (task.Operators.Any())
-							{
-								<div class="task-assignments">
-									<div class="assignment-item">
-										<span class="assignment-label">Operators:</span>
-										<div class="operators-list">
-											@foreach (var op in task.Operators)
-											{
-												<span class="operator-badge">@op.OperatorName</span>
-											}
-										</div>
+								@if (!string.IsNullOrEmpty(task.EndDate))
+								{
+									<div class="archive-timeline-item">
+										<span class="archive-timeline-label">Completed:</span>
+										<span class="archive-timeline-date">@task.EndDate</span>
 									</div>
+								}
+
+								@if (!string.IsNullOrEmpty(task.Deadline))
+								{
+									<div class="archive-timeline-item">
+										<span class="archive-timeline-label">Deadline:</span>
+										<span class="archive-timeline-date">@task.Deadline</span>
+									</div>
+								}
+							</div>
+
+							<!-- Compact Resources -->
+							@if (!string.IsNullOrEmpty(task.MachineName) || task.Operators.Any())
+							{
+								<div class="archive-resources">
+									@if (!string.IsNullOrEmpty(task.MachineName))
+									{
+										<div class="archive-resource-item">
+											<svg class="archive-resource-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+											</svg>
+											<span class="archive-resource-text">@task.MachineName</span>
+										</div>
+									}
+
+									@if (task.Operators.Any())
+									{
+										<div class="archive-resource-item">
+											<svg class="archive-resource-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+											</svg>
+											<div class="archive-operators">
+												@foreach (var op in task.Operators)
+												{
+													<span class="archive-operator">@op.OperatorName</span>
+												}
+											</div>
+										</div>
+									}
 								</div>
 							}
 						</div>
 
-						<div class="task-actions">
-							<a href="@Url.Action("Details", new { id = task.Id, extension = task.GetTaskExtension() })" 
-							   class="btn-outline">
-								<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<div class="archive-task-actions">
+							<a href="@Url.Action("Details", new { id = task.Id, extension = task.GetTaskExtension() })"
+							   class="archive-view-btn">
+								<svg class="archive-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
 								</svg>
 								View Details
 							</a>
+
+							<div class="archive-completion-badge">
+								<svg class="completion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+								</svg>
+								Completed
+							</div>
 						</div>
 					</div>
 				}
