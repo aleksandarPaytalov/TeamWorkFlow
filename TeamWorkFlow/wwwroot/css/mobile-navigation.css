@@ -1,0 +1,174 @@
+/* Mobile Navigation CSS */
+/* Responsive mobile-first navigation design */
+
+/* Mobile Navigation Styles */
+@media (max-width: 991.98px) {
+    /* Navbar toggler styling */
+    .navbar-toggler {
+        border: none !important;
+        padding: 0.25rem 0.5rem !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 0.375rem !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .navbar-toggler:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    .navbar-toggler:focus {
+        box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25) !important;
+    }
+    
+    .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+        width: 1.5em !important;
+        height: 1.5em !important;
+    }
+    
+    /* Mobile navigation collapse */
+    #navbarNav {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%) !important;
+        border-radius: 0 0 0.75rem 0.75rem !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+        padding: 1.5rem !important;
+        margin-top: 0.5rem !important;
+        z-index: 1050 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(10px) !important;
+    }
+    
+    #navbarNav.show {
+        animation: slideDown 0.3s ease-out !important;
+    }
+    
+    /* Mobile navigation menu */
+    #navbarNav .navbar-nav {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+        width: 100% !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    #navbarNav .nav-item {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    
+    #navbarNav .nav-link {
+        text-align: center !important;
+        padding: 1rem 1.5rem !important;
+        border-radius: 0.5rem !important;
+        margin: 0 !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
+        font-weight: 500 !important;
+        transition: all 0.3s ease !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.5rem !important;
+    }
+    
+    #navbarNav .nav-link:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+        border-color: rgba(255, 255, 255, 0.3) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    #navbarNav .nav-link:active {
+        transform: translateY(0) !important;
+    }
+    
+    /* Mobile login section */
+    #navbarNav .navbar-nav:last-child {
+        border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+        padding-top: 1rem !important;
+        margin-top: 1rem !important;
+        margin-bottom: 0 !important;
+    }
+    
+    #navbarNav .navbar-nav:last-child .nav-link {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border-color: rgba(255, 255, 255, 0.25) !important;
+    }
+    
+    #navbarNav .navbar-nav:last-child .nav-link:hover {
+        background: rgba(255, 255, 255, 0.25) !important;
+        border-color: rgba(255, 255, 255, 0.35) !important;
+    }
+}
+
+/* Animation keyframes */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Desktop styles - ensure normal behavior */
+@media (min-width: 992px) {
+    .navbar-toggler {
+        display: none !important;
+    }
+    
+    #navbarNav {
+        position: static !important;
+        background: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        backdrop-filter: none !important;
+    }
+    
+    #navbarNav .navbar-nav {
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+        margin: 0 !important;
+    }
+    
+    #navbarNav .nav-item {
+        width: auto !important;
+    }
+    
+    #navbarNav .nav-link {
+        text-align: left !important;
+        padding: 0.5rem 1rem !important;
+        border-radius: 0.375rem !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        margin: 0 !important;
+    }
+}
+
+/* Ensure proper z-index for mobile navigation */
+.navbar {
+    position: relative !important;
+    z-index: 1040 !important;
+}
+
+/* Fix for any potential overflow issues */
+@media (max-width: 991.98px) {
+    body {
+        overflow-x: hidden !important;
+    }
+    
+    .navbar .container-fluid {
+        position: relative !important;
+    }
+}

@@ -1,40 +1,60 @@
-/* Navigation Override CSS - Loads last to ensure highest priority */
+/* Navigation Override CSS - Responsive Mobile-First Design */
 
-/* Force show all navigation elements */
-.navbar,
-.navbar-collapse,
-.navbar-nav,
-.nav-item,
-.nav-link {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
+/* Base navbar always visible */
 .navbar {
     display: flex !important;
-}
-
-.navbar-collapse {
-    display: flex !important;
-}
-
-.navbar-nav {
-    display: flex !important;
-}
-
-/* Specific fixes for Bootstrap collapse behavior */
-.navbar-expand-sm .navbar-collapse {
-    display: flex !important;
     visibility: visible !important;
     opacity: 1 !important;
 }
 
-.navbar-expand-sm .navbar-nav {
-    display: flex !important;
-    flex-direction: row !important;
-    visibility: visible !important;
-    opacity: 1 !important;
+/* Desktop navigation - always show */
+@media (min-width: 992px) {
+    .navbar-collapse {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    .navbar-nav {
+        display: flex !important;
+        flex-direction: row !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    .nav-item,
+    .nav-link {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+
+/* Mobile navigation - toggle behavior */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        display: none !important;
+    }
+
+    .navbar-collapse.show {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    .navbar-collapse.show .navbar-nav {
+        display: flex !important;
+        flex-direction: column !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    .navbar-collapse.show .nav-item,
+    .navbar-collapse.show .nav-link {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
 }
 
 /* Ensure login/register section is always visible */
@@ -65,30 +85,4 @@
     opacity: 1 !important;
 }
 
-/* Mobile responsive - only hide on very small screens */
-@media (max-width: 575px) {
-    .navbar-collapse {
-        display: none !important;
-    }
-    
-    .navbar-collapse.show {
-        display: flex !important;
-        flex-direction: column !important;
-    }
-}
 
-/* Desktop - always show */
-@media (min-width: 576px) {
-    .navbar-collapse {
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
-    
-    .navbar-nav {
-        display: flex !important;
-        flex-direction: row !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
-}

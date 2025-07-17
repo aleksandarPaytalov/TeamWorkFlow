@@ -367,6 +367,11 @@ namespace TeamWorkFlow.Core.Services
                     return (false, "You cannot approve your own demotion request.");
                 }
 
+                if (request.TargetUserId == approvingUserId)
+                {
+                    return (false, "You cannot approve a demotion request targeting yourself.");
+                }
+
                 // Perform the actual demotion
                 var demoteResult = await DemoteToOperatorAsync(request.TargetUserId);
                 if (!demoteResult.Success)
@@ -412,6 +417,16 @@ namespace TeamWorkFlow.Core.Services
                 if (rejectingUser == null || !await _userManager.IsInRoleAsync(rejectingUser, AdminRole))
                 {
                     return (false, "Only administrators can reject demotion requests.");
+                }
+
+                if (request.RequestedByUserId == rejectingUserId)
+                {
+                    return (false, "You cannot reject your own demotion request.");
+                }
+
+                if (request.TargetUserId == rejectingUserId)
+                {
+                    return (false, "You cannot reject a demotion request targeting yourself.");
                 }
 
                 // Update the request
@@ -506,6 +521,24 @@ namespace TeamWorkFlow.Core.Services
             if (request.Status != DemotionRequestStatus.Pending) return false;
             if (request.IsExpired) return false;
             if (request.RequestedByUserId == userId) return false; // Can't approve own request
+            if (request.TargetUserId == userId) return false; // Can't approve demotion targeting yourself
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return false;
+
+            return await _userManager.IsInRoleAsync(user, AdminRole);
+        }
+
+        public async Task<bool> CanRejectDemotionRequestAsync(int requestId, string userId)
+        {
+            var request = await _repository.AllReadOnly<AdminDemotionRequest>()
+                .FirstOrDefaultAsync(r => r.Id == requestId);
+
+            if (request == null) return false;
+            if (request.Status != DemotionRequestStatus.Pending) return false;
+            if (request.IsExpired) return false;
+            if (request.RequestedByUserId == userId) return false; // Can't reject own request
+            if (request.TargetUserId == userId) return false; // Can't reject demotion targeting yourself
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;

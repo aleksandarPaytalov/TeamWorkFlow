@@ -129,5 +129,13 @@ namespace TeamWorkFlow.Core.Contracts
         /// <param name="userId">User ID of potential approver</param>
         /// <returns>True if user can approve</returns>
         Task<bool> CanApproveDemotionRequestAsync(int requestId, string userId);
+
+        /// <summary>
+        /// Checks if a user can reject a specific demotion request
+        /// </summary>
+        /// <param name="requestId">Request ID</param>
+        /// <param name="userId">User ID of potential rejector</param>
+        /// <returns>True if user can reject</returns>
+        Task<bool> CanRejectDemotionRequestAsync(int requestId, string userId);
     }
 }

@@ -1,0 +1,368 @@
+@model TeamWorkFlow.Core.Models.Admin.UserRole.DemotionRequestViewModel
+@{
+    ViewData["Title"] = "Demotion Request Details";
+}
+
+<style>
+    .details-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .details-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .details-content {
+        padding: 2rem;
+    }
+
+    .info-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background-color: #f9fafb;
+        border-radius: 0.375rem;
+        border: 1px solid #e5e7eb;
+    }
+
+    .info-section h4 {
+        margin: 0 0 1rem 0;
+        color: #1f2937;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .info-row {
+        display: flex;
+        margin-bottom: 0.75rem;
+    }
+
+    .info-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #374151;
+        min-width: 140px;
+        margin-right: 1rem;
+    }
+
+    .info-value {
+        color: #6b7280;
+        flex: 1;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-approved {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-rejected {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-cancelled {
+        background-color: #f3f4f6;
+        color: #374151;
+    }
+
+    .status-expired {
+        background-color: #fde2e7;
+        color: #be185d;
+    }
+
+    .urgent-indicator {
+        color: #dc2626;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .action-section {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background-color: #f8fafc;
+        border-radius: 0.375rem;
+        border: 1px solid #e2e8f0;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-approve {
+        background-color: #10b981;
+        color: white;
+    }
+
+    .btn-approve:hover {
+        background-color: #059669;
+        color: white;
+    }
+
+    .btn-reject {
+        background-color: #ef4444;
+        color: white;
+    }
+
+    .btn-reject:hover {
+        background-color: #dc2626;
+        color: white;
+    }
+
+    .btn-cancel {
+        background-color: #6b7280;
+        color: white;
+    }
+
+    .btn-cancel:hover {
+        background-color: #4b5563;
+        color: white;
+    }
+
+    .btn-back {
+        background-color: #6366f1;
+        color: white;
+    }
+
+    .btn-back:hover {
+        background-color: #4f46e5;
+        color: white;
+    }
+
+    .reason-text {
+        background-color: white;
+        padding: 1rem;
+        border-radius: 0.375rem;
+        border: 1px solid #d1d5db;
+        font-style: italic;
+        color: #374151;
+    }
+
+    .warning-box {
+        background-color: #fef3c7;
+        border: 1px solid #f59e0b;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .warning-text {
+        color: #92400e;
+        margin: 0;
+        font-weight: 500;
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div style="margin-bottom: 2rem;">
+        <h1 style="color: #1f2937; margin-bottom: 0.5rem;">Demotion Request Details</h1>
+        <p style="color: #6b7280; margin: 0;">Review and manage administrator demotion request</p>
+        <div style="margin-top: 1rem;">
+            <span style="background-color: #e0e7ff; color: #3730a3; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;">
+                Administrator Access
+            </span>
+            <a asp-action="DemotionRequests" class="action-btn btn-back" style="margin-left: 1rem;">
+                ← Back to Demotion Requests
+            </a>
+        </div>
+    </div>
+
+    <div class="details-container">
+        <div class="details-header">
+            <h2 style="margin: 0 0 0.5rem 0;">Request #@Model.Id</h2>
+            <div class="status-badge status-@Model.Status.ToString().ToLower()">
+                @Model.StatusText
+            </div>
+            @if (Model.IsPendingAndValid && Model.TimeUntilExpiration.TotalHours < 24)
+            {
+                <div style="margin-top: 0.5rem;">
+                    <span class="urgent-indicator">⚠️ Expires Soon</span>
+                </div>
+            }
+        </div>
+
+        <div class="details-content">
+            <!-- Target User Information -->
+            <div class="info-section">
+                <h4>👤 Administrator to be Demoted</h4>
+                <div class="info-row">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value"><strong>@Model.TargetUserFullName</strong></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">@Model.TargetUserEmail</span>
+                </div>
+            </div>
+
+            <!-- Request Information -->
+            <div class="info-section">
+                <h4>📋 Request Information</h4>
+                <div class="info-row">
+                    <span class="info-label">Requested By:</span>
+                    <span class="info-value"><strong>@Model.RequestedByUserFullName</strong> (@Model.RequestedByUserEmail)</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Requested At:</span>
+                    <span class="info-value">@Model.RequestedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Expires At:</span>
+                    <span class="info-value">
+                        @Model.ExpiresAt.ToString("dd/MM/yyyy HH:mm")
+                        @if (Model.IsPendingAndValid)
+                        {
+                            <span style="color: #059669;">(@Model.TimeUntilExpirationText remaining)</span>
+                        }
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Reason:</span>
+                    <div class="info-value">
+                        <div class="reason-text">
+                            "@Model.Reason"
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Processing Information (if processed) -->
+            @if (Model.Status != TeamWorkFlow.Infrastructure.Data.Models.DemotionRequestStatus.Pending)
+            {
+                <div class="info-section">
+                    <h4>⚖️ Processing Information</h4>
+                    @if (!string.IsNullOrEmpty(Model.ApprovedByUserFullName))
+                    {
+                        <div class="info-row">
+                            <span class="info-label">Processed By:</span>
+                            <span class="info-value"><strong>@Model.ApprovedByUserFullName</strong> (@Model.ApprovedByUserEmail)</span>
+                        </div>
+                    }
+                    @if (Model.ProcessedAt.HasValue)
+                    {
+                        <div class="info-row">
+                            <span class="info-label">Processed At:</span>
+                            <span class="info-value">@Model.ProcessedAt.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ApprovalComments))
+                    {
+                        <div class="info-row">
+                            <span class="info-label">Comments:</span>
+                            <div class="info-value">
+                                <div class="reason-text">
+                                    "@Model.ApprovalComments"
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- Action Section -->
+            @if (Model.IsPendingAndValid && (Model.CanApprove || Model.CanReject || Model.CanCancel))
+            {
+                <div class="action-section">
+                    <h4 style="margin-bottom: 1rem;">🔧 Available Actions</h4>
+                    
+                    @if (Model.CanApprove || Model.CanReject)
+                    {
+                        <div class="warning-box">
+                            <p class="warning-text">
+                                <strong>Important:</strong> Approving this request will immediately demote @Model.TargetUserFullName from Administrator to Operator. This action cannot be undone without creating a new promotion request.
+                            </p>
+                        </div>
+                    }
+
+                    <div class="action-buttons">
+                        @if (Model.CanApprove)
+                        {
+                            <form asp-action="ApproveDemotionRequest" method="post" style="display: inline;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <button type="submit" class="action-btn btn-approve" 
+                                        onclick="return confirm('Are you sure you want to APPROVE this demotion request?\n\nThis will immediately demote @Model.TargetUserFullName from Administrator to Operator.\n\nThis action cannot be undone.')">
+                                    ✅ Approve Request
+                                </button>
+                            </form>
+                            
+                            <form asp-action="RejectDemotionRequest" method="post" style="display: inline;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <button type="submit" class="action-btn btn-reject" 
+                                        onclick="return confirm('Are you sure you want to REJECT this demotion request?')">
+                                    ❌ Reject Request
+                                </button>
+                            </form>
+                        }
+                        
+                        @if (Model.CanCancel)
+                        {
+                            <form asp-action="CancelDemotionRequest" method="post" style="display: inline;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <button type="submit" class="action-btn btn-cancel" 
+                                        onclick="return confirm('Are you sure you want to cancel this demotion request?')">
+                                    🚫 Cancel Request
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            }
+            else if (Model.IsPendingAndValid)
+            {
+                <div class="action-section">
+                    <h4 style="margin-bottom: 1rem;">ℹ️ Information</h4>
+                    <p style="color: #6b7280; margin: 0;">
+                        You cannot approve or reject this request because you are the one who created it. 
+                        Another administrator must review and process this request.
+                    </p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/admin/admin.js" asp-append-version="true"></script>
+}

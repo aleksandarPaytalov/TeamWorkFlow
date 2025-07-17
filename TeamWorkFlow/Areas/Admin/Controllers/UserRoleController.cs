@@ -325,7 +325,7 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
 
                 var currentUserId = User.Id();
                 request.CanApprove = await _userRoleService.CanApproveDemotionRequestAsync(id, currentUserId);
-                request.CanReject = request.CanApprove; // Same logic for reject
+                request.CanReject = await _userRoleService.CanRejectDemotionRequestAsync(id, currentUserId);
                 request.CanCancel = request.RequestedByUserEmail == User.Identity?.Name && request.IsPendingAndValid;
 
                 return View(request);
