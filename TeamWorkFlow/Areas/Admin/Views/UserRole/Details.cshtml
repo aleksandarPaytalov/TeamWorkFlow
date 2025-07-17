@@ -1,0 +1,253 @@
+@model TeamWorkFlow.Core.Models.Admin.UserRole.UserRoleViewModel
+@{
+    ViewData["Title"] = "User Details - " + Model.FullName;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/admin.css" asp-append-version="true" />
+    <style>
+        .detail-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #374151;
+        }
+        .detail-value {
+            color: #6b7280;
+        }
+        .role-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .role-admin {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .role-operator {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .role-none {
+            background-color: #f3f4f6;
+            color: #6b7280;
+        }
+        .action-section {
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            margin-right: 0.75rem;
+        }
+        .btn-promote {
+            background-color: #10b981;
+            color: white;
+        }
+        .btn-promote:hover {
+            background-color: #059669;
+            color: white;
+        }
+        .btn-demote {
+            background-color: #f59e0b;
+            color: white;
+        }
+        .btn-demote:hover {
+            background-color: #d97706;
+            color: white;
+        }
+        .btn-back {
+            background-color: #6b7280;
+            color: white;
+        }
+        .btn-back:hover {
+            background-color: #4b5563;
+            color: white;
+        }
+        .warning-box {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .warning-text {
+            color: #92400e;
+            font-size: 0.875rem;
+        }
+    </style>
+}
+
+<div class="admin-container">
+    <!-- Admin Header -->
+    <div class="admin-header">
+        <h1 class="admin-title">User Details</h1>
+        <p class="admin-subtitle">Detailed information and role management for @Model.FullName</p>
+        <span class="admin-badge">Administrator Access</span>
+    </div>
+
+    <!-- User Information Card -->
+    <div class="detail-card">
+        <h3 style="margin-bottom: 1rem; color: #1f2937;">User Information</h3>
+        
+        <div class="detail-row">
+            <span class="detail-label">Email Address:</span>
+            <span class="detail-value">@Model.Email</span>
+        </div>
+        
+        <div class="detail-row">
+            <span class="detail-label">Full Name:</span>
+            <span class="detail-value">@Model.FullName</span>
+        </div>
+        
+        <div class="detail-row">
+            <span class="detail-label">Current Role:</span>
+            <span class="detail-value">
+                @if (Model.IsAdmin)
+                {
+                    <span class="role-badge role-admin">Administrator</span>
+                }
+                else if (Model.IsOperator)
+                {
+                    <span class="role-badge role-operator">Operator</span>
+                }
+                else
+                {
+                    <span class="role-badge role-none">No Role</span>
+                }
+            </span>
+        </div>
+        
+        <div class="detail-row">
+            <span class="detail-label">Account Status:</span>
+            <span class="detail-value">
+                @if (Model.IsActive)
+                {
+                    <span class="badge bg-success">Active</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Inactive</span>
+                }
+            </span>
+        </div>
+        
+        @if (!string.IsNullOrEmpty(Model.AvailabilityStatus))
+        {
+            <div class="detail-row">
+                <span class="detail-label">Availability Status:</span>
+                <span class="detail-value">@Model.AvailabilityStatus</span>
+            </div>
+        }
+        
+        @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+        {
+            <div class="detail-row">
+                <span class="detail-label">Phone Number:</span>
+                <span class="detail-value">@Model.PhoneNumber</span>
+            </div>
+        }
+        
+        @if (Model.RegisteredDate.HasValue)
+        {
+            <div class="detail-row">
+                <span class="detail-label">Registered:</span>
+                <span class="detail-value">@Model.RegisteredDate.Value.ToString("dd/MM/yyyy")</span>
+            </div>
+        }
+    </div>
+
+    <!-- Role Management Actions -->
+    <div class="action-section">
+        <h3 style="margin-bottom: 1rem; color: #1f2937;">Role Management Actions</h3>
+        
+        @if (Model.CanPromoteToAdmin)
+        {
+            <div style="margin-bottom: 1rem;">
+                <h4 style="color: #059669; margin-bottom: 0.5rem;">Promote to Administrator</h4>
+                <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">
+                    Grant this user administrator privileges. They will have full access to the admin panel and all system functions.
+                </p>
+                <form asp-action="PromoteToAdmin" method="post" style="display: inline;">
+                    <input type="hidden" name="id" value="@Model.UserId" />
+                    <button type="submit" class="action-btn btn-promote" 
+                            onclick="return confirm('Are you sure you want to promote @Model.FullName to Administrator? This will grant them full system access.')">
+                        Promote to Administrator
+                    </button>
+                </form>
+            </div>
+        }
+        
+        @if (Model.CanDemoteFromAdmin)
+        {
+            <div style="margin-bottom: 1rem;">
+                <h4 style="color: #d97706; margin-bottom: 0.5rem;">Demote from Administrator</h4>
+                <div class="warning-box">
+                    <p class="warning-text">
+                        <strong>Warning:</strong> This action will remove administrator privileges from this user. 
+                        They will lose access to the admin panel and administrative functions.
+                    </p>
+                </div>
+                <form asp-action="DemoteFromAdmin" method="post" style="display: inline;">
+                    <input type="hidden" name="id" value="@Model.UserId" />
+                    <button type="submit" class="action-btn btn-demote" 
+                            onclick="return confirm('Are you sure you want to demote @Model.FullName from Administrator? This will remove their admin privileges and they will become an Operator.')">
+                        Demote from Administrator
+                    </button>
+                </form>
+            </div>
+        }
+        
+        @if (!Model.CanPromoteToAdmin && !Model.CanDemoteFromAdmin)
+        {
+            <div style="margin-bottom: 1rem;">
+                <p style="color: #6b7280; font-style: italic;">
+                    No role management actions are available for this user at this time.
+                    @if (Model.IsAdmin)
+                    {
+                        <span>This may be the last administrator in the system.</span>
+                    }
+                </p>
+            </div>
+        }
+    </div>
+
+    <!-- Navigation -->
+    <div style="margin-top: 2rem;">
+        <a asp-action="Index" class="action-btn btn-back">
+            ← Back to User List
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/admin/admin.js" asp-append-version="true"></script>
+}
