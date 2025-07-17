@@ -209,20 +209,16 @@
         @if (Model.CanDemoteFromAdmin)
         {
             <div style="margin-bottom: 1rem;">
-                <h4 style="color: #d97706; margin-bottom: 0.5rem;">Demote from Administrator</h4>
+                <h4 style="color: #d97706; margin-bottom: 0.5rem;">Request Admin Demotion</h4>
                 <div class="warning-box">
                     <p class="warning-text">
-                        <strong>Warning:</strong> This action will remove administrator privileges from this user. 
-                        They will lose access to the admin panel and administrative functions.
+                        <strong>Security Notice:</strong> Demoting an administrator requires approval from another admin.
+                        This creates a demotion request that must be reviewed and approved by a different administrator.
                     </p>
                 </div>
-                <form asp-action="DemoteFromAdmin" method="post" style="display: inline;">
-                    <input type="hidden" name="id" value="@Model.UserId" />
-                    <button type="submit" class="action-btn btn-demote" 
-                            onclick="return confirm('Are you sure you want to demote @Model.FullName from Administrator? This will remove their admin privileges and they will become an Operator.')">
-                        Demote from Administrator
-                    </button>
-                </form>
+                <a asp-action="RequestDemotion" asp-route-id="@Model.UserId" class="action-btn btn-demote">
+                    Request Demotion from Administrator
+                </a>
             </div>
         }
         
