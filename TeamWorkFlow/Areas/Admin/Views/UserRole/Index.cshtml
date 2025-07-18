@@ -1,0 +1,229 @@
+@model IEnumerable<TeamWorkFlow.Core.Models.Admin.UserRole.UserRoleViewModel>
+@{
+    ViewData["Title"] = "User Role Management";
+    var stats = ViewBag.Stats as TeamWorkFlow.Core.Models.Admin.UserRole.UserRoleStatsViewModel;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/admin.css" asp-append-version="true" />
+    <style>
+        .role-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .role-admin {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .role-operator {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .role-none {
+            background-color: #f3f4f6;
+            color: #6b7280;
+        }
+        .action-btn {
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-promote {
+            background-color: #10b981;
+            color: white;
+        }
+        .btn-promote:hover {
+            background-color: #059669;
+            color: white;
+        }
+        .btn-demote {
+            background-color: #f59e0b;
+            color: white;
+        }
+        .btn-demote:hover {
+            background-color: #d97706;
+            color: white;
+        }
+        .btn-disabled {
+            background-color: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+}
+
+<div class="admin-container">
+    <!-- Admin Header -->
+    <div class="admin-header">
+        <h1 class="admin-title">User Role Management</h1>
+        <p class="admin-subtitle">Manage user roles and permissions across the system</p>
+        <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem; position: relative; z-index: 10;">
+            <span class="admin-badge">Administrator Access</span>
+            <a asp-action="DemotionRequests" class="action-btn" style="background-color: #f59e0b; color: white; text-decoration: none; position: relative; z-index: 20; pointer-events: auto; display: inline-block; padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 500;">
+                View Demotion Requests
+                @if (ViewBag.PendingCount != null && (int)ViewBag.PendingCount > 0)
+                {
+                    <span style="background-color: #ef4444; color: white; border-radius: 50%; padding: 0.25rem 0.5rem; font-size: 0.75rem; margin-left: 0.5rem;">
+                        @ViewBag.PendingCount
+                    </span>
+                }
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    @if (stats != null)
+    {
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">@stats.TotalUsers</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">@stats.AdminCount</div>
+                <div class="stat-label">Administrators</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">@stats.OperatorCount</div>
+                <div class="stat-label">Operators</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">@stats.ActiveOperatorCount</div>
+                <div class="stat-label">Active Operators</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">@stats.NoRoleCount</div>
+                <div class="stat-label">No Role Assigned</div>
+            </div>
+        </div>
+    }
+
+    <!-- Users Table -->
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h3 class="dashboard-card-title">All Users</h3>
+            <p class="dashboard-card-description">Manage user roles and permissions</p>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Full Name</th>
+                        <th>Current Role</th>
+                        <th>Status</th>
+                        <th>Availability</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>@user.Email</td>
+                            <td>@user.FullName</td>
+                            <td>
+                                @if (user.IsAdmin)
+                                {
+                                    <span class="role-badge role-admin">Administrator</span>
+                                }
+                                else if (user.IsOperator)
+                                {
+                                    <span class="role-badge role-operator">Operator</span>
+                                }
+                                else
+                                {
+                                    <span class="role-badge role-none">No Role</span>
+                                }
+                            </td>
+                            <td>
+                                @if (user.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactive</span>
+                                }
+                            </td>
+                            <td>@(user.AvailabilityStatus ?? "N/A")</td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    @if (user.CanPromoteToAdmin)
+                                    {
+                                        <form asp-action="PromoteToAdmin" method="post" style="display: inline;">
+                                            <input type="hidden" name="id" value="@user.UserId" />
+                                            <button type="submit" class="action-btn btn-promote" 
+                                                    onclick="return confirm('Are you sure you want to promote this user to Administrator?')">
+                                                Promote to Admin
+                                            </button>
+                                        </form>
+                                    }
+                                    @if (user.CanDemoteFromAdmin)
+                                    {
+                                        <a asp-action="RequestDemotion" asp-route-id="@user.UserId" class="action-btn btn-demote">
+                                            Request Demotion
+                                        </a>
+                                    }
+                                    <a asp-action="Details" asp-route-id="@user.UserId" class="action-btn" style="background-color: #6366f1; color: white;">
+                                        Details
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/admin/admin.js" asp-append-version="true"></script>
+    <script>
+        // Add any additional JavaScript for role management
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-refresh page after role changes
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('refresh') === 'true') {
+                setTimeout(() => {
+                    window.location.href = window.location.pathname;
+                }, 2000);
+            }
+        });
+    </script>
+}

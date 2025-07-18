@@ -44,9 +44,29 @@ namespace TeamWorkFlow.Infrastructure.Data
                 .HasForeignKey(o => o.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            // Configure AdminDemotionRequest foreign key relationships to avoid cascade conflicts
+            builder.Entity<AdminDemotionRequest>()
+                .HasOne(r => r.TargetUser)
+                .WithMany()
+                .HasForeignKey(r => r.TargetUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<AdminDemotionRequest>()
+                .HasOne(r => r.RequestedByUser)
+                .WithMany()
+                .HasForeignKey(r => r.RequestedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<AdminDemotionRequest>()
+                .HasOne(r => r.ApprovedByUser)
+                .WithMany()
+                .HasForeignKey(r => r.ApprovedByUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             base.OnModelCreating(builder);
         }
 
+        public DbSet<AdminDemotionRequest> AdminDemotionRequests { get; set; } = null!;
         public DbSet<Machine> Machines { get; set; } = null!;
         public DbSet<Operator> Operators { get; set; } = null!;
         public DbSet<OperatorAvailabilityStatus> OperatorAvailabilityStatusEnumerable { get; set; } = null!;

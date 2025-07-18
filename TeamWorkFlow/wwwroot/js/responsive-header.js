@@ -17,29 +17,30 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 function initializeMobileNavigation() {
     const toggler = document.querySelector('.navbar-toggler');
-    const collapse = document.querySelector('.navbar-collapse');
-    
+    const collapse = document.querySelector('#navbarNav');
+
     if (toggler && collapse) {
         // Toggle navigation on button click
         toggler.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             toggleNavigation();
         });
-        
+
         // Close navigation when clicking outside
         document.addEventListener('click', function(e) {
             if (!toggler.contains(e.target) && !collapse.contains(e.target)) {
                 closeNavigation();
             }
         });
-        
+
         // Close navigation when pressing Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeNavigation();
             }
         });
-        
+
         // Close navigation when clicking on nav links (mobile)
         const navLinks = collapse.querySelectorAll('.nav-link');
         navLinks.forEach(link => {
@@ -56,12 +57,12 @@ function initializeMobileNavigation() {
  * Toggle navigation visibility
  */
 function toggleNavigation() {
-    const collapse = document.querySelector('.navbar-collapse');
+    const collapse = document.querySelector('#navbarNav');
     const toggler = document.querySelector('.navbar-toggler');
-    
+
     if (collapse && toggler) {
         const isOpen = collapse.classList.contains('show');
-        
+
         if (isOpen) {
             closeNavigation();
         } else {
@@ -74,23 +75,23 @@ function toggleNavigation() {
  * Open navigation
  */
 function openNavigation() {
-    const collapse = document.querySelector('.navbar-collapse');
+    const collapse = document.querySelector('#navbarNav');
     const toggler = document.querySelector('.navbar-toggler');
-    
+
     if (collapse && toggler) {
         collapse.classList.add('show');
         toggler.setAttribute('aria-expanded', 'true');
-        
+
         // Add animation
         collapse.style.opacity = '0';
         collapse.style.transform = 'translateY(-10px)';
-        
+
         setTimeout(() => {
             collapse.style.transition = 'all 0.3s ease';
             collapse.style.opacity = '1';
             collapse.style.transform = 'translateY(0)';
         }, 10);
-        
+
         // Focus first nav link for accessibility
         const firstNavLink = collapse.querySelector('.nav-link');
         if (firstNavLink) {
@@ -103,14 +104,14 @@ function openNavigation() {
  * Close navigation
  */
 function closeNavigation() {
-    const collapse = document.querySelector('.navbar-collapse');
+    const collapse = document.querySelector('#navbarNav');
     const toggler = document.querySelector('.navbar-toggler');
-    
+
     if (collapse && toggler) {
         collapse.style.transition = 'all 0.3s ease';
         collapse.style.opacity = '0';
         collapse.style.transform = 'translateY(-10px)';
-        
+
         setTimeout(() => {
             collapse.classList.remove('show');
             toggler.setAttribute('aria-expanded', 'false');
@@ -144,9 +145,9 @@ function initializeResponsiveFeatures() {
  */
 function handleResize() {
     const screenWidth = window.innerWidth;
-    const collapse = document.querySelector('.navbar-collapse');
+    const collapse = document.querySelector('#navbarNav');
     const toggler = document.querySelector('.navbar-toggler');
-    
+
     // Close mobile menu when switching to desktop
     if (screenWidth > 991 && collapse && collapse.classList.contains('show')) {
         closeNavigation();
