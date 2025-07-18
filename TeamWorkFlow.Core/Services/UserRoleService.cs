@@ -521,6 +521,11 @@ namespace TeamWorkFlow.Core.Services
             if (request.Status != DemotionRequestStatus.Pending) return false;
             if (request.IsExpired) return false;
             if (request.RequestedByUserId == userId) return false; // Can't approve own request
+
+            // Debug logging for self-approval check
+            Console.WriteLine($"DEBUG CanApproveDemotionRequestAsync: RequestId={requestId}, UserId={userId}, TargetUserId={request.TargetUserId}");
+            Console.WriteLine($"DEBUG: UserId == TargetUserId? {userId == request.TargetUserId}");
+
             if (request.TargetUserId == userId) return false; // Can't approve demotion targeting yourself
 
             var user = await _userManager.FindByIdAsync(userId);
@@ -538,6 +543,11 @@ namespace TeamWorkFlow.Core.Services
             if (request.Status != DemotionRequestStatus.Pending) return false;
             if (request.IsExpired) return false;
             if (request.RequestedByUserId == userId) return false; // Can't reject own request
+
+            // Debug logging for self-rejection check
+            Console.WriteLine($"DEBUG CanRejectDemotionRequestAsync: RequestId={requestId}, UserId={userId}, TargetUserId={request.TargetUserId}");
+            Console.WriteLine($"DEBUG: UserId == TargetUserId? {userId == request.TargetUserId}");
+
             if (request.TargetUserId == userId) return false; // Can't reject demotion targeting yourself
 
             var user = await _userManager.FindByIdAsync(userId);
