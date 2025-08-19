@@ -354,15 +354,6 @@
                 <div class="action-section">
                     <h4 style="margin-bottom: 1rem;">ℹ️ Information</h4>
                     <p style="color: #6b7280; margin: 0;">
-                        <!-- Debug info -->
-                        <small style="display: block; color: #999; margin-bottom: 10px;">
-                            DEBUG: Current User = @User.Identity?.Name<br/>
-                            DEBUG: RequestedBy = @Model.RequestedByUserEmail<br/>
-                            DEBUG: Target = @Model.TargetUserEmail<br/>
-                            DEBUG: RequestedBy == Current? @(Model.RequestedByUserEmail == User.Identity?.Name)<br/>
-                            DEBUG: Target == Current? @(Model.TargetUserEmail == User.Identity?.Name)
-                        </small>
-
                         @if (Model.RequestedByUserEmail == User.Identity?.Name)
                         {
                             <text>You cannot approve or reject this request because you are the one who created it.
