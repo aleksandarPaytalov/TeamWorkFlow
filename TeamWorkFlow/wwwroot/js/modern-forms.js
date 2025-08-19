@@ -134,7 +134,13 @@ function initializeValidation() {
         // Input formatting
         if (input.type === 'email') {
             input.addEventListener('input', function() {
-                this.value = this.value.toLowerCase().trim();
+                // Only convert to lowercase while typing, don't trim yet
+                this.value = this.value.toLowerCase();
+            });
+
+            input.addEventListener('blur', function() {
+                // Trim spaces when user finishes typing
+                this.value = this.value.trim();
             });
         }
         
@@ -510,32 +516,7 @@ function formatPhoneNumber(input) {
  */
 function validateDate(input) {
     const value = input.value;
-    if (!value) return;
-
-    const date = new Date(value);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (isNaN(date.getTime())) {
-        showFieldError(input, 'Please enter a valid date');
-        return;
-    }
-
-    // Check if date is in the future (for future dates)
-    if (input.classList.contains('future-date') && date < today) {
-        showFieldError(input, 'Date must be in the future');
-        return;
-    }
-
-    showFieldSuccess(input);
-}
-
-/**
- * Validate date input
- */
-function validateDate(input) {
-    const value = input.value;
-    if (!value) return;
+    if (!value) return true;
 
     const date = new Date(value);
     const today = new Date();
@@ -543,16 +524,65 @@ function validateDate(input) {
 
     if (isNaN(date.getTime())) {
         showFieldError(input, 'Please enter a valid date');
-        return;
+        return false;
     }
 
-    // Check if date is in the past (for future dates)
+    // Check if date is in the future (for future dates)
     if (input.classList.contains('future-date') && date < today) {
         showFieldError(input, 'Date must be in the future');
-        return;
+        return false;
     }
 
     showFieldSuccess(input);
+    return true;
+}
+
+/**
+ * Validate email field
+ */
+function validateEmail(input) {
+    const value = input.value.trim();
+    if (!value) return true;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+        showFieldError(input, 'Please enter a valid email address');
+        return false;
+    }
+
+    showFieldSuccess(input);
+    return true;
+}
+
+/**
+ * Validate number field
+ */
+function validateNumber(input) {
+    const value = input.value.trim();
+    if (!value) return true;
+
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) {
+        showFieldError(input, 'Please enter a valid number');
+        return false;
+    }
+
+    // Check min/max constraints
+    const min = input.getAttribute('min');
+    const max = input.getAttribute('max');
+
+    if (min !== null && numValue < parseFloat(min)) {
+        showFieldError(input, `Value must be at least ${min}`);
+        return false;
+    }
+
+    if (max !== null && numValue > parseFloat(max)) {
+        showFieldError(input, `Value must be no more than ${max}`);
+        return false;
+    }
+
+    showFieldSuccess(input);
+    return true;
 }
 
 /**
