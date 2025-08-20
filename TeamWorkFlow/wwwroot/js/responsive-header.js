@@ -16,110 +16,30 @@ document.addEventListener('DOMContentLoaded', function() {
  * Initialize mobile navigation toggle functionality
  */
 function initializeMobileNavigation() {
-    const toggler = document.querySelector('.navbar-toggler');
-    const collapse = document.querySelector('#navbarNav');
-
-    if (toggler && collapse) {
-        // Toggle navigation on button click
-        toggler.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleNavigation();
-        });
-
-        // Close navigation when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!toggler.contains(e.target) && !collapse.contains(e.target)) {
-                closeNavigation();
-            }
-        });
-
-        // Close navigation when pressing Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeNavigation();
-            }
-        });
-
-        // Close navigation when clicking on nav links (mobile)
-        const navLinks = collapse.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                if (window.innerWidth <= 991) {
-                    setTimeout(() => closeNavigation(), 150);
-                }
-            });
-        });
-    }
+    // DISABLED - Let Bootstrap handle the navbar toggle functionality
+    // This prevents conflicts with Bootstrap's built-in collapse behavior
+    console.log('Mobile navigation: Using Bootstrap default behavior');
 }
 
 /**
- * Toggle navigation visibility
+ * Toggle navigation visibility - DISABLED
  */
 function toggleNavigation() {
-    const collapse = document.querySelector('#navbarNav');
-    const toggler = document.querySelector('.navbar-toggler');
-
-    if (collapse && toggler) {
-        const isOpen = collapse.classList.contains('show');
-
-        if (isOpen) {
-            closeNavigation();
-        } else {
-            openNavigation();
-        }
-    }
+    // Let Bootstrap handle this
 }
 
 /**
- * Open navigation
+ * Open navigation - DISABLED
  */
 function openNavigation() {
-    const collapse = document.querySelector('#navbarNav');
-    const toggler = document.querySelector('.navbar-toggler');
-
-    if (collapse && toggler) {
-        collapse.classList.add('show');
-        toggler.setAttribute('aria-expanded', 'true');
-
-        // Add animation
-        collapse.style.opacity = '0';
-        collapse.style.transform = 'translateY(-10px)';
-
-        setTimeout(() => {
-            collapse.style.transition = 'all 0.3s ease';
-            collapse.style.opacity = '1';
-            collapse.style.transform = 'translateY(0)';
-        }, 10);
-
-        // Focus first nav link for accessibility
-        const firstNavLink = collapse.querySelector('.nav-link');
-        if (firstNavLink) {
-            setTimeout(() => firstNavLink.focus(), 100);
-        }
-    }
+    // Let Bootstrap handle this
 }
 
 /**
- * Close navigation
+ * Close navigation - DISABLED
  */
 function closeNavigation() {
-    const collapse = document.querySelector('#navbarNav');
-    const toggler = document.querySelector('.navbar-toggler');
-
-    if (collapse && toggler) {
-        collapse.style.transition = 'all 0.3s ease';
-        collapse.style.opacity = '0';
-        collapse.style.transform = 'translateY(-10px)';
-
-        setTimeout(() => {
-            collapse.classList.remove('show');
-            toggler.setAttribute('aria-expanded', 'false');
-            collapse.style.transition = '';
-            collapse.style.opacity = '';
-            collapse.style.transform = '';
-        }, 300);
-    }
+    // Let Bootstrap handle this
 }
 
 /**

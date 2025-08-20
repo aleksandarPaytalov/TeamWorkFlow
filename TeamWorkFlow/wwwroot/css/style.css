@@ -32,15 +32,6 @@ section, section > div > p > a, section > form > div > p > a {
     border-radius: 20px;
 }
 
-.custom-button-color {
-    background-color: #176B87;
-    border-color: #176B87;
-}
-
-.custom-button-color:hover {
-    background-color: #86B6F6;
-    color: #176B87;
-}
 
 .btn-purple {
     background-color: purple;
@@ -84,14 +75,8 @@ section, section > div > p > a, section > form > div > p > a {
     margin-left: auto !important;
 }
 
-/* Override any Tailwind conflicts */
-.navbar .navbar-nav .nav-item .nav-link {
-    color: #212529 !important;
-    background: transparent !important;
-    border: none !important;
-    padding: 0.5rem 1rem !important;
-    margin: 0 0.25rem !important;
-}
+/* Navigation styling is now handled in enhanced-navigation.css for better visibility */
+/* This comment replaces the old conflicting styles */
 
 .navbar .navbar-nav .nav-item .nav-link:hover {
     color: #0056b3 !important;
