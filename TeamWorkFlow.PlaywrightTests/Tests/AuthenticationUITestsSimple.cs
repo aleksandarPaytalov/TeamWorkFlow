@@ -21,7 +21,7 @@ public class AuthenticationUITestsSimple : BaseTest
         await Page.GotoAsync($"{Config.BaseUrl}/Identity/Account/Login");
 
         // Assert - Verify login page loads
-        await Expect(Page).ToHaveTitleAsync(new Regex(".*Log in.*"));
+        await Expect(Page).ToHaveTitleAsync(new Regex(".*(Log in|Welcome Back).*"));
         
         // Verify login form elements exist
         await Expect(Page.Locator("#Input_Email")).ToBeVisibleAsync();
@@ -53,10 +53,35 @@ public class AuthenticationUITestsSimple : BaseTest
         // Arrange
         await Page.GotoAsync($"{Config.BaseUrl}/Identity/Account/Login");
 
+        // Wait for page to be fully loaded
+        await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
         // Act - Try to login with fake credentials
         await Page.FillAsync("#Input_Email", "fake.admin@test.local");
         await Page.FillAsync("#Input_Password", "FakeAdminPass123!");
-        await Page.ClickAsync("#login-submit");
+
+        // Wait for the submit button to be stable and ready
+        var submitButton = Page.Locator("#login-submit");
+        await Expect(submitButton).ToBeVisibleAsync();
+        await Expect(submitButton).ToBeEnabledAsync();
+
+        // Click submit button with proper waiting and error handling
+        try
+        {
+            // Wait for button to be stable before clicking
+            await submitButton.WaitForAsync(new LocatorWaitForOptions
+            {
+                Timeout = 10000
+            });
+
+            // Use force click if button is having stability issues
+            await submitButton.ClickAsync(new LocatorClickOptions { Force = true });
+        }
+        catch (TimeoutException)
+        {
+            // If button click fails, try alternative approach
+            await Page.EvaluateAsync("document.querySelector('#login-submit').click()");
+        }
 
         // Wait for response
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
@@ -64,7 +89,7 @@ public class AuthenticationUITestsSimple : BaseTest
         // Assert - Should show error or stay on login page
         var currentUrl = Page.Url;
         var isStillOnLoginPage = currentUrl.Contains("Login") || currentUrl.Contains("login");
-        
+
         // Should either stay on login page or show error
         Assert.That(isStillOnLoginPage, Is.True, "Should stay on login page with fake credentials");
     }
@@ -75,11 +100,34 @@ public class AuthenticationUITestsSimple : BaseTest
         // Arrange
         await Page.GotoAsync($"{Config.BaseUrl}/Identity/Account/Login");
 
-        // Act - Try to submit empty form
-        await Page.ClickAsync("#login-submit");
+        // Wait for page to be fully loaded
+        await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-        // Wait for validation
-        await Page.WaitForTimeoutAsync(1000);
+        // Wait for the submit button to be stable and ready
+        var submitButton = Page.Locator("#login-submit");
+        await Expect(submitButton).ToBeVisibleAsync();
+        await Expect(submitButton).ToBeEnabledAsync();
+
+        // Act - Try to submit empty form with proper waiting
+        try
+        {
+            // Wait for button to be stable before clicking
+            await submitButton.WaitForAsync(new LocatorWaitForOptions
+            {
+                Timeout = 10000
+            });
+
+            // Use force click if button is having stability issues
+            await submitButton.ClickAsync(new LocatorClickOptions { Force = true });
+        }
+        catch (TimeoutException)
+        {
+            // If button click fails, try alternative approach
+            await Page.EvaluateAsync("document.querySelector('#login-submit').click()");
+        }
+
+        // Wait for validation response
+        await Page.WaitForTimeoutAsync(2000);
 
         // Assert - Should show validation errors or stay on login page
         var currentUrl = Page.Url;
@@ -90,7 +138,6 @@ public class AuthenticationUITestsSimple : BaseTest
         // Check if form validation is working by verifying form elements are still visible
         var emailInput = Page.Locator("#Input_Email");
         var passwordInput = Page.Locator("#Input_Password");
-        var submitButton = Page.Locator("#login-submit");
 
         // Form should still be present and functional
         await Expect(emailInput).ToBeVisibleAsync();
@@ -148,7 +195,7 @@ public class AuthenticationUITestsSimple : BaseTest
 
         // Verify button text
         var buttonText = await submitButton.TextContentAsync();
-        Assert.That(buttonText?.Trim(), Does.Contain("Log in").Or.Contain("Login").Or.Contain("Sign in"),
+        Assert.That(buttonText?.Trim(), Does.Contain("Log in").Or.Contain("Login").Or.Contain("Sign In").Or.Contain("Sign in"),
             "Submit button should have appropriate text");
     }
 

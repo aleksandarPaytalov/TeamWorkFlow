@@ -533,6 +533,13 @@ body[data-page="auth"] .navbar-nav .nav-link[href*="Home"],
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3) !important;
 }
 
+/* ADMIN DASHBOARD - ENSURE NAVIGATION IS ALWAYS VISIBLE */
+.admin-nav .navbar-collapse {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
 /* Login/Register page specific navigation styling */
 .navbar .nav-link.text-white {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;

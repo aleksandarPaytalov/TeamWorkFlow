@@ -166,7 +166,7 @@ public class TaskManagementTests : BaseTest
         // Verify essential form elements are present
         var emailField = Page.Locator("input[name='Input.Email'], input[type='email']");
         var passwordField = Page.Locator("input[name='Input.Password'], input[type='password']");
-        var loginButton = Page.Locator("button[type='submit']:has-text('Log in'), input[value*='Log in']");
+        var loginButton = Page.Locator("button[type='submit']:has-text('Sign In'), button[type='submit']:has-text('Log in'), input[value*='Log in'], #login-submit");
 
         Assert.That(await emailField.IsVisibleAsync(), Is.True, "Email field should be visible");
         Assert.That(await passwordField.IsVisibleAsync(), Is.True, "Password field should be visible");
@@ -191,7 +191,7 @@ public class TaskManagementTests : BaseTest
         // Assert - Form should still be usable on mobile
         var emailField = Page.Locator("input[name='Input.Email'], input[type='email']");
         var passwordField = Page.Locator("input[name='Input.Password'], input[type='password']");
-        var loginButton = Page.Locator("button[type='submit']:has-text('Log in'), input[value*='Log in']");
+        var loginButton = Page.Locator("button[type='submit']:has-text('Sign In'), button[type='submit']:has-text('Log in'), input[value*='Log in'], #login-submit");
 
         Assert.That(await emailField.IsVisibleAsync(), Is.True, "Email field should be visible on mobile");
         Assert.That(await passwordField.IsVisibleAsync(), Is.True, "Password field should be visible on mobile");
