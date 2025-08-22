@@ -10,6 +10,7 @@ public abstract class BaseTest : PageTest
     protected HomePage HomePage { get; private set; } = null!;
     protected TasksPage TasksPage { get; private set; } = null!;
     protected ProjectsPage ProjectsPage { get; private set; } = null!;
+    protected ErrorPage ErrorPage { get; private set; } = null!;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
@@ -25,6 +26,7 @@ public abstract class BaseTest : PageTest
         HomePage = new HomePage(Page);
         TasksPage = new TasksPage(Page);
         ProjectsPage = new ProjectsPage(Page);
+        ErrorPage = new ErrorPage(Page);
 
         // Set up browser context options
         Page.SetDefaultTimeout(Config.Timeout);

@@ -29,6 +29,7 @@ namespace TeamWorkFlow.Controllers
 			return View();
 		}
 
+		[AllowAnonymous]
 		[Route("Home/Error/{statusCode}")]
 		public IActionResult Error(int? statusCode)
 		{
