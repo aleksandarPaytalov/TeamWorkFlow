@@ -387,6 +387,8 @@
     border-color: #cbd5e1;
 }
 
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .profile-page {
@@ -406,6 +408,8 @@
     .profile-avatar {
         margin: 0 auto 1rem;
     }
+
+
 
     .profile-nav {
         padding: 1rem;

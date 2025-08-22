@@ -28,10 +28,14 @@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 @{
-    var isAuthPage = ViewContext.RouteData.Values["area"]?.ToString() == "Identity" ||
-                   (ViewContext.RouteData.Values["controller"]?.ToString() == "Account" &&
-                    (ViewContext.RouteData.Values["action"]?.ToString() == "Login" ||
-                     ViewContext.RouteData.Values["action"]?.ToString() == "Register"));
+    var currentPath = ViewContext.HttpContext.Request.Path.Value?.ToLower();
+
+    // Only consider login and register pages as auth pages, not profile/manage pages
+    var isAuthPage = !string.IsNullOrEmpty(currentPath) &&
+                    (currentPath.Contains("/identity/account/login") ||
+                     currentPath.Contains("/identity/account/register") ||
+                     currentPath.Contains("/account/login") ||
+                     currentPath.Contains("/account/register"));
 }
 <body class="@(isAuthPage ? "auth-page" : "")">
     <header>
