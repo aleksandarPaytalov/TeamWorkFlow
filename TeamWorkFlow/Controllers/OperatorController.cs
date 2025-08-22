@@ -57,6 +57,7 @@ namespace TeamWorkFlow.Controllers
 	    }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(OperatorFormModel model)
         {
             var userId = await _operatorService.GetUserIdByEmailAsync(model.Email.Normalize());
@@ -131,6 +132,7 @@ namespace TeamWorkFlow.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(OperatorFormModel model, int id)
         {
 	        if (!bool.TryParse(model.IsActive, out bool result))
@@ -224,6 +226,7 @@ namespace TeamWorkFlow.Controllers
 		}
 
 		[HttpPost]
+		[ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmation(int id)
         {
             if (await _operatorService.OperatorExistByIdAsync(id) == false)

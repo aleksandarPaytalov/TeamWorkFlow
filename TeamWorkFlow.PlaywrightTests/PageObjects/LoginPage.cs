@@ -11,7 +11,7 @@ public class LoginPage : BasePage
     private ILocator EmailInput => Page.Locator("input[name='Input.Email'], input[type='email']");
     private ILocator PasswordInput => Page.Locator("input[name='Input.Password'], input[type='password']");
     private ILocator RememberMeCheckbox => Page.Locator("input[name='Input.RememberMe'][type='checkbox']");
-    private ILocator LoginButton => Page.Locator("button[type='submit']:has-text('Log in'), input[value*='Log in']");
+    private ILocator LoginButton => Page.Locator("button[type='submit']:has-text('Sign In'), button[type='submit']:has-text('Log in'), input[value*='Log in'], #login-submit");
     private ILocator RegisterLink => Page.Locator("a:has-text('Register'), a[href*='Register']");
     private ILocator ForgotPasswordLink => Page.Locator("a:has-text('Forgot'), a[href*='ForgotPassword']");
     private ILocator LoginForm => Page.Locator("form");
@@ -39,13 +39,25 @@ public class LoginPage : BasePage
     {
         await EmailInput.FillAsync(email);
         await PasswordInput.FillAsync(password);
-        
+
         if (rememberMe)
         {
             await RememberMeCheckbox.CheckAsync();
         }
-        
-        await LoginButton.ClickAsync();
+
+        // Wait for button to be stable and click with retry logic
+        try
+        {
+            await LoginButton.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 10000 });
+            await Task.Delay(500); // Wait for any animations to complete
+            await LoginButton.ClickAsync(new() { Timeout = 10000 });
+        }
+        catch (TimeoutException)
+        {
+            // Fallback: try form submission
+            await LoginForm.PressAsync("Enter");
+        }
+
         await WaitForPageLoadAsync();
     }
 

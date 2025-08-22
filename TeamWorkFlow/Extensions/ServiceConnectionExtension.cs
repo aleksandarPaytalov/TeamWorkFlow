@@ -54,9 +54,11 @@ namespace TeamWorkFlow.Extensions
 				{
 					options.User.RequireUniqueEmail = true;
 					options.SignIn.RequireConfirmedAccount = false;
-                    options.Password.RequireDigit = true;
-                    options.Password.RequireUppercase = true;
-                    options.Password.RequireNonAlphanumeric = true;
+					options.Password.RequireDigit = true;
+					options.Password.RequireUppercase = true;
+					options.Password.RequireNonAlphanumeric = true;
+					options.Password.RequireLowercase = true;
+					options.Password.RequiredLength = 8;
                 })
                 .AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<TeamWorkFlowDbContext>();

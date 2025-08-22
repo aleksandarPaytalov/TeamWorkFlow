@@ -54,6 +54,7 @@ namespace TeamWorkFlow.Controllers
 		    return View(model);
 	    }
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 	    public async Task<IActionResult> Add(ProjectFormModel model)
 	    {
 		    if (await _projectService.ExistByProjectNumberAsync(model.ProjectNumber))
@@ -112,6 +113,7 @@ namespace TeamWorkFlow.Controllers
 	    }
 	    
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 	    public async Task<IActionResult> Edit(ProjectFormModel model, int id)
 	    {
 		    if (!await _projectService.ProjectExistByIdAsync(id))
@@ -209,6 +211,7 @@ namespace TeamWorkFlow.Controllers
 	    }
 
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 	    public async Task<IActionResult> Confirmation(int id)
 	    {
 		    if (!await _projectService.ProjectExistByIdAsync(id))

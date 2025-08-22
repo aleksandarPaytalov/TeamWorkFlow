@@ -51,6 +51,7 @@ namespace TeamWorkFlow.Controllers
 	    }
 
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 	    public async Task<IActionResult> Add(MachineFormModel model)
 	    {
 		    if (!ModelState.IsValid)
@@ -92,6 +93,7 @@ namespace TeamWorkFlow.Controllers
 	    }
 
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 	    public async Task<IActionResult> Edit(MachineFormModel model, int id)
 	    {
 		    if (!ModelState.IsValid)
@@ -160,6 +162,7 @@ namespace TeamWorkFlow.Controllers
 	    }
 
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 	    public async Task<IActionResult> DeleteConfirmation(int id)
 	    {
 		    if (!await _machineService.MachineExistByIdAsync(id))

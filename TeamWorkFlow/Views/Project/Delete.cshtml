@@ -54,6 +54,7 @@
         <!-- Action Buttons -->
         <div class="delete-actions">
             <form asp-action="Confirmation" method="post" style="display: inline;">
+                @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="Id" />
                 <button type="submit" class="delete-btn delete-btn-confirm" onclick="return confirmDelete(this)">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

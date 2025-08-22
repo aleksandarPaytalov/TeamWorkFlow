@@ -5,21 +5,24 @@
     }
     else
     {
-        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
+        Layout = "/Views/Shared/_Layout.cshtml";
     }
 }
 
-<h1>Manage your account</h1>
+@section Styles {
+    <link rel="stylesheet" href="~/css/profile-pages.css" asp-append-version="true" />
+    @RenderSection("Styles", required: false)
+}
 
-<div>
-    <h2>Change your account settings</h2>
-    <hr />
-    <div class="row">
-        <div class="col-md-3">
-            <partial name="_ManageNav" />
-        </div>
-        <div class="col-md-9">
-            @RenderBody()
+<div class="profile-page">
+    <div class="profile-container">
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <partial name="_ManageNav" />
+            </div>
+            <div class="col-lg-9">
+                @RenderBody()
+            </div>
         </div>
     </div>
 </div>

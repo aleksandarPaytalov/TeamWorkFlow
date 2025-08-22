@@ -7,6 +7,7 @@
 	</div>
 
 	<form method="post" id="machine-form">
+		@Html.AntiForgeryToken()
 		<div class="modern-form-grid two-columns">
 			<div class="modern-form-group">
 				<label asp-for="@Model.Name" class="modern-form-label">Machine Name</label>

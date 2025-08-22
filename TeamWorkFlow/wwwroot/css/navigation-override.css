@@ -30,14 +30,15 @@
     }
 }
 
-/* Mobile navigation - toggle behavior */
+/* Mobile navigation - toggle behavior - FIXED */
 @media (max-width: 991.98px) {
     .navbar-collapse {
         display: none !important;
     }
 
     .navbar-collapse.show {
-        display: block !important;
+        display: flex !important;
+        flex-direction: column !important;
         visibility: visible !important;
         opacity: 1 !important;
     }
@@ -47,6 +48,7 @@
         flex-direction: column !important;
         visibility: visible !important;
         opacity: 1 !important;
+        width: 100% !important;
     }
 
     .navbar-collapse.show .nav-item,
@@ -54,6 +56,7 @@
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
+        width: 100% !important;
     }
 }
 
@@ -74,13 +77,13 @@
 .navbar-nav:last-child .nav-link {
     display: block !important;
     visibility: visible !important;
-    opacity: 1 !important;
-    color: rgba(0,0,0,.55) !important;
+    opacity: 1 !important;    
     padding: 0.5rem 1rem !important;
 }
 
-/* Override any framework conflicts */
-.navbar * {
+/* Override any framework conflicts - but allow Bootstrap collapse to work */
+.navbar .nav-link,
+.navbar .nav-item {
     visibility: visible !important;
     opacity: 1 !important;
 }

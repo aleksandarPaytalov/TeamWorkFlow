@@ -7,6 +7,7 @@
 	</div>
 
 	<form method="post" id="task-form">
+		@Html.AntiForgeryToken()
 		<div class="modern-form-grid two-columns">
 			<div class="modern-form-group">
 				<label asp-for="@Model.ProjectNumber" class="modern-form-label">Project Number</label>

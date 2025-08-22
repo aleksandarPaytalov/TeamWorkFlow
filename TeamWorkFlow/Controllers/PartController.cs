@@ -60,6 +60,7 @@ namespace TeamWorkFlow.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(PartFormModel model)
         {
             if (await _partService.StatusExistAsync(model.PartStatusId) == false)
@@ -144,6 +145,7 @@ namespace TeamWorkFlow.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, PartFormModel model)
         {
 	        if (!await _partService.PartExistAsync(id))
@@ -212,6 +214,7 @@ namespace TeamWorkFlow.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmation(int id)
         {
 	        if (!await _partService.PartExistAsync(id))
