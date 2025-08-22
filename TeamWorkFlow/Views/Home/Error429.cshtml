@@ -1,0 +1,56 @@
+@{
+    Layout = "~/Views/Shared/_ErrorLayout.cshtml";
+}
+
+<div class="error-icon">
+    <i class="fas fa-tachometer-alt"></i>
+</div>
+
+<div class="error-code">@ViewBag.ErrorCode</div>
+<h1 class="error-title">@ViewBag.ErrorTitle</h1>
+<p class="error-message">@ViewBag.ErrorMessage</p>
+<p class="error-description">@ViewBag.ErrorDescription</p>
+
+<div class="error-actions">
+    <a href="javascript:setTimeout(() => location.reload(), 5000)" class="btn-secondary-custom">
+        <i class="fas fa-hourglass-half"></i>
+        Wait & Retry
+    </a>
+    <a asp-controller="Task" asp-action="All" class="btn-primary-custom">
+        <i class="fas fa-home"></i>
+        Go to Dashboard
+    </a>
+</div>
+
+<div style="margin-top: 2rem; padding: 1rem; background: rgba(255, 193, 7, 0.1); border-radius: 10px; border-left: 4px solid #ffc107;">
+    <p style="margin: 0; color: #856404; font-size: 0.9rem;">
+        <i class="fas fa-info-circle"></i>
+        Please wait a few moments before making another request. The page will automatically retry in 5 seconds.
+    </p>
+</div>
+
+<script>
+    // Add Font Awesome for icons if not already included
+    if (!document.querySelector('link[href*="font-awesome"]')) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css';
+        document.head.appendChild(link);
+    }
+
+    // Auto-retry countdown
+    let countdown = 5;
+    const retryBtn = document.querySelector('.btn-secondary-custom');
+    const originalText = retryBtn.innerHTML;
+    
+    const timer = setInterval(() => {
+        retryBtn.innerHTML = `<i class="fas fa-hourglass-half"></i> Retry in ${countdown}s`;
+        countdown--;
+        
+        if (countdown < 0) {
+            clearInterval(timer);
+            retryBtn.innerHTML = '<i class="fas fa-redo"></i> Retrying...';
+            setTimeout(() => location.reload(), 500);
+        }
+    }, 1000);
+</script>

@@ -1,0 +1,126 @@
+@{
+    ViewData["Title"] = "Error Pages Test";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-4">Error Pages Test</h1>
+            <p class="text-center text-muted mb-5">Click the buttons below to test different error pages</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Test Error Status Codes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <a asp-action="Test400" class="btn btn-outline-danger w-100">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                400 - Bad Request
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a asp-action="Test401" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-lock me-2"></i>
+                                401 - Unauthorized
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a asp-action="Test403" class="btn btn-outline-danger w-100">
+                                <i class="fas fa-ban me-2"></i>
+                                403 - Forbidden
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a asp-action="Test404" class="btn btn-outline-info w-100">
+                                <i class="fas fa-search me-2"></i>
+                                404 - Not Found
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a asp-action="Test408" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-clock me-2"></i>
+                                408 - Request Timeout
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a asp-action="Test429" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                429 - Too Many Requests
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a asp-action="Test500" class="btn btn-outline-danger w-100">
+                                <i class="fas fa-server me-2"></i>
+                                500 - Internal Server Error
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a asp-action="TestCustom" asp-route-code="418" class="btn btn-outline-dark w-100">
+                                <i class="fas fa-coffee me-2"></i>
+                                418 - I'm a teapot (Custom)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Custom Error Code Test</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="TestCustom" method="get" class="row g-3">
+                        <div class="col-md-8">
+                            <label for="code" class="form-label">Enter HTTP Status Code:</label>
+                            <input type="number" class="form-control" id="code" name="code" value="418" min="100" max="599">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-play me-2"></i>
+                                Test Custom Code
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-4">
+                <h6><i class="fas fa-info-circle me-2"></i>Testing Instructions:</h6>
+                <ul class="mb-0">
+                    <li>Each button will trigger the corresponding HTTP status code</li>
+                    <li>Test on different screen sizes to verify responsive design</li>
+                    <li>Check that all error pages display correctly</li>
+                    <li>Verify that navigation buttons work properly</li>
+                    <li><strong>Remember to remove this test controller in production!</strong></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn {
+        transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>
+
+<script>
+    // Add Font Awesome if not already included
+    if (!document.querySelector('link[href*="font-awesome"]')) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css';
+        document.head.appendChild(link);
+    }
+</script>
