@@ -186,6 +186,7 @@
                                     @if (user.CanPromoteToAdmin)
                                     {
                                         <form asp-action="PromoteToAdmin" method="post" style="display: inline;">
+                                            @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@user.UserId" />
                                             <button type="submit" class="action-btn btn-promote" 
                                                     onclick="return confirm('Are you sure you want to promote this user to Administrator?')">

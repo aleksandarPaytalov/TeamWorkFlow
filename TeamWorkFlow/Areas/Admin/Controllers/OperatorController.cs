@@ -48,6 +48,7 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
 		}
 
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Activate(int id)
 		{
 			try
@@ -72,6 +73,7 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
 		}
 
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> ToggleStatus(int id)
 		{
 			// Get the operator to check current status

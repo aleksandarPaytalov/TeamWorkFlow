@@ -73,6 +73,7 @@ namespace TeamWorkFlow.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(TaskFormModel model)
         {
             var userId = User.Id();
@@ -219,6 +220,7 @@ namespace TeamWorkFlow.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(TaskFormModel model, int id)
         {
 	        if (!await _taskService.TaskExistByIdAsync(id))
@@ -340,6 +342,8 @@ namespace TeamWorkFlow.Controllers
 	        return View(model);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Confirmation(int id)
         {
             if (!User.Identity?.IsAuthenticated == true || (User.IsAdmin() == false && User.IsOperator() == false))
@@ -399,6 +403,8 @@ namespace TeamWorkFlow.Controllers
 			return View(model);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveFromCollection(int id)
         {
 	        var userId = User.Id();

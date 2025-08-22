@@ -223,6 +223,7 @@
                                         @if (request.IsPendingAndValid && request.CanApprove)
                                         {
                                             <form asp-action="ApproveDemotionRequest" method="post" style="display: inline;">
+                                                @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@request.Id" />
                                                 <button type="submit" class="action-btn btn-approve" 
                                                         onclick="return confirm('Are you sure you want to APPROVE this demotion request? This will immediately demote @request.TargetUserFullName from Administrator to Operator.')">
@@ -231,6 +232,7 @@
                                             </form>
                                             
                                             <form asp-action="RejectDemotionRequest" method="post" style="display: inline;">
+                                                @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@request.Id" />
                                                 <button type="submit" class="action-btn btn-reject" 
                                                         onclick="return confirm('Are you sure you want to REJECT this demotion request?')">
@@ -242,6 +244,7 @@
                                         @if (request.IsPendingAndValid && request.CanCancel)
                                         {
                                             <form asp-action="CancelDemotionRequest" method="post" style="display: inline;">
+                                                @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@request.Id" />
                                                 <button type="submit" class="action-btn btn-cancel" 
                                                         onclick="return confirm('Are you sure you want to cancel this demotion request?')">
