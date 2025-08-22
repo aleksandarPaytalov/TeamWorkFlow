@@ -1,30 +1,112 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = "Profile Settings";
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
-<h3>@ViewData["Title"]</h3>
-<partial name="_StatusMessage" for="StatusMessage" />
-<div class="row">
-    <div class="col-md-6">
-        <form id="profile-form" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-floating">
-                <input asp-for="Username" class="form-control" disabled />
-                <label asp-for="Username" class="form-label"></label>
+@section Styles {
+    <link rel="stylesheet" href="~/css/profile-pages.css" asp-append-version="true" />
+}
+
+<div class="profile-page">
+    <div class="profile-container">
+        <!-- Profile Header -->
+        <partial name="_ProfileHeader" />
+
+        <!-- Profile Content -->
+        <div class="profile-content slide-in">
+            <div class="profile-content-header">
+                <h2 class="profile-content-title">
+                    <i class="fas fa-user-edit me-2"></i>
+                    Personal Information
+                </h2>
+                <p class="profile-content-subtitle">Update your personal details and contact information</p>
             </div>
-            <div class="form-floating">
-                <input asp-for="Input.PhoneNumber" class="form-control" />
-                <label asp-for="Input.PhoneNumber" class="form-label"></label>
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
-            </div>
-            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
-        </form>
+
+            <!-- Status Message -->
+            @if (!string.IsNullOrEmpty(Model.StatusMessage))
+            {
+                <div class="status-message @(Model.StatusMessage.Contains("updated") ? "success" : "info")">
+                    <i class="fas @(Model.StatusMessage.Contains("updated") ? "fa-check-circle" : "fa-info-circle") me-2"></i>
+                    @Model.StatusMessage
+                </div>
+            }
+
+            <form id="profile-form" method="post" class="profile-form">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-floating">
+                            <input asp-for="Username" class="form-control" disabled />
+                            <label asp-for="Username" class="form-label">
+                                <i class="fas fa-user me-2"></i>Username
+                            </label>
+                        </div>
+
+                        <div class="form-floating">
+                            <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Enter phone number" />
+                            <label asp-for="Input.PhoneNumber" class="form-label">
+                                <i class="fas fa-phone me-2"></i>Phone Number
+                            </label>
+                            <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="security-indicator">
+                            <div class="security-indicator-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div>
+                                <strong>Account Security</strong>
+                                <p class="mb-0 text-muted">Your account is protected with secure authentication</p>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a asp-page="./ChangePassword" class="profile-btn profile-btn-secondary">
+                                <i class="fas fa-key me-2"></i>
+                                Change Password
+                            </a>
+                            <a asp-page="./Email" class="profile-btn profile-btn-secondary">
+                                <i class="fas fa-envelope me-2"></i>
+                                Manage Email
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <a asp-page="./PersonalData" class="profile-btn profile-btn-secondary">
+                        <i class="fas fa-database me-2"></i>
+                        Personal Data
+                    </a>
+                    <button id="update-profile-button" type="submit" class="profile-btn profile-btn-primary">
+                        <i class="fas fa-save me-2"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Add mobile navigation toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('profile-form');
+            const submitBtn = document.getElementById('update-profile-button');
+
+            if (form && submitBtn) {
+                form.addEventListener('submit', function() {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+                    submitBtn.disabled = true;
+                });
+            }
+        });
+    </script>
 }

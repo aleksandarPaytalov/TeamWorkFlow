@@ -5,23 +5,58 @@
     ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
-<h3>@ViewData["Title"]</h3>
+<div class="profile-page">
+    <div class="profile-container">
+        <!-- Profile Header -->
+        <partial name="_ProfileHeader" />
 
-<div class="row">
-    <div class="col-md-6">
-        <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
-        <p>
-            <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
+        <div class="profile-content slide-in">
+    <div class="profile-content-header">
+        <h2 class="profile-content-title">
+            <i class="fas fa-database me-2"></i>
+            Personal Data Management
+        </h2>
+        <p class="profile-content-subtitle">Permanently delete your account and all personal data</p>
+    </div>
+
+    <!-- Delete Data Section -->
+    <div class="data-warning">
+        <div class="data-warning-title">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Danger Zone
+        </div>
+        <p class="mb-3">
+            <strong>Deleting your data will permanently remove your account and all associated information.</strong>
+            This action cannot be undone.
         </p>
-        <form id="download-data" asp-page="DownloadPersonalData" method="post">
-            <button class="btn btn-primary" type="submit">Download</button>
-        </form>
-        <p>
-            <a id="delete" asp-page="DeletePersonalData" class="btn btn-danger">Delete</a>
-        </p>
+
+        <div class="data-actions">
+            <a id="delete" asp-page="DeletePersonalData" class="profile-btn profile-btn-danger">
+                <i class="fas fa-trash-alt me-2"></i>
+                Delete My Account & Data
+            </a>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteBtn = document.getElementById('delete');
+
+            // Delete button confirmation
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    if (confirm('Are you absolutely sure you want to delete your account and all data? This action cannot be undone.')) {
+                        if (confirm('This will permanently delete everything. Are you really sure?')) {
+                            window.location.href = this.href;
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 }

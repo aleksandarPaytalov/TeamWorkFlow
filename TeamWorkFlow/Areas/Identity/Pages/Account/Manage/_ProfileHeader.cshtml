@@ -1,0 +1,74 @@
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var userName = user?.UserName ?? "User";
+    var email = user?.Email ?? "";
+    var isEmailConfirmed = user != null ? await UserManager.IsEmailConfirmedAsync(user) : false;
+    var phoneNumber = user != null ? await UserManager.GetPhoneNumberAsync(user) : "";
+    
+    // Generate initials for avatar
+    var initials = "";
+    if (!string.IsNullOrEmpty(userName))
+    {
+        var parts = userName.Split('@')[0].Split('.');
+        if (parts.Length >= 2)
+        {
+            initials = parts[0].Substring(0, 1).ToUpper() + parts[1].Substring(0, 1).ToUpper();
+        }
+        else
+        {
+            initials = userName.Substring(0, Math.Min(2, userName.Length)).ToUpper();
+        }
+    }
+    
+    // Get current page for breadcrumb
+    var currentPage = ViewData["Title"]?.ToString() ?? "Profile";
+}
+
+<!-- Profile Header -->
+<div class="profile-header fade-in">
+    <div class="profile-header-content">
+        <div class="row align-items-center">
+            <div class="col-12">
+                <div class="d-flex align-items-center">
+                    <div class="profile-avatar">
+                        @initials
+                    </div>
+                    <div class="ms-3">
+                        <h1 class="profile-name">@userName</h1>
+                        <p class="profile-email mb-1">@email</p>
+
+                    </div>
+                </div>
+            </div>
+            
+
+        </div>
+        
+        <!-- Breadcrumb -->
+        <div class="profile-breadcrumb mt-3 pt-3 border-top border-light border-opacity-25">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item">
+                        <a href="/" class="text-white text-opacity-75">
+                            <i class="fas fa-home me-1"></i>
+                            Home
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a asp-page="./Index" class="text-white text-opacity-75">
+                            <i class="fas fa-user me-1"></i>
+                            Account
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active text-white" aria-current="page">
+                        @currentPage
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+
+
