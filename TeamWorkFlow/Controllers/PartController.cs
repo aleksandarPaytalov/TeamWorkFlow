@@ -104,7 +104,7 @@ namespace TeamWorkFlow.Controllers
 
 			if (!await _partService.PartExistAsync(id))
             {
-                return BadRequest();
+                return NotFound();
             }
 
             var partModel = await _partService.PartDetailsByIdAsync(id);
@@ -127,12 +127,12 @@ namespace TeamWorkFlow.Controllers
 
 			if (!await _partService.PartExistAsync(id))
             {
-                return BadRequest();
+                return NotFound();
             }
 
             if (!await _partService.PartExistAsync(id))
             {
-	            return BadRequest();
+	            return NotFound();
             }
 			var model = await _partService.GetPartFormModelForEditAsync(id);
 

@@ -43,7 +43,7 @@ public class ErrorPage : BasePage
 
     public async Task NavigateToAdminPageWithoutPermissionAsync()
     {
-        await Page.GotoAsync($"{TestConfiguration.Instance.BaseUrl}/Admin/Users");
+        await Page.GotoAsync($"{TestConfiguration.Instance.BaseUrl}/Admin/Home/Check");
         await WaitForPageLoadAsync();
     }
 

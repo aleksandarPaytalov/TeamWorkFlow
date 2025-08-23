@@ -115,7 +115,7 @@ namespace TeamWorkFlow.Controllers
 
 			if (!await _machineService.MachineExistByIdAsync(id))
 		    {
-			    return BadRequest();
+			    return NotFound();
 		    }
 
 		    if (!ModelState.IsValid)

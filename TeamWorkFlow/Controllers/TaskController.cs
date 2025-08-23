@@ -183,7 +183,7 @@ namespace TeamWorkFlow.Controllers
 
 			if (!await _taskService.TaskExistByIdAsync(id))
 	        {
-		        return BadRequest();
+		        return NotFound();
 	        }
 
 	        var taskModel = await _taskService.GetTaskDetailsByIdAsync(id);
@@ -206,7 +206,7 @@ namespace TeamWorkFlow.Controllers
 
 			if (!await _taskService.TaskExistByIdAsync(id))
 	        {
-		        return BadRequest();
+		        return NotFound();
 	        }
 
 	        var taskModel = await _taskService.GetTaskForEditByIdAsync(id);
@@ -225,7 +225,7 @@ namespace TeamWorkFlow.Controllers
         {
 	        if (!await _taskService.TaskExistByIdAsync(id))
 	        {
-		        return BadRequest();
+		        return NotFound();
 	        }
 
 	        DateTime? parsedEndDate = null;
@@ -329,7 +329,7 @@ namespace TeamWorkFlow.Controllers
 
 			if (!await _taskService.TaskExistByIdAsync(id))
 			{
-				return BadRequest();
+				return NotFound();
 			}
 
 			var model = await _taskService.GetTaskForDeleteByIdAsync(id);
@@ -353,7 +353,7 @@ namespace TeamWorkFlow.Controllers
 
 	        if (!await _taskService.TaskExistByIdAsync(id))
 	        {
-		        return BadRequest();
+		        return NotFound();
 	        }
 
             if (!ModelState.IsValid)

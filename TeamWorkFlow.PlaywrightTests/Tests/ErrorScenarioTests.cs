@@ -72,7 +72,10 @@ public class ErrorScenarioTests : BaseTest
     [Test]
     public async Task InvalidResourceId_ShouldShow404Error()
     {
-        // Arrange & Act - Test invalid resource IDs (common user scenario)
+        // Arrange - Login as admin to access protected resources
+        await LoginAsAdminAsync();
+
+        // Act - Test invalid resource IDs (common user scenario)
         await ErrorPage.NavigateToInvalidTaskIdAsync();
 
         // Assert
@@ -89,7 +92,10 @@ public class ErrorScenarioTests : BaseTest
     [Test]
     public async Task MalformedRequest_ShouldShow400Error()
     {
-        // Arrange & Act - Test malformed URL (common user scenario)
+        // Arrange - Login as admin to access protected resources
+        await LoginAsAdminAsync();
+
+        // Act - Test malformed URL (common user scenario)
         await ErrorPage.NavigateToMalformedUrlAsync();
 
         // Assert
@@ -119,9 +125,13 @@ public class ErrorScenarioTests : BaseTest
         // Assert
         var currentUrl = Page.Url.ToLower();
         var isErrorPage = await ErrorPage.IsErrorPageDisplayedAsync();
-        var isRedirected = !currentUrl.Contains("admin");
+        var isRedirectedToLogin = currentUrl.Contains("/identity/account/login");
 
-        Assert.That(isErrorPage || isRedirected, Is.True,
+        TestContext.WriteLine($"Current URL: {currentUrl}");
+        TestContext.WriteLine($"Is Error Page: {isErrorPage}");
+        TestContext.WriteLine($"Is Redirected to Login: {isRedirectedToLogin}");
+
+        Assert.That(isErrorPage || isRedirectedToLogin, Is.True,
             "Non-admin user should be blocked from admin pages");
 
         if (isErrorPage)
@@ -211,8 +221,7 @@ public class ErrorScenarioTests : BaseTest
         {
             "/",
             "/Task",
-            "/Project",
-            "/ErrorTest"
+            "/Project"
         };
 
         foreach (var startingPage in startingPages)

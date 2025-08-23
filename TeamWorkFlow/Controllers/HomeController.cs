@@ -30,6 +30,13 @@ namespace TeamWorkFlow.Controllers
 		}
 
 		[AllowAnonymous]
+		[Route("health")]
+		public IActionResult Health()
+		{
+			return Ok(new { status = "healthy", timestamp = DateTime.UtcNow });
+		}
+
+		[AllowAnonymous]
 		[Route("Home/Error/{statusCode}")]
 		public IActionResult Error(int? statusCode)
 		{
@@ -68,7 +75,7 @@ namespace TeamWorkFlow.Controllers
 					case 408:
 						ViewBag.ErrorCode = "408";
 						ViewBag.ErrorTitle = "Request Timeout";
-						ViewBag.ErrorMessage = "The server timed out waiting for the request.";
+						ViewBag.ErrorMessage = "The request timeout has been exceeded.";
 						ViewBag.ErrorDescription = "Please try again. If the problem persists, contact support.";
 						return View("Error408");
 

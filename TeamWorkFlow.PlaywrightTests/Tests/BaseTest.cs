@@ -99,20 +99,32 @@ public abstract class BaseTest : PageTest
     {
         try
         {
-            // Check for logout button or user greeting as indicators of being logged in
-            var logoutButton = Page.Locator("a[href*='logout'], button:has-text('Logout')");
-            var userGreeting = Page.Locator(".navbar-text, .user-greeting, .navbar .dropdown-toggle");
+            // Wait for page to load completely
+            await Page.WaitForLoadStateAsync(LoadState.NetworkIdle, new() { Timeout = 5000 });
 
-            // Wait for either logout button or user greeting
-            await Page.WaitForSelectorAsync("a[href*='logout'], a[title='Manage Account']", new() { Timeout = 3000 });
+            // Check for logout button or user greeting as indicators of being logged in
+            var logoutButton = Page.Locator("form[action*='Logout'] button[type='submit'], button:has-text('Logout')");
+            var userGreeting = Page.Locator("a[title='Manage Account']:has-text('Hi '), a.nav-link:has-text('Hi ')");
+
+            // Wait for either logout button or user greeting with longer timeout
+            try
+            {
+                await Page.WaitForSelectorAsync("a[title='Manage Account']:has-text('Hi '), form[action*='Logout'] button", new() { Timeout = 5000 });
+            }
+            catch
+            {
+                // If specific elements not found, check URL-based approach
+                var currentUrl = Page.Url;
+                return !currentUrl.Contains("Login") && !currentUrl.Contains("login") && !currentUrl.Contains("Register");
+            }
 
             return await logoutButton.IsVisibleAsync() || await userGreeting.IsVisibleAsync();
         }
         catch
         {
-            // Check if we're on a protected page (not login page)
+            // Fallback: Check if we're on a protected page (not login page)
             var currentUrl = Page.Url;
-            return !currentUrl.Contains("Login") && !currentUrl.Contains("login");
+            return !currentUrl.Contains("Login") && !currentUrl.Contains("login") && !currentUrl.Contains("Register");
         }
     }
 

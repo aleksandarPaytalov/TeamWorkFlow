@@ -179,7 +179,7 @@ namespace TeamWorkFlow.Controllers
 
 			if (await _operatorService.OperatorExistByIdAsync(id) == false)
             {
-                return BadRequest();
+                return NotFound();
             }
 
 	        if (!ModelState.IsValid)

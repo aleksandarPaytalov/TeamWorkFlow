@@ -47,9 +47,9 @@ public class TaskManagementTests : BaseTest
         await LoginPage.NavigateAsync();
         Assert.That(await LoginPage.IsOnLoginPageAsync(), Is.True, "Should be on login page");
 
-        // Act - Attempt login with fake admin credentials
-        var fakeAdminEmail = Config.AdminUser.Email; // This is "fake.admin@test.local"
-        var fakeAdminPassword = Config.AdminUser.Password; // This is "FakeAdminPass123!"
+        // Act - Attempt login with truly fake credentials that don't exist in database
+        var fakeAdminEmail = "nonexistent.admin@fake.domain"; // Truly fake email
+        var fakeAdminPassword = "FakePassword123!"; // Fake password
 
 
         TestContext.WriteLine($"🔐 Attempting login with fake admin: {fakeAdminEmail}");
@@ -76,9 +76,9 @@ public class TaskManagementTests : BaseTest
         await LoginPage.NavigateAsync();
         Assert.That(await LoginPage.IsOnLoginPageAsync(), Is.True, "Should be on login page");
 
-        // Act - Attempt login with fake operator credentials
-        var fakeOperatorEmail = Config.OperatorUser.Email; // This is "fake.operator@test.local"
-        var fakeOperatorPassword = Config.OperatorUser.Password; // This is "FakeOperatorPass456!"
+        // Act - Attempt login with truly fake credentials that don't exist in database
+        var fakeOperatorEmail = "nonexistent.operator@fake.domain"; // Truly fake email
+        var fakeOperatorPassword = "FakePassword456!"; // Fake password
 
         TestContext.WriteLine($"🔐 Attempting login with fake operator: {fakeOperatorEmail}");
         await LoginPage.LoginAsync(fakeOperatorEmail, fakeOperatorPassword);
