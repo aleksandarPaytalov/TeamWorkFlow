@@ -46,6 +46,8 @@ namespace TeamWorkFlow
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseMigrationsEndPoint();
+				// Enable custom error pages in development for testing
+				app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 			}
 			else
 			{

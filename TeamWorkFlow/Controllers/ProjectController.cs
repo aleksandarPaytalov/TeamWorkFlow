@@ -164,7 +164,7 @@ namespace TeamWorkFlow.Controllers
 
 			if (!await _projectService.ProjectExistByIdAsync(id))
 		    {
-			    return BadRequest();
+			    return NotFound();
 		    }
 
 		    if (!ModelState.IsValid)

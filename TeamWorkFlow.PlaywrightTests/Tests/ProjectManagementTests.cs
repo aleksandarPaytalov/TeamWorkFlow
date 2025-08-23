@@ -3,6 +3,7 @@ using TeamWorkFlow.PlaywrightTests.PageObjects;
 namespace TeamWorkFlow.PlaywrightTests.Tests;
 
 [TestFixture]
+[Parallelizable(ParallelScope.Self)]
 public class ProjectManagementTests : BaseTest
 {
     [SetUp]

@@ -1,9 +1,9 @@
-﻿@{
+@{
     Layout = "~/Views/Shared/_ErrorLayout.cshtml";
 }
 
 <div class="error-icon">
-    <i class="fas fa-lock"></i>
+    <i class="fas fa-exclamation-circle"></i>
 </div>
 
 <div class="error-code">@ViewBag.ErrorCode</div>
@@ -12,13 +12,13 @@
 <p class="error-description">@ViewBag.ErrorDescription</p>
 
 <div class="error-actions">
-    <a asp-area="Identity" asp-page="/Account/Login" class="btn-secondary-custom">
-        <i class="fas fa-sign-in-alt"></i>
-        Login
+    <a href="javascript:history.back()" class="btn-secondary-custom">
+        <i class="fas fa-arrow-left"></i>
+        Go Back
     </a>
-    <a asp-controller="Home" asp-action="Index" class="btn-primary-custom">
+    <a asp-controller="Task" asp-action="All" class="btn-primary-custom">
         <i class="fas fa-home"></i>
-        Go to Home
+        Go to Dashboard
     </a>
 </div>
 
