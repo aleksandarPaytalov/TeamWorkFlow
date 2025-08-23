@@ -64,6 +64,7 @@ jobs:
       run: |
         dotnet run --project TeamWorkFlow/TeamWorkFlow.csproj --urls "http://localhost:7015" &
         echo "Waiting for app to start..."
+
         sleep 15
         curl -f http://localhost:7015 || (echo "App failed to start" && exit 1)
       env:
@@ -71,6 +72,7 @@ jobs:
 
     - name: Run Playwright Integration Tests (Parallel)
       run: |
+
         echo "🧪 Running test shard ${{ matrix.shard }} of 5"
 
         # Better load distribution with 8 shards - each gets ~10-12 tests
@@ -107,6 +109,7 @@ jobs:
           --logger "console;verbosity=normal" \
           --settings TeamWorkFlow.PlaywrightTests/runsettings.xml \
           --filter "$FILTER"
+
       env:
         USE_IN_MEMORY_DATABASE: true
         CI: true
