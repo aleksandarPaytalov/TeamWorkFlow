@@ -3,7 +3,7 @@ using Microsoft.Playwright;
 namespace TeamWorkFlow.PlaywrightTests.Tests;
 
 [TestFixture]
-[Parallelizable(ParallelScope.All)]
+[Parallelizable(ParallelScope.Self)]
 public class ErrorScenarioTests : BaseTest
 {
     [SetUp]

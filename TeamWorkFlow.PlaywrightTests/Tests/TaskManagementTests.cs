@@ -3,7 +3,7 @@ using TeamWorkFlow.PlaywrightTests.PageObjects;
 namespace TeamWorkFlow.PlaywrightTests.Tests;
 
 [TestFixture]
-[Parallelizable(ParallelScope.All)]
+[Parallelizable(ParallelScope.Self)]
 public class TaskManagementTests : BaseTest
 {
     [SetUp]
