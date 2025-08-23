@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 namespace TeamWorkFlow.PlaywrightTests.Tests;
 
 [TestFixture]
+[Parallelizable(ParallelScope.All)]
 public class AuthenticationUITestsSimple : BaseTest
 {
     /// <summary>

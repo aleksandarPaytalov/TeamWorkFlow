@@ -7,6 +7,7 @@ namespace TeamWorkFlow.PlaywrightTests.Tests;
 /// Uses fake credentials for security compliance - no real user data exposed
 /// </summary>
 [TestFixture]
+[Parallelizable(ParallelScope.All)]
 public class NavigationAndUITests : BaseTest
 {
     /// <summary>

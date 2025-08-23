@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!-- Configuration for parallel test execution -->
+  <RunConfiguration>
+    <!-- Maximum number of CPU cores to use for parallel execution -->
+    <MaxCpuCount>0</MaxCpuCount>
+    <!-- Disable app domains for better performance -->
+    <DisableAppDomain>true</DisableAppDomain>
+    <!-- Disable parallelization at assembly level -->
+    <DisableParallelization>false</DisableParallelization>
+  </RunConfiguration>
+
+  <!-- NUnit specific settings -->
+  <NUnit>
+    <!-- Number of test workers for parallel execution -->
+    <NumberOfTestWorkers>4</NumberOfTestWorkers>
+    <!-- Timeout for individual tests (in milliseconds) -->
+    <DefaultTimeout>120000</DefaultTimeout>
+    <!-- Enable parallel execution at test level -->
+    <ParallelizeTestCollections>true</ParallelizeTestCollections>
+    <!-- Randomize test order -->
+    <RandomSeed>1234</RandomSeed>
+    <!-- Work directory for test execution -->
+    <WorkDirectory>.</WorkDirectory>
+    <!-- Stop on first error -->
+    <StopOnError>false</StopOnError>
+  </NUnit>
+
+  <!-- Test platform settings -->
+  <TestPlatform>
+    <!-- Collect code coverage -->
+    <CollectCodeCoverage>false</CollectCodeCoverage>
+    <!-- Disable telemetry -->
+    <DisableTelemetry>true</DisableTelemetry>
+  </TestPlatform>
+
+  <!-- Playwright specific settings for CI -->
+  <TestRunParameters>
+    <Parameter name="CI" value="true" />
+    <Parameter name="PLAYWRIGHT_WORKERS" value="4" />
+    <Parameter name="PLAYWRIGHT_TIMEOUT" value="30000" />
+  </TestRunParameters>
+</RunSettings>

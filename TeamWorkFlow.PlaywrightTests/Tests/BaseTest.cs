@@ -3,6 +3,7 @@ using TeamWorkFlow.PlaywrightTests.PageObjects;
 namespace TeamWorkFlow.PlaywrightTests.Tests;
 
 [TestFixture]
+[Parallelizable(ParallelScope.Children)]
 public abstract class BaseTest : PageTest
 {
     protected TestConfiguration Config { get; private set; } = null!;
