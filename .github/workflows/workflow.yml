@@ -35,6 +35,10 @@ jobs:
     name: "Integration Tests (Playwright)"
     runs-on: ubuntu-latest
     needs: unit-tests
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4, 5] # adjust based on how many splits you want
+      fail-fast: false
 
     steps:
     - name: Checkout repository
@@ -60,8 +64,7 @@ jobs:
       run: |
         dotnet run --project TeamWorkFlow/TeamWorkFlow.csproj --urls "http://localhost:7015" &
         echo "Waiting for app to start..."
-        sleep 15  # Give more time for app startup
-        # Verify app is running
+        sleep 15
         curl -f http://localhost:7015 || (echo "App failed to start" && exit 1)
       env:
         USE_IN_MEMORY_DATABASE: true
@@ -70,7 +73,9 @@ jobs:
       run: |
         dotnet test TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj \
           --logger "console;verbosity=normal" \
-          --settings TeamWorkFlow.PlaywrightTests/runsettings.xml
+          --settings TeamWorkFlow.PlaywrightTests/runsettings.xml \
+          --filter "FullyQualifiedName~TestNamespace" \
+          -- TestRunParameters.Parameter(name=\"Shard\", value=\"${{ matrix.shard }}\")
       env:
         USE_IN_MEMORY_DATABASE: true
         CI: true
