@@ -37,7 +37,7 @@ jobs:
     needs: unit-tests
     strategy:
       matrix:
-        shard: [1, 2, 3, 4, 5] # adjust based on how many splits you want
+        shard: [1, 2, 3, 4, 5, 6, 7, 8] # More shards for better load distribution
       fail-fast: false
 
     steps:
@@ -73,22 +73,31 @@ jobs:
       run: |
         echo "🧪 Running test shard ${{ matrix.shard }} of 5"
 
-        # Use simple class-based filtering for reliable test distribution
+        # Better load distribution with 8 shards - each gets ~10-12 tests
         case ${{ matrix.shard }} in
           1)
-            FILTER="FullyQualifiedName~ErrorPageTests|FullyQualifiedName~ErrorScenarioTests"
+            FILTER="FullyQualifiedName~ErrorPageTests.Error400|FullyQualifiedName~ErrorPageTests.Error401|FullyQualifiedName~ErrorPageTests.Error403"
             ;;
           2)
-            FILTER="FullyQualifiedName~AuthenticationUITestsSimple"
+            FILTER="FullyQualifiedName~ErrorPageTests.Error404|FullyQualifiedName~ErrorPageTests.Error408|FullyQualifiedName~ErrorPageTests.Error429"
             ;;
           3)
-            FILTER="FullyQualifiedName~TaskManagementTests"
+            FILTER="FullyQualifiedName~ErrorPageTests.Error500|FullyQualifiedName~ErrorPageTests.Custom|FullyQualifiedName~ErrorPageTests.Direct"
             ;;
           4)
-            FILTER="FullyQualifiedName~ProjectManagementTests"
+            FILTER="FullyQualifiedName~ErrorScenarioTests"
             ;;
           5)
-            FILTER="FullyQualifiedName~NavigationAndUITests"
+            FILTER="FullyQualifiedName~AuthenticationUITestsSimple|FullyQualifiedName~NavigationAndUITests.Application|FullyQualifiedName~NavigationAndUITests.Dashboard"
+            ;;
+          6)
+            FILTER="FullyQualifiedName~TaskManagementTests"
+            ;;
+          7)
+            FILTER="FullyQualifiedName~ProjectManagementTests.Create|FullyQualifiedName~ProjectManagementTests.Edit|FullyQualifiedName~ProjectManagementTests.Delete"
+            ;;
+          8)
+            FILTER="FullyQualifiedName~ProjectManagementTests.Search|FullyQualifiedName~ProjectManagementTests.List|FullyQualifiedName~NavigationAndUITests.Navigation|FullyQualifiedName~NavigationAndUITests.Responsive"
             ;;
         esac
 
