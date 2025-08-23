@@ -75,9 +75,7 @@ jobs:
       run: |
         dotnet test TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj \
           --logger "console;verbosity=normal" \
-          --settings TeamWorkFlow.PlaywrightTests/runsettings.xml \
-          --parallel \
-          --maxcpucount:0
+          --settings TeamWorkFlow.PlaywrightTests/runsettings.xml
       env:
         USE_IN_MEMORY_DATABASE: true
         CI: true
