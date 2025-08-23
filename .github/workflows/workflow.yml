@@ -71,11 +71,34 @@ jobs:
 
     - name: Run Playwright Integration Tests (Parallel)
       run: |
+        echo "🧪 Running test shard ${{ matrix.shard }} of 5"
+
+        # Use simple class-based filtering for reliable test distribution
+        case ${{ matrix.shard }} in
+          1)
+            FILTER="FullyQualifiedName~ErrorPageTests|FullyQualifiedName~ErrorScenarioTests"
+            ;;
+          2)
+            FILTER="FullyQualifiedName~AuthenticationUITestsSimple"
+            ;;
+          3)
+            FILTER="FullyQualifiedName~TaskManagementTests"
+            ;;
+          4)
+            FILTER="FullyQualifiedName~ProjectManagementTests"
+            ;;
+          5)
+            FILTER="FullyQualifiedName~NavigationAndUITests"
+            ;;
+        esac
+
+        echo "📋 Running tests with filter: $FILTER"
+
         dotnet test TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj \
           --logger "console;verbosity=normal" \
-          --settings TeamWorkFlow.PlaywrightTests/runsettings.xml
+          --settings TeamWorkFlow.PlaywrightTests/runsettings.xml \
+          --filter "$FILTER"
       env:
         USE_IN_MEMORY_DATABASE: true
         CI: true
         APP_BASE_URL: http://localhost:7015
-        PLAYWRIGHT_SHARD: ${{ matrix.shard }}/5
