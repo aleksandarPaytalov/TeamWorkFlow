@@ -73,10 +73,9 @@ jobs:
       run: |
         dotnet test TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj \
           --logger "console;verbosity=normal" \
-          --settings TeamWorkFlow.PlaywrightTests/runsettings.xml \
-          --filter "FullyQualifiedName~TestNamespace" \
-          -- TestRunParameters.Parameter(name=\"Shard\", value=\"${{ matrix.shard }}\")
+          --settings TeamWorkFlow.PlaywrightTests/runsettings.xml
       env:
         USE_IN_MEMORY_DATABASE: true
         CI: true
         APP_BASE_URL: http://localhost:7015
+        PLAYWRIGHT_SHARD: ${{ matrix.shard }}/5
