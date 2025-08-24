@@ -783,5 +783,31 @@ namespace TeamWorkFlow.Core.Services
 
             return (true, "Estimated time updated successfully");
         }
+
+        // Task status management
+        public async Task<(bool Success, string Message)> ChangeTaskStatusAsync(int taskId, int statusId)
+        {
+            var task = await _repository.GetByIdAsync<Infrastructure.Data.Models.Task>(taskId);
+            if (task == null)
+            {
+                return (false, "Task not found");
+            }
+
+            var statusExists = await TaskStatusExistsAsync(statusId);
+            if (!statusExists)
+            {
+                return (false, "Invalid status");
+            }
+
+            task.TaskStatusId = statusId;
+            await _repository.SaveChangesAsync();
+
+            var statusName = await _repository.AllReadOnly<TaskStatus>()
+                .Where(s => s.Id == statusId)
+                .Select(s => s.Name)
+                .FirstOrDefaultAsync();
+
+            return (true, $"Task status changed to {statusName}");
+        }
     }
 }

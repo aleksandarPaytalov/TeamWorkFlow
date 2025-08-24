@@ -406,30 +406,46 @@
     font-family: 'SFMono-Regular', Consolas, monospace;
 }
 
-.task-actions {
-    display: flex;
-    gap: 4px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
+/* Sprint Task Actions - Single Status Change Button */
+.sprint-task-actions {
+    display: flex !important;
+    justify-content: flex-end;
+    align-items: center;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
-.task-card:hover .task-actions {
-    opacity: 1;
-}
-
-.btn-icon {
-    background: none;
+.sprint-status-btn {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #0969da 0%, #0550ae 100%);
+    color: white;
     border: none;
-    padding: 4px;
-    border-radius: 4px;
-    color: #656d76;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
+    opacity: 1 !important;
+    visibility: visible !important;
+    box-shadow: 0 1px 3px rgba(9, 105, 218, 0.2);
 }
 
-.btn-icon:hover {
-    background: #f6f8fa;
-    color: #24292e;
+.sprint-status-btn:hover {
+    background: linear-gradient(135deg, #0550ae 0%, #033d8b 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(9, 105, 218, 0.3);
+}
+
+.sprint-status-btn i {
+    font-size: 0.75rem;
+}
+
+.sprint-status-btn span {
+    font-size: 0.75rem;
+    font-weight: 500;
 }
 
 .add-task-btn:hover {
@@ -513,6 +529,19 @@
 
 .task-time-editor input {
     width: 80px;
+}
+
+.task-status-editor {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e1e4e8;
+}
+
+.task-status-editor select {
+    width: 120px;
 }
 
 /* Empty State */
@@ -602,9 +631,16 @@
         gap: 8px;
     }
     
-    .task-actions {
-        opacity: 1;
+    .sprint-task-actions {
+        opacity: 1 !important;
+        visibility: visible !important;
         align-self: flex-end;
+    }
+
+    .sprint-status-btn {
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: inline-flex !important;
     }
 }
 

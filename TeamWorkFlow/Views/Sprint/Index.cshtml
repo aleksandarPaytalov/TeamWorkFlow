@@ -158,12 +158,10 @@
                                 <span class="task-name">@task.Name</span>
                                 <span class="task-project">@task.ProjectNumber</span>
                             </div>
-                            <div class="task-actions">
-                                <button class="btn-icon edit-time-btn" title="Edit Time">
-                                    <i class="fas fa-clock"></i>
-                                </button>
-                                <button class="btn-icon remove-task-btn" title="Remove from Sprint">
-                                    <i class="fas fa-times"></i>
+                            <div class="sprint-task-actions">
+                                <button class="sprint-status-btn" title="Change Status" data-task-id="@task.Id">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    <span>Change Status</span>
                                 </button>
                             </div>
                         </div>
@@ -210,10 +208,22 @@
                         
                         <!-- Editable estimated time -->
                         <div class="task-time-editor" style="display: none;">
-                            <input type="number" class="form-control form-control-sm" 
+                            <input type="number" class="form-control form-control-sm"
                                    value="@task.EstimatedTime" min="1" max="1000" />
                             <button class="btn btn-sm btn-success save-time-btn">Save</button>
                             <button class="btn btn-sm btn-secondary cancel-time-btn">Cancel</button>
+                        </div>
+
+                        <!-- Status change selector -->
+                        <div class="task-status-editor" style="display: none;">
+                            <select class="form-control form-control-sm status-select">
+                                <option value="1" selected="@(task.TaskStatus.ToLower() == "open")">Open</option>
+                                <option value="2" selected="@(task.TaskStatus.ToLower() == "in progress")">In Progress</option>
+                                <option value="3" selected="@(task.TaskStatus.ToLower() == "finished")">Finished</option>
+                                <option value="4" selected="@(task.TaskStatus.ToLower() == "canceled")">Canceled</option>
+                            </select>
+                            <button class="btn btn-sm btn-success save-status-btn">Save</button>
+                            <button class="btn btn-sm btn-secondary cancel-status-btn">Cancel</button>
                         </div>
                     </div>
                 }

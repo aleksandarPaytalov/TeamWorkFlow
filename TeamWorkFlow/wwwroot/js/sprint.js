@@ -87,18 +87,22 @@ function initializeEventHandlers() {
             addTaskToSprint(taskId, newOrder);
         }
         
-        if (e.target.closest('.remove-task-btn')) {
+        // Handle sprint status button click
+        if (e.target.closest('.sprint-status-btn')) {
             const taskCard = e.target.closest('.task-card');
-            const taskId = parseInt(taskCard.dataset.taskId);
-            removeTaskFromSprint(taskId);
+            toggleStatusEditor(taskCard);
         }
-        
-        if (e.target.closest('.edit-time-btn')) {
+
+        if (e.target.closest('.save-status-btn')) {
+            saveTaskStatus(e.target.closest('.task-card'));
+        }
+
+        if (e.target.closest('.cancel-time-btn')) {
             toggleTimeEditor(e.target.closest('.task-card'));
         }
-        
-        if (e.target.closest('.save-time-btn')) {
-            saveEstimatedTime(e.target.closest('.task-card'));
+
+        if (e.target.closest('.cancel-status-btn')) {
+            toggleStatusEditor(e.target.closest('.task-card'));
         }
         
         if (e.target.closest('.cancel-time-btn')) {
@@ -416,5 +420,109 @@ function showToast(type, message) {
         toastr[type](message);
     } else {
         alert(message);
+    }
+}
+
+// Status Editor Functions
+function toggleStatusEditor(taskCard) {
+    const editor = taskCard.querySelector('.task-status-editor');
+    const isVisible = editor.style.display !== 'none';
+
+    if (isVisible) {
+        editor.style.display = 'none';
+    } else {
+        editor.style.display = 'flex';
+        const select = editor.querySelector('select');
+        select.focus();
+    }
+}
+
+async function saveTaskStatus(taskCard) {
+    const taskId = parseInt(taskCard.dataset.taskId);
+    const select = taskCard.querySelector('.task-status-editor select');
+    const statusId = parseInt(select.value);
+
+    if (!statusId) {
+        showToast('error', 'Please select a status');
+        return;
+    }
+
+    showLoading();
+
+    try {
+        const formData = new FormData();
+        formData.append('taskId', taskId);
+        formData.append('statusId', statusId);
+        formData.append('__RequestVerificationToken', getAntiForgeryToken());
+
+        const response = await fetch('/Task/ChangeTaskStatus', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showToast('success', result.message);
+
+            // Update the task status display
+            const statusElement = taskCard.querySelector('.task-status');
+            const selectedOption = select.options[select.selectedIndex];
+            statusElement.textContent = selectedOption.text.toLowerCase();
+
+            // Update status colors based on the new status
+            updateTaskStatusColors(statusElement, selectedOption.text.toLowerCase());
+
+            // Update timeline status if the task is finished
+            const timelineStatus = taskCard.querySelector('.timeline-status');
+            if (timelineStatus && selectedOption.text.toLowerCase() === 'finished') {
+                timelineStatus.textContent = 'Done';
+            }
+
+            // Hide the editor
+            const editor = taskCard.querySelector('.task-status-editor');
+            editor.style.display = 'none';
+
+            // Refresh the page to update completion percentage
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+
+        } else {
+            showToast('error', result.message);
+        }
+    } catch (error) {
+        console.error('Error updating task status:', error);
+        showToast('error', 'Failed to update task status');
+    } finally {
+        hideLoading();
+    }
+}
+
+function updateTaskStatusColors(statusElement, status) {
+    // Remove existing status classes
+    statusElement.className = statusElement.className.replace(/status-\w+/g, '');
+
+    // Add appropriate status class and color
+    switch (status) {
+        case 'open':
+            statusElement.style.backgroundColor = '#dbeafe';
+            statusElement.style.color = '#1e40af';
+            break;
+        case 'in progress':
+            statusElement.style.backgroundColor = '#fef3c7';
+            statusElement.style.color = '#d97706';
+            break;
+        case 'finished':
+            statusElement.style.backgroundColor = '#dcfce7';
+            statusElement.style.color = '#16a34a';
+            break;
+        case 'canceled':
+            statusElement.style.backgroundColor = '#fee2e2';
+            statusElement.style.color = '#dc2626';
+            break;
+        default:
+            statusElement.style.backgroundColor = '#f3f4f6';
+            statusElement.style.color = '#374151';
     }
 }

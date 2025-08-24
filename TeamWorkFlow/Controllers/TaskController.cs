@@ -559,5 +559,19 @@ namespace TeamWorkFlow.Controllers
 	        var result = await _taskService.SetEstimatedTimeAsync(taskId, estimatedTime);
 	        return Json(new { success = result.Success, message = result.Message });
         }
+
+        // Task status management
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeTaskStatus(int taskId, int statusId)
+        {
+	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        {
+		        return Json(new { success = false, message = "Unauthorized" });
+	        }
+
+	        var result = await _taskService.ChangeTaskStatusAsync(taskId, statusId);
+	        return Json(new { success = result.Success, message = result.Message });
+        }
 	}
 }
