@@ -66,7 +66,9 @@ namespace TeamWorkFlow.Core.Models.Sprint
         public int OnHoldTasks { get; set; }
         
         public int TotalEstimatedHours { get; set; }
-        
+
+        public int CompletedTasksHours { get; set; }
+
         public decimal TotalActualHours { get; set; }
         
         public int HighPriorityTasks { get; set; }
@@ -75,8 +77,8 @@ namespace TeamWorkFlow.Core.Models.Sprint
         
         public int OverdueTasks { get; set; }
         
-        public double CompletionPercentage => TotalTasksInSprint > 0 ? 
-            (double)CompletedTasks / TotalTasksInSprint * 100 : 0;
+        public double CompletionPercentage => TotalEstimatedHours > 0 ?
+            (double)CompletedTasksHours / TotalEstimatedHours * 100 : 0;
         
         public double ProgressPercentage => TotalEstimatedHours > 0 ? 
             (double)TotalActualHours / TotalEstimatedHours * 100 : 0;
