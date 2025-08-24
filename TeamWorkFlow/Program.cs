@@ -35,9 +35,10 @@ namespace TeamWorkFlow
 					// For in-memory database, ensure it's created and seeded
 					context.Database.EnsureCreated();
 				}
-				else if (app.Environment.IsDevelopment())
+				else if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 				{
-					// For development with SQL Server, apply migrations
+					// For development and production with SQL Server, apply migrations
+					// This ensures Docker containers get the seeded data
 					context.Database.Migrate();
 				}
 			}

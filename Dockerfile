@@ -30,8 +30,22 @@ RUN dotnet publish "TeamWorkFlow.csproj" -c Release -o /app/publish /p:UseAppHos
 FROM base AS final
 WORKDIR /app
 
+# Install SQL Server tools for health checks
+USER root
+RUN apt-get update && apt-get install -y curl gnupg2 \
+    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy published application
 COPY --from=publish /app/publish .
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Create a non-root user for security
 RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app
@@ -45,5 +59,5 @@ ENV ASPNETCORE_URLS=http://+:80
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:80/health || exit 1
 
-# Start the application
-ENTRYPOINT ["dotnet", "TeamWorkFlow.dll"]
+# Start the application with entrypoint script
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

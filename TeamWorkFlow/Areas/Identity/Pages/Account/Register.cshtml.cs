@@ -12,6 +12,7 @@ using System.Security.Claims;
 using System.Text;
 using TeamWorkFlow.Extensions;
 using static TeamWorkFlow.Infrastructure.Constants.CustomClaimsConstants;
+using static TeamWorkFlow.Core.Constants.UsersConstants;
 
 namespace TeamWorkFlow.Areas.Identity.Pages.Account
 {
@@ -23,13 +24,15 @@ namespace TeamWorkFlow.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -37,6 +40,7 @@ namespace TeamWorkFlow.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _roleManager = roleManager;
         }
 
         /// <summary>
@@ -111,6 +115,14 @@ namespace TeamWorkFlow.Areas.Identity.Pages.Account
                     _logger.LogInformation("User created a new account with password.");
 
                     await _userManager.AddClaimAsync(user, new Claim(UserName, $"{user.Email}"));
+
+                    // Automatically assign Operator role to new users
+                    if (!await _roleManager.RoleExistsAsync(OperatorRole))
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole(OperatorRole));
+                    }
+                    await _userManager.AddToRoleAsync(user, OperatorRole);
+                    _logger.LogInformation($"User {user.Email} assigned to {OperatorRole} role.");
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
