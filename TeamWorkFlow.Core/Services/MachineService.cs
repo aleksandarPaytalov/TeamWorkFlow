@@ -307,6 +307,13 @@ namespace TeamWorkFlow.Core.Services
 
 		public async Task DeleteMachineAsync(int machineId)
 		{
+			// Validate that machine can be deleted (not occupied by active tasks)
+			var validation = await ValidateMachineForDeletionAsync(machineId);
+			if (!validation.CanDelete)
+			{
+				throw new InvalidOperationException(validation.Reason);
+			}
+
 			var machine = await _repository.GetByIdAsync<Machine>(machineId);
 
 			if (machine != null)
@@ -332,15 +339,30 @@ namespace TeamWorkFlow.Core.Services
 		
 		public async Task<MachineDeleteServiceModel?> GetMachineForDeleteByIdAsync(int machineId)
 		{
-			return await _repository.AllReadOnly<Machine>()
+			var machine = await _repository.AllReadOnly<Machine>()
+				.Include(m => m.Tasks)
+					.ThenInclude(t => t.TaskStatus)
+				.Include(m => m.Tasks)
+					.ThenInclude(t => t.Project)
 				.Where(m => m.Id == machineId)
-				.Select(m => new MachineDeleteServiceModel()
-				{
-					Id = m.Id,
-					ImageUrl = m.ImageUrl,
-					Name = m.Name
-				})
 				.FirstOrDefaultAsync();
+
+			if (machine == null)
+			{
+				return null;
+			}
+
+			// Check if machine can be deleted
+			var validation = await ValidateMachineForDeletionAsync(machineId);
+
+			return new MachineDeleteServiceModel()
+			{
+				Id = machine.Id,
+				ImageUrl = machine.ImageUrl,
+				Name = machine.Name,
+				CanDelete = validation.CanDelete,
+				DeletionBlockReason = validation.CanDelete ? null : validation.Reason
+			};
 		}
 
 		public async Task<ICollection<Infrastructure.Data.Models.Task>> GetAllTaskByAssignedMachineId(int machineId)
@@ -389,6 +411,33 @@ namespace TeamWorkFlow.Core.Services
 			}
 
 			return (true, "Machine is available for assignment");
+		}
+
+		public async Task<(bool CanDelete, string Reason)> ValidateMachineForDeletionAsync(int machineId)
+		{
+			var machine = await _repository.AllReadOnly<Machine>()
+				.Include(m => m.Tasks)
+					.ThenInclude(t => t.TaskStatus)
+				.Include(m => m.Tasks)
+					.ThenInclude(t => t.Project)
+				.FirstOrDefaultAsync(m => m.Id == machineId);
+
+			if (machine == null)
+			{
+				return (false, "Machine not found");
+			}
+
+			// Check if machine is currently occupied by any active (non-finished) tasks
+			var activeTask = machine.Tasks
+				.Where(t => t.TaskStatus.Name.ToLower() != "finished")
+				.FirstOrDefault();
+
+			if (activeTask != null)
+			{
+				return (false, $"This machine is currently used for task '{activeTask.Name}' (Project: {activeTask.Project.ProjectNumber}) and cannot be deleted.");
+			}
+
+			return (true, "Machine can be deleted");
 		}
 	}
 }

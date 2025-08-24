@@ -3,6 +3,7 @@ using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Machine;
 using TeamWorkFlow.Extensions;
+using static TeamWorkFlow.Core.Constants.Messages;
 
 namespace TeamWorkFlow.Controllers
 {
@@ -170,7 +171,24 @@ namespace TeamWorkFlow.Controllers
 			    return BadRequest();
 		    }
 
-		    await _machineService.DeleteMachineAsync(id);
+		    // Validate that machine can be deleted (not occupied by active tasks)
+		    var validation = await _machineService.ValidateMachineForDeletionAsync(id);
+		    if (!validation.CanDelete)
+		    {
+			    TempData[UserMessageError] = validation.Reason;
+			    return RedirectToAction(nameof(All));
+		    }
+
+		    try
+		    {
+			    await _machineService.DeleteMachineAsync(id);
+			    TempData[UserMessageSuccess] = "Machine deleted successfully.";
+		    }
+		    catch (InvalidOperationException ex)
+		    {
+			    TempData[UserMessageError] = ex.Message;
+			    return RedirectToAction(nameof(All));
+		    }
 
 			return RedirectToAction(nameof(All));
 		}

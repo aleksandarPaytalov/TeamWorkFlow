@@ -23,5 +23,6 @@ namespace TeamWorkFlow.Core.Contracts
 		Task<(bool CanAssign, string Reason)> ValidateMachineAvailabilityAsync(int machineId, int? excludeTaskId = null);
 		Task<MachineDeleteServiceModel?> GetMachineForDeleteByIdAsync(int machineId);
 		Task<ICollection<TeamWorkFlow.Infrastructure.Data.Models.Task>> GetAllTaskByAssignedMachineId(int machineId);
+		Task<(bool CanDelete, string Reason)> ValidateMachineForDeletionAsync(int machineId);
 	}
 }
