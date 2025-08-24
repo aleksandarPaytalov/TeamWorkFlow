@@ -293,7 +293,7 @@ namespace TeamWorkFlow.Core.Services
                     Id = machine.Id,
                     Name = machine.Name,
                     IsActive = machine.IsCalibrated,
-                    AvailableHours = 168, // 24/7 operation
+                    AvailableHours = machine.Capacity * 5, // Weekly capacity = daily capacity * 5 working days
                     AssignedHours = sprintTasks
                         .Where(t => t.MachineId == machine.Id)
                         .Sum(t => t.EstimatedTime)
@@ -354,7 +354,7 @@ namespace TeamWorkFlow.Core.Services
                     Id = machine.Id,
                     Name = machine.Name,
                     IsActive = machine.IsCalibrated,
-                    WeeklyCapacity = 168, // 24/7 operation
+                    WeeklyCapacity = machine.Capacity * 5, // Weekly capacity = daily capacity * 5 working days
                     CurrentAssignedHours = machine.Tasks.Sum(t => t.EstimatedTime)
                 };
 

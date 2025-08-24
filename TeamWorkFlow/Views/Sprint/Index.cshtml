@@ -71,13 +71,55 @@
                     </div>
                 </div>
             </div>
-            
+
+            <!-- Individual Machine Utilization -->
+            @if (Model.Capacity.MachineCapacities.Any())
+            {
+                <div class="machine-utilization-section">
+                    <h4 class="machine-utilization-title">
+                        <i class="fas fa-cogs"></i>
+                        Machine Utilization Breakdown
+                    </h4>
+                    <div class="machine-utilization-grid">
+                        @foreach (var machine in Model.Capacity.MachineCapacities.OrderByDescending(m => m.UtilizationPercentage))
+                        {
+                            <div class="machine-utilization-card @(machine.IsOverloaded ? "overloaded" : "")">
+                                <div class="machine-utilization-header">
+                                    <div class="machine-name">
+                                        <i class="fas fa-cog"></i>
+                                        @machine.Name
+                                    </div>
+                                    <div class="machine-utilization-value @(machine.IsOverloaded ? "overloaded" : machine.UtilizationPercentage > 90 ? "high" : machine.UtilizationPercentage > 70 ? "medium" : "low")">
+                                        @machine.UtilizationPercentage.ToString("F1")%
+                                    </div>
+                                </div>
+                                <div class="machine-utilization-bar">
+                                    <div class="machine-utilization-fill @(machine.IsOverloaded ? "overloaded" : machine.UtilizationPercentage > 90 ? "high" : machine.UtilizationPercentage > 70 ? "medium" : "low")"
+                                         style="width: @Math.Min(100, machine.UtilizationPercentage)%"></div>
+                                </div>
+                                <div class="machine-utilization-details">
+                                    <span class="assigned-hours">@machine.AssignedHours hrs assigned</span>
+                                    <span class="available-hours">@machine.RemainingHours hrs remaining</span>
+                                </div>
+                                @if (machine.IsOverloaded)
+                                {
+                                    <div class="machine-overload-warning">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        Overloaded by @(machine.AssignedHours - machine.AvailableHours) hours
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
             @if (!Model.Capacity.CanCompleteAllTasks)
             {
                 <div class="capacity-warning">
                     <i class="fas fa-exclamation-triangle"></i>
                     <span>
-                        Warning: Sprint is over capacity! 
+                        Warning: Sprint is over capacity!
                         @if (Model.Capacity.OperatorHoursDeficit > 0)
                         {
                             <span>Need @Model.Capacity.OperatorHoursDeficit more operator hours.</span>
