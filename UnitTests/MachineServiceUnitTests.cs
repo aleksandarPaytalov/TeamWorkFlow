@@ -1071,9 +1071,19 @@ namespace UnitTests
 		public async Task ValidateMachineForDeletionAsync_WithOccupiedMachine_ReturnsFalse()
 		{
 			// Arrange
+			// Create a test user first
+			var testUser = new IdentityUser
+			{
+				Id = "test-user-id",
+				UserName = "testuser@test.com",
+				Email = "testuser@test.com",
+				EmailConfirmed = true
+			};
+			await _dbContext.Users.AddAsync(testUser);
+			await _dbContext.SaveChangesAsync();
+
 			var machine = new Machine
 			{
-				Id = 100,
 				Name = "Test Machine",
 				Capacity = 24,
 				CalibrationSchedule = DateTime.Now.AddDays(30),
@@ -1082,26 +1092,27 @@ namespace UnitTests
 				ImageUrl = "test-url"
 			};
 
+			await _dbContext.Machines.AddAsync(machine);
+			await _dbContext.SaveChangesAsync();
+
 			var task = new TeamWorkFlow.Infrastructure.Data.Models.Task
 			{
-				Id = 100,
 				Name = "Active Task",
 				Description = "Test task",
 				StartDate = DateTime.Now,
 				TaskStatusId = 2, // In Progress
 				PriorityId = 2,
-				CreatorId = "test-user",
+				CreatorId = testUser.Id,
 				EstimatedTime = 10,
-				MachineId = 100,
+				MachineId = machine.Id, // Use the auto-generated ID
 				ProjectId = 1
 			};
 
-			await _dbContext.Machines.AddAsync(machine);
 			await _dbContext.Tasks.AddAsync(task);
 			await _dbContext.SaveChangesAsync();
 
 			// Act
-			var result = await _machineService.ValidateMachineForDeletionAsync(100);
+			var result = await _machineService.ValidateMachineForDeletionAsync(machine.Id);
 
 			// Assert
 			Assert.That(result.CanDelete, Is.False);
@@ -1113,9 +1124,19 @@ namespace UnitTests
 		public async Task ValidateMachineForDeletionAsync_WithUnoccupiedMachine_ReturnsTrue()
 		{
 			// Arrange
+			// Create a test user first
+			var testUser = new IdentityUser
+			{
+				Id = "test-user-id-2",
+				UserName = "testuser2@test.com",
+				Email = "testuser2@test.com",
+				EmailConfirmed = true
+			};
+			await _dbContext.Users.AddAsync(testUser);
+			await _dbContext.SaveChangesAsync();
+
 			var machine = new Machine
 			{
-				Id = 101,
 				Name = "Available Machine",
 				Capacity = 24,
 				CalibrationSchedule = DateTime.Now.AddDays(30),
@@ -1124,26 +1145,27 @@ namespace UnitTests
 				ImageUrl = "test-url"
 			};
 
+			await _dbContext.Machines.AddAsync(machine);
+			await _dbContext.SaveChangesAsync();
+
 			var finishedTask = new TeamWorkFlow.Infrastructure.Data.Models.Task
 			{
-				Id = 101,
 				Name = "Finished Task",
 				Description = "Test task",
 				StartDate = DateTime.Now.AddDays(-10),
 				TaskStatusId = 3, // Finished
 				PriorityId = 2,
-				CreatorId = "test-user",
+				CreatorId = testUser.Id,
 				EstimatedTime = 10,
-				MachineId = 101,
+				MachineId = machine.Id, // Use the auto-generated ID
 				ProjectId = 1
 			};
 
-			await _dbContext.Machines.AddAsync(machine);
 			await _dbContext.Tasks.AddAsync(finishedTask);
 			await _dbContext.SaveChangesAsync();
 
 			// Act
-			var result = await _machineService.ValidateMachineForDeletionAsync(101);
+			var result = await _machineService.ValidateMachineForDeletionAsync(machine.Id);
 
 			// Assert
 			Assert.That(result.CanDelete, Is.True);
@@ -1156,7 +1178,6 @@ namespace UnitTests
 			// Arrange
 			var machine = new Machine
 			{
-				Id = 102,
 				Name = "Unused Machine",
 				Capacity = 24,
 				CalibrationSchedule = DateTime.Now.AddDays(30),
@@ -1169,7 +1190,7 @@ namespace UnitTests
 			await _dbContext.SaveChangesAsync();
 
 			// Act
-			var result = await _machineService.ValidateMachineForDeletionAsync(102);
+			var result = await _machineService.ValidateMachineForDeletionAsync(machine.Id);
 
 			// Assert
 			Assert.That(result.CanDelete, Is.True);

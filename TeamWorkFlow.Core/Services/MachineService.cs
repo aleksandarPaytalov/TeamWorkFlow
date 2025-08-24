@@ -309,6 +309,14 @@ namespace TeamWorkFlow.Core.Services
 		{
 			// Validate that machine can be deleted (not occupied by active tasks)
 			var validation = await ValidateMachineForDeletionAsync(machineId);
+
+			// If machine not found, do nothing (don't throw exception)
+			if (!validation.CanDelete && validation.Reason == "Machine not found")
+			{
+				return;
+			}
+
+			// If machine exists but can't be deleted due to active tasks, throw exception
 			if (!validation.CanDelete)
 			{
 				throw new InvalidOperationException(validation.Reason);
