@@ -20,5 +20,10 @@ namespace TeamWorkFlow.Extensions
             return user.IsInRole(OperatorRole);
         }
 
+        public static bool IsGuest(this ClaimsPrincipal user)
+        {
+            return user.IsInRole(GuestRole);
+        }
+
     }
 }

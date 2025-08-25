@@ -115,6 +115,31 @@ namespace TeamWorkFlow.Core.Contracts
         Task<int> GetPendingDemotionRequestCountAsync();
 
         /// <summary>
+        /// Checks if a user can be assigned a role (Guest users only)
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <returns>True if user can be assigned a role</returns>
+        Task<bool> CanAssignRoleAsync(string userId);
+
+        /// <summary>
+        /// Assigns operator role to a guest user and creates operator record
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <param name="fullName">Full name for operator record</param>
+        /// <param name="phoneNumber">Phone number for operator record</param>
+        /// <returns>Success status and message</returns>
+        Task<(bool Success, string Message)> AssignOperatorRoleAsync(string userId, string fullName, string phoneNumber);
+
+        /// <summary>
+        /// Assigns admin role to a guest user and creates operator record
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <param name="fullName">Full name for operator record</param>
+        /// <param name="phoneNumber">Phone number for operator record</param>
+        /// <returns>Success status and message</returns>
+        Task<(bool Success, string Message)> AssignAdminRoleAsync(string userId, string fullName, string phoneNumber);
+
+        /// <summary>
         /// Checks if a user can create a demotion request for another user
         /// </summary>
         /// <param name="targetUserId">User ID to demote</param>

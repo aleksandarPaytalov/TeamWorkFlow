@@ -23,7 +23,7 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
         public async Task<IActionResult> All([FromQuery] AllPartsQueryModel model)
         {
-            if (!User.Identity?.IsAuthenticated == true || (User.IsAdmin() == false && User.IsOperator() == false))
+            if (!User.Identity?.IsAuthenticated == true || (User.IsAdmin() == false && User.IsOperator() == false && User.IsGuest() == false))
             {
                 return Challenge();
             }

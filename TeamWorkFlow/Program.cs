@@ -118,6 +118,7 @@ namespace TeamWorkFlow
 
             await app.CreateAdminRoleAsync();
             await app.CreateOperatorRoleAsync();
+            await app.CreateGuestRoleAsync();
 
             await app.RunAsync();
 		}

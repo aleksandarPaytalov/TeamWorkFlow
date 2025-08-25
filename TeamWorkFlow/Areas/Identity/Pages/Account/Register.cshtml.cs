@@ -116,13 +116,13 @@ namespace TeamWorkFlow.Areas.Identity.Pages.Account
 
                     await _userManager.AddClaimAsync(user, new Claim(UserName, $"{user.Email}"));
 
-                    // Automatically assign Operator role to new users
-                    if (!await _roleManager.RoleExistsAsync(OperatorRole))
+                    // Automatically assign Guest role to new users
+                    if (!await _roleManager.RoleExistsAsync(GuestRole))
                     {
-                        await _roleManager.CreateAsync(new IdentityRole(OperatorRole));
+                        await _roleManager.CreateAsync(new IdentityRole(GuestRole));
                     }
-                    await _userManager.AddToRoleAsync(user, OperatorRole);
-                    _logger.LogInformation($"User {user.Email} assigned to {OperatorRole} role.");
+                    await _userManager.AddToRoleAsync(user, GuestRole);
+                    _logger.LogInformation($"User {user.Email} assigned to {GuestRole} role.");
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
