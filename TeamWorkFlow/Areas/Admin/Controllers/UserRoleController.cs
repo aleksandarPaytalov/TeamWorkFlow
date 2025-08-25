@@ -373,6 +373,41 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
         }
 
         /// <summary>
+        /// Demote operator user to guest role
+        /// </summary>
+        /// <param name="id">User ID</param>
+        /// <returns>Redirect to index</returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DemoteToGuest(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                TempData[UserMessageError] = "User ID is required.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                var result = await _userRoleService.DemoteToGuestAsync(id);
+                if (result.Success)
+                {
+                    TempData[UserMessageSuccess] = result.Message;
+                }
+                else
+                {
+                    TempData[UserMessageError] = result.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData[UserMessageError] = $"Error demoting user to guest: {ex.Message}";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        /// <summary>
         /// AJAX endpoint to check if user can be demoted
         /// </summary>
         /// <param name="id">User ID</param>

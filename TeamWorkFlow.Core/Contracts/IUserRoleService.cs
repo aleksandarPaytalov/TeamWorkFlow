@@ -140,6 +140,20 @@ namespace TeamWorkFlow.Core.Contracts
         Task<(bool Success, string Message)> AssignAdminRoleAsync(string userId, string fullName, string phoneNumber);
 
         /// <summary>
+        /// Checks if a user can be demoted to guest (Operator users only)
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <returns>True if user can be demoted to guest</returns>
+        Task<bool> CanDemoteToGuestAsync(string userId);
+
+        /// <summary>
+        /// Demotes an operator user to guest role and removes operator record
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <returns>Success status and message</returns>
+        Task<(bool Success, string Message)> DemoteToGuestAsync(string userId);
+
+        /// <summary>
         /// Checks if a user can create a demotion request for another user
         /// </summary>
         /// <param name="targetUserId">User ID to demote</param>

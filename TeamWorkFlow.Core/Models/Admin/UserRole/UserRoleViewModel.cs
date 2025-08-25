@@ -61,6 +61,11 @@ namespace TeamWorkFlow.Core.Models.Admin.UserRole
         public bool CanAssignRole { get; set; }
 
         /// <summary>
+        /// Whether the user can be demoted to guest (Operator users only)
+        /// </summary>
+        public bool CanDemoteToGuest { get; set; }
+
+        /// <summary>
         /// User registration date
         /// </summary>
         [Display(Name = "Registered")]

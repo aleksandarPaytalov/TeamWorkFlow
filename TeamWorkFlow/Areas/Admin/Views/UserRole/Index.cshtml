@@ -58,6 +58,14 @@
             background-color: #d97706;
             color: white;
         }
+        .btn-demote-guest {
+            background-color: #f59e0b;
+            color: white;
+        }
+        .btn-demote-guest:hover {
+            background-color: #d97706;
+            color: white;
+        }
         .btn-disabled {
             background-color: #e5e7eb;
             color: #9ca3af;
@@ -206,6 +214,18 @@
                                             <button type="submit" class="action-btn btn-promote"
                                                     onclick="return confirm('Are you sure you want to promote this user to Administrator?')">
                                                 Promote to Admin
+                                            </button>
+                                        </form>
+                                    }
+                                    @if (user.CanDemoteToGuest)
+                                    {
+                                        <form asp-action="DemoteToGuest" method="post" style="display: inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@user.UserId" />
+                                            <button type="submit" class="action-btn btn-demote-guest"
+                                                    style="background-color: #f59e0b; color: white;"
+                                                    onclick="return confirm('Are you sure you want to demote this operator to Guest? This will remove their operator privileges and delete their operator record.')">
+                                                Demote to Guest
                                             </button>
                                         </form>
                                     }
