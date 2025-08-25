@@ -1051,6 +1051,154 @@ namespace UnitTests
 
 		#endregion
 
+		#region ValidateMachineForDeletionAsync Tests
+
+		[Test]
+		public async Task ValidateMachineForDeletionAsync_WithNonExistentMachine_ReturnsFalse()
+		{
+			// Arrange
+			int nonExistentMachineId = 999;
+
+			// Act
+			var result = await _machineService.ValidateMachineForDeletionAsync(nonExistentMachineId);
+
+			// Assert
+			Assert.That(result.CanDelete, Is.False);
+			Assert.That(result.Reason, Is.EqualTo("Machine not found"));
+		}
+
+		[Test]
+		public async Task ValidateMachineForDeletionAsync_WithOccupiedMachine_ReturnsFalse()
+		{
+			// Arrange
+			// Create a test user first
+			var testUser = new IdentityUser
+			{
+				Id = "test-user-id",
+				UserName = "testuser@test.com",
+				Email = "testuser@test.com",
+				EmailConfirmed = true
+			};
+			await _dbContext.Users.AddAsync(testUser);
+			await _dbContext.SaveChangesAsync();
+
+			var machine = new Machine
+			{
+				Name = "Test Machine",
+				Capacity = 24,
+				CalibrationSchedule = DateTime.Now.AddDays(30),
+				TotalMachineLoad = 0,
+				IsCalibrated = true,
+				ImageUrl = "test-url"
+			};
+
+			await _dbContext.Machines.AddAsync(machine);
+			await _dbContext.SaveChangesAsync();
+
+			var task = new TeamWorkFlow.Infrastructure.Data.Models.Task
+			{
+				Name = "Active Task",
+				Description = "Test task",
+				StartDate = DateTime.Now,
+				TaskStatusId = 2, // In Progress
+				PriorityId = 2,
+				CreatorId = testUser.Id,
+				EstimatedTime = 10,
+				MachineId = machine.Id, // Use the auto-generated ID
+				ProjectId = 1
+			};
+
+			await _dbContext.Tasks.AddAsync(task);
+			await _dbContext.SaveChangesAsync();
+
+			// Act
+			var result = await _machineService.ValidateMachineForDeletionAsync(machine.Id);
+
+			// Assert
+			Assert.That(result.CanDelete, Is.False);
+			Assert.That(result.Reason, Does.Contain("This machine is currently used for task 'Active Task'"));
+			Assert.That(result.Reason, Does.Contain("and cannot be deleted"));
+		}
+
+		[Test]
+		public async Task ValidateMachineForDeletionAsync_WithUnoccupiedMachine_ReturnsTrue()
+		{
+			// Arrange
+			// Create a test user first
+			var testUser = new IdentityUser
+			{
+				Id = "test-user-id-2",
+				UserName = "testuser2@test.com",
+				Email = "testuser2@test.com",
+				EmailConfirmed = true
+			};
+			await _dbContext.Users.AddAsync(testUser);
+			await _dbContext.SaveChangesAsync();
+
+			var machine = new Machine
+			{
+				Name = "Available Machine",
+				Capacity = 24,
+				CalibrationSchedule = DateTime.Now.AddDays(30),
+				TotalMachineLoad = 0,
+				IsCalibrated = true,
+				ImageUrl = "test-url"
+			};
+
+			await _dbContext.Machines.AddAsync(machine);
+			await _dbContext.SaveChangesAsync();
+
+			var finishedTask = new TeamWorkFlow.Infrastructure.Data.Models.Task
+			{
+				Name = "Finished Task",
+				Description = "Test task",
+				StartDate = DateTime.Now.AddDays(-10),
+				TaskStatusId = 3, // Finished
+				PriorityId = 2,
+				CreatorId = testUser.Id,
+				EstimatedTime = 10,
+				MachineId = machine.Id, // Use the auto-generated ID
+				ProjectId = 1
+			};
+
+			await _dbContext.Tasks.AddAsync(finishedTask);
+			await _dbContext.SaveChangesAsync();
+
+			// Act
+			var result = await _machineService.ValidateMachineForDeletionAsync(machine.Id);
+
+			// Assert
+			Assert.That(result.CanDelete, Is.True);
+			Assert.That(result.Reason, Is.EqualTo("Machine can be deleted"));
+		}
+
+		[Test]
+		public async Task ValidateMachineForDeletionAsync_WithMachineHavingNoTasks_ReturnsTrue()
+		{
+			// Arrange
+			var machine = new Machine
+			{
+				Name = "Unused Machine",
+				Capacity = 24,
+				CalibrationSchedule = DateTime.Now.AddDays(30),
+				TotalMachineLoad = 0,
+				IsCalibrated = true,
+				ImageUrl = "test-url"
+			};
+
+			await _dbContext.Machines.AddAsync(machine);
+			await _dbContext.SaveChangesAsync();
+
+			// Act
+			var result = await _machineService.ValidateMachineForDeletionAsync(machine.Id);
+
+			// Assert
+			Assert.That(result.CanDelete, Is.True);
+			Assert.That(result.Reason, Is.EqualTo("Machine can be deleted"));
+		}
+
+		#endregion
+
 		[TearDown]
 		public void TearDown()
 		{

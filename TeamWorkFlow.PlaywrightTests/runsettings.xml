@@ -12,11 +12,11 @@
 
   <!-- NUnit specific settings -->
   <NUnit>
-    <!-- Number of test workers for parallel execution (reduced for Playwright stability) -->
-    <NumberOfTestWorkers>2</NumberOfTestWorkers>
+    <!-- Number of test workers - optimized for CI sharding -->
+    <NumberOfTestWorkers>1</NumberOfTestWorkers>
     <!-- Timeout for individual tests (in milliseconds) -->
     <DefaultTimeout>120000</DefaultTimeout>
-    <!-- Enable parallel execution at test level -->
+    <!-- Disable parallel collections for better Playwright stability -->
     <ParallelizeTestCollections>false</ParallelizeTestCollections>
     <!-- Randomize test order -->
     <RandomSeed>1234</RandomSeed>

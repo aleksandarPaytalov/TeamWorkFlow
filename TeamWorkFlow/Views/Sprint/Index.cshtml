@@ -71,13 +71,55 @@
                     </div>
                 </div>
             </div>
-            
+
+            <!-- Individual Machine Utilization -->
+            @if (Model.Capacity.MachineCapacities.Any())
+            {
+                <div class="machine-utilization-section">
+                    <h4 class="machine-utilization-title">
+                        <i class="fas fa-cogs"></i>
+                        Machine Utilization Breakdown
+                    </h4>
+                    <div class="machine-utilization-grid">
+                        @foreach (var machine in Model.Capacity.MachineCapacities.OrderByDescending(m => m.UtilizationPercentage))
+                        {
+                            <div class="machine-utilization-card @(machine.IsOverloaded ? "overloaded" : "")">
+                                <div class="machine-utilization-header">
+                                    <div class="machine-name">
+                                        <i class="fas fa-cog"></i>
+                                        @machine.Name
+                                    </div>
+                                    <div class="machine-utilization-value @(machine.IsOverloaded ? "overloaded" : machine.UtilizationPercentage > 90 ? "high" : machine.UtilizationPercentage > 70 ? "medium" : "low")">
+                                        @machine.UtilizationPercentage.ToString("F1")%
+                                    </div>
+                                </div>
+                                <div class="machine-utilization-bar">
+                                    <div class="machine-utilization-fill @(machine.IsOverloaded ? "overloaded" : machine.UtilizationPercentage > 90 ? "high" : machine.UtilizationPercentage > 70 ? "medium" : "low")"
+                                         style="width: @Math.Min(100, machine.UtilizationPercentage)%"></div>
+                                </div>
+                                <div class="machine-utilization-details">
+                                    <span class="assigned-hours">@machine.AssignedHours hrs assigned</span>
+                                    <span class="available-hours">@machine.RemainingHours hrs remaining</span>
+                                </div>
+                                @if (machine.IsOverloaded)
+                                {
+                                    <div class="machine-overload-warning">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        Overloaded by @(machine.AssignedHours - machine.AvailableHours) hours
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
             @if (!Model.Capacity.CanCompleteAllTasks)
             {
                 <div class="capacity-warning">
                     <i class="fas fa-exclamation-triangle"></i>
                     <span>
-                        Warning: Sprint is over capacity! 
+                        Warning: Sprint is over capacity!
                         @if (Model.Capacity.OperatorHoursDeficit > 0)
                         {
                             <span>Need @Model.Capacity.OperatorHoursDeficit more operator hours.</span>
@@ -116,12 +158,10 @@
                                 <span class="task-name">@task.Name</span>
                                 <span class="task-project">@task.ProjectNumber</span>
                             </div>
-                            <div class="task-actions">
-                                <button class="btn-icon edit-time-btn" title="Edit Time">
-                                    <i class="fas fa-clock"></i>
-                                </button>
-                                <button class="btn-icon remove-task-btn" title="Remove from Sprint">
-                                    <i class="fas fa-times"></i>
+                            <div class="sprint-task-actions">
+                                <button class="sprint-status-btn" title="Change Status" data-task-id="@task.Id">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    <span>Change Status</span>
                                 </button>
                             </div>
                         </div>
@@ -168,10 +208,22 @@
                         
                         <!-- Editable estimated time -->
                         <div class="task-time-editor" style="display: none;">
-                            <input type="number" class="form-control form-control-sm" 
+                            <input type="number" class="form-control form-control-sm"
                                    value="@task.EstimatedTime" min="1" max="1000" />
                             <button class="btn btn-sm btn-success save-time-btn">Save</button>
                             <button class="btn btn-sm btn-secondary cancel-time-btn">Cancel</button>
+                        </div>
+
+                        <!-- Status change selector -->
+                        <div class="task-status-editor" style="display: none;">
+                            <select class="form-control form-control-sm status-select">
+                                <option value="1" selected="@(task.TaskStatus.ToLower() == "open")">Open</option>
+                                <option value="2" selected="@(task.TaskStatus.ToLower() == "in progress")">In Progress</option>
+                                <option value="3" selected="@(task.TaskStatus.ToLower() == "finished")">Finished</option>
+                                <option value="4" selected="@(task.TaskStatus.ToLower() == "canceled")">Canceled</option>
+                            </select>
+                            <button class="btn btn-sm btn-success save-status-btn">Save</button>
+                            <button class="btn btn-sm btn-secondary cancel-status-btn">Cancel</button>
                         </div>
                     </div>
                 }
@@ -200,11 +252,13 @@
                     <div class="filter-row">
                         <input type="text" class="form-control form-control-sm" 
                                placeholder="Search tasks..." id="searchInput" value="@Model.SearchTerm" />
+                        @* Updated status filter options *@
                         <select class="form-select form-select-sm" id="statusFilter">
                             <option value="">All Statuses</option>
-                            <option value="Not Started" selected="@(Model.StatusFilter == "Not Started")">Not Started</option>
+                            <option value="Open" selected="@(Model.StatusFilter == "Open")">Open</option>
                             <option value="In Progress" selected="@(Model.StatusFilter == "In Progress")">In Progress</option>
-                            <option value="On Hold" selected="@(Model.StatusFilter == "On Hold")">On Hold</option>
+                            <option value="Finished" selected="@(Model.StatusFilter == "Finished")">Finished</option>
+                            <option value="Canceled" selected="@(Model.StatusFilter == "Canceled")">Canceled</option>
                         </select>
                     </div>
                     <div class="filter-row">

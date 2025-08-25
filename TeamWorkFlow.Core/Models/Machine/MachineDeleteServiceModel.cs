@@ -7,5 +7,7 @@ namespace TeamWorkFlow.Core.Models.Machine
 		public int Id { get; set; }
 		public string ImageUrl { get; set; } = string.Empty;
 		public string Name { get; set; } = string.Empty;
+		public bool CanDelete { get; set; } = true;
+		public string? DeletionBlockReason { get; set; }
 	}
 }

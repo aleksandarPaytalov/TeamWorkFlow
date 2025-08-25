@@ -35,6 +35,10 @@ jobs:
     name: "Integration Tests (Playwright)"
     runs-on: ubuntu-latest
     needs: unit-tests
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8] # More shards for better load distribution
+      fail-fast: false
 
     steps:
     - name: Checkout repository
@@ -60,17 +64,52 @@ jobs:
       run: |
         dotnet run --project TeamWorkFlow/TeamWorkFlow.csproj --urls "http://localhost:7015" &
         echo "Waiting for app to start..."
-        sleep 15  # Give more time for app startup
-        # Verify app is running
+
+        sleep 15
         curl -f http://localhost:7015 || (echo "App failed to start" && exit 1)
       env:
         USE_IN_MEMORY_DATABASE: true
 
     - name: Run Playwright Integration Tests (Parallel)
       run: |
+
+        echo "🧪 Running test shard ${{ matrix.shard }} of 5"
+
+        # Better load distribution with 8 shards - each gets ~10-12 tests
+        case ${{ matrix.shard }} in
+          1)
+            FILTER="FullyQualifiedName~ErrorPageTests.Error400|FullyQualifiedName~ErrorPageTests.Error401|FullyQualifiedName~ErrorPageTests.Error403"
+            ;;
+          2)
+            FILTER="FullyQualifiedName~ErrorPageTests.Error404|FullyQualifiedName~ErrorPageTests.Error408|FullyQualifiedName~ErrorPageTests.Error429"
+            ;;
+          3)
+            FILTER="FullyQualifiedName~ErrorPageTests.Error500|FullyQualifiedName~ErrorPageTests.Custom|FullyQualifiedName~ErrorPageTests.Direct"
+            ;;
+          4)
+            FILTER="FullyQualifiedName~ErrorScenarioTests"
+            ;;
+          5)
+            FILTER="FullyQualifiedName~AuthenticationUITestsSimple|FullyQualifiedName~NavigationAndUITests.Application|FullyQualifiedName~NavigationAndUITests.Dashboard"
+            ;;
+          6)
+            FILTER="FullyQualifiedName~TaskManagementTests"
+            ;;
+          7)
+            FILTER="FullyQualifiedName~ProjectManagementTests.Create|FullyQualifiedName~ProjectManagementTests.Edit|FullyQualifiedName~ProjectManagementTests.Delete"
+            ;;
+          8)
+            FILTER="FullyQualifiedName~ProjectManagementTests.Search|FullyQualifiedName~ProjectManagementTests.List|FullyQualifiedName~NavigationAndUITests.Navigation|FullyQualifiedName~NavigationAndUITests.Responsive"
+            ;;
+        esac
+
+        echo "📋 Running tests with filter: $FILTER"
+
         dotnet test TeamWorkFlow.PlaywrightTests/TeamWorkFlow.PlaywrightTests.csproj \
           --logger "console;verbosity=normal" \
-          --settings TeamWorkFlow.PlaywrightTests/runsettings.xml
+          --settings TeamWorkFlow.PlaywrightTests/runsettings.xml \
+          --filter "$FILTER"
+
       env:
         USE_IN_MEMORY_DATABASE: true
         CI: true

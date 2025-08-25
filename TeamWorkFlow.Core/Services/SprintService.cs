@@ -293,7 +293,7 @@ namespace TeamWorkFlow.Core.Services
                     Id = machine.Id,
                     Name = machine.Name,
                     IsActive = machine.IsCalibrated,
-                    AvailableHours = 168, // 24/7 operation
+                    AvailableHours = machine.Capacity * 5, // Weekly capacity = daily capacity * 5 working days
                     AssignedHours = sprintTasks
                         .Where(t => t.MachineId == machine.Id)
                         .Sum(t => t.EstimatedTime)
@@ -354,7 +354,7 @@ namespace TeamWorkFlow.Core.Services
                     Id = machine.Id,
                     Name = machine.Name,
                     IsActive = machine.IsCalibrated,
-                    WeeklyCapacity = 168, // 24/7 operation
+                    WeeklyCapacity = machine.Capacity * 5, // Weekly capacity = daily capacity * 5 working days
                     CurrentAssignedHours = machine.Tasks.Sum(t => t.EstimatedTime)
                 };
 
@@ -444,18 +444,19 @@ namespace TeamWorkFlow.Core.Services
             var summary = new SprintSummaryModel
             {
                 TotalTasksInSprint = sprintTasks.Count,
-                CompletedTasks = sprintTasks.Count(t => t.TaskStatus.Name == "Finished"),
-                InProgressTasks = sprintTasks.Count(t => t.TaskStatus.Name == "In Progress"),
-                NotStartedTasks = sprintTasks.Count(t => t.TaskStatus.Name == "Not Started"),
-                OnHoldTasks = sprintTasks.Count(t => t.TaskStatus.Name == "On Hold"),
+                CompletedTasks = sprintTasks.Count(t => t.TaskStatus.Name.ToLower() == "finished"),
+                InProgressTasks = sprintTasks.Count(t => t.TaskStatus.Name.ToLower() == "in progress"),
+                NotStartedTasks = sprintTasks.Count(t => t.TaskStatus.Name.ToLower() == "not started"),
+                OnHoldTasks = sprintTasks.Count(t => t.TaskStatus.Name.ToLower() == "on hold"),
                 TotalEstimatedHours = sprintTasks.Sum(t => t.EstimatedTime),
+                CompletedTasksHours = sprintTasks.Where(t => t.TaskStatus.Name.ToLower() == "finished").Sum(t => t.EstimatedTime),
                 TotalActualHours = 0, // ActualHours not available in current model
-                HighPriorityTasks = sprintTasks.Count(t => t.Priority.Name == "High"),
-                CriticalPriorityTasks = sprintTasks.Count(t => t.Priority.Name == "Critical"),
+                HighPriorityTasks = sprintTasks.Count(t => t.Priority.Name.ToLower() == "high"),
+                CriticalPriorityTasks = sprintTasks.Count(t => t.Priority.Name.ToLower() == "critical"),
                 OverdueTasks = sprintTasks.Count(t =>
                     t.PlannedEndDate.HasValue &&
                     t.PlannedEndDate < DateTime.Today &&
-                    t.TaskStatus.Name != "Finished")
+                    t.TaskStatus.Name.ToLower() != "finished")
             };
 
             return summary;

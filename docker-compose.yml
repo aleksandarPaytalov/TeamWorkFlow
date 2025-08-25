@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # TeamWorkFlow Application
+  teamworkflow-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: teamworkflow-app
+    ports:
+      - "7015:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=teamworkflow-db;Database=TeamWorkFlowDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=true;
+    depends_on:
+      - teamworkflow-db
+    networks:
+      - teamworkflow-network
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # SQL Server Database
+  teamworkflow-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: teamworkflow-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - teamworkflow-db-data:/var/opt/mssql
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - teamworkflow-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 10s bash -c '</dev/tcp/localhost/1433' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # Redis Cache (Optional - for session storage and caching)
+  teamworkflow-redis:
+    image: redis:7-alpine
+    container_name: teamworkflow-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - teamworkflow-redis-data:/data
+    networks:
+      - teamworkflow-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes --protected-mode yes --bind 0.0.0.0
+    healthcheck:
+      test: ["CMD", "redis-cli", "-h", "localhost", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  teamworkflow-db-data:
+    driver: local
+  teamworkflow-redis-data:
+    driver: local
+
+networks:
+  teamworkflow-network:
+    driver: bridge

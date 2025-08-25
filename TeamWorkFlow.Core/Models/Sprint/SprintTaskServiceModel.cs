@@ -93,16 +93,20 @@ namespace TeamWorkFlow.Core.Models.Sprint
         
         public string GetTimelineStatus()
         {
+            // If task is finished, always show "Done" regardless of timeline
+            if (TaskStatus.ToLower() == "finished")
+                return "Done";
+
             if (!PlannedStartDate.HasValue || !PlannedEndDate.HasValue)
                 return "Not Scheduled";
-                
+
             var now = DateTime.Now;
-            
+
             if (now < PlannedStartDate)
                 return "Upcoming";
             else if (now >= PlannedStartDate && now <= PlannedEndDate)
                 return "In Progress";
-            else if (now > PlannedEndDate && TaskStatus.ToLower() != "finished")
+            else if (now > PlannedEndDate)
                 return "Overdue";
             else
                 return "Completed";

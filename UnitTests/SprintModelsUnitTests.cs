@@ -330,19 +330,21 @@ namespace UnitTests
             {
                 TotalTasksInSprint = 10,
                 CompletedTasks = 8,
+                TotalEstimatedHours = 100,
+                CompletedTasksHours = 80, // 80/100 * 100 = 80%
                 OverdueTasks = 0
             };
 
             // Act & Assert
-            Assert.That(model.CompletionPercentage, Is.EqualTo(80)); // 8/10 * 100 = 80%
+            Assert.That(model.CompletionPercentage, Is.EqualTo(80)); // 80/100 * 100 = 80%
             Assert.That(model.IsOnTrack, Is.True); // >= 80% and no overdue tasks
 
             // Test not on track due to low completion
-            model.CompletedTasks = 6; // 60% completion
+            model.CompletedTasksHours = 60; // 60% completion
             Assert.That(model.IsOnTrack, Is.False);
 
             // Test not on track due to overdue tasks
-            model.CompletedTasks = 8; // Back to 80%
+            model.CompletedTasksHours = 80; // Back to 80%
             model.OverdueTasks = 2;
             Assert.That(model.IsOnTrack, Is.False);
         }
@@ -351,23 +353,23 @@ namespace UnitTests
         public void SprintSummaryModel_GetSprintHealth_ReturnsCorrectStatus()
         {
             // Arrange & Act - Excellent (>= 90% and no overdue)
-            var model1 = new SprintSummaryModel { TotalTasksInSprint = 10, CompletedTasks = 9, OverdueTasks = 0 };
+            var model1 = new SprintSummaryModel { TotalEstimatedHours = 100, CompletedTasksHours = 90, OverdueTasks = 0 };
             Assert.That(model1.GetSprintHealth(), Is.EqualTo("Excellent"));
 
             // Good (>= 70% and no overdue)
-            var model2 = new SprintSummaryModel { TotalTasksInSprint = 10, CompletedTasks = 8, OverdueTasks = 0 };
+            var model2 = new SprintSummaryModel { TotalEstimatedHours = 100, CompletedTasksHours = 80, OverdueTasks = 0 };
             Assert.That(model2.GetSprintHealth(), Is.EqualTo("Good"));
 
             // Fair (>= 50% and no overdue)
-            var model3 = new SprintSummaryModel { TotalTasksInSprint = 10, CompletedTasks = 6, OverdueTasks = 0 };
+            var model3 = new SprintSummaryModel { TotalEstimatedHours = 100, CompletedTasksHours = 60, OverdueTasks = 0 };
             Assert.That(model3.GetSprintHealth(), Is.EqualTo("Fair"));
 
             // Poor (< 50% and no overdue)
-            var model4 = new SprintSummaryModel { TotalTasksInSprint = 10, CompletedTasks = 4, OverdueTasks = 0 };
+            var model4 = new SprintSummaryModel { TotalEstimatedHours = 100, CompletedTasksHours = 40, OverdueTasks = 0 };
             Assert.That(model4.GetSprintHealth(), Is.EqualTo("Poor"));
 
             // At Risk (any overdue tasks)
-            var model5 = new SprintSummaryModel { TotalTasksInSprint = 10, CompletedTasks = 9, OverdueTasks = 1 };
+            var model5 = new SprintSummaryModel { TotalEstimatedHours = 100, CompletedTasksHours = 90, OverdueTasks = 1 };
             Assert.That(model5.GetSprintHealth(), Is.EqualTo("At Risk"));
         }
 
@@ -375,19 +377,19 @@ namespace UnitTests
         public void SprintSummaryModel_GetHealthColor_ReturnsCorrectColors()
         {
             // Arrange & Act
-            var model1 = new SprintSummaryModel { TotalTasksInSprint = 10, CompletedTasks = 9, OverdueTasks = 0 };
+            var model1 = new SprintSummaryModel { TotalEstimatedHours = 100, CompletedTasksHours = 90, OverdueTasks = 0 };
             Assert.That(model1.GetHealthColor(), Is.EqualTo("#10b981")); // Excellent - Green
 
-            var model2 = new SprintSummaryModel { TotalTasksInSprint = 10, CompletedTasks = 8, OverdueTasks = 0 };
+            var model2 = new SprintSummaryModel { TotalEstimatedHours = 100, CompletedTasksHours = 80, OverdueTasks = 0 };
             Assert.That(model2.GetHealthColor(), Is.EqualTo("#84cc16")); // Good - Light Green
 
-            var model3 = new SprintSummaryModel { TotalTasksInSprint = 10, CompletedTasks = 6, OverdueTasks = 0 };
+            var model3 = new SprintSummaryModel { TotalEstimatedHours = 100, CompletedTasksHours = 60, OverdueTasks = 0 };
             Assert.That(model3.GetHealthColor(), Is.EqualTo("#f59e0b")); // Fair - Yellow
 
-            var model4 = new SprintSummaryModel { TotalTasksInSprint = 10, CompletedTasks = 4, OverdueTasks = 0 };
+            var model4 = new SprintSummaryModel { TotalEstimatedHours = 100, CompletedTasksHours = 40, OverdueTasks = 0 };
             Assert.That(model4.GetHealthColor(), Is.EqualTo("#ef4444")); // Poor - Red
 
-            var model5 = new SprintSummaryModel { TotalTasksInSprint = 10, CompletedTasks = 9, OverdueTasks = 1 };
+            var model5 = new SprintSummaryModel { TotalEstimatedHours = 100, CompletedTasksHours = 90, OverdueTasks = 1 };
             Assert.That(model5.GetHealthColor(), Is.EqualTo("#dc2626")); // At Risk - Dark Red
         }
 
