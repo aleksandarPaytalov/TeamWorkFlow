@@ -77,6 +77,7 @@ jobs:
 
         # Better load distribution with 8 shards - each gets ~10-15 tests
         # Added RoleRightsMatrixTests and SprintToDoTests to shards 1, 2, and 3 for better load balancing
+        # Updated test names to handle CI/CD environment differences
         case ${{ matrix.shard }} in
           1)
             FILTER="FullyQualifiedName~ErrorPageTests.Error400|FullyQualifiedName~ErrorPageTests.Error401|FullyQualifiedName~ErrorPageTests.Error403|FullyQualifiedName~RoleRightsMatrixTests.GuestUser"
