@@ -405,3 +405,5 @@ TeamWorkFlow.PlaywrightTests/TestCoverage/
 TeamWorkFlow.PlaywrightTests/*.tmp
 TeamWorkFlow.PlaywrightTests/*.log
 TeamWorkFlow.PlaywrightTests/trace.zip
+
+**/coveragereport/
