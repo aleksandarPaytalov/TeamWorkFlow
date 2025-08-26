@@ -75,16 +75,16 @@ jobs:
 
         echo "🧪 Running test shard ${{ matrix.shard }} of 5"
 
-        # Better load distribution with 8 shards - each gets ~10-12 tests
+        # Better load distribution with 8 shards - each gets ~10-15 tests
         case ${{ matrix.shard }} in
           1)
-            FILTER="FullyQualifiedName~ErrorPageTests.Error400|FullyQualifiedName~ErrorPageTests.Error401|FullyQualifiedName~ErrorPageTests.Error403"
+            FILTER="FullyQualifiedName~ErrorPageTests.Error400|FullyQualifiedName~ErrorPageTests.Error401|FullyQualifiedName~ErrorPageTests.Error403|FullyQualifiedName~RoleRightsMatrixTests.GuestUser"
             ;;
           2)
-            FILTER="FullyQualifiedName~ErrorPageTests.Error404|FullyQualifiedName~ErrorPageTests.Error408|FullyQualifiedName~ErrorPageTests.Error429"
+            FILTER="FullyQualifiedName~ErrorPageTests.Error404|FullyQualifiedName~ErrorPageTests.Error408|FullyQualifiedName~ErrorPageTests.Error429|FullyQualifiedName~RoleRightsMatrixTests.OperatorUser"
             ;;
           3)
-            FILTER="FullyQualifiedName~ErrorPageTests.Error500|FullyQualifiedName~ErrorPageTests.Custom|FullyQualifiedName~ErrorPageTests.Direct"
+            FILTER="FullyQualifiedName~ErrorPageTests.Error500|FullyQualifiedName~ErrorPageTests.Custom|FullyQualifiedName~ErrorPageTests.Direct|FullyQualifiedName~RoleRightsMatrixTests.AdminUser|FullyQualifiedName~RoleRightsMatrixTests.AllUsers|FullyQualifiedName~RoleRightsMatrixTests.UnauthenticatedUser|FullyQualifiedName~SprintToDoTests"
             ;;
           4)
             FILTER="FullyQualifiedName~ErrorScenarioTests"
