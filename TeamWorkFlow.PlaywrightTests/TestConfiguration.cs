@@ -57,6 +57,14 @@ public class TestConfiguration
         LastName = _configuration["TestUsers:OperatorUser:LastName"] ?? "Operator"
     };
 
+    public TestUser GuestUser => new()
+    {
+        Email = GetSecureValue("TestUsers:GuestUser:Email", "TEST_GUEST_EMAIL", "guest@test.local"),
+        Password = GetSecureValue("TestUsers:GuestUser:Password", "TEST_GUEST_PASSWORD", "TestPass789!"),
+        FirstName = _configuration["TestUsers:GuestUser:FirstName"] ?? "Test",
+        LastName = _configuration["TestUsers:GuestUser:LastName"] ?? "Guest"
+    };
+
     public TestData SampleTask => new()
     {
         Name = _configuration["TestData:SampleTask:Name"] ?? "Test Task - Automated",
