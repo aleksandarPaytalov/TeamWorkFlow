@@ -47,6 +47,7 @@ namespace TeamWorkFlow.Core.Services
                     CurrentRole = GetPrimaryRole(roles),
                     IsAdmin = roles.Contains(AdminRole),
                     IsOperator = roles.Contains(OperatorRole),
+                    IsGuest = roles.Contains(GuestRole),
                     RegisteredDate = user.LockoutEnd?.DateTime, // Using available date field
                     IsActive = operatorEntity?.IsActive ?? false,
                     AvailabilityStatus = operatorEntity?.AvailabilityStatus?.Name,
@@ -55,6 +56,8 @@ namespace TeamWorkFlow.Core.Services
 
                 userRole.CanPromoteToAdmin = await CanPromoteToAdminAsync(user.Id);
                 userRole.CanDemoteFromAdmin = await CanDemoteFromAdminAsync(user.Id);
+                userRole.CanAssignRole = await CanAssignRoleAsync(user.Id);
+                userRole.CanDemoteToGuest = await CanDemoteToGuestAsync(user.Id);
 
                 userRoles.Add(userRole);
             }
@@ -80,6 +83,7 @@ namespace TeamWorkFlow.Core.Services
                 CurrentRole = GetPrimaryRole(roles),
                 IsAdmin = roles.Contains(AdminRole),
                 IsOperator = roles.Contains(OperatorRole),
+                IsGuest = roles.Contains(GuestRole),
                 RegisteredDate = user.LockoutEnd?.DateTime,
                 IsActive = operatorEntity?.IsActive ?? false,
                 AvailabilityStatus = operatorEntity?.AvailabilityStatus?.Name,
@@ -88,6 +92,8 @@ namespace TeamWorkFlow.Core.Services
 
             userRole.CanPromoteToAdmin = await CanPromoteToAdminAsync(userId);
             userRole.CanDemoteFromAdmin = await CanDemoteFromAdminAsync(userId);
+            userRole.CanAssignRole = await CanAssignRoleAsync(userId);
+            userRole.CanDemoteToGuest = await CanDemoteToGuestAsync(userId);
 
             return userRole;
         }
@@ -589,10 +595,221 @@ namespace TeamWorkFlow.Core.Services
             return viewModels;
         }
 
+        public async Task<bool> CanAssignRoleAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return false;
+
+            // Can assign role if user is only a guest
+            return await _userManager.IsInRoleAsync(user, GuestRole) &&
+                   !await _userManager.IsInRoleAsync(user, AdminRole) &&
+                   !await _userManager.IsInRoleAsync(user, OperatorRole);
+        }
+
+        public async Task<bool> CanDemoteToGuestAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return false;
+
+            // Can demote to guest if user is only an operator (not admin)
+            return await _userManager.IsInRoleAsync(user, OperatorRole) &&
+                   !await _userManager.IsInRoleAsync(user, AdminRole) &&
+                   !await _userManager.IsInRoleAsync(user, GuestRole);
+        }
+
+        public async Task<(bool Success, string Message)> AssignOperatorRoleAsync(string userId, string fullName, string phoneNumber)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return (false, "User not found.");
+                }
+
+                if (!await _userManager.IsInRoleAsync(user, GuestRole))
+                {
+                    return (false, "User must be a guest to be assigned operator role.");
+                }
+
+                if (await _userManager.IsInRoleAsync(user, OperatorRole))
+                {
+                    return (false, "User is already an operator.");
+                }
+
+                // Ensure operator role exists
+                if (!await _roleManager.RoleExistsAsync(OperatorRole))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(OperatorRole));
+                }
+
+                // Remove guest role and add operator role
+                await _userManager.RemoveFromRoleAsync(user, GuestRole);
+                var result = await _userManager.AddToRoleAsync(user, OperatorRole);
+
+                if (result.Succeeded)
+                {
+                    // Create operator record in database
+                    var operatorModel = new Operator()
+                    {
+                        FullName = fullName,
+                        Email = user.Email ?? string.Empty,
+                        PhoneNumber = phoneNumber,
+                        AvailabilityStatusId = 2, // Default to "In Sick Leave" - inactive status
+                        IsActive = false, // Start as inactive
+                        Capacity = 8, // Default capacity
+                        UserId = userId
+                    };
+
+                    await _repository.AddAsync(operatorModel);
+                    await _repository.SaveChangesAsync();
+
+                    return (true, $"User {user.Email} has been assigned operator role and added to operator database.");
+                }
+
+                return (false, $"Failed to assign operator role: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool Success, string Message)> AssignAdminRoleAsync(string userId, string fullName, string phoneNumber)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return (false, "User not found.");
+                }
+
+                if (!await _userManager.IsInRoleAsync(user, GuestRole))
+                {
+                    return (false, "User must be a guest to be assigned admin role.");
+                }
+
+                if (await _userManager.IsInRoleAsync(user, AdminRole))
+                {
+                    return (false, "User is already an administrator.");
+                }
+
+                // Ensure admin role exists
+                if (!await _roleManager.RoleExistsAsync(AdminRole))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(AdminRole));
+                }
+
+                // Remove guest role and add admin role
+                await _userManager.RemoveFromRoleAsync(user, GuestRole);
+                var result = await _userManager.AddToRoleAsync(user, AdminRole);
+
+                if (result.Succeeded)
+                {
+                    // Create operator record in database (admins are also operators)
+                    var operatorModel = new Operator()
+                    {
+                        FullName = fullName,
+                        Email = user.Email ?? string.Empty,
+                        PhoneNumber = phoneNumber,
+                        AvailabilityStatusId = 1, // "At work" status for admins
+                        IsActive = true, // Admins start as active
+                        Capacity = 8, // Default capacity
+                        UserId = userId
+                    };
+
+                    await _repository.AddAsync(operatorModel);
+                    await _repository.SaveChangesAsync();
+
+                    return (true, $"User {user.Email} has been assigned administrator role and added to operator database.");
+                }
+
+                return (false, $"Failed to assign admin role: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool Success, string Message)> DemoteToGuestAsync(string userId)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return (false, "User not found.");
+                }
+
+                // Check if user is an operator (not admin)
+                if (!await _userManager.IsInRoleAsync(user, OperatorRole))
+                {
+                    return (false, "User must be an operator to be demoted to guest.");
+                }
+
+                if (await _userManager.IsInRoleAsync(user, AdminRole))
+                {
+                    return (false, "Cannot demote admin users to guest. Please demote from admin first.");
+                }
+
+                if (await _userManager.IsInRoleAsync(user, GuestRole))
+                {
+                    return (false, "User is already a guest.");
+                }
+
+                // Check if operator has any active task assignments
+                var operatorEntity = await _repository.AllReadOnly<Operator>()
+                    .Include(o => o.TasksOperators)
+                    .ThenInclude(to => to.Task)
+                    .ThenInclude(t => t.TaskStatus)
+                    .FirstOrDefaultAsync(o => o.UserId == userId);
+
+                if (operatorEntity != null)
+                {
+                    var activeTasks = operatorEntity.TasksOperators
+                        .Where(to => to.Task.TaskStatus.Name.ToLower() != "finished")
+                        .ToList();
+
+                    if (activeTasks.Any())
+                    {
+                        return (false, $"Cannot demote operator with {activeTasks.Count} active task assignment(s). Please reassign or complete tasks first.");
+                    }
+
+                    // Remove operator record from database
+                    await _repository.DeleteAsync<Operator>(operatorEntity.Id);
+                    await _repository.SaveChangesAsync();
+                }
+
+                // Ensure guest role exists
+                if (!await _roleManager.RoleExistsAsync(GuestRole))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(GuestRole));
+                }
+
+                // Remove operator role and add guest role
+                await _userManager.RemoveFromRoleAsync(user, OperatorRole);
+                var result = await _userManager.AddToRoleAsync(user, GuestRole);
+
+                if (result.Succeeded)
+                {
+                    return (true, $"User {user.Email} has been demoted to guest role and removed from operator database.");
+                }
+
+                return (false, $"Failed to demote to guest role: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"An error occurred: {ex.Message}");
+            }
+        }
+
         private static string GetPrimaryRole(IList<string> roles)
         {
             if (roles.Contains(AdminRole)) return AdminRole;
             if (roles.Contains(OperatorRole)) return OperatorRole;
+            if (roles.Contains(GuestRole)) return GuestRole;
             return "No Role";
         }
     }

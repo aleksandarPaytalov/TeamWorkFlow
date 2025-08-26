@@ -27,7 +27,7 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
         public async Task<IActionResult> All([FromQuery] AllTasksQueryModel model)
         {
-            if (!User.Identity?.IsAuthenticated == true || (User.IsAdmin() == false && User.IsOperator() == false))
+            if (!User.Identity?.IsAuthenticated == true || (User.IsAdmin() == false && User.IsOperator() == false && User.IsGuest() == false))
             {
                 return Challenge();
             }
@@ -176,7 +176,7 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
 		public async Task <IActionResult> Details(int id, string extension)
         {
-	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        if (User.IsAdmin() == false && User.IsOperator() == false && User.IsGuest() == false)
 	        {
 		        return Unauthorized();
 	        }
@@ -422,7 +422,7 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
         public async Task<IActionResult> Archive([FromQuery] AllTasksQueryModel query)
         {
-	        if (User.IsAdmin() == false && User.IsOperator() == false)
+	        if (User.IsAdmin() == false && User.IsOperator() == false && User.IsGuest() == false)
 	        {
 		        return Unauthorized();
 	        }

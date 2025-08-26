@@ -261,6 +261,153 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
         }
 
         /// <summary>
+        /// Show role assignment form for guest users
+        /// </summary>
+        /// <param name="id">User ID</param>
+        /// <returns>Role assignment view</returns>
+        [HttpGet]
+        public async Task<IActionResult> AssignRole(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                TempData[UserMessageError] = "User ID is required.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                var user = await _userRoleService.GetUserWithRoleAsync(id);
+                if (user == null)
+                {
+                    TempData[UserMessageError] = "User not found.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (!user.CanAssignRole)
+                {
+                    TempData[UserMessageError] = "This user cannot be assigned a role.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return View(user);
+            }
+            catch (Exception ex)
+            {
+                TempData[UserMessageError] = $"Error loading user: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        /// <summary>
+        /// Assign operator role to guest user
+        /// </summary>
+        /// <param name="id">User ID</param>
+        /// <param name="fullName">Full name</param>
+        /// <param name="phoneNumber">Phone number</param>
+        /// <returns>Redirect to index</returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignOperatorRole(string id, string fullName, string phoneNumber)
+        {
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(phoneNumber))
+            {
+                TempData[UserMessageError] = "All fields are required.";
+                return RedirectToAction(nameof(AssignRole), new { id });
+            }
+
+            try
+            {
+                var result = await _userRoleService.AssignOperatorRoleAsync(id, fullName, phoneNumber);
+                if (result.Success)
+                {
+                    TempData[UserMessageSuccess] = result.Message;
+                }
+                else
+                {
+                    TempData[UserMessageError] = result.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData[UserMessageError] = $"Error assigning operator role: {ex.Message}";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        /// <summary>
+        /// Assign admin role to guest user
+        /// </summary>
+        /// <param name="id">User ID</param>
+        /// <param name="fullName">Full name</param>
+        /// <param name="phoneNumber">Phone number</param>
+        /// <returns>Redirect to index</returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignAdminRole(string id, string fullName, string phoneNumber)
+        {
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(phoneNumber))
+            {
+                TempData[UserMessageError] = "All fields are required.";
+                return RedirectToAction(nameof(AssignRole), new { id });
+            }
+
+            try
+            {
+                var result = await _userRoleService.AssignAdminRoleAsync(id, fullName, phoneNumber);
+                if (result.Success)
+                {
+                    TempData[UserMessageSuccess] = result.Message;
+                }
+                else
+                {
+                    TempData[UserMessageError] = result.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData[UserMessageError] = $"Error assigning admin role: {ex.Message}";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        /// <summary>
+        /// Demote operator user to guest role
+        /// </summary>
+        /// <param name="id">User ID</param>
+        /// <returns>Redirect to index</returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DemoteToGuest(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                TempData[UserMessageError] = "User ID is required.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                var result = await _userRoleService.DemoteToGuestAsync(id);
+                if (result.Success)
+                {
+                    TempData[UserMessageSuccess] = result.Message;
+                }
+                else
+                {
+                    TempData[UserMessageError] = result.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData[UserMessageError] = $"Error demoting user to guest: {ex.Message}";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        /// <summary>
         /// AJAX endpoint to check if user can be demoted
         /// </summary>
         /// <param name="id">User ID</param>

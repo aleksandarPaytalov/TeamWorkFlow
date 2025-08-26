@@ -24,6 +24,10 @@
             background-color: #dbeafe;
             color: #1e40af;
         }
+        .role-guest {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
         .role-none {
             background-color: #f3f4f6;
             color: #6b7280;
@@ -51,6 +55,14 @@
             color: white;
         }
         .btn-demote:hover {
+            background-color: #d97706;
+            color: white;
+        }
+        .btn-demote-guest {
+            background-color: #f59e0b;
+            color: white;
+        }
+        .btn-demote-guest:hover {
             background-color: #d97706;
             color: white;
         }
@@ -165,6 +177,10 @@
                                 {
                                     <span class="role-badge role-operator">Operator</span>
                                 }
+                                else if (user.IsGuest)
+                                {
+                                    <span class="role-badge role-guest">Guest</span>
+                                }
                                 else
                                 {
                                     <span class="role-badge role-none">No Role</span>
@@ -183,14 +199,33 @@
                             <td>@(user.AvailabilityStatus ?? "N/A")</td>
                             <td>
                                 <div class="d-flex gap-2">
-                                    @if (user.CanPromoteToAdmin)
+                                    @if (user.CanAssignRole)
+                                    {
+                                        <a asp-action="AssignRole" asp-route-id="@user.UserId" class="action-btn btn-assign"
+                                           style="background-color: #10b981; color: white;">
+                                            Assign Role
+                                        </a>
+                                    }
+                                    @if (user.CanPromoteToAdmin && !user.IsGuest)
                                     {
                                         <form asp-action="PromoteToAdmin" method="post" style="display: inline;">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@user.UserId" />
-                                            <button type="submit" class="action-btn btn-promote" 
+                                            <button type="submit" class="action-btn btn-promote"
                                                     onclick="return confirm('Are you sure you want to promote this user to Administrator?')">
                                                 Promote to Admin
+                                            </button>
+                                        </form>
+                                    }
+                                    @if (user.CanDemoteToGuest)
+                                    {
+                                        <form asp-action="DemoteToGuest" method="post" style="display: inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@user.UserId" />
+                                            <button type="submit" class="action-btn btn-demote-guest"
+                                                    style="background-color: #f59e0b; color: white;"
+                                                    onclick="return confirm('Are you sure you want to demote this operator to Guest? This will remove their operator privileges and delete their operator record.')">
+                                                Demote to Guest
                                             </button>
                                         </form>
                                     }

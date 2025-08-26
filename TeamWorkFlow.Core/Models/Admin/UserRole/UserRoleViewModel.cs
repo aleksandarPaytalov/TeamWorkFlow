@@ -41,6 +41,11 @@ namespace TeamWorkFlow.Core.Models.Admin.UserRole
         public bool IsOperator { get; set; }
 
         /// <summary>
+        /// Whether user is a guest
+        /// </summary>
+        public bool IsGuest { get; set; }
+
+        /// <summary>
         /// Whether the user can be promoted to admin
         /// </summary>
         public bool CanPromoteToAdmin { get; set; }
@@ -49,6 +54,16 @@ namespace TeamWorkFlow.Core.Models.Admin.UserRole
         /// Whether the user can be demoted from admin
         /// </summary>
         public bool CanDemoteFromAdmin { get; set; }
+
+        /// <summary>
+        /// Whether the user can be assigned a role (Guest users)
+        /// </summary>
+        public bool CanAssignRole { get; set; }
+
+        /// <summary>
+        /// Whether the user can be demoted to guest (Operator users only)
+        /// </summary>
+        public bool CanDemoteToGuest { get; set; }
 
         /// <summary>
         /// User registration date

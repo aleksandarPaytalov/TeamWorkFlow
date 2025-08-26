@@ -195,15 +195,22 @@
 									@if (task.HasMachine)
 									{
 										<span class="machine-assigned">@task.MachineName</span>
-										<button class="btn-icon unassign-machine-btn" data-task-id="@task.Id" title="Unassign Machine">
-											<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-											</svg>
-										</button>
+										@if (User.IsAdmin() || User.IsOperator())
+										{
+											<button class="btn-icon unassign-machine-btn" data-task-id="@task.Id" title="Unassign Machine">
+												<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+												</svg>
+											</button>
+										}
+									}
+									else if (User.IsAdmin() || User.IsOperator())
+									{
+										<button class="assign-machine-btn" data-task-id="@task.Id">Assign Machine</button>
 									}
 									else
 									{
-										<button class="assign-machine-btn" data-task-id="@task.Id">Assign Machine</button>
+										<span class="text-muted">No machine assigned</span>
 									}
 								</span>
 							</div>
@@ -224,16 +231,26 @@
 											{
 												<span class="operator-badge">
 													@op.OperatorName
-													<button class="btn-icon unassign-operator-btn" data-task-id="@task.Id" data-operator-id="@op.OperatorId" title="Unassign Operator">
-														<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-															<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-														</svg>
-													</button>
+													@if (User.IsAdmin() || User.IsOperator())
+													{
+														<button class="btn-icon unassign-operator-btn" data-task-id="@task.Id" data-operator-id="@op.OperatorId" title="Unassign Operator">
+															<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+																<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+															</svg>
+														</button>
+													}
 												</span>
 											}
 										</div>
 									}
-									<button class="assign-operator-btn" data-task-id="@task.Id">Assign Operator</button>
+									else if (!User.IsGuest())
+									{
+										<span class="text-muted">No operators assigned</span>
+									}
+									@if (User.IsAdmin() || User.IsOperator())
+									{
+										<button class="assign-operator-btn" data-task-id="@task.Id">Assign Operator</button>
+									}
 								</span>
 							</div>
 						</div>

@@ -137,6 +137,7 @@
 									else
 									{
 										<form method="post" action="@Url.Action("ToggleStatus", "Operator", new { area = "Admin" })" style="display: inline;">
+											@Html.AntiForgeryToken()
 											<input type="hidden" name="id" value="@op.Id" />
 											<button type="submit" class="admin-toggle-btn admin-toggle-btn-activate"
 													title="Activate operator and set status to 'at work'"

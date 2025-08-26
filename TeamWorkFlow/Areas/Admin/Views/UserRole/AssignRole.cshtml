@@ -1,0 +1,221 @@
+@model TeamWorkFlow.Core.Models.Admin.UserRole.UserRoleViewModel
+@{
+    ViewData["Title"] = "Assign Role - " + Model.Email;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/admin.css" asp-append-version="true" />
+    <style>
+        .role-assignment-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+        .role-option {
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .role-option:hover {
+            border-color: #3b82f6;
+            background-color: #f8fafc;
+        }
+        .role-option.selected {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .role-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        .role-description {
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .btn-assign {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-assign:hover {
+            background-color: #2563eb;
+        }
+        .btn-cancel {
+            background-color: #6b7280;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 1rem;
+        }
+        .btn-cancel:hover {
+            background-color: #4b5563;
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+}
+
+<div class="admin-container">
+    <div class="admin-header">
+        <h1 class="admin-title">Assign Role</h1>
+        <p class="admin-subtitle">Assign a role to user: @Model.Email</p>
+        <span class="admin-badge">Role Assignment</span>
+    </div>
+
+    <div class="role-assignment-container">
+        <form id="roleAssignmentForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="userId" value="@Model.UserId" />
+            
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" id="fullName" class="form-input" placeholder="Enter full name" required />
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" id="phoneNumber" class="form-input" placeholder="Enter phone number" required />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Select Role</label>
+                
+                <div class="role-option" data-role="operator">
+                    <div class="role-title">Operator</div>
+                    <div class="role-description">
+                        Can view and manage tasks, machines, and projects. Has read-write access to operational data.
+                    </div>
+                </div>
+                
+                <div class="role-option" data-role="admin">
+                    <div class="role-title">Administrator</div>
+                    <div class="role-description">
+                        Full system access including user management, system configuration, and all operational features.
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <a asp-action="Index" class="btn-cancel">Cancel</a>
+                <button type="submit" class="btn-assign" disabled>Assign Role</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleOptions = document.querySelectorAll('.role-option');
+            const submitButton = document.querySelector('.btn-assign');
+            const form = document.getElementById('roleAssignmentForm');
+            let selectedRole = null;
+
+            // Handle role selection
+            roleOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selected class from all options
+                    roleOptions.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    selectedRole = this.dataset.role;
+                    
+                    // Enable submit button
+                    submitButton.disabled = false;
+                });
+            });
+
+            // Handle form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!selectedRole) {
+                    alert('Please select a role.');
+                    return;
+                }
+
+                const fullName = document.getElementById('fullName').value.trim();
+                const phoneNumber = document.getElementById('phoneNumber').value.trim();
+                const userId = document.getElementById('userId').value;
+
+                if (!fullName || !phoneNumber) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+
+                // Disable submit button to prevent double submission
+                submitButton.disabled = true;
+                submitButton.textContent = 'Assigning...';
+
+                // Create form data
+                const formData = new FormData();
+                formData.append('id', userId);
+                formData.append('fullName', fullName);
+                formData.append('phoneNumber', phoneNumber);
+                formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+                // Determine action based on selected role
+                const action = selectedRole === 'admin' ? 'AssignAdminRole' : 'AssignOperatorRole';
+
+                // Submit form
+                fetch(`@Url.Action("", "UserRole", new { area = "Admin" })/${action}`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '@Url.Action("Index", "UserRole", new { area = "Admin" })';
+                    } else {
+                        throw new Error('Network response was not ok');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while assigning the role. Please try again.');
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Assign Role';
+                });
+            });
+        });
+    </script>
+}

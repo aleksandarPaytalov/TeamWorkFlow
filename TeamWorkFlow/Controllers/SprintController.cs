@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Models.Sprint;
+using TeamWorkFlow.Extensions;
 using static TeamWorkFlow.Core.Constants.Messages;
 
 namespace TeamWorkFlow.Controllers
@@ -29,6 +30,11 @@ namespace TeamWorkFlow.Controllers
             int page = 1,
             int pageSize = 20)
         {
+            if (!User.Identity?.IsAuthenticated == true || (User.IsAdmin() == false && User.IsOperator() == false))
+            {
+                return Challenge();
+            }
+
             try
             {
                 var viewModel = await sprintService.GetSprintPlanningDataAsync(
@@ -51,6 +57,11 @@ namespace TeamWorkFlow.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddTaskToSprint(int taskId, int sprintOrder)
         {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized access" });
+            }
+
             try
             {
                 var (canAdd, reason) = await sprintService.ValidateTaskForSprintAsync(taskId);
@@ -82,6 +93,11 @@ namespace TeamWorkFlow.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveTaskFromSprint(int taskId)
         {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized access" });
+            }
+
             try
             {
                 var success = await sprintService.RemoveTaskFromSprintAsync(taskId);
@@ -107,6 +123,11 @@ namespace TeamWorkFlow.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateTaskOrder([FromBody] Dictionary<int, int> taskOrders)
         {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized access" });
+            }
+
             try
             {
                 var success = await sprintService.UpdateSprintTaskOrderAsync(taskOrders);
@@ -132,6 +153,11 @@ namespace TeamWorkFlow.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateEstimatedTime(int taskId, int estimatedTime)
         {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized access" });
+            }
+
             try
             {
                 if (estimatedTime <= 0)
@@ -162,6 +188,11 @@ namespace TeamWorkFlow.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdatePlannedDates(int taskId, DateTime? plannedStartDate, DateTime? plannedEndDate)
         {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized access" });
+            }
+
             try
             {
                 if (plannedStartDate.HasValue && plannedEndDate.HasValue && plannedStartDate > plannedEndDate)
@@ -191,6 +222,11 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCapacityData()
         {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized access" });
+            }
+
             try
             {
                 var capacity = await sprintService.GetSprintCapacityAsync();
@@ -208,6 +244,11 @@ namespace TeamWorkFlow.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSprintSummary()
         {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized access" });
+            }
+
             try
             {
                 var summary = await sprintService.GetSprintSummaryAsync();
@@ -226,6 +267,11 @@ namespace TeamWorkFlow.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ClearSprint()
         {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized access" });
+            }
+
             try
             {
                 var success = await sprintService.ClearSprintAsync();
@@ -252,6 +298,11 @@ namespace TeamWorkFlow.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AutoAssignTasks(int maxTasks = 10)
         {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized access" });
+            }
+
             try
             {
                 var assignedCount = await sprintService.AutoAssignTasksToSprintAsync(maxTasks);
