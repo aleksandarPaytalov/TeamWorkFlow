@@ -27,7 +27,8 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
         {
             try
             {
-                var users = await _userRoleService.GetAllUsersWithRolesAsync();
+                var currentUserId = User.Id(); // Get current user ID to prevent self-demotion
+                var users = await _userRoleService.GetAllUsersWithRolesAsync(currentUserId);
                 var stats = await _userRoleService.GetRoleStatsAsync();
                 var pendingCount = await _userRoleService.GetPendingDemotionRequestCountAsync();
 
@@ -58,7 +59,8 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
 
             try
             {
-                var user = await _userRoleService.GetUserWithRoleAsync(id);
+                var currentUserId = User.Id(); // Get current user ID to prevent self-demotion
+                var user = await _userRoleService.GetUserWithRoleAsync(id, currentUserId);
                 if (user == null)
                 {
                     TempData[UserMessageError] = "User not found.";
@@ -422,7 +424,8 @@ namespace TeamWorkFlow.Areas.Admin.Controllers
 
             try
             {
-                var canDemote = await _userRoleService.CanDemoteFromAdminAsync(id);
+                var currentUserId = User.Id(); // Get current user ID to prevent self-demotion
+                var canDemote = await _userRoleService.CanDemoteFromAdminAsync(id, currentUserId);
                 return Json(new { canDemote, message = canDemote ? "User can be demoted." : "User cannot be demoted." });
             }
             catch (Exception ex)

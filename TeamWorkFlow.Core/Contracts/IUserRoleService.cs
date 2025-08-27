@@ -14,11 +14,26 @@ namespace TeamWorkFlow.Core.Contracts
         Task<IEnumerable<UserRoleViewModel>> GetAllUsersWithRolesAsync();
 
         /// <summary>
+        /// Gets all users with their current roles, considering the current user context
+        /// </summary>
+        /// <param name="currentUserId">Current user ID (to prevent self-demotion)</param>
+        /// <returns>List of users with role information</returns>
+        Task<IEnumerable<UserRoleViewModel>> GetAllUsersWithRolesAsync(string? currentUserId);
+
+        /// <summary>
         /// Gets a specific user with their role information
         /// </summary>
         /// <param name="userId">User ID</param>
         /// <returns>User with role information</returns>
         Task<UserRoleViewModel?> GetUserWithRoleAsync(string userId);
+
+        /// <summary>
+        /// Gets a specific user with their role information, considering the current user context
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <param name="currentUserId">Current user ID (to prevent self-demotion)</param>
+        /// <returns>User with role information</returns>
+        Task<UserRoleViewModel?> GetUserWithRoleAsync(string userId, string? currentUserId);
 
         /// <summary>
         /// Promotes an operator to admin role
@@ -47,6 +62,14 @@ namespace TeamWorkFlow.Core.Contracts
         /// <param name="userId">User ID to check</param>
         /// <returns>True if user can be demoted</returns>
         Task<bool> CanDemoteFromAdminAsync(string userId);
+
+        /// <summary>
+        /// Checks if a user can be demoted from admin, considering the current user context
+        /// </summary>
+        /// <param name="userId">User ID to check</param>
+        /// <param name="currentUserId">Current user ID (to prevent self-demotion)</param>
+        /// <returns>True if user can be demoted</returns>
+        Task<bool> CanDemoteFromAdminAsync(string userId, string? currentUserId);
 
         /// <summary>
         /// Gets the count of users by role

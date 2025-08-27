@@ -29,6 +29,11 @@ namespace TeamWorkFlow.Core.Services
 
         public async Task<IEnumerable<UserRoleViewModel>> GetAllUsersWithRolesAsync()
         {
+            return await GetAllUsersWithRolesAsync(null);
+        }
+
+        public async Task<IEnumerable<UserRoleViewModel>> GetAllUsersWithRolesAsync(string? currentUserId)
+        {
             var users = await _userManager.Users.ToListAsync();
             var userRoles = new List<UserRoleViewModel>();
 
@@ -55,7 +60,7 @@ namespace TeamWorkFlow.Core.Services
                 };
 
                 userRole.CanPromoteToAdmin = await CanPromoteToAdminAsync(user.Id);
-                userRole.CanDemoteFromAdmin = await CanDemoteFromAdminAsync(user.Id);
+                userRole.CanDemoteFromAdmin = await CanDemoteFromAdminAsync(user.Id, currentUserId);
                 userRole.CanAssignRole = await CanAssignRoleAsync(user.Id);
                 userRole.CanDemoteToGuest = await CanDemoteToGuestAsync(user.Id);
 
@@ -66,6 +71,11 @@ namespace TeamWorkFlow.Core.Services
         }
 
         public async Task<UserRoleViewModel?> GetUserWithRoleAsync(string userId)
+        {
+            return await GetUserWithRoleAsync(userId, null);
+        }
+
+        public async Task<UserRoleViewModel?> GetUserWithRoleAsync(string userId, string? currentUserId)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return null;
@@ -91,7 +101,7 @@ namespace TeamWorkFlow.Core.Services
             };
 
             userRole.CanPromoteToAdmin = await CanPromoteToAdminAsync(userId);
-            userRole.CanDemoteFromAdmin = await CanDemoteFromAdminAsync(userId);
+            userRole.CanDemoteFromAdmin = await CanDemoteFromAdminAsync(userId, currentUserId);
             userRole.CanAssignRole = await CanAssignRoleAsync(userId);
             userRole.CanDemoteToGuest = await CanDemoteToGuestAsync(userId);
 
@@ -148,11 +158,11 @@ namespace TeamWorkFlow.Core.Services
                     return (false, "User is not an administrator.");
                 }
 
-                // Check if this is the last admin
+                // Check if this would leave insufficient admins
                 var adminUsers = await _userManager.GetUsersInRoleAsync(AdminRole);
-                if (adminUsers.Count <= 1)
+                if (adminUsers.Count <= 2)
                 {
-                    return (false, "Cannot demote the last administrator. At least one admin must remain.");
+                    return (false, "Cannot demote administrator. At least 3 administrators must be present in the system to allow demotion, ensuring at least 2 remain after demotion.");
                 }
 
                 var result = await _userManager.RemoveFromRoleAsync(user, AdminRole);
@@ -193,14 +203,25 @@ namespace TeamWorkFlow.Core.Services
 
         public async Task<bool> CanDemoteFromAdminAsync(string userId)
         {
+            return await CanDemoteFromAdminAsync(userId, null);
+        }
+
+        public async Task<bool> CanDemoteFromAdminAsync(string userId, string? currentUserId)
+        {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;
 
             // Can demote if user is admin and not the last admin
             if (!await _userManager.IsInRoleAsync(user, AdminRole)) return false;
 
+            // Prevent self-demotion: if currentUserId is provided and matches userId, return false
+            if (!string.IsNullOrEmpty(currentUserId) && userId == currentUserId) return false;
+
             var adminUsers = await _userManager.GetUsersInRoleAsync(AdminRole);
-            return adminUsers.Count > 1;
+
+            // Require at least 3 admin users to allow demotion
+            // This ensures that after demotion, there will still be at least 2 admins remaining
+            return adminUsers.Count > 2;
         }
 
         public async Task<UserRoleStatsViewModel> GetRoleStatsAsync()
@@ -268,11 +289,11 @@ namespace TeamWorkFlow.Core.Services
                     return (false, "There is already a pending demotion request for this administrator.");
                 }
 
-                // Check if this would be the last admin
+                // Check if this would leave insufficient admins
                 var adminUsers = await _userManager.GetUsersInRoleAsync(AdminRole);
-                if (adminUsers.Count <= 2) // Current admin + target admin = 2, so demoting would leave only 1
+                if (adminUsers.Count <= 2) // Need at least 3 admins to allow demotion
                 {
-                    return (false, "Cannot create demotion request. At least two administrators must remain in the system.");
+                    return (false, "Cannot create demotion request. At least 3 administrators must be present in the system to allow demotion, ensuring at least 2 remain after demotion.");
                 }
 
                 // Create the demotion request

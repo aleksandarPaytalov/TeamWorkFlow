@@ -171,8 +171,13 @@ namespace UnitTests
         {
             // Arrange
             var user = new IdentityUser { Id = "user1", Email = "admin@test.com" };
-            var adminUsers = new List<IdentityUser> { user, new IdentityUser { Id = "user2" } };
-            
+            var adminUsers = new List<IdentityUser> {
+                user,
+                new IdentityUser { Id = "user2" },
+                new IdentityUser { Id = "user3" },
+                new IdentityUser { Id = "user4" }
+            }; // Need more than 2 admins for demotion to be allowed
+
             _mockUserManager.Setup(um => um.FindByIdAsync("user1")).ReturnsAsync(user);
             _mockUserManager.Setup(um => um.IsInRoleAsync(user, AdminRole)).ReturnsAsync(true);
             _mockUserManager.Setup(um => um.GetUsersInRoleAsync(AdminRole)).ReturnsAsync(adminUsers);
@@ -193,7 +198,7 @@ namespace UnitTests
             // Arrange
             var user = new IdentityUser { Id = "user1", Email = "admin@test.com" };
             var adminUsers = new List<IdentityUser> { user }; // Only one admin
-            
+
             _mockUserManager.Setup(um => um.FindByIdAsync("user1")).ReturnsAsync(user);
             _mockUserManager.Setup(um => um.IsInRoleAsync(user, AdminRole)).ReturnsAsync(true);
             _mockUserManager.Setup(um => um.GetUsersInRoleAsync(AdminRole)).ReturnsAsync(adminUsers);
@@ -203,7 +208,7 @@ namespace UnitTests
 
             // Assert
             Assert.That(result.Success, Is.False);
-            Assert.That(result.Message, Does.Contain("Cannot demote the last administrator"));
+            Assert.That(result.Message, Does.Contain("Cannot demote administrator. At least 3 administrators must be present in the system to allow demotion, ensuring at least 2 remain after demotion"));
         }
 
         #endregion
@@ -264,8 +269,13 @@ namespace UnitTests
         {
             // Arrange
             var user = new IdentityUser { Id = "user1", Email = "admin@test.com" };
-            var adminUsers = new List<IdentityUser> { user, new IdentityUser { Id = "user2" } };
-            
+            var adminUsers = new List<IdentityUser> {
+                user,
+                new IdentityUser { Id = "user2" },
+                new IdentityUser { Id = "user3" },
+                new IdentityUser { Id = "user4" }
+            }; // Need more than 2 admins for demotion to be allowed (4 > 2 should work)
+
             _mockUserManager.Setup(um => um.FindByIdAsync("user1")).ReturnsAsync(user);
             _mockUserManager.Setup(um => um.IsInRoleAsync(user, AdminRole)).ReturnsAsync(true);
             _mockUserManager.Setup(um => um.GetUsersInRoleAsync(AdminRole)).ReturnsAsync(adminUsers);
@@ -283,7 +293,7 @@ namespace UnitTests
             // Arrange
             var user = new IdentityUser { Id = "user1", Email = "admin@test.com" };
             var adminUsers = new List<IdentityUser> { user };
-            
+
             _mockUserManager.Setup(um => um.FindByIdAsync("user1")).ReturnsAsync(user);
             _mockUserManager.Setup(um => um.IsInRoleAsync(user, AdminRole)).ReturnsAsync(true);
             _mockUserManager.Setup(um => um.GetUsersInRoleAsync(AdminRole)).ReturnsAsync(adminUsers);
@@ -293,6 +303,27 @@ namespace UnitTests
 
             // Assert
             Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public async System.Threading.Tasks.Task MockTest_GetUsersInRoleAsync_ReturnsCorrectCount()
+        {
+            // Arrange
+            var adminUsers = new List<IdentityUser> {
+                new IdentityUser { Id = "user1" },
+                new IdentityUser { Id = "user2" },
+                new IdentityUser { Id = "user3" },
+                new IdentityUser { Id = "user4" }
+            };
+
+            _mockUserManager.Setup(um => um.GetUsersInRoleAsync(AdminRole)).ReturnsAsync(adminUsers);
+
+            // Act
+            var result = await _mockUserManager.Object.GetUsersInRoleAsync(AdminRole);
+
+            // Assert
+            Assert.That(result.Count, Is.EqualTo(4));
+            Assert.That(result.Count > 2, Is.True);
         }
 
         #endregion
