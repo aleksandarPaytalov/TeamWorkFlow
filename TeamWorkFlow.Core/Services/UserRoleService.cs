@@ -29,6 +29,11 @@ namespace TeamWorkFlow.Core.Services
 
         public async Task<IEnumerable<UserRoleViewModel>> GetAllUsersWithRolesAsync()
         {
+            return await GetAllUsersWithRolesAsync(null);
+        }
+
+        public async Task<IEnumerable<UserRoleViewModel>> GetAllUsersWithRolesAsync(string? currentUserId)
+        {
             var users = await _userManager.Users.ToListAsync();
             var userRoles = new List<UserRoleViewModel>();
 
@@ -55,7 +60,7 @@ namespace TeamWorkFlow.Core.Services
                 };
 
                 userRole.CanPromoteToAdmin = await CanPromoteToAdminAsync(user.Id);
-                userRole.CanDemoteFromAdmin = await CanDemoteFromAdminAsync(user.Id);
+                userRole.CanDemoteFromAdmin = await CanDemoteFromAdminAsync(user.Id, currentUserId);
                 userRole.CanAssignRole = await CanAssignRoleAsync(user.Id);
                 userRole.CanDemoteToGuest = await CanDemoteToGuestAsync(user.Id);
 
@@ -66,6 +71,11 @@ namespace TeamWorkFlow.Core.Services
         }
 
         public async Task<UserRoleViewModel?> GetUserWithRoleAsync(string userId)
+        {
+            return await GetUserWithRoleAsync(userId, null);
+        }
+
+        public async Task<UserRoleViewModel?> GetUserWithRoleAsync(string userId, string? currentUserId)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return null;
@@ -91,7 +101,7 @@ namespace TeamWorkFlow.Core.Services
             };
 
             userRole.CanPromoteToAdmin = await CanPromoteToAdminAsync(userId);
-            userRole.CanDemoteFromAdmin = await CanDemoteFromAdminAsync(userId);
+            userRole.CanDemoteFromAdmin = await CanDemoteFromAdminAsync(userId, currentUserId);
             userRole.CanAssignRole = await CanAssignRoleAsync(userId);
             userRole.CanDemoteToGuest = await CanDemoteToGuestAsync(userId);
 
@@ -193,11 +203,19 @@ namespace TeamWorkFlow.Core.Services
 
         public async Task<bool> CanDemoteFromAdminAsync(string userId)
         {
+            return await CanDemoteFromAdminAsync(userId, null);
+        }
+
+        public async Task<bool> CanDemoteFromAdminAsync(string userId, string? currentUserId)
+        {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;
 
             // Can demote if user is admin and not the last admin
             if (!await _userManager.IsInRoleAsync(user, AdminRole)) return false;
+
+            // Prevent self-demotion: if currentUserId is provided and matches userId, return false
+            if (!string.IsNullOrEmpty(currentUserId) && userId == currentUserId) return false;
 
             var adminUsers = await _userManager.GetUsersInRoleAsync(AdminRole);
             return adminUsers.Count > 1;
