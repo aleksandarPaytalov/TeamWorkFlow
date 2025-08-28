@@ -219,5 +219,20 @@ namespace TeamWorkFlow.Core.Services
 		        await _repository.SaveChangesAsync();
 	        }
         }
+
+        public async Task<IEnumerable<ProjectPartServiceModel>> GetPartsByProjectIdAsync(int projectId)
+        {
+            return await _repository.AllReadOnly<Part>()
+                .Where(p => p.ProjectId == projectId)
+                .OrderBy(p => p.PartArticleNumber)
+                .Select(p => new ProjectPartServiceModel()
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    PartArticleNumber = p.PartArticleNumber,
+                    Status = p.PartStatus.Name
+                })
+                .ToListAsync();
+        }
     }
 }

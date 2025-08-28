@@ -24,5 +24,12 @@ namespace TeamWorkFlow.Core.Contracts
         Task<ProjectDetailsServiceModel?> GetProjectDetailsByIdAsync(int projectId);
         Task<ProjectDeleteServiceModel?> GetProjectForDeleteByIdAsync(int projectId);
         Task ProjectDeleteAsync(int projectId);
+
+        Task<ProjectTimeCalculationServiceModel?> GetProjectTimeCalculationByIdAsync(int projectId);
+        Task<IEnumerable<ProjectTimeCalculationServiceModel>> GetAllProjectsWithTimeCalculationsAsync();
+
+        // Cost calculation methods
+        Task<ProjectCostCalculationModel?> GetProjectCostCalculationByIdAsync(int projectId);
+        Task<ProjectCostCalculationModel> CalculateProjectCostAsync(int projectId, decimal hourlyRate);
 	}
 }

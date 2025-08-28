@@ -35,10 +35,11 @@ namespace TeamWorkFlow.Core.Models.Project
             ErrorMessage = StringLength)]
         public string? Appliance { get; set; }
 
-        [Required(ErrorMessage = RequiredMessage)]
-        [Range(ProjectTotalHoursMinValue, 
-	        ProjectTotalHoursMaxValue, 
+        // TotalHoursSpent is set automatically to 1 hour on creation (project setup time)
+        // This field is not displayed in the form but used internally
+        [Range(ProjectTotalHoursMinValue,
+	        ProjectTotalHoursMaxValue,
 	        ErrorMessage = StringNumberRange)]
-        public int TotalHoursSpent { get; set; }
+        public int TotalHoursSpent { get; set; } = 1;
     }
 }

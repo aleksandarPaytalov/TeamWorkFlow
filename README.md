@@ -575,4 +575,8 @@ We welcome contributions to TeamWorkFlow! Please follow these guidelines:
 - 📱 Mobile application
 - 🔗 API integrations
 
+### Augment short commands for server start and stop when the process is runned in background
+- taskkill /F /IM TeamWorkFlow.exe 
+- dotnet run 
+
 

@@ -55,7 +55,7 @@ namespace UnitTests
         #region GetAllUsersWithRolesAsync Tests
 
         [Test]
-        public async System.Threading.Tasks.Task GetAllUsersWithRolesAsync_WithUsers_ReturnsUserRoleViewModels()
+        public void GetAllUsersWithRolesAsync_WithUsers_ReturnsUserRoleViewModels()
         {
             // This test is complex due to UserManager.Users requiring IAsyncEnumerable
             // Testing the core logic through other methods instead
@@ -63,7 +63,7 @@ namespace UnitTests
         }
 
         [Test]
-        public async System.Threading.Tasks.Task GetAllUsersWithRolesAsync_WithOperatorUser_SetsOperatorProperties()
+        public void GetAllUsersWithRolesAsync_WithOperatorUser_SetsOperatorProperties()
         {
             // This test is complex due to database entity requirements
             // Testing the core logic through other methods instead
@@ -98,7 +98,7 @@ namespace UnitTests
         public async System.Threading.Tasks.Task GetUserWithRoleAsync_WithInvalidUserId_ReturnsNull()
         {
             // Arrange
-            _mockUserManager.Setup(um => um.FindByIdAsync("invalid")).ReturnsAsync((IdentityUser?)null);
+            _mockUserManager.Setup(um => um.FindByIdAsync("invalid"))!.ReturnsAsync((IdentityUser?)null);
 
             // Act
             var result = await _userRoleService.GetUserWithRoleAsync("invalid");
@@ -135,7 +135,7 @@ namespace UnitTests
         public async System.Threading.Tasks.Task PromoteToAdminAsync_WithNonExistentUser_ReturnsFailure()
         {
             // Arrange
-            _mockUserManager.Setup(um => um.FindByIdAsync("invalid")).ReturnsAsync((IdentityUser?)null);
+            _mockUserManager.Setup(um => um.FindByIdAsync("invalid"))!.ReturnsAsync((IdentityUser?)null);
 
             // Act
             var result = await _userRoleService.PromoteToAdminAsync("invalid");
@@ -251,7 +251,7 @@ namespace UnitTests
         public async System.Threading.Tasks.Task CanPromoteToAdminAsync_WithInvalidUser_ReturnsFalse()
         {
             // Arrange
-            _mockUserManager.Setup(um => um.FindByIdAsync("invalid")).ReturnsAsync((IdentityUser?)null);
+            _mockUserManager.Setup(um => um.FindByIdAsync("invalid"))!.ReturnsAsync((IdentityUser?)null);
 
             // Act
             var result = await _userRoleService.CanPromoteToAdminAsync("invalid");
@@ -331,7 +331,7 @@ namespace UnitTests
         #region GetRoleStatsAsync Tests
 
         [Test]
-        public async System.Threading.Tasks.Task GetRoleStatsAsync_ReturnsCorrectStats()
+        public void GetRoleStatsAsync_ReturnsCorrectStats()
         {
             // This test is complex due to database entity requirements and UserManager.Users
             // Testing the core logic through other methods instead

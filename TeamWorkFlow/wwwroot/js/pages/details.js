@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeCopyFeatures();
     initializeTouchFeatures();
     initializeAccessibilityFeatures();
+    initializeCostCalculation();
 });
 
 /**
@@ -584,4 +585,197 @@ function initializeAccessibilityFeatures() {
     if (window.matchMedia && window.matchMedia('(prefers-contrast: high)').matches) {
         document.body.classList.add('high-contrast');
     }
+}
+
+/**
+ * Initialize cost calculation functionality
+ */
+function initializeCostCalculation() {
+    const calculateBtn = document.getElementById('calculateCostBtn');
+    const hourlyRateInput = document.getElementById('hourlyRate');
+    const costResults = document.getElementById('costResults');
+    const costError = document.getElementById('costError');
+
+    if (!calculateBtn || !hourlyRateInput) {
+        return; // Cost calculation not available on this page
+    }
+
+    // Add event listeners
+    calculateBtn.addEventListener('click', handleCostCalculation);
+
+    // Allow Enter key to trigger calculation
+    hourlyRateInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            handleCostCalculation();
+        }
+    });
+
+    // Clear error when user starts typing
+    hourlyRateInput.addEventListener('input', function() {
+        hideError();
+        hideResults();
+    });
+}
+
+/**
+ * Handle cost calculation
+ */
+function handleCostCalculation() {
+    const hourlyRateInput = document.getElementById('hourlyRate');
+    const currencySelect = document.getElementById('currency');
+    const calculateBtn = document.getElementById('calculateCostBtn');
+
+    const hourlyRate = parseFloat(hourlyRateInput.value);
+    const currency = currencySelect.value;
+
+    // Validation
+    if (!hourlyRate || hourlyRate <= 0) {
+        showError('Please enter a valid hourly rate greater than 0.');
+        return;
+    }
+
+    if (hourlyRate > 10000) {
+        showError('Hourly rate cannot exceed 10,000.00.');
+        return;
+    }
+
+    // Get project ID from URL or data attribute
+    const projectId = getProjectIdFromPage();
+    if (!projectId) {
+        showError('Unable to determine project ID.');
+        return;
+    }
+
+    // Show loading state
+    const originalText = calculateBtn.innerHTML;
+    calculateBtn.disabled = true;
+    calculateBtn.innerHTML = `
+        <svg class="animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        Calculating...
+    `;
+
+    // Make AJAX request
+    fetch('/Project/CalculateCost', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'RequestVerificationToken': getAntiForgeryToken()
+        },
+        body: `projectId=${projectId}&hourlyRate=${hourlyRate}&currency=${currency}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showResults(data);
+        } else {
+            showError(data.message || 'An error occurred while calculating costs.');
+        }
+    })
+    .catch(error => {
+        console.error('Cost calculation error:', error);
+        showError('An error occurred while calculating costs. Please try again.');
+    })
+    .finally(() => {
+        // Restore button state
+        calculateBtn.disabled = false;
+        calculateBtn.innerHTML = originalText;
+    });
+}
+
+/**
+ * Show calculation results
+ */
+function showResults(data) {
+    const costResults = document.getElementById('costResults');
+    const hourlyRateDisplay = document.getElementById('hourlyRateDisplay');
+    const totalLaborCost = document.getElementById('totalLaborCost');
+
+    if (costResults && hourlyRateDisplay && totalLaborCost) {
+        hourlyRateDisplay.textContent = data.hourlyRate;
+        totalLaborCost.textContent = data.totalLaborCost;
+
+        hideError();
+        costResults.style.display = 'block';
+
+        // Add animation
+        costResults.style.opacity = '0';
+        costResults.style.transform = 'translateY(10px)';
+
+        setTimeout(() => {
+            costResults.style.transition = 'all 0.3s ease';
+            costResults.style.opacity = '1';
+            costResults.style.transform = 'translateY(0)';
+        }, 10);
+    }
+}
+
+/**
+ * Show error message
+ */
+function showError(message) {
+    const costError = document.getElementById('costError');
+    const errorMessage = document.getElementById('errorMessage');
+
+    if (costError && errorMessage) {
+        errorMessage.textContent = message;
+        hideResults();
+        costError.style.display = 'block';
+
+        // Add animation
+        costError.style.opacity = '0';
+        setTimeout(() => {
+            costError.style.transition = 'opacity 0.3s ease';
+            costError.style.opacity = '1';
+        }, 10);
+    }
+}
+
+/**
+ * Hide error message
+ */
+function hideError() {
+    const costError = document.getElementById('costError');
+    if (costError) {
+        costError.style.display = 'none';
+    }
+}
+
+/**
+ * Hide results
+ */
+function hideResults() {
+    const costResults = document.getElementById('costResults');
+    if (costResults) {
+        costResults.style.display = 'none';
+    }
+}
+
+/**
+ * Get project ID from the current page
+ */
+function getProjectIdFromPage() {
+    // Try to get from URL
+    const urlParts = window.location.pathname.split('/');
+    const detailsIndex = urlParts.indexOf('Details');
+    if (detailsIndex !== -1 && urlParts[detailsIndex + 1]) {
+        return parseInt(urlParts[detailsIndex + 1]);
+    }
+
+    // Try to get from data attribute
+    const container = document.querySelector('[data-project-id]');
+    if (container) {
+        return parseInt(container.getAttribute('data-project-id'));
+    }
+
+    return null;
+}
+
+/**
+ * Get anti-forgery token for AJAX requests
+ */
+function getAntiForgeryToken() {
+    const token = document.querySelector('input[name="__RequestVerificationToken"]');
+    return token ? token.value : '';
 }

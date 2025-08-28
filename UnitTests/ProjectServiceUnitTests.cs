@@ -986,7 +986,7 @@ public void Setup()
 				Appliance = "Test Appliance",
 				ClientName = "Test Client",
 				Status = "Ready",
-				TotalHoursSpent = 120,
+				CalculatedTotalHours = 120,
 				TotalParts = 30
 			};
 
@@ -997,7 +997,7 @@ public void Setup()
 			Assert.That(model.Appliance, Is.EqualTo("Test Appliance"));
 			Assert.That(model.ClientName, Is.EqualTo("Test Client"));
 			Assert.That(model.Status, Is.EqualTo("Ready"));
-			Assert.That(model.TotalHoursSpent, Is.EqualTo(120));
+			Assert.That(model.CalculatedTotalHours, Is.EqualTo(120));
 			Assert.That(model.TotalParts, Is.EqualTo(30));
 		}
 
@@ -1014,8 +1014,429 @@ public void Setup()
 			Assert.That(model.Appliance, Is.EqualTo(string.Empty));
 			Assert.That(model.ClientName, Is.EqualTo(string.Empty));
 			Assert.That(model.Status, Is.EqualTo(string.Empty));
-			Assert.That(model.TotalHoursSpent, Is.EqualTo(0));
+			Assert.That(model.CalculatedTotalHours, Is.EqualTo(0));
 			Assert.That(model.TotalParts, Is.EqualTo(0));
+		}
+
+		#endregion
+
+		#region Project-Tasks Relationship Tests
+
+		[Test]
+		public async Task Project_TasksNavigationProperty_WorksCorrectly()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>()
+				.Include(p => p.Tasks)
+				.FirstOrDefaultAsync();
+
+			// Assert
+			Assert.That(project, Is.Not.Null, "Project should exist");
+			Assert.That(project.Tasks, Is.Not.Null, "Tasks navigation property should not be null");
+
+			// Check if we can access tasks through the project
+			var taskCount = project.Tasks.Count;
+			Assert.That(taskCount, Is.GreaterThanOrEqualTo(0), "Task count should be non-negative");
+		}
+
+		[Test]
+		public async Task Project_CanLoadTasksWithInclude()
+		{
+			// Arrange & Act
+			var projectsWithTasks = await _repository.AllReadOnly<Project>()
+				.Include(p => p.Tasks)
+				.ToListAsync();
+
+			// Assert
+			Assert.That(projectsWithTasks, Is.Not.Null);
+			Assert.That(projectsWithTasks.Count, Is.GreaterThan(0), "Should have projects in database");
+
+			// Verify that Tasks navigation property is accessible
+			foreach (var project in projectsWithTasks)
+			{
+				Assert.That(project.Tasks, Is.Not.Null, $"Tasks collection should not be null for project {project.ProjectName}");
+			}
+		}
+
+		#endregion
+
+		#region Time Calculation Tests
+
+		[Test]
+		public async Task GetProjectTimeCalculationByIdAsync_ReturnsCorrectCalculations()
+		{
+			// Arrange
+			var projectId = 2; // Project with tasks in seeded data
+
+			// Act
+			var result = await _projectService.GetProjectTimeCalculationByIdAsync(projectId);
+
+			// Assert
+			Assert.That(result, Is.Not.Null, "Project time calculation should not be null");
+			Assert.That(result.ProjectId, Is.EqualTo(projectId));
+			Assert.That(result.ProjectName, Is.Not.Empty);
+			Assert.That(result.ProjectNumber, Is.Not.Empty);
+			Assert.That(result.TotalHoursSpent, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.CalculatedTotalHours, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.TotalEstimatedHours, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.CompletionPercentage, Is.InRange(0, 100));
+		}
+
+		[Test]
+		public async Task GetAllProjectsWithTimeCalculationsAsync_ReturnsAllProjects()
+		{
+			// Act
+			var result = await _projectService.GetAllProjectsWithTimeCalculationsAsync();
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Count(), Is.GreaterThan(0), "Should return projects with time calculations");
+
+			foreach (var project in result)
+			{
+				Assert.That(project.ProjectId, Is.GreaterThan(0));
+				Assert.That(project.ProjectName, Is.Not.Empty);
+				Assert.That(project.ProjectNumber, Is.Not.Empty);
+				Assert.That(project.CompletionPercentage, Is.InRange(0, 100));
+			}
+		}
+
+		[Test]
+		public async Task ProjectDetailsServiceModel_IncludesTimeCalculations()
+		{
+			// Arrange
+			var projectId = 2; // Project with tasks
+
+			// Act
+			var result = await _projectService.GetProjectDetailsByIdAsync(projectId);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.CalculatedTotalHours, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.TotalEstimatedHours, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.CompletionPercentage, Is.InRange(0, 100));
+			Assert.That(result.FinishedTasksCount, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.InProgressTasksCount, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.OpenTasksCount, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.TotalTasksCount, Is.GreaterThanOrEqualTo(0));
+		}
+
+		[Test]
+		public void ProjectTimeCalculationServiceModel_FormattedProperties_WorkCorrectly()
+		{
+			// Arrange
+			var model = new ProjectTimeCalculationServiceModel
+			{
+				TotalHoursSpent = 40,
+				CalculatedTotalHours = 32,
+				TotalEstimatedHours = 48,
+				CompletionPercentage = 66.7,
+				TimeVariance = 8
+			};
+
+			// Act & Assert
+			Assert.That(model.FormattedCompletionPercentage, Is.EqualTo("66.7%"));
+			Assert.That(model.TimeVarianceStatus, Is.EqualTo("Under Estimate"));
+			Assert.That(model.FormattedTotalHoursSpent, Is.EqualTo("5d"));
+			Assert.That(model.FormattedCalculatedTotalHours, Is.EqualTo("4d"));
+			Assert.That(model.FormattedTotalEstimatedHours, Is.EqualTo("6d"));
+		}
+
+		#endregion
+
+		#region Project Creation with Default Time Tests
+
+		[Test]
+		public async Task AddNewProjectsAsync_SetsDefaultOneHourSetupTime()
+		{
+			// Arrange
+			var model = new ProjectFormModel
+			{
+				ProjectName = "Test Project with Default Time",
+				ProjectNumber = "TP9999",
+				ProjectStatusId = 1,
+				TotalHoursSpent = 1, // This should be set by controller
+				ClientName = "Test Client",
+				Appliance = "Test Application"
+			};
+
+			// Act
+			var projectId = await _projectService.AddNewProjectsAsync(model);
+
+			// Assert
+			Assert.That(projectId, Is.GreaterThan(0), "Project should be created successfully");
+
+			var createdProject = await _projectService.GetProjectDetailsByIdAsync(projectId);
+			Assert.That(createdProject, Is.Not.Null, "Created project should be retrievable");
+			Assert.That(createdProject.CalculatedTotalHours, Is.EqualTo(0), "Project should have 0 calculated hours initially");
+			Assert.That(createdProject.ProjectName, Is.EqualTo("Test Project with Default Time"));
+			Assert.That(createdProject.ProjectNumber, Is.EqualTo("TP9999"));
+		}
+
+		[Test]
+		public void ProjectFormModel_HasDefaultOneHourValue()
+		{
+			// Arrange & Act
+			var model = new ProjectFormModel();
+
+			// Assert
+			Assert.That(model.TotalHoursSpent, Is.EqualTo(1), "ProjectFormModel should default to 1 hour for setup time");
+		}
+
+		#endregion
+
+		#region Cost Calculation Tests
+
+		[Test]
+		public async Task GetProjectCostCalculationByIdAsync_WithValidProject_ReturnsCorrectModel()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>().FirstOrDefaultAsync();
+			Assert.That(project, Is.Not.Null, "Project is null");
+
+			// Act
+			var result = await _projectService.GetProjectCostCalculationByIdAsync(project.Id);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.ProjectId, Is.EqualTo(project.Id));
+			Assert.That(result.ProjectName, Is.EqualTo(project.ProjectName));
+			Assert.That(result.ProjectNumber, Is.EqualTo(project.ProjectNumber));
+			Assert.That(result.HourlyRate, Is.EqualTo(0)); // Default value
+			Assert.That(result.CalculatedTotalHours, Is.GreaterThanOrEqualTo(0));
+		}
+
+		[Test]
+		public async Task GetProjectCostCalculationByIdAsync_WithNonExistentProject_ReturnsNull()
+		{
+			// Act
+			var result = await _projectService.GetProjectCostCalculationByIdAsync(999);
+
+			// Assert
+			Assert.That(result, Is.Null);
+		}
+
+		[Test]
+		public async Task CalculateProjectCostAsync_WithValidData_ReturnsCorrectCalculation()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>().FirstOrDefaultAsync();
+			Assert.That(project, Is.Not.Null, "Project is null");
+
+			var hourlyRate = 50.00m;
+
+			// Act
+			var result = await _projectService.CalculateProjectCostAsync(project.Id, hourlyRate);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.ProjectId, Is.EqualTo(project.Id));
+			Assert.That(result.HourlyRate, Is.EqualTo(hourlyRate));
+			Assert.That(result.TotalLaborCost, Is.EqualTo(result.CalculatedTotalHours * hourlyRate));
+		}
+
+		[Test]
+		public async Task CalculateProjectCostAsync_WithZeroHourlyRate_ReturnsZeroCost()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>().FirstOrDefaultAsync();
+			Assert.That(project, Is.Not.Null, "Project is null");
+
+			var hourlyRate = 0m;
+
+			// Act
+			var result = await _projectService.CalculateProjectCostAsync(project.Id, hourlyRate);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.HourlyRate, Is.EqualTo(0));
+			Assert.That(result.TotalLaborCost, Is.EqualTo(0));
+		}
+
+		[Test]
+		public async Task CalculateProjectCostAsync_WithHighHourlyRate_CalculatesCorrectly()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>().FirstOrDefaultAsync();
+			Assert.That(project, Is.Not.Null, "Project is null");
+
+			var hourlyRate = 150.75m;
+
+			// Act
+			var result = await _projectService.CalculateProjectCostAsync(project.Id, hourlyRate);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.HourlyRate, Is.EqualTo(hourlyRate));
+			Assert.That(result.TotalLaborCost, Is.EqualTo(result.CalculatedTotalHours * hourlyRate));
+		}
+
+		[Test]
+		public void CalculateProjectCostAsync_WithNonExistentProject_ThrowsArgumentException()
+		{
+			// Arrange
+			var nonExistentProjectId = 999;
+			var hourlyRate = 50.00m;
+
+			// Act & Assert
+			Assert.ThrowsAsync<ArgumentException>(async () =>
+				await _projectService.CalculateProjectCostAsync(nonExistentProjectId, hourlyRate));
+		}
+
+		[Test]
+		public async Task CalculateProjectCostAsync_WithProjectWithFinishedTasks_CalculatesBasedOnFinishedTasksOnly()
+		{
+			// Arrange - Create a test user first
+			var testUser = new IdentityUser
+			{
+				Id = "test-user-id",
+				UserName = "testuser@example.com",
+				Email = "testuser@example.com",
+				EmailConfirmed = true
+			};
+			await _dbContext.Users.AddAsync(testUser);
+			await _dbContext.SaveChangesAsync();
+
+			// Create a project with mixed task statuses
+			var project = new Project()
+			{
+				ProjectName = "Cost Test Project",
+				ProjectNumber = "CTP001",
+				ProjectStatusId = 1,
+				TotalHoursSpent = 100
+			};
+
+			await _dbContext.Projects.AddAsync(project);
+			await _dbContext.SaveChangesAsync();
+
+			// Add tasks with different statuses
+			var finishedTask1 = new TeamWorkFlow.Infrastructure.Data.Models.Task()
+			{
+				Name = "Finished Task 1",
+				ProjectId = project.Id,
+				TaskStatusId = 3, // Finished
+				EstimatedTime = 20,
+				StartDate = DateTime.Now,
+				PriorityId = 1,
+				CreatorId = testUser.Id
+			};
+
+			var finishedTask2 = new TeamWorkFlow.Infrastructure.Data.Models.Task()
+			{
+				Name = "Finished Task 2",
+				ProjectId = project.Id,
+				TaskStatusId = 3, // Finished
+				EstimatedTime = 30,
+				StartDate = DateTime.Now,
+				PriorityId = 1,
+				CreatorId = testUser.Id
+			};
+
+			var inProgressTask = new TeamWorkFlow.Infrastructure.Data.Models.Task()
+			{
+				Name = "In Progress Task",
+				ProjectId = project.Id,
+				TaskStatusId = 2, // In Progress
+				EstimatedTime = 40,
+				StartDate = DateTime.Now,
+				PriorityId = 1,
+				CreatorId = testUser.Id
+			};
+
+			await _dbContext.Tasks.AddRangeAsync(finishedTask1, finishedTask2, inProgressTask);
+			await _dbContext.SaveChangesAsync();
+
+			var hourlyRate = 50.00m;
+
+			// Act
+			var result = await _projectService.CalculateProjectCostAsync(project.Id, hourlyRate);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.CalculatedTotalHours, Is.EqualTo(50)); // Only finished tasks: 20 + 30
+			Assert.That(result.TotalLaborCost, Is.EqualTo(2500.00m)); // 50 hours * $50/hour
+		}
+
+		[Test]
+		public async Task CalculateProjectCostAsync_WithProjectWithNoFinishedTasks_ReturnsZeroHours()
+		{
+			// Arrange - Create a test user first
+			var testUser = new IdentityUser
+			{
+				Id = "test-user-id-2",
+				UserName = "testuser2@example.com",
+				Email = "testuser2@example.com",
+				EmailConfirmed = true
+			};
+			await _dbContext.Users.AddAsync(testUser);
+			await _dbContext.SaveChangesAsync();
+
+			// Create a project with only non-finished tasks
+			var project = new Project()
+			{
+				ProjectName = "No Finished Tasks Project",
+				ProjectNumber = "NFT001",
+				ProjectStatusId = 1,
+				TotalHoursSpent = 100
+			};
+
+			await _dbContext.Projects.AddAsync(project);
+			await _dbContext.SaveChangesAsync();
+
+			// Add only non-finished tasks
+			var openTask = new TeamWorkFlow.Infrastructure.Data.Models.Task()
+			{
+				Name = "Open Task",
+				ProjectId = project.Id,
+				TaskStatusId = 1, // Open
+				EstimatedTime = 20,
+				StartDate = DateTime.Now,
+				PriorityId = 1,
+				CreatorId = testUser.Id
+			};
+
+			var inProgressTask = new TeamWorkFlow.Infrastructure.Data.Models.Task()
+			{
+				Name = "In Progress Task",
+				ProjectId = project.Id,
+				TaskStatusId = 2, // In Progress
+				EstimatedTime = 30,
+				StartDate = DateTime.Now,
+				PriorityId = 1,
+				CreatorId = testUser.Id
+			};
+
+			await _dbContext.Tasks.AddRangeAsync(openTask, inProgressTask);
+			await _dbContext.SaveChangesAsync();
+
+			var hourlyRate = 75.00m;
+
+			// Act
+			var result = await _projectService.CalculateProjectCostAsync(project.Id, hourlyRate);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.CalculatedTotalHours, Is.EqualTo(0)); // No finished tasks
+			Assert.That(result.TotalLaborCost, Is.EqualTo(0)); // 0 hours * any rate = 0
+		}
+
+		[Test]
+		public async Task ProjectCostCalculationModel_FormattedCalculatedTotalHours_WorksCorrectly()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>().FirstOrDefaultAsync();
+			Assert.That(project, Is.Not.Null, "Project is null");
+
+			// Act
+			var result = await _projectService.GetProjectCostCalculationByIdAsync(project.Id);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.FormattedCalculatedTotalHours, Is.Not.Null);
+			Assert.That(result.FormattedCalculatedTotalHours, Is.Not.Empty);
+
+			// Should contain 'h' for hours or 'd' for days
+			Assert.That(result.FormattedCalculatedTotalHours.Contains('h') || result.FormattedCalculatedTotalHours.Contains('d'), Is.True);
 		}
 
 		#endregion

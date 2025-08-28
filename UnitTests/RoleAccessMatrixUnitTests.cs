@@ -17,7 +17,7 @@ namespace UnitTests
             var hasAccess = IsSprintToDoAccessible(role);
 
             // Assert
-            Assert.AreEqual(expectedAccess, hasAccess, description);
+            Assert.That(hasAccess, Is.EqualTo(expectedAccess), description);
         }
 
         [TestCase(GuestRole, true, "Guest users should have read-only access to Tasks")]
@@ -29,7 +29,7 @@ namespace UnitTests
             var hasAccess = IsTaskAccessible(role);
 
             // Assert
-            Assert.AreEqual(expectedAccess, hasAccess, description);
+            Assert.That(hasAccess, Is.EqualTo(expectedAccess), description);
         }
 
         [TestCase(GuestRole, false, "Guest users should not have access to Admin features")]
@@ -41,7 +41,7 @@ namespace UnitTests
             var hasAccess = IsAdminAccessible(role);
 
             // Assert
-            Assert.AreEqual(expectedAccess, hasAccess, description);
+            Assert.That(hasAccess, Is.EqualTo(expectedAccess), description);
         }
 
         #endregion
@@ -115,10 +115,10 @@ namespace UnitTests
             var actualCanDemoteToGuest = CanDemoteToGuest(role);
 
             // Assert
-            Assert.AreEqual(canAssignRole, actualCanAssignRole, $"CanAssignRole failed for {role}");
-            Assert.AreEqual(canPromoteToAdmin, actualCanPromoteToAdmin, $"CanPromoteToAdmin failed for {role}");
-            Assert.AreEqual(canDemoteFromAdmin, actualCanDemoteFromAdmin, $"CanDemoteFromAdmin failed for {role}");
-            Assert.AreEqual(canDemoteToGuest, actualCanDemoteToGuest, $"CanDemoteToGuest failed for {role}");
+            Assert.That(actualCanAssignRole, Is.EqualTo(canAssignRole), $"CanAssignRole failed for {role}");
+            Assert.That(actualCanPromoteToAdmin, Is.EqualTo(canPromoteToAdmin), $"CanPromoteToAdmin failed for {role}");
+            Assert.That(actualCanDemoteFromAdmin, Is.EqualTo(canDemoteFromAdmin), $"CanDemoteFromAdmin failed for {role}");
+            Assert.That(actualCanDemoteToGuest, Is.EqualTo(canDemoteToGuest), $"CanDemoteToGuest failed for {role}");
         }
 
         #endregion

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeamWorkFlow.Infrastructure.Data;
 
@@ -11,9 +12,10 @@ using TeamWorkFlow.Infrastructure.Data;
 namespace TeamWorkFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(TeamWorkFlowDbContext))]
-    partial class TeamWorkFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250828073852_AddTasksNavigationPropertyToProject")]
+    partial class AddTasksNavigationPropertyToProject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

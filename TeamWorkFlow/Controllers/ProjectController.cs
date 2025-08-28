@@ -11,10 +11,12 @@ namespace TeamWorkFlow.Controllers
     public class ProjectController : BaseController
     {
 	    private readonly IProjectService _projectService;
+	    private readonly IPartService _partService;
 
-	    public ProjectController(IProjectService projectService)
+	    public ProjectController(IProjectService projectService, IPartService partService)
 	    {
 		    _projectService = projectService;
+		    _partService = partService;
 	    }
 
 	    [HttpGet]
@@ -67,10 +69,8 @@ namespace TeamWorkFlow.Controllers
 				ModelState.AddModelError(nameof(model.ProjectStatusId), $"{StatusNotExisting}");
 		    }
 
-		    if (model.TotalHoursSpent < 0)
-		    {
-				ModelState.AddModelError(nameof(model.TotalHoursSpent), $"{StringNumberRange}");
-		    }
+		    // Set default 1 hour for project setup/initialization time
+		    model.TotalHoursSpent = 1;
 
 		    if (!ModelState.IsValid)
 		    {
@@ -179,6 +179,12 @@ namespace TeamWorkFlow.Controllers
 			    return BadRequest();
 		    }
 
+		    // Get parts for this project
+		    if (projectToShow != null)
+		    {
+			    projectToShow.Parts = await _partService.GetPartsByProjectIdAsync(id);
+		    }
+
 		    return View(projectToShow);
 		}
 
@@ -222,6 +228,50 @@ namespace TeamWorkFlow.Controllers
 		    await _projectService.ProjectDeleteAsync(id);
 
 			return RedirectToAction(nameof(All));
+	    }
+
+	    [HttpPost]
+	    [ValidateAntiForgeryToken]
+	    public async Task<IActionResult> CalculateCost(int projectId, decimal hourlyRate, string currency = "USD")
+	    {
+		    if (!await _projectService.ProjectExistByIdAsync(projectId))
+		    {
+			    return Json(new { success = false, message = "Project not found." });
+		    }
+
+		    if (hourlyRate <= 0)
+		    {
+			    return Json(new { success = false, message = "Hourly rate must be greater than 0." });
+		    }
+
+		    // Validate currency
+		    if (currency != "USD" && currency != "EUR")
+		    {
+			    return Json(new { success = false, message = "Invalid currency selected." });
+		    }
+
+		    try
+		    {
+			    var costCalculation = await _projectService.CalculateProjectCostAsync(projectId, hourlyRate);
+
+			    // Format currency based on selection
+			    var currencySymbol = currency == "EUR" ? "€" : "$";
+			    var formattedTotalCost = $"{currencySymbol}{costCalculation.TotalLaborCost:F2}";
+			    var formattedHourlyRate = $"{currencySymbol}{hourlyRate:F2}";
+
+			    return Json(new
+			    {
+				    success = true,
+				    totalLaborCost = formattedTotalCost,
+				    calculatedTotalHours = costCalculation.FormattedCalculatedTotalHours,
+				    hourlyRate = formattedHourlyRate,
+				    currency = currency
+			    });
+		    }
+		    catch (Exception ex)
+		    {
+			    return Json(new { success = false, message = ex.Message });
+		    }
 	    }
 	}
 }

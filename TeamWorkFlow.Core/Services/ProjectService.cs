@@ -99,6 +99,7 @@ namespace TeamWorkFlow.Core.Services
 	        };
 
 	        var projects = await projectsToBeDisplayed
+		        .Include(p => p.Tasks)
 		        .Skip((currentPage - 1) * projectsPerPage)
 		        .Take(projectsPerPage)
 		        .Select(p => new ProjectServiceModel()
@@ -107,7 +108,13 @@ namespace TeamWorkFlow.Core.Services
 			        ProjectName = p.ProjectName,
 			        ProjectNumber = p.ProjectNumber,
 			        Status = p.ProjectStatus.Name,
-			        TotalParts = p.Parts.Count
+			        TotalParts = p.Parts.Count,
+			        // Time tracking properties
+			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        TotalEstimatedHours = p.Tasks.Sum(t => t.EstimatedTime),
+			        CompletionPercentage = p.Tasks.Sum(t => t.EstimatedTime) > 0
+				        ? (double)p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime) / p.Tasks.Sum(t => t.EstimatedTime) * 100
+				        : 0
 		        })
 		        .ToListAsync();
 
@@ -248,7 +255,8 @@ namespace TeamWorkFlow.Core.Services
 
         public async Task<ProjectDetailsServiceModel?> GetProjectDetailsByIdAsync(int projectId)
         {
-	        return await _repository.AllReadOnly<Project>()
+	        var project = await _repository.AllReadOnly<Project>()
+		        .Include(p => p.Tasks)
 		        .Where(p => p.Id == projectId)
 		        .Select(p => new ProjectDetailsServiceModel()
 		        {
@@ -258,10 +266,54 @@ namespace TeamWorkFlow.Core.Services
 			        Appliance = p.Appliance ?? string.Empty,
 			        ClientName = p.ClientName ?? string.Empty,
 			        Status = p.ProjectStatus.Name,
-			        TotalHoursSpent = p.TotalHoursSpent,
-			        TotalParts = p.Parts.Count
+			        TotalParts = p.Parts.Count,
+			        // Task-based calculations
+			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        TotalEstimatedHours = p.Tasks.Sum(t => t.EstimatedTime),
+			        CompletionPercentage = p.Tasks.Sum(t => t.EstimatedTime) > 0
+				        ? (double)p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime) / p.Tasks.Sum(t => t.EstimatedTime) * 100
+				        : 0,
+			        // Task counts
+			        FinishedTasksCount = p.Tasks.Count(t => t.TaskStatusId == 3),
+			        InProgressTasksCount = p.Tasks.Count(t => t.TaskStatusId == 2),
+			        OpenTasksCount = p.Tasks.Count(t => t.TaskStatusId == 1),
+			        TotalTasksCount = p.Tasks.Count
 		        })
 		        .FirstOrDefaultAsync();
+
+	        if (project != null)
+	        {
+		        // Get operator contributions for finished tasks
+		        var operatorContributions = await _repository.AllReadOnly<TaskOperator>()
+			        .Include(to => to.Task)
+			        .Include(to => to.Operator)
+			        .Where(to => to.Task.ProjectId == projectId && to.Task.TaskStatusId == 3) // Only finished tasks
+			        .GroupBy(to => new { to.OperatorId, to.Operator.FullName })
+			        .Select(g => new OperatorContributionServiceModel
+			        {
+				        OperatorId = g.Key.OperatorId,
+				        OperatorName = g.Key.FullName,
+				        TotalHours = g.Sum(to => to.Task.EstimatedTime)
+			        })
+			        .ToListAsync();
+
+		        // Calculate contribution percentages
+		        var totalProjectHours = project.CalculatedTotalHours;
+		        if (totalProjectHours > 0)
+		        {
+			        foreach (var contribution in operatorContributions)
+			        {
+				        contribution.ContributionPercentage = (double)contribution.TotalHours / totalProjectHours * 100;
+			        }
+		        }
+
+		        // Sort by contribution (highest first)
+		        project.OperatorContributions = operatorContributions
+			        .OrderByDescending(oc => oc.TotalHours)
+			        .ToList();
+	        }
+
+	        return project;
         }
 
         public async Task<ProjectDeleteServiceModel?> GetProjectForDeleteByIdAsync(int projectId)
@@ -291,6 +343,88 @@ namespace TeamWorkFlow.Core.Services
 	        {
 		        throw new ArgumentException($"{ProjectNotExisting}");
 	        }
+        }
+
+        public async Task<ProjectTimeCalculationServiceModel?> GetProjectTimeCalculationByIdAsync(int projectId)
+        {
+	        return await _repository.AllReadOnly<Project>()
+		        .Include(p => p.Tasks)
+		        .Where(p => p.Id == projectId)
+		        .Select(p => new ProjectTimeCalculationServiceModel()
+		        {
+			        ProjectId = p.Id,
+			        ProjectName = p.ProjectName,
+			        ProjectNumber = p.ProjectNumber,
+			        TotalHoursSpent = p.TotalHoursSpent,
+			        // Task-based calculations
+			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        TotalEstimatedHours = p.Tasks.Sum(t => t.EstimatedTime),
+			        TimeVariance = p.TotalHoursSpent - p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        CompletionPercentage = p.Tasks.Sum(t => t.EstimatedTime) > 0
+				        ? (double)p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime) / p.Tasks.Sum(t => t.EstimatedTime) * 100
+				        : 0,
+			        // Task counts
+			        FinishedTasksCount = p.Tasks.Count(t => t.TaskStatusId == 3),
+			        InProgressTasksCount = p.Tasks.Count(t => t.TaskStatusId == 2),
+			        OpenTasksCount = p.Tasks.Count(t => t.TaskStatusId == 1),
+			        TotalTasksCount = p.Tasks.Count
+		        })
+		        .FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<ProjectTimeCalculationServiceModel>> GetAllProjectsWithTimeCalculationsAsync()
+        {
+	        return await _repository.AllReadOnly<Project>()
+		        .Include(p => p.Tasks)
+		        .Select(p => new ProjectTimeCalculationServiceModel()
+		        {
+			        ProjectId = p.Id,
+			        ProjectName = p.ProjectName,
+			        ProjectNumber = p.ProjectNumber,
+			        TotalHoursSpent = p.TotalHoursSpent,
+			        // Task-based calculations
+			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        TotalEstimatedHours = p.Tasks.Sum(t => t.EstimatedTime),
+			        TimeVariance = p.TotalHoursSpent - p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        CompletionPercentage = p.Tasks.Sum(t => t.EstimatedTime) > 0
+				        ? (double)p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime) / p.Tasks.Sum(t => t.EstimatedTime) * 100
+				        : 0,
+			        // Task counts
+			        FinishedTasksCount = p.Tasks.Count(t => t.TaskStatusId == 3),
+			        InProgressTasksCount = p.Tasks.Count(t => t.TaskStatusId == 2),
+			        OpenTasksCount = p.Tasks.Count(t => t.TaskStatusId == 1),
+			        TotalTasksCount = p.Tasks.Count
+		        })
+		        .ToListAsync();
+        }
+
+        public async Task<ProjectCostCalculationModel?> GetProjectCostCalculationByIdAsync(int projectId)
+        {
+	        return await _repository.AllReadOnly<Project>()
+		        .Include(p => p.Tasks)
+		        .Where(p => p.Id == projectId)
+		        .Select(p => new ProjectCostCalculationModel()
+		        {
+			        ProjectId = p.Id,
+			        ProjectName = p.ProjectName,
+			        ProjectNumber = p.ProjectNumber,
+			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        HourlyRate = 0 // Default value, will be set by user input
+		        })
+		        .FirstOrDefaultAsync();
+        }
+
+        public async Task<ProjectCostCalculationModel> CalculateProjectCostAsync(int projectId, decimal hourlyRate)
+        {
+	        var project = await GetProjectCostCalculationByIdAsync(projectId);
+
+	        if (project == null)
+	        {
+		        throw new ArgumentException($"Project with ID {projectId} not found.");
+	        }
+
+	        project.HourlyRate = hourlyRate;
+	        return project;
         }
 	}
 }

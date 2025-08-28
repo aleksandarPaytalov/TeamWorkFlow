@@ -80,7 +80,8 @@ namespace UnitTests
 			// Assert
 			Assert.That(result, Is.InstanceOf<RedirectToActionResult>());
 			var redirectResult = result as RedirectToActionResult;
-			Assert.That(redirectResult.ActionName, Is.EqualTo(nameof(_controller.All)));
+			Assert.That(redirectResult, Is.Not.Null);
+			Assert.That(redirectResult!.ActionName, Is.EqualTo(nameof(_controller.All)));
 
 			_mockOperatorService.Verify(s => s.DeactivateOperatorWithStatusAsync(operatorId, statusId), Times.Once);
 			_mockMemoryCache.Verify(c => c.Remove(UserCacheKey), Times.Once);
@@ -99,7 +100,8 @@ namespace UnitTests
 			// Assert
 			Assert.That(result, Is.InstanceOf<RedirectToActionResult>());
 			var redirectResult = result as RedirectToActionResult;
-			Assert.That(redirectResult.ActionName, Is.EqualTo(nameof(_controller.All)));
+			Assert.That(redirectResult, Is.Not.Null);
+			Assert.That(redirectResult!.ActionName, Is.EqualTo(nameof(_controller.All)));
 
 			_mockOperatorService.Verify(s => s.DeactivateOperatorWithStatusAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
 		}
@@ -117,7 +119,8 @@ namespace UnitTests
 			// Assert
 			Assert.That(result, Is.InstanceOf<RedirectToActionResult>());
 			var redirectResult = result as RedirectToActionResult;
-			Assert.That(redirectResult.ActionName, Is.EqualTo(nameof(_controller.All)));
+			Assert.That(redirectResult, Is.Not.Null);
+			Assert.That(redirectResult!.ActionName, Is.EqualTo(nameof(_controller.All)));
 
 			_mockOperatorService.Verify(s => s.DeactivateOperatorWithStatusAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
 		}
@@ -130,7 +133,7 @@ namespace UnitTests
 			int statusId = 2;
 
 			_mockOperatorService.Setup(s => s.GetOperatorDetailsByIdAsync(operatorId))
-				.ReturnsAsync((OperatorDetailsServiceModel)null);
+				.ReturnsAsync((OperatorDetailsServiceModel?)null);
 
 			// Act
 			var result = await _controller.DeactivateWithStatus(operatorId, statusId);
@@ -138,7 +141,8 @@ namespace UnitTests
 			// Assert
 			Assert.That(result, Is.InstanceOf<RedirectToActionResult>());
 			var redirectResult = result as RedirectToActionResult;
-			Assert.That(redirectResult.ActionName, Is.EqualTo(nameof(_controller.All)));
+			Assert.That(redirectResult, Is.Not.Null);
+			Assert.That(redirectResult!.ActionName, Is.EqualTo(nameof(_controller.All)));
 
 			_mockOperatorService.Verify(s => s.DeactivateOperatorWithStatusAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
 		}
@@ -167,7 +171,8 @@ namespace UnitTests
 			// Assert
 			Assert.That(result, Is.InstanceOf<RedirectToActionResult>());
 			var redirectResult = result as RedirectToActionResult;
-			Assert.That(redirectResult.ActionName, Is.EqualTo(nameof(_controller.All)));
+			Assert.That(redirectResult, Is.Not.Null);
+			Assert.That(redirectResult!.ActionName, Is.EqualTo(nameof(_controller.All)));
 
 			_mockOperatorService.Verify(s => s.DeactivateOperatorWithStatusAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
 		}
@@ -198,7 +203,8 @@ namespace UnitTests
 			// Assert
 			Assert.That(result, Is.InstanceOf<RedirectToActionResult>());
 			var redirectResult = result as RedirectToActionResult;
-			Assert.That(redirectResult.ActionName, Is.EqualTo(nameof(_controller.All)));
+			Assert.That(redirectResult, Is.Not.Null);
+			Assert.That(redirectResult!.ActionName, Is.EqualTo(nameof(_controller.All)));
 		}
 
 		#endregion
@@ -225,10 +231,11 @@ namespace UnitTests
 			// Assert
 			Assert.That(result, Is.InstanceOf<JsonResult>());
 			var jsonResult = result as JsonResult;
-			var returnedStatuses = jsonResult.Value as List<AvailabilityStatusServiceModel>;
-			
+			Assert.That(jsonResult, Is.Not.Null);
+			var returnedStatuses = jsonResult!.Value as List<AvailabilityStatusServiceModel>;
+
 			Assert.That(returnedStatuses, Is.Not.Null);
-			Assert.That(returnedStatuses.Count, Is.EqualTo(2)); // Should exclude "At Work" (ID = 1)
+			Assert.That(returnedStatuses!.Count, Is.EqualTo(2)); // Should exclude "At Work" (ID = 1)
 			Assert.That(returnedStatuses.Any(s => s.Id == 1), Is.False); // "At Work" should be filtered out
 			Assert.That(returnedStatuses.Any(s => s.Id == 2), Is.True); // "On Vacation" should be included
 			Assert.That(returnedStatuses.Any(s => s.Id == 3), Is.True); // "Sick Leave" should be included
@@ -247,10 +254,11 @@ namespace UnitTests
 			// Assert
 			Assert.That(result, Is.InstanceOf<JsonResult>());
 			var jsonResult = result as JsonResult;
-			var returnedStatuses = jsonResult.Value as List<object>;
-			
+			Assert.That(jsonResult, Is.Not.Null);
+			var returnedStatuses = jsonResult!.Value as List<object>;
+
 			Assert.That(returnedStatuses, Is.Not.Null);
-			Assert.That(returnedStatuses.Count, Is.EqualTo(0));
+			Assert.That(returnedStatuses!.Count, Is.EqualTo(0));
 		}
 
 		#endregion
@@ -278,7 +286,8 @@ namespace UnitTests
 			// Assert
 			Assert.That(result, Is.InstanceOf<RedirectToActionResult>());
 			var redirectResult = result as RedirectToActionResult;
-			Assert.That(redirectResult.ActionName, Is.EqualTo(nameof(_controller.All)));
+			Assert.That(redirectResult, Is.Not.Null);
+			Assert.That(redirectResult!.ActionName, Is.EqualTo(nameof(_controller.All)));
 
 			_mockOperatorService.Verify(s => s.DeactivateOperatorAsync(operatorId), Times.Once);
 			_mockOperatorService.Verify(s => s.ActivateOperatorAsync(It.IsAny<int>()), Times.Never);
@@ -306,7 +315,8 @@ namespace UnitTests
 			// Assert
 			Assert.That(result, Is.InstanceOf<RedirectToActionResult>());
 			var redirectResult = result as RedirectToActionResult;
-			Assert.That(redirectResult.ActionName, Is.EqualTo(nameof(_controller.All)));
+			Assert.That(redirectResult, Is.Not.Null);
+			Assert.That(redirectResult!.ActionName, Is.EqualTo(nameof(_controller.All)));
 
 			_mockOperatorService.Verify(s => s.ActivateOperatorAsync(operatorId), Times.Once);
 			_mockOperatorService.Verify(s => s.DeactivateOperatorAsync(It.IsAny<int>()), Times.Never);
@@ -320,7 +330,7 @@ namespace UnitTests
 			int operatorId = 999;
 
 			_mockOperatorService.Setup(s => s.GetOperatorDetailsByIdAsync(operatorId))
-				.ReturnsAsync((OperatorDetailsServiceModel)null);
+				.ReturnsAsync((OperatorDetailsServiceModel?)null);
 
 			// Act
 			var result = await _controller.ToggleStatus(operatorId);
@@ -328,7 +338,8 @@ namespace UnitTests
 			// Assert
 			Assert.That(result, Is.InstanceOf<RedirectToActionResult>());
 			var redirectResult = result as RedirectToActionResult;
-			Assert.That(redirectResult.ActionName, Is.EqualTo(nameof(_controller.All)));
+			Assert.That(redirectResult, Is.Not.Null);
+			Assert.That(redirectResult!.ActionName, Is.EqualTo(nameof(_controller.All)));
 
 			_mockOperatorService.Verify(s => s.ActivateOperatorAsync(It.IsAny<int>()), Times.Never);
 			_mockOperatorService.Verify(s => s.DeactivateOperatorAsync(It.IsAny<int>()), Times.Never);
@@ -357,7 +368,8 @@ namespace UnitTests
 			// Assert
 			Assert.That(result, Is.InstanceOf<RedirectToActionResult>());
 			var redirectResult = result as RedirectToActionResult;
-			Assert.That(redirectResult.ActionName, Is.EqualTo(nameof(_controller.All)));
+			Assert.That(redirectResult, Is.Not.Null);
+			Assert.That(redirectResult!.ActionName, Is.EqualTo(nameof(_controller.All)));
 		}
 
 		#endregion

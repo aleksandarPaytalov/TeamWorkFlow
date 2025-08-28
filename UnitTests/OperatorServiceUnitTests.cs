@@ -583,7 +583,7 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task DeleteOperatorByIdAsync_WithInvalidId_DoesNotThrowException()
+		public void DeleteOperatorByIdAsync_WithInvalidId_DoesNotThrowException()
 		{
 			// Arrange
 			int invalidOperatorId = 99999;
@@ -667,7 +667,7 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task EditOperatorAsync_WithInvalidOperatorId_DoesNotThrowException()
+		public void EditOperatorAsync_WithInvalidOperatorId_DoesNotThrowException()
 		{
 			// Arrange
 			int invalidOperatorId = 99999;
@@ -1012,7 +1012,7 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task ActivateOperatorAsync_WithInvalidId_DoesNotThrowException()
+		public void ActivateOperatorAsync_WithInvalidId_DoesNotThrowException()
 		{
 			// Arrange
 			int invalidOperatorId = 99999;
@@ -1026,7 +1026,7 @@ public void Setup()
 		public async Task GetUserIdByEmailAsync_WithNonExistentEmail_ReturnsNull()
 		{
 			// Arrange
-			_mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+			_mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))!
 				.ReturnsAsync((IdentityUser?)null);
 
 			// Act

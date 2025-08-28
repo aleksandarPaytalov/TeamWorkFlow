@@ -90,6 +90,44 @@
 								<span class="project-parts-count">@p.TotalParts items</span>
 							</div>
 						</div>
+
+						<!-- Time Progress Section -->
+						<div class="project-time-progress">
+							<div class="time-info-row">
+								<div class="time-info-item">
+									<span class="time-label">Progress:</span>
+									<span class="time-value">@p.FormattedCompletionPercentage</span>
+								</div>
+								<div class="time-info-item">
+									<span class="time-label">Health:</span>
+									<span class="project-health @p.ProjectHealthStatus.ToLower().Replace(" ", "-")">@p.ProjectHealthStatus</span>
+								</div>
+							</div>
+
+							<!-- Progress Bar -->
+							<div class="progress-container">
+								<div class="progress-bar">
+									<div class="progress-fill progress-@p.ProgressBarColor"
+										 style="width: @(Math.Min(p.CompletionPercentage, 100))%"
+										 data-percentage="@p.CompletionPercentage">
+									</div>
+								</div>
+							</div>
+
+							<!-- Time Details -->
+							<div class="time-details">
+								<div class="time-detail-item">
+									<span class="time-detail-label">Actual:</span>
+									<span class="time-detail-value">@p.FormattedCalculatedTotalHours</span>
+								</div>
+								<div class="time-detail-item">
+									<span class="time-detail-label">Estimated:</span>
+									<span class="time-detail-value">@p.FormattedTotalEstimatedHours</span>
+								</div>
+							</div>
+
+
+						</div>
 					</div>
 
 					<!-- Card Actions -->
