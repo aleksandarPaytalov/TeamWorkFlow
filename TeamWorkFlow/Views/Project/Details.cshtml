@@ -128,6 +128,63 @@
 					</div>
 				</div>
 
+				<!-- Parts Section -->
+				<div class="details-section">
+					<div class="section-header">
+						<h3 class="section-title">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+							</svg>
+							Project Parts
+						</h3>
+						<span class="section-count">@Model.Parts.Count() parts</span>
+					</div>
+
+					@if (Model.Parts.Any())
+					{
+						<div class="parts-list">
+							@foreach (var part in Model.Parts.OrderBy(p => p.PartArticleNumber))
+							{
+								<div class="part-item">
+									<div class="part-info">
+										<div class="part-header">
+											<h4 class="part-name">@part.Name</h4>
+											<span class="part-article">@part.PartArticleNumber</span>
+										</div>
+										<div class="part-status">
+											<span class="status-badge status-@part.Status.ToLower().Replace(" ", "-")">
+												@part.Status
+											</span>
+										</div>
+									</div>
+									<div class="part-actions">
+										<a href="@Url.Action("Details", "Part", new { id = part.Id, extension = part.GetPartExtension() })"
+										   class="part-link">
+											<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+											</svg>
+											View Details
+										</a>
+									</div>
+								</div>
+							}
+						</div>
+					}
+					else
+					{
+						<div class="no-parts-message">
+							<div class="empty-state">
+								<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+								</svg>
+								<h4>No parts assigned</h4>
+								<p>This project doesn't have any parts assigned to it yet.</p>
+							</div>
+						</div>
+					}
+				</div>
+
 				<!-- Action Buttons -->
 				@if (User.Identity?.IsAuthenticated == true && User.IsAdmin())
 				{

@@ -11,10 +11,12 @@ namespace TeamWorkFlow.Controllers
     public class ProjectController : BaseController
     {
 	    private readonly IProjectService _projectService;
+	    private readonly IPartService _partService;
 
-	    public ProjectController(IProjectService projectService)
+	    public ProjectController(IProjectService projectService, IPartService partService)
 	    {
 		    _projectService = projectService;
+		    _partService = partService;
 	    }
 
 	    [HttpGet]
@@ -177,6 +179,12 @@ namespace TeamWorkFlow.Controllers
 		    if (extension != projectToShow?.GetProjectExtension())
 		    {
 			    return BadRequest();
+		    }
+
+		    // Get parts for this project
+		    if (projectToShow != null)
+		    {
+			    projectToShow.Parts = await _partService.GetPartsByProjectIdAsync(id);
 		    }
 
 		    return View(projectToShow);

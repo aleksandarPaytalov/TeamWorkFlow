@@ -912,12 +912,328 @@ body > div > nav[aria-label="breadcrumb"] {
     }
 }
 
+/* Parts Section Styles */
+.details-section {
+    margin-bottom: 2rem;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0;
+}
+
+.section-title svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: #8b5cf6;
+}
+
+.section-count {
+    background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.parts-list {
+    padding: 1.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.part-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.part-item:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.part-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.part-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.part-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0;
+}
+
+.part-article {
+    background: #e5e7eb;
+    color: #6b7280;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: 'Courier New', monospace;
+}
+
+.part-status {
+    display: flex;
+    align-items: center;
+}
+
+.status-badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Status badge colors */
+.status-badge.status-active,
+.status-badge.status-ready,
+.status-badge.status-completed {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-badge.status-in-progress,
+.status-badge.status-working {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.status-pending,
+.status-badge.status-waiting {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.status-badge.status-inactive,
+.status-badge.status-stopped {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.part-actions {
+    display: flex;
+    align-items: center;
+}
+
+.part-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.part-link:hover {
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.part-link svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.no-parts-message {
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    color: #6b7280;
+}
+
+.empty-state svg {
+    width: 3rem;
+    height: 3rem;
+    color: #d1d5db;
+}
+
+.empty-state h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    margin: 0;
+    max-width: 24rem;
+}
+
+/* Mobile Responsive Styles for Parts Section */
+@media (max-width: 768px) {
+    .section-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+        padding: 1rem 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+    }
+
+    .section-title svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+
+    .parts-list {
+        padding: 1rem 1.5rem;
+        gap: 0.75rem;
+    }
+
+    .part-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .part-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .part-name {
+        font-size: 1rem;
+    }
+
+    .part-article {
+        align-self: flex-start;
+    }
+
+    .part-actions {
+        justify-content: center;
+    }
+
+    .part-link {
+        width: 100%;
+        justify-content: center;
+        padding: 0.875rem 1rem;
+    }
+
+    .no-parts-message {
+        padding: 2rem 1.5rem;
+    }
+
+    .empty-state svg {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+
+    .empty-state h4 {
+        font-size: 1.125rem;
+    }
+
+    .empty-state p {
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-header {
+        padding: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.125rem;
+    }
+
+    .parts-list {
+        padding: 1rem;
+    }
+
+    .part-item {
+        padding: 0.875rem;
+    }
+
+    .part-name {
+        font-size: 0.875rem;
+    }
+
+    .part-article {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .status-badge {
+        font-size: 0.625rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .part-link {
+        font-size: 0.75rem;
+        padding: 0.75rem 0.875rem;
+    }
+
+    .no-parts-message {
+        padding: 1.5rem 1rem;
+    }
+}
+
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
     .details-card,
     .details-btn,
     .details-image,
-    .fade-in-details {
+    .fade-in-details,
+    .part-item,
+    .part-link {
         transition: none !important;
         animation: none !important;
         transform: none !important;

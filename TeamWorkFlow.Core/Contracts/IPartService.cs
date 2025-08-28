@@ -32,5 +32,7 @@ namespace TeamWorkFlow.Core.Contracts
         Task<PartDeleteServiceModel?> GetPartForDeletingByIdAsync(int partId);
 
         Task DeletePartByIdAsync(int partId);
+
+        Task<IEnumerable<ProjectPartServiceModel>> GetPartsByProjectIdAsync(int projectId);
     }
 }
