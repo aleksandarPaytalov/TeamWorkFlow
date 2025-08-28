@@ -5,6 +5,7 @@ using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Admin.Operator;
 using TeamWorkFlow.Core.Models.Operator;
+using TeamWorkFlow.Core.Models.BulkOperations;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
 using TeamWorkFlow.Infrastructure.Constants;
@@ -403,6 +404,66 @@ namespace TeamWorkFlow.Core.Services
 			{
 				await _repository.SaveChangesAsync();
 			}
+		}
+
+		// Bulk operations
+		public async Task<BulkOperationResult> BulkDeleteAsync(List<int> operatorIds)
+		{
+			var result = new BulkOperationResult
+			{
+				TotalItems = operatorIds.Count
+			};
+
+			if (!operatorIds.Any())
+			{
+				result.Success = false;
+				result.ErrorMessages.Add("No operators selected for deletion");
+				return result;
+			}
+
+			var validationErrors = new List<string>();
+			var processedCount = 0;
+
+			foreach (var operatorId in operatorIds)
+			{
+				try
+				{
+					var operatorExists = await OperatorExistByIdAsync(operatorId);
+					if (!operatorExists)
+					{
+						validationErrors.Add($"Operator with ID {operatorId} not found");
+						continue;
+					}
+
+					// Check if operator has active task assignments
+					var operatorHasActiveTasks = await _repository.AllReadOnly<TaskOperator>()
+						.Include(to => to.Task)
+						.ThenInclude(t => t.TaskStatus)
+						.Where(to => to.OperatorId == operatorId)
+						.AnyAsync(to => to.Task.TaskStatus.Name.ToLower() != "finished");
+
+					if (operatorHasActiveTasks)
+					{
+						validationErrors.Add($"Operator {operatorId} cannot be deleted because they have active task assignments");
+						continue;
+					}
+
+					await DeleteOperatorByIdAsync(operatorId);
+					processedCount++;
+				}
+				catch (Exception ex)
+				{
+					validationErrors.Add($"Failed to delete operator {operatorId}: {ex.Message}");
+				}
+			}
+
+			result.ProcessedItems = processedCount;
+			result.FailedItems = operatorIds.Count - processedCount;
+			result.ErrorMessages = validationErrors;
+			result.Success = processedCount > 0;
+			result.Message = $"Successfully deleted {processedCount} out of {operatorIds.Count} operators";
+
+			return result;
 		}
 	}
 }

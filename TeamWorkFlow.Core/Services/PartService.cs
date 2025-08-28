@@ -2,6 +2,7 @@
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Part;
+using TeamWorkFlow.Core.Models.BulkOperations;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
 using Task = System.Threading.Tasks.Task;
@@ -233,6 +234,53 @@ namespace TeamWorkFlow.Core.Services
                     Status = p.PartStatus.Name
                 })
                 .ToListAsync();
+        }
+
+        // Bulk operations
+        public async Task<BulkOperationResult> BulkDeleteAsync(List<int> partIds)
+        {
+            var result = new BulkOperationResult
+            {
+                TotalItems = partIds.Count
+            };
+
+            if (!partIds.Any())
+            {
+                result.Success = false;
+                result.ErrorMessages.Add("No parts selected for deletion");
+                return result;
+            }
+
+            var validationErrors = new List<string>();
+            var processedCount = 0;
+
+            foreach (var partId in partIds)
+            {
+                try
+                {
+                    var partExists = await PartExistAsync(partId);
+                    if (!partExists)
+                    {
+                        validationErrors.Add($"Part with ID {partId} not found");
+                        continue;
+                    }
+
+                    await DeletePartByIdAsync(partId);
+                    processedCount++;
+                }
+                catch (Exception ex)
+                {
+                    validationErrors.Add($"Failed to delete part {partId}: {ex.Message}");
+                }
+            }
+
+            result.ProcessedItems = processedCount;
+            result.FailedItems = partIds.Count - processedCount;
+            result.ErrorMessages = validationErrors;
+            result.Success = processedCount > 0;
+            result.Message = $"Successfully deleted {processedCount} out of {partIds.Count} parts";
+
+            return result;
         }
     }
 }

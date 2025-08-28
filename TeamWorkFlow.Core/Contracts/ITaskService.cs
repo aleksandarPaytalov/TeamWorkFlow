@@ -1,5 +1,6 @@
 ﻿using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Task;
+using TeamWorkFlow.Core.Models.BulkOperations;
 using TeamWorkFlow.Core.Models.Machine;
 using TeamWorkFlow.Core.Models.Operator;
 
@@ -61,6 +62,10 @@ namespace TeamWorkFlow.Core.Contracts
         // Archive methods
         Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetArchivedTasksAsync(int page, int pageSize);
         Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetArchivedTasksAsync(int page, int pageSize, string? search, TaskSorting sorting);
+
+        // Bulk operations
+        Task<BulkOperationResult> BulkDeleteAsync(List<int> taskIds);
+        Task<BulkOperationResult> BulkArchiveAsync(List<int> taskIds);
 
         // Estimated time management
         Task<(bool Success, string Message)> SetEstimatedTimeAsync(int taskId, int estimatedTime);

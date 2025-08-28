@@ -1,5 +1,6 @@
 ﻿using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Project;
+using TeamWorkFlow.Core.Models.BulkOperations;
 
 namespace TeamWorkFlow.Core.Contracts
 {
@@ -27,6 +28,9 @@ namespace TeamWorkFlow.Core.Contracts
 
         Task<ProjectTimeCalculationServiceModel?> GetProjectTimeCalculationByIdAsync(int projectId);
         Task<IEnumerable<ProjectTimeCalculationServiceModel>> GetAllProjectsWithTimeCalculationsAsync();
+
+        // Bulk operations
+        Task<BulkOperationResult> BulkDeleteAsync(List<int> projectIds);
 
         // Cost calculation methods
         Task<ProjectCostCalculationModel?> GetProjectCostCalculationByIdAsync(int projectId);

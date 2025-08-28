@@ -15,6 +15,7 @@
 
 @section Styles {
 	<link rel="stylesheet" href="~/css/pages/tasks.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/bulk-operations.css" asp-append-version="true" />
 }
 
 @Html.AntiForgeryToken()
@@ -24,6 +25,31 @@
 	<div class="tasks-header">
 		<h1 class="tasks-title">@ViewData["Title"]</h1>
 		<p class="tasks-subtitle">Track and manage project tasks with deadlines and priorities</p>
+
+		@if (User.IsAdmin())
+		{
+			<!-- Anti-forgery token for AJAX requests -->
+			@Html.AntiForgeryToken()
+
+			<!-- Bulk Operations Section -->
+			<div class="bulk-operations" id="bulk-operations" style="display: none;">
+				<div class="bulk-actions">
+					<button type="button" class="btn-bulk btn-bulk-delete" id="bulk-delete-btn">
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+						</svg>
+						Delete Selected
+					</button>
+					<button type="button" class="btn-bulk btn-bulk-archive" id="bulk-archive-btn">
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8l6 6 6-6"></path>
+						</svg>
+						Archive Selected
+					</button>
+					<span class="selected-count" id="selected-count">0 selected</span>
+				</div>
+			</div>
+		}
 	</div>
 
 	@if (User?.Identity?.IsAuthenticated ?? false)
@@ -49,6 +75,18 @@
 					</svg>
 					Archive
 				</a>
+			</div>
+		}
+
+		@if (User.IsAdmin())
+		{
+			<!-- Select All Section -->
+			<div class="select-all-section">
+				<label class="checkbox-container">
+					<input type="checkbox" id="select-all-checkbox" class="bulk-checkbox">
+					<span class="checkmark"></span>
+					Select All
+				</label>
 			</div>
 		}
 
@@ -87,7 +125,17 @@
 		<div class="tasks-grid">
 			@foreach (var task in Model.Tasks)
 			{
-				<div class="task-card fade-in">
+				<div class="task-card fade-in" data-task-id="@task.Id">
+					@if (User.IsAdmin())
+					{
+						<!-- Checkbox for bulk operations -->
+						<div class="task-checkbox">
+							<label class="checkbox-container">
+								<input type="checkbox" class="task-select-checkbox" data-task-id="@task.Id">
+								<span class="checkmark"></span>
+							</label>
+						</div>
+					}
 					<!-- Card Header -->
 					<div class="task-card-header">
 						<div class="task-project-number">Project #@task.ProjectNumber</div>
@@ -396,5 +444,6 @@
 
 @section Scripts {
 	<script src="~/js/pages/tasks.js" asp-append-version="true"></script>
+	<script src="~/js/bulk-operations.js" asp-append-version="true"></script>
 	<partial name="_ValidationScriptsPartial" />
 }

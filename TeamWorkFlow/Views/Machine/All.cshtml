@@ -15,6 +15,7 @@
 
 @section Styles {
 	<link rel="stylesheet" href="~/css/pages/machines.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/bulk-operations.css" asp-append-version="true" />
 }
 
 <div class="machines-container">
@@ -22,6 +23,22 @@
 	<div class="machines-header">
 		<h1 class="machines-title">@ViewData["Title"]</h1>
 		<p class="machines-subtitle">Manage and monitor your precision measuring equipment</p>
+
+		@if (User.IsAdmin())
+		{
+			<!-- Bulk Operations Section -->
+			<div class="bulk-operations" id="bulk-operations" style="display: none;">
+				<div class="bulk-actions">
+					<button type="button" class="btn-bulk btn-bulk-delete" id="bulk-delete-btn">
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+						</svg>
+						Delete Selected
+					</button>
+					<span class="selected-count" id="selected-count">0 selected</span>
+				</div>
+			</div>
+		}
 	</div>
 
 	@if (User?.Identity?.IsAuthenticated ?? false)
@@ -35,6 +52,18 @@
 					</svg>
 					Add New Machine
 				</a>
+			</div>
+		}
+
+		@if (User.IsAdmin())
+		{
+			<!-- Select All Section -->
+			<div class="select-all-section">
+				<label class="checkbox-container">
+					<input type="checkbox" id="select-all-checkbox" class="bulk-checkbox">
+					<span class="checkmark"></span>
+					Select All
+				</label>
 			</div>
 		}
 
@@ -70,7 +99,17 @@
 		<div class="machines-grid">
 			@foreach (var m in Model.Machines)
 			{
-				<div class="machine-card fade-in">
+				<div class="machine-card fade-in" data-machine-id="@m.Id">
+					@if (User.IsAdmin())
+					{
+						<!-- Checkbox for bulk operations -->
+						<div class="machine-checkbox">
+							<label class="checkbox-container">
+								<input type="checkbox" class="machine-select-checkbox" data-machine-id="@m.Id">
+								<span class="checkmark"></span>
+							</label>
+						</div>
+					}
 					<!-- Card Image -->
 					<div class="machine-card-image-container">
 						@{
@@ -345,5 +384,7 @@
 
 @section Scripts {
 	<script src="~/js/pages/machines.js" asp-append-version="true"></script>
+	<script src="~/js/bulk-operations.js" asp-append-version="true"></script>
 	<partial name="_ValidationScriptsPartial" />
+	@Html.AntiForgeryToken()
 }

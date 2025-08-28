@@ -1,5 +1,6 @@
 ﻿using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Admin.Operator;
+using TeamWorkFlow.Core.Models.BulkOperations;
 using TeamWorkFlow.Core.Models.Operator;
 using Task = System.Threading.Tasks.Task;
 
@@ -31,6 +32,9 @@ namespace TeamWorkFlow.Core.Contracts
 		Task DeactivateOperatorAsync(int id);
 		Task DeactivateOperatorWithStatusAsync(int id, int availabilityStatusId);
 		Task<string?> GetUserIdByEmailAsync(string emailAddress);
+
+		// Bulk operations
+		Task<BulkOperationResult> BulkDeleteAsync(List<int> operatorIds);
 		Task<string?> GetOperatorFullNameByUserIdAsync(string userId);
 		Task EnforceActiveStatusBusinessRuleAsync();
 	}

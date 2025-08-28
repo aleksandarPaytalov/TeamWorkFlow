@@ -1,5 +1,6 @@
 ﻿using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Part;
+using TeamWorkFlow.Core.Models.BulkOperations;
 
 namespace TeamWorkFlow.Core.Contracts
 {
@@ -34,5 +35,8 @@ namespace TeamWorkFlow.Core.Contracts
         Task DeletePartByIdAsync(int partId);
 
         Task<IEnumerable<ProjectPartServiceModel>> GetPartsByProjectIdAsync(int projectId);
+
+        // Bulk operations
+        Task<BulkOperationResult> BulkDeleteAsync(List<int> partIds);
     }
 }

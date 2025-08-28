@@ -2,6 +2,7 @@
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Operator;
+using TeamWorkFlow.Core.Models.BulkOperations;
 using TeamWorkFlow.Extensions;
 using static TeamWorkFlow.Core.Constants.Messages;
 
@@ -242,6 +243,38 @@ namespace TeamWorkFlow.Controllers
 			await _operatorService.DeleteOperatorByIdAsync(id);
 
 			return RedirectToAction(nameof(All));
+        }
+
+        // Bulk operations - Admin only
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BulkDelete([FromBody] BulkDeleteRequest request)
+        {
+	        if (!User.IsAdmin())
+	        {
+		        return Json(new { success = false, message = "Unauthorized. Admin access required." });
+	        }
+
+	        if (!ModelState.IsValid || request?.ItemIds == null || !request.ItemIds.Any())
+	        {
+		        return Json(new { success = false, message = "No operators selected for deletion" });
+	        }
+
+	        try
+	        {
+		        var result = await _operatorService.BulkDeleteAsync(request.ItemIds);
+		        return Json(new {
+			        success = result.Success,
+			        message = result.Message,
+			        processedItems = result.ProcessedItems,
+			        failedItems = result.FailedItems,
+			        errors = result.ErrorMessages
+		        });
+	        }
+	        catch (Exception ex)
+	        {
+		        return Json(new { success = false, message = $"An error occurred: {ex.Message}" });
+	        }
         }
 
 	}

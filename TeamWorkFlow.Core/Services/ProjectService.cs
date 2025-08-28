@@ -2,6 +2,7 @@
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Project;
+using TeamWorkFlow.Core.Models.BulkOperations;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
 using static TeamWorkFlow.Core.Constants.Messages;
@@ -425,6 +426,71 @@ namespace TeamWorkFlow.Core.Services
 
 	        project.HourlyRate = hourlyRate;
 	        return project;
+        }
+
+        // Bulk operations
+        public async Task<BulkOperationResult> BulkDeleteAsync(List<int> projectIds)
+        {
+            var result = new BulkOperationResult
+            {
+                TotalItems = projectIds.Count
+            };
+
+            if (!projectIds.Any())
+            {
+                result.Success = false;
+                result.ErrorMessages.Add("No projects selected for deletion");
+                return result;
+            }
+
+            var validationErrors = new List<string>();
+            var processedCount = 0;
+
+            foreach (var projectId in projectIds)
+            {
+                try
+                {
+                    var projectExists = await ProjectExistByIdAsync(projectId);
+                    if (!projectExists)
+                    {
+                        validationErrors.Add($"Project with ID {projectId} not found");
+                        continue;
+                    }
+
+                    // Check if project has associated tasks or parts that would prevent deletion
+                    var project = await _repository.AllReadOnly<Project>()
+                        .Include(p => p.Tasks)
+                        .Include(p => p.Parts)
+                        .FirstOrDefaultAsync(p => p.Id == projectId);
+
+                    if (project?.Tasks.Any() == true)
+                    {
+                        validationErrors.Add($"Project {projectId} cannot be deleted because it has associated tasks");
+                        continue;
+                    }
+
+                    if (project?.Parts.Any() == true)
+                    {
+                        validationErrors.Add($"Project {projectId} cannot be deleted because it has associated parts");
+                        continue;
+                    }
+
+                    await ProjectDeleteAsync(projectId);
+                    processedCount++;
+                }
+                catch (Exception ex)
+                {
+                    validationErrors.Add($"Failed to delete project {projectId}: {ex.Message}");
+                }
+            }
+
+            result.ProcessedItems = processedCount;
+            result.FailedItems = projectIds.Count - processedCount;
+            result.ErrorMessages = validationErrors;
+            result.Success = processedCount > 0;
+            result.Message = $"Successfully deleted {processedCount} out of {projectIds.Count} projects";
+
+            return result;
         }
 	}
 }
