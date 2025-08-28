@@ -318,6 +318,62 @@
 					}
 				</div>
 
+				<!-- Cost Calculation Section -->
+				<div class="details-section" data-project-id="@Model.Id">
+					<div class="section-header">
+						<h3 class="section-title">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+							</svg>
+							Project Cost Calculation
+						</h3>
+					</div>
+
+					<div class="cost-calculation-container">
+						@Html.AntiForgeryToken()
+						<div class="cost-input-section">
+							<div class="cost-input-group">
+								<label for="hourlyRate" class="cost-label">Hourly Rate</label>
+								<input type="number" id="hourlyRate" class="cost-input" placeholder="Enter hourly rate" step="0.01" min="0.01" max="10000">
+							</div>
+							<div class="cost-currency-group">
+								<label for="currency" class="cost-label">Currency</label>
+								<select id="currency" class="cost-currency-select">
+									<option value="USD">$ USD</option>
+									<option value="EUR">€ EUR</option>
+								</select>
+							</div>
+							<button type="button" id="calculateCostBtn" class="cost-calculate-btn">
+								<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+								</svg>
+								Calculate Costs
+							</button>
+						</div>
+
+						<div class="cost-results-section" id="costResults" style="display: none;">
+							<div class="cost-summary">
+								<div class="cost-item">
+									<span class="cost-item-label">Total Hours (Finished Tasks)</span>
+									<span class="cost-item-value" id="totalHours">@Model.FormattedCalculatedTotalHours</span>
+								</div>
+								<div class="cost-item">
+									<span class="cost-item-label">Hourly Rate</span>
+									<span class="cost-item-value" id="hourlyRateDisplay">$0.00</span>
+								</div>
+								<div class="cost-item cost-total">
+									<span class="cost-item-label">Total Labor Cost</span>
+									<span class="cost-item-value" id="totalLaborCost">$0.00</span>
+								</div>
+							</div>
+						</div>
+
+						<div class="cost-error-section" id="costError" style="display: none;">
+							<div class="cost-error-message" id="errorMessage"></div>
+						</div>
+					</div>
+				</div>
+
 				<!-- Action Buttons -->
 				@if (User.Identity?.IsAuthenticated == true && User.IsAdmin())
 				{

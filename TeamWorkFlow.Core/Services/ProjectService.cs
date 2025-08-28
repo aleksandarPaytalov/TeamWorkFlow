@@ -397,5 +397,34 @@ namespace TeamWorkFlow.Core.Services
 		        })
 		        .ToListAsync();
         }
+
+        public async Task<ProjectCostCalculationModel?> GetProjectCostCalculationByIdAsync(int projectId)
+        {
+	        return await _repository.AllReadOnly<Project>()
+		        .Include(p => p.Tasks)
+		        .Where(p => p.Id == projectId)
+		        .Select(p => new ProjectCostCalculationModel()
+		        {
+			        ProjectId = p.Id,
+			        ProjectName = p.ProjectName,
+			        ProjectNumber = p.ProjectNumber,
+			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        HourlyRate = 0 // Default value, will be set by user input
+		        })
+		        .FirstOrDefaultAsync();
+        }
+
+        public async Task<ProjectCostCalculationModel> CalculateProjectCostAsync(int projectId, decimal hourlyRate)
+        {
+	        var project = await GetProjectCostCalculationByIdAsync(projectId);
+
+	        if (project == null)
+	        {
+		        throw new ArgumentException($"Project with ID {projectId} not found.");
+	        }
+
+	        project.HourlyRate = hourlyRate;
+	        return project;
+        }
 	}
 }

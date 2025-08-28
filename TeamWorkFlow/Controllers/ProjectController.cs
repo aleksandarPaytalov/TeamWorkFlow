@@ -229,5 +229,49 @@ namespace TeamWorkFlow.Controllers
 
 			return RedirectToAction(nameof(All));
 	    }
+
+	    [HttpPost]
+	    [ValidateAntiForgeryToken]
+	    public async Task<IActionResult> CalculateCost(int projectId, decimal hourlyRate, string currency = "USD")
+	    {
+		    if (!await _projectService.ProjectExistByIdAsync(projectId))
+		    {
+			    return Json(new { success = false, message = "Project not found." });
+		    }
+
+		    if (hourlyRate <= 0)
+		    {
+			    return Json(new { success = false, message = "Hourly rate must be greater than 0." });
+		    }
+
+		    // Validate currency
+		    if (currency != "USD" && currency != "EUR")
+		    {
+			    return Json(new { success = false, message = "Invalid currency selected." });
+		    }
+
+		    try
+		    {
+			    var costCalculation = await _projectService.CalculateProjectCostAsync(projectId, hourlyRate);
+
+			    // Format currency based on selection
+			    var currencySymbol = currency == "EUR" ? "€" : "$";
+			    var formattedTotalCost = $"{currencySymbol}{costCalculation.TotalLaborCost:F2}";
+			    var formattedHourlyRate = $"{currencySymbol}{hourlyRate:F2}";
+
+			    return Json(new
+			    {
+				    success = true,
+				    totalLaborCost = formattedTotalCost,
+				    calculatedTotalHours = costCalculation.FormattedCalculatedTotalHours,
+				    hourlyRate = formattedHourlyRate,
+				    currency = currency
+			    });
+		    }
+		    catch (Exception ex)
+		    {
+			    return Json(new { success = false, message = ex.Message });
+		    }
+	    }
 	}
 }

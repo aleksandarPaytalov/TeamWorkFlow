@@ -18,6 +18,10 @@ namespace TeamWorkFlow.Core.Models.Project
 		public new int TotalEstimatedHours { get; set; }
 		public new double CompletionPercentage { get; set; }
 
+		// Cost calculation properties
+		public decimal HourlyRate { get; set; }
+		public decimal TotalLaborCost => CalculatedTotalHours * HourlyRate;
+
 		// Task counts
 		public int FinishedTasksCount { get; set; }
 		public int InProgressTasksCount { get; set; }
