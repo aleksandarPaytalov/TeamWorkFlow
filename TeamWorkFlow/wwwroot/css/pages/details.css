@@ -1342,6 +1342,509 @@ body > div > nav[aria-label="breadcrumb"] {
         font-size: 1.25rem;
     }
 
+    /* Enhanced Operator Contributions Styles */
+    .operator-contributions-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .operator-contributions-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.08)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    .operator-header-enhanced {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .header-icon-wrapper {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 1rem;
+        padding: 1rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .header-icon {
+        width: 2rem;
+        height: 2rem;
+        color: white;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .header-text {
+        flex: 1;
+    }
+
+    .section-title.enhanced {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: white;
+        margin: 0 0 0.25rem 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-subtitle {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+        font-weight: 400;
+    }
+
+    .section-badge {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2rem;
+        padding: 0.75rem 1.5rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        text-align: center;
+        min-width: 120px;
+    }
+
+    .badge-count {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        line-height: 1;
+    }
+
+    .badge-label {
+        display: block;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.8);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-top: 0.25rem;
+    }
+
+    .operator-contributions-grid {
+        padding: 2rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .operator-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 1.5rem;
+        padding: 2rem;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .operator-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s ease;
+    }
+
+    .operator-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        background: rgba(255, 255, 255, 1);
+    }
+
+    .operator-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .operator-card-header {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .operator-avatar {
+        width: 4rem;
+        height: 4rem;
+        border-radius: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 15px -3px rgba(102, 126, 234, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .operator-avatar::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+    }
+
+    .avatar-initials {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        position: relative;
+        z-index: 1;
+    }
+
+    .operator-details {
+        flex: 1;
+    }
+
+    .operator-name-enhanced {
+        font-size: 1.375rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0 0 1rem 0;
+        line-height: 1.2;
+    }
+
+    .operator-metrics {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .metric-item {
+        text-align: center;
+    }
+
+    .metric-value {
+        display: block;
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #374151;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+    }
+
+    .metric-value.contribution-percentage {
+        color: #7c3aed;
+        font-size: 1.25rem;
+    }
+
+    .metric-label {
+        display: block;
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 500;
+    }
+
+    .metric-divider {
+        width: 1px;
+        height: 2rem;
+        background: linear-gradient(to bottom, transparent, #e5e7eb, transparent);
+    }
+
+    .operator-progress-enhanced {
+        margin-top: 1.5rem;
+    }
+
+    .progress-track {
+        width: 100%;
+        height: 0.75rem;
+        background: #f3f4f6;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .progress-fill-enhanced {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        border-radius: 0.5rem;
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .progress-glow {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+        animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    .progress-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    /* Enhanced Empty State */
+    .no-operators-message-enhanced {
+        padding: 4rem 2rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .empty-state-enhanced {
+        text-align: center;
+        max-width: 500px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 2rem;
+        padding: 3rem 2rem;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .empty-icon-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 2rem;
+    }
+
+    .empty-icon {
+        width: 4rem;
+        height: 4rem;
+        color: #9ca3af;
+        position: relative;
+        z-index: 2;
+    }
+
+    .empty-icon-bg {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 6rem;
+        height: 6rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-radius: 50%;
+        z-index: 1;
+    }
+
+    .empty-content {
+        color: #374151;
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0 0 1rem 0;
+    }
+
+    .empty-description {
+        font-size: 1rem;
+        color: #6b7280;
+        line-height: 1.6;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .empty-hint {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(102, 126, 234, 0.1);
+        color: #5b21b6;
+        padding: 0.75rem 1.25rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border: 1px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .hint-icon {
+        font-size: 1rem;
+    }
+
+    /* Enhanced Mobile Responsive Styles */
+    @media (max-width: 768px) {
+        .operator-header-enhanced {
+            padding: 1.5rem 1rem;
+        }
+
+        .header-content {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-title.enhanced {
+            font-size: 1.5rem;
+        }
+
+        .section-subtitle {
+            font-size: 0.875rem;
+        }
+
+        .section-badge {
+            padding: 0.5rem 1rem;
+            min-width: 100px;
+        }
+
+        .badge-count {
+            font-size: 1.25rem;
+        }
+
+        .operator-contributions-grid {
+            padding: 1rem;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .operator-card {
+            padding: 1.5rem;
+            border-radius: 1rem;
+        }
+
+        .operator-card-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .operator-avatar {
+            width: 3rem;
+            height: 3rem;
+            align-self: center;
+        }
+
+        .avatar-initials {
+            font-size: 1rem;
+        }
+
+        .operator-name-enhanced {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .operator-metrics {
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .metric-value {
+            font-size: 1rem;
+        }
+
+        .metric-value.contribution-percentage {
+            font-size: 1.125rem;
+        }
+
+        .progress-track {
+            height: 0.625rem;
+        }
+
+        .no-operators-message-enhanced {
+            padding: 2rem 1rem;
+        }
+
+        .empty-state-enhanced {
+            padding: 2rem 1.5rem;
+            border-radius: 1.5rem;
+        }
+
+        .empty-icon {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        .empty-icon-bg {
+            width: 4.5rem;
+            height: 4.5rem;
+        }
+
+        .empty-title {
+            font-size: 1.25rem;
+        }
+
+        .empty-description {
+            font-size: 0.875rem;
+        }
+
+        .empty-hint {
+            flex-direction: column;
+            gap: 0.25rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .operator-header-enhanced {
+            padding: 1rem;
+        }
+
+        .operator-contributions-grid {
+            padding: 0.75rem;
+        }
+
+        .operator-card {
+            padding: 1.25rem;
+        }
+
+        .operator-metrics {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .metric-divider {
+            display: none;
+        }
+
+        .empty-state-enhanced {
+            padding: 1.5rem 1rem;
+        }
+    }
+
     .section-title svg {
         width: 1.25rem;
         height: 1.25rem;

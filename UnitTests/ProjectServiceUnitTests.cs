@@ -986,7 +986,7 @@ public void Setup()
 				Appliance = "Test Appliance",
 				ClientName = "Test Client",
 				Status = "Ready",
-				TotalHoursSpent = 120,
+				CalculatedTotalHours = 120,
 				TotalParts = 30
 			};
 
@@ -997,7 +997,7 @@ public void Setup()
 			Assert.That(model.Appliance, Is.EqualTo("Test Appliance"));
 			Assert.That(model.ClientName, Is.EqualTo("Test Client"));
 			Assert.That(model.Status, Is.EqualTo("Ready"));
-			Assert.That(model.TotalHoursSpent, Is.EqualTo(120));
+			Assert.That(model.CalculatedTotalHours, Is.EqualTo(120));
 			Assert.That(model.TotalParts, Is.EqualTo(30));
 		}
 
@@ -1014,7 +1014,7 @@ public void Setup()
 			Assert.That(model.Appliance, Is.EqualTo(string.Empty));
 			Assert.That(model.ClientName, Is.EqualTo(string.Empty));
 			Assert.That(model.Status, Is.EqualTo(string.Empty));
-			Assert.That(model.TotalHoursSpent, Is.EqualTo(0));
+			Assert.That(model.CalculatedTotalHours, Is.EqualTo(0));
 			Assert.That(model.TotalParts, Is.EqualTo(0));
 		}
 
@@ -1168,7 +1168,7 @@ public void Setup()
 
 			var createdProject = await _projectService.GetProjectDetailsByIdAsync(projectId);
 			Assert.That(createdProject, Is.Not.Null, "Created project should be retrievable");
-			Assert.That(createdProject.TotalHoursSpent, Is.EqualTo(1), "Project should have 1 hour default setup time");
+			Assert.That(createdProject.CalculatedTotalHours, Is.EqualTo(0), "Project should have 0 calculated hours initially");
 			Assert.That(createdProject.ProjectName, Is.EqualTo("Test Project with Default Time"));
 			Assert.That(createdProject.ProjectNumber, Is.EqualTo("TP9999"));
 		}

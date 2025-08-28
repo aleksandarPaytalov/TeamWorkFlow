@@ -10,6 +10,9 @@ namespace TeamWorkFlow.Core.Models.Project
 
 		public IEnumerable<ProjectPartServiceModel> Parts { get; set; } = new List<ProjectPartServiceModel>();
 
+		// Operator time contributions
+		public IEnumerable<OperatorContributionServiceModel> OperatorContributions { get; set; } = new List<OperatorContributionServiceModel>();
+
 		// Task-based time calculations
 		public new int CalculatedTotalHours { get; set; }
 		public new int TotalEstimatedHours { get; set; }

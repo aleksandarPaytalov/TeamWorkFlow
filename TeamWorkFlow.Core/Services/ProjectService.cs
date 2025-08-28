@@ -255,7 +255,7 @@ namespace TeamWorkFlow.Core.Services
 
         public async Task<ProjectDetailsServiceModel?> GetProjectDetailsByIdAsync(int projectId)
         {
-	        return await _repository.AllReadOnly<Project>()
+	        var project = await _repository.AllReadOnly<Project>()
 		        .Include(p => p.Tasks)
 		        .Where(p => p.Id == projectId)
 		        .Select(p => new ProjectDetailsServiceModel()
@@ -280,6 +280,40 @@ namespace TeamWorkFlow.Core.Services
 			        TotalTasksCount = p.Tasks.Count
 		        })
 		        .FirstOrDefaultAsync();
+
+	        if (project != null)
+	        {
+		        // Get operator contributions for finished tasks
+		        var operatorContributions = await _repository.AllReadOnly<TaskOperator>()
+			        .Include(to => to.Task)
+			        .Include(to => to.Operator)
+			        .Where(to => to.Task.ProjectId == projectId && to.Task.TaskStatusId == 3) // Only finished tasks
+			        .GroupBy(to => new { to.OperatorId, to.Operator.FullName })
+			        .Select(g => new OperatorContributionServiceModel
+			        {
+				        OperatorId = g.Key.OperatorId,
+				        OperatorName = g.Key.FullName,
+				        TotalHours = g.Sum(to => to.Task.EstimatedTime)
+			        })
+			        .ToListAsync();
+
+		        // Calculate contribution percentages
+		        var totalProjectHours = project.CalculatedTotalHours;
+		        if (totalProjectHours > 0)
+		        {
+			        foreach (var contribution in operatorContributions)
+			        {
+				        contribution.ContributionPercentage = (double)contribution.TotalHours / totalProjectHours * 100;
+			        }
+		        }
+
+		        // Sort by contribution (highest first)
+		        project.OperatorContributions = operatorContributions
+			        .OrderByDescending(oc => oc.TotalHours)
+			        .ToList();
+	        }
+
+	        return project;
         }
 
         public async Task<ProjectDeleteServiceModel?> GetProjectForDeleteByIdAsync(int projectId)

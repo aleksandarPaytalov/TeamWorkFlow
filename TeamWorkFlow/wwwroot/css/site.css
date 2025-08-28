@@ -29,3 +29,133 @@ body > nav[aria-label="breadcrumb"],
 .container > nav[aria-label="breadcrumb"] {
     display: none !important;
 }
+
+/* Operator Contributions Styling */
+.operator-contributions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.operator-contribution-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.2s ease;
+}
+
+.operator-contribution-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.operator-info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.operator-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.operator-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.operator-initials {
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.operator-details {
+    flex: 1;
+}
+
+.operator-name {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.operator-stats {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.time-badge {
+    background: #f3f4f6;
+    color: #374151;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.percentage-badge {
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.operator-progress {
+    width: 100%;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #f3f4f6;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}
+
+/* Responsive design for operator contributions */
+@media (max-width: 768px) {
+    .operator-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .operator-avatar {
+        width: 40px;
+        height: 40px;
+    }
+
+    .operator-initials {
+        font-size: 14px;
+    }
+
+    .operator-name {
+        font-size: 16px;
+    }
+
+    .operator-stats {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+}

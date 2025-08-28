@@ -254,6 +254,70 @@
 					}
 				</div>
 
+				<!-- Operator Time Tracking Section -->
+				<div class="details-section">
+					<div class="section-header">
+						<h3 class="section-title">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+							</svg>
+							Team Contributions
+						</h3>
+						<span class="section-count">@Model.OperatorContributions.Count() @(Model.OperatorContributions.Count() == 1 ? "contributor" : "contributors")</span>
+					</div>
+
+					@if (Model.OperatorContributions.Any())
+					{
+						<div class="operator-contributions-list">
+							@foreach (var contribution in Model.OperatorContributions)
+							{
+								<div class="operator-contribution-card">
+									<div class="operator-info">
+										<div class="operator-header">
+											<div class="operator-avatar">
+												<span class="operator-initials">@(string.Join("", contribution.OperatorName.Split(' ').Take(2).Select(n => n.FirstOrDefault()).Where(c => c != default(char))))</span>
+											</div>
+											<div class="operator-details">
+												<h4 class="operator-name">@contribution.OperatorName</h4>
+												<div class="operator-stats">
+													<span class="time-badge">@contribution.FormattedDuration</span>
+													<span class="percentage-badge">@contribution.FormattedContributionPercentage</span>
+												</div>
+											</div>
+										</div>
+										<div class="operator-progress">
+											<div class="progress-bar">
+												<div class="progress-fill" style="width: @contribution.ContributionPercentage%"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							}
+						</div>
+					}
+					else
+					{
+						<div class="no-operators-message-enhanced">
+							<div class="empty-state-enhanced">
+								<div class="empty-icon-wrapper">
+									<svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+									</svg>
+									<div class="empty-icon-bg"></div>
+								</div>
+								<div class="empty-content">
+									<h4 class="empty-title">No Team Contributions Yet</h4>
+									<p class="empty-description">Once operators complete tasks in this project, their contributions will appear here with detailed time tracking and progress visualization.</p>
+									<div class="empty-hint">
+										<span class="hint-icon">💡</span>
+										<span>Assign operators to tasks and mark them as finished to see contributions</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+
 				<!-- Action Buttons -->
 				@if (User.Identity?.IsAuthenticated == true && User.IsAdmin())
 				{
