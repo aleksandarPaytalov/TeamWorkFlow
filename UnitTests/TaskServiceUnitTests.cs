@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using System.ComponentModel.DataAnnotations;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Exceptions;
@@ -1324,6 +1325,20 @@ public void Setup()
 			Assert.That(model.Deadline, Is.EqualTo(string.Empty));
 			Assert.That(model.StartDate, Is.EqualTo(string.Empty));
 			Assert.That(model.EndDate, Is.Null);
+			Assert.That(model.EstimatedTime, Is.EqualTo(0));
+		}
+
+		[Test]
+		public void TaskServiceModel_EstimatedTime_CanBeSetAndRetrieved()
+		{
+			// Arrange & Act
+			var model = new TaskServiceModel
+			{
+				EstimatedTime = 25
+			};
+
+			// Assert
+			Assert.That(model.EstimatedTime, Is.EqualTo(25));
 		}
 
 		#endregion
@@ -1713,6 +1728,192 @@ public void Setup()
 					Assert.That(task.Status.ToLower(), Is.EqualTo("finished"));
 				}
 			}
+		}
+
+		#endregion
+
+		#region TaskFormModel Tests
+
+		[Test]
+		public void TaskFormModel_DefaultEstimatedTime_IsSetToOne()
+		{
+			// Arrange & Act
+			var model = new TaskFormModel();
+
+			// Assert
+			Assert.That(model.EstimatedTime, Is.EqualTo(1));
+		}
+
+		[Test]
+		public void TaskFormModel_EstimatedTime_CanBeSetAndRetrieved()
+		{
+			// Arrange & Act
+			var model = new TaskFormModel
+			{
+				EstimatedTime = 50
+			};
+
+			// Assert
+			Assert.That(model.EstimatedTime, Is.EqualTo(50));
+		}
+
+		[Test]
+		public void TaskFormModel_EstimatedTime_WithValidRange_IsValid()
+		{
+			// Arrange
+			var model = new TaskFormModel
+			{
+				Name = "Test Task",
+				Description = "Test Description",
+				StartDate = DateTime.Now.ToString("dd/MM/yyyy"),
+				EstimatedTime = 100,
+				PriorityId = 1,
+				StatusId = 1,
+				ProjectId = 1
+			};
+
+			var context = new ValidationContext(model);
+			var results = new List<ValidationResult>();
+
+			// Act
+			var isValid = Validator.TryValidateObject(model, context, results, true);
+
+			// Assert
+			var estimatedTimeErrors = results.Where(r => r.MemberNames.Contains("EstimatedTime")).ToList();
+			Assert.That(estimatedTimeErrors, Is.Empty, "EstimatedTime should be valid for value 100");
+		}
+
+		[Test]
+		public void TaskFormModel_EstimatedTime_WithMinimumValue_IsValid()
+		{
+			// Arrange
+			var model = new TaskFormModel
+			{
+				Name = "Test Task",
+				Description = "Test Description",
+				StartDate = DateTime.Now.ToString("dd/MM/yyyy"),
+				EstimatedTime = 1,
+				PriorityId = 1,
+				StatusId = 1,
+				ProjectId = 1
+			};
+
+			var context = new ValidationContext(model);
+			var results = new List<ValidationResult>();
+
+			// Act
+			var isValid = Validator.TryValidateObject(model, context, results, true);
+
+			// Assert
+			var estimatedTimeErrors = results.Where(r => r.MemberNames.Contains("EstimatedTime")).ToList();
+			Assert.That(estimatedTimeErrors, Is.Empty, "EstimatedTime should be valid for minimum value 1");
+		}
+
+		[Test]
+		public void TaskFormModel_EstimatedTime_WithMaximumValue_IsValid()
+		{
+			// Arrange
+			var model = new TaskFormModel
+			{
+				Name = "Test Task",
+				Description = "Test Description",
+				StartDate = DateTime.Now.ToString("dd/MM/yyyy"),
+				EstimatedTime = 1000,
+				PriorityId = 1,
+				StatusId = 1,
+				ProjectId = 1
+			};
+
+			var context = new ValidationContext(model);
+			var results = new List<ValidationResult>();
+
+			// Act
+			var isValid = Validator.TryValidateObject(model, context, results, true);
+
+			// Assert
+			var estimatedTimeErrors = results.Where(r => r.MemberNames.Contains("EstimatedTime")).ToList();
+			Assert.That(estimatedTimeErrors, Is.Empty, "EstimatedTime should be valid for maximum value 1000");
+		}
+
+		[Test]
+		public void TaskFormModel_EstimatedTime_WithValueBelowRange_IsInvalid()
+		{
+			// Arrange
+			var model = new TaskFormModel
+			{
+				Name = "Test Task",
+				Description = "Test Description",
+				StartDate = DateTime.Now.ToString("dd/MM/yyyy"),
+				EstimatedTime = 0,
+				PriorityId = 1,
+				StatusId = 1,
+				ProjectId = 1
+			};
+
+			var context = new ValidationContext(model);
+			var results = new List<ValidationResult>();
+
+			// Act
+			var isValid = Validator.TryValidateObject(model, context, results, true);
+
+			// Assert
+			var estimatedTimeErrors = results.Where(r => r.MemberNames.Contains("EstimatedTime")).ToList();
+			Assert.That(estimatedTimeErrors, Is.Not.Empty, "EstimatedTime should be invalid for value 0");
+			Assert.That(estimatedTimeErrors.First().ErrorMessage, Does.Contain("Estimated time must be between 1 and 1000 hours"));
+		}
+
+		[Test]
+		public void TaskFormModel_EstimatedTime_WithValueAboveRange_IsInvalid()
+		{
+			// Arrange
+			var model = new TaskFormModel
+			{
+				Name = "Test Task",
+				Description = "Test Description",
+				StartDate = DateTime.Now.ToString("dd/MM/yyyy"),
+				EstimatedTime = 1001,
+				PriorityId = 1,
+				StatusId = 1,
+				ProjectId = 1
+			};
+
+			var context = new ValidationContext(model);
+			var results = new List<ValidationResult>();
+
+			// Act
+			var isValid = Validator.TryValidateObject(model, context, results, true);
+
+			// Assert
+			var estimatedTimeErrors = results.Where(r => r.MemberNames.Contains("EstimatedTime")).ToList();
+			Assert.That(estimatedTimeErrors, Is.Not.Empty, "EstimatedTime should be invalid for value 1001");
+			Assert.That(estimatedTimeErrors.First().ErrorMessage, Does.Contain("Estimated time must be between 1 and 1000 hours"));
+		}
+
+		[Test]
+		public void TaskFormModel_EstimatedTime_WithNegativeValue_IsInvalid()
+		{
+			// Arrange
+			var model = new TaskFormModel
+			{
+				Name = "Test Task",
+				Description = "Test Description",
+				StartDate = DateTime.Now.ToString("dd/MM/yyyy"),
+				EstimatedTime = -5,
+				PriorityId = 1,
+				StatusId = 1,
+				ProjectId = 1
+			};
+
+			var context = new ValidationContext(model);
+			var results = new List<ValidationResult>();
+
+			// Act
+			var isValid = Validator.TryValidateObject(model, context, results, true);
+
+			// Assert
+			var estimatedTimeErrors = results.Where(r => r.MemberNames.Contains("EstimatedTime")).ToList();
+			Assert.That(estimatedTimeErrors, Is.Not.Empty, "EstimatedTime should be invalid for negative value");
+			Assert.That(estimatedTimeErrors.First().ErrorMessage, Does.Contain("Estimated time must be between 1 and 1000 hours"));
 		}
 
 		#endregion

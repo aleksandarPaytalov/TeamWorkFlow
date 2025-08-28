@@ -4,6 +4,7 @@ using TeamWorkFlow.Core.Constants;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Machine;
+using TeamWorkFlow.Core.Models.BulkOperations;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
 using static TeamWorkFlow.Core.Constants.Messages;
@@ -446,6 +447,61 @@ namespace TeamWorkFlow.Core.Services
 			}
 
 			return (true, "Machine can be deleted");
+		}
+
+		// Bulk operations
+		public async Task<BulkOperationResult> BulkDeleteAsync(List<int> machineIds)
+		{
+			var result = new BulkOperationResult
+			{
+				TotalItems = machineIds.Count
+			};
+
+			if (!machineIds.Any())
+			{
+				result.Success = false;
+				result.ErrorMessages.Add("No machines selected for deletion");
+				return result;
+			}
+
+			var validationErrors = new List<string>();
+			var processedCount = 0;
+
+			foreach (var machineId in machineIds)
+			{
+				try
+				{
+					var machineExists = await MachineExistByIdAsync(machineId);
+					if (!machineExists)
+					{
+						validationErrors.Add($"Machine with ID {machineId} not found");
+						continue;
+					}
+
+					// Validate machine can be deleted (not occupied by active tasks)
+					var validation = await ValidateMachineForDeletionAsync(machineId);
+					if (!validation.CanDelete)
+					{
+						validationErrors.Add($"Machine {machineId}: {validation.Reason}");
+						continue;
+					}
+
+					await DeleteMachineAsync(machineId);
+					processedCount++;
+				}
+				catch (Exception ex)
+				{
+					validationErrors.Add($"Failed to delete machine {machineId}: {ex.Message}");
+				}
+			}
+
+			result.ProcessedItems = processedCount;
+			result.FailedItems = machineIds.Count - processedCount;
+			result.ErrorMessages = validationErrors;
+			result.Success = processedCount > 0;
+			result.Message = $"Successfully deleted {processedCount} out of {machineIds.Count} machines";
+
+			return result;
 		}
 	}
 }

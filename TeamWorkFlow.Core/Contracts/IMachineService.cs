@@ -1,5 +1,6 @@
 ﻿using TeamWorkFlow.Core.Enumerations;
 using TeamWorkFlow.Core.Models.Machine;
+using TeamWorkFlow.Core.Models.BulkOperations;
 using Task = System.Threading.Tasks.Task;
 
 namespace TeamWorkFlow.Core.Contracts
@@ -24,5 +25,8 @@ namespace TeamWorkFlow.Core.Contracts
 		Task<MachineDeleteServiceModel?> GetMachineForDeleteByIdAsync(int machineId);
 		Task<ICollection<TeamWorkFlow.Infrastructure.Data.Models.Task>> GetAllTaskByAssignedMachineId(int machineId);
 		Task<(bool CanDelete, string Reason)> ValidateMachineForDeletionAsync(int machineId);
+
+		// Bulk operations
+		Task<BulkOperationResult> BulkDeleteAsync(List<int> machineIds);
 	}
 }

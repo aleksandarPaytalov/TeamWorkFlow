@@ -3,6 +3,7 @@ using NuGet.Packaging.Signing;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Project;
+using TeamWorkFlow.Core.Models.BulkOperations;
 using TeamWorkFlow.Extensions;
 using static TeamWorkFlow.Core.Constants.Messages;
 
@@ -271,6 +272,38 @@ namespace TeamWorkFlow.Controllers
 		    catch (Exception ex)
 		    {
 			    return Json(new { success = false, message = ex.Message });
+		    }
+	    }
+
+	    // Bulk operations - Admin only
+	    [HttpPost]
+	    [ValidateAntiForgeryToken]
+	    public async Task<IActionResult> BulkDelete([FromBody] BulkDeleteRequest request)
+	    {
+		    if (!User.IsAdmin())
+		    {
+			    return Json(new { success = false, message = "Unauthorized. Admin access required." });
+		    }
+
+		    if (!ModelState.IsValid || request?.ItemIds == null || !request.ItemIds.Any())
+		    {
+			    return Json(new { success = false, message = "No projects selected for deletion" });
+		    }
+
+		    try
+		    {
+			    var result = await _projectService.BulkDeleteAsync(request.ItemIds);
+			    return Json(new {
+				    success = result.Success,
+				    message = result.Message,
+				    processedItems = result.ProcessedItems,
+				    failedItems = result.FailedItems,
+				    errors = result.ErrorMessages
+			    });
+		    }
+		    catch (Exception ex)
+		    {
+			    return Json(new { success = false, message = $"An error occurred: {ex.Message}" });
 		    }
 	    }
 	}

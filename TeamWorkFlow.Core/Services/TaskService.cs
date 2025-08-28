@@ -6,6 +6,7 @@ using TeamWorkFlow.Core.Exceptions;
 using TeamWorkFlow.Core.Models.Task;
 using TeamWorkFlow.Core.Models.Machine;
 using TeamWorkFlow.Core.Models.Operator;
+using TeamWorkFlow.Core.Models.BulkOperations;
 using TeamWorkFlow.Infrastructure.Common;
 using TeamWorkFlow.Infrastructure.Data.Models;
 using static TeamWorkFlow.Core.Constants.Messages;
@@ -808,6 +809,124 @@ namespace TeamWorkFlow.Core.Services
                 .FirstOrDefaultAsync();
 
             return (true, $"Task status changed to {statusName}");
+        }
+
+        // Bulk operations
+        public async Task<BulkOperationResult> BulkDeleteAsync(List<int> taskIds)
+        {
+            var result = new BulkOperationResult
+            {
+                TotalItems = taskIds.Count
+            };
+
+            if (!taskIds.Any())
+            {
+                result.Success = false;
+                result.ErrorMessages.Add("No tasks selected for deletion");
+                return result;
+            }
+
+            var validationErrors = new List<string>();
+            var processedCount = 0;
+
+            foreach (var taskId in taskIds)
+            {
+                try
+                {
+                    var taskExists = await TaskExistByIdAsync(taskId);
+                    if (!taskExists)
+                    {
+                        validationErrors.Add($"Task with ID {taskId} not found");
+                        continue;
+                    }
+
+                    await DeleteTaskAsync(taskId);
+                    processedCount++;
+                }
+                catch (Exception ex)
+                {
+                    validationErrors.Add($"Failed to delete task {taskId}: {ex.Message}");
+                }
+            }
+
+            result.ProcessedItems = processedCount;
+            result.FailedItems = taskIds.Count - processedCount;
+            result.ErrorMessages = validationErrors;
+            result.Success = processedCount > 0;
+            result.Message = $"Successfully deleted {processedCount} out of {taskIds.Count} tasks";
+
+            return result;
+        }
+
+        public async Task<BulkOperationResult> BulkArchiveAsync(List<int> taskIds)
+        {
+            var result = new BulkOperationResult
+            {
+                TotalItems = taskIds.Count
+            };
+
+            if (!taskIds.Any())
+            {
+                result.Success = false;
+                result.ErrorMessages.Add("No tasks selected for archiving");
+                return result;
+            }
+
+            // Get the "finished" status ID
+            var finishedStatus = await _repository.AllReadOnly<TaskStatus>()
+                .Where(s => s.Name.ToLower() == "finished")
+                .FirstOrDefaultAsync();
+
+            if (finishedStatus == null)
+            {
+                result.Success = false;
+                result.ErrorMessages.Add("Finished status not found in the system");
+                return result;
+            }
+
+            var validationErrors = new List<string>();
+            var processedCount = 0;
+
+            foreach (var taskId in taskIds)
+            {
+                try
+                {
+                    var task = await _repository.GetByIdAsync<Infrastructure.Data.Models.Task>(taskId);
+                    if (task == null)
+                    {
+                        validationErrors.Add($"Task with ID {taskId} not found");
+                        continue;
+                    }
+
+                    // Check if task is already finished
+                    if (task.TaskStatusId == finishedStatus.Id)
+                    {
+                        validationErrors.Add($"Task {taskId} is already archived (finished)");
+                        continue;
+                    }
+
+                    // Archive the task by setting status to finished
+                    task.TaskStatusId = finishedStatus.Id;
+                    processedCount++;
+                }
+                catch (Exception ex)
+                {
+                    validationErrors.Add($"Failed to archive task {taskId}: {ex.Message}");
+                }
+            }
+
+            if (processedCount > 0)
+            {
+                await _repository.SaveChangesAsync();
+            }
+
+            result.ProcessedItems = processedCount;
+            result.FailedItems = taskIds.Count - processedCount;
+            result.ErrorMessages = validationErrors;
+            result.Success = processedCount > 0;
+            result.Message = $"Successfully archived {processedCount} out of {taskIds.Count} tasks";
+
+            return result;
         }
     }
 }

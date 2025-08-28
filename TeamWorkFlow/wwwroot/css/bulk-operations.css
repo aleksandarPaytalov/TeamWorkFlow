@@ -1,0 +1,401 @@
+/* Bulk Operations CSS */
+/* Responsive styling for checkboxes, bulk action buttons, and selection indicators */
+
+/* Bulk Operations Section */
+.bulk-operations {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1rem 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Bulk Action Buttons */
+.btn-bulk {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    min-height: 44px; /* Touch-friendly minimum */
+}
+
+.btn-bulk:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-bulk:active {
+    transform: translateY(0);
+}
+
+.btn-bulk:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-bulk-delete {
+    background-color: #ef4444;
+    color: white;
+}
+
+.btn-bulk-delete:hover:not(:disabled) {
+    background-color: #dc2626;
+}
+
+.btn-bulk-archive {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.btn-bulk-archive:hover:not(:disabled) {
+    background-color: #d97706;
+}
+
+.selected-count {
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    backdrop-filter: blur(10px);
+}
+
+/* Select All Section */
+.select-all-section {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+/* Custom Checkbox Styling */
+.checkbox-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-weight: 500;
+    color: #374151;
+    user-select: none;
+    min-height: 44px; /* Touch-friendly */
+    padding: 0.5rem;
+}
+
+.checkbox-container input[type="checkbox"] {
+    display: none;
+}
+
+.checkmark {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    background-color: #ffffff;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.checkbox-container:hover .checkmark {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.checkbox-container input[type="checkbox"]:checked + .checkmark {
+    background-color: #6366f1;
+    border-color: #6366f1;
+}
+
+.checkbox-container input[type="checkbox"]:indeterminate + .checkmark {
+    background-color: #6366f1;
+    border-color: #6366f1;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-container input[type="checkbox"]:checked + .checkmark:after {
+    display: block;
+}
+
+.checkbox-container input[type="checkbox"]:indeterminate + .checkmark:after {
+    display: block;
+    left: 4px;
+    top: 7px;
+    width: 8px;
+    height: 2px;
+    border: solid white;
+    border-width: 0 0 2px 0;
+    transform: rotate(0deg);
+}
+
+/* Card Checkbox Positioning */
+.task-checkbox,
+.project-checkbox,
+.machine-checkbox,
+.operator-checkbox,
+.part-checkbox {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 6px;
+    padding: 0.25rem;
+    backdrop-filter: blur(5px);
+}
+
+/* Card Selection State */
+.task-card[data-selected="true"],
+.project-card[data-selected="true"],
+.machine-card[data-selected="true"],
+.operator-card[data-selected="true"],
+.part-card[data-selected="true"] {
+    border: 2px solid #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Loading Spinner */
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Notification Styling */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 400px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    gap: 1rem;
+}
+
+.notification-success {
+    background-color: #10b981;
+    color: white;
+}
+
+.notification-error {
+    background-color: #ef4444;
+    color: white;
+}
+
+.notification-warning {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.notification-info {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.notification-message {
+    flex: 1;
+    font-weight: 500;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.notification-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .bulk-operations {
+        padding: 0.75rem;
+        margin: 0.75rem 0;
+    }
+
+    .bulk-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .btn-bulk {
+        justify-content: center;
+        padding: 1rem;
+        font-size: 1rem;
+    }
+
+    .selected-count {
+        text-align: center;
+        order: -1;
+    }
+
+    .select-all-section {
+        padding: 0.75rem;
+        margin: 0.75rem 0;
+    }
+
+    .checkbox-container {
+        font-size: 1rem;
+        padding: 0.75rem;
+    }
+
+    .checkmark {
+        width: 24px;
+        height: 24px;
+    }
+
+    .checkmark:after {
+        left: 8px;
+        top: 3px;
+        width: 7px;
+        height: 12px;
+    }
+
+    .task-checkbox,
+    .project-checkbox,
+    .machine-checkbox,
+    .operator-checkbox,
+    .part-checkbox {
+        top: 0.75rem;
+        right: 0.75rem;
+        padding: 0.5rem;
+    }
+
+    .notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .bulk-operations {
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+    }
+
+    .btn-bulk {
+        padding: 0.875rem;
+        font-size: 0.875rem;
+    }
+
+    .select-all-section {
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .checkmark {
+        border-width: 3px;
+    }
+
+    .btn-bulk {
+        border: 2px solid currentColor;
+    }
+
+    .notification {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .bulk-operations,
+    .notification,
+    .btn-bulk,
+    .checkmark,
+    .spinner {
+        animation: none;
+        transition: none;
+    }
+
+    .btn-bulk:hover {
+        transform: none;
+    }
+}

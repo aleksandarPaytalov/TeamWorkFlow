@@ -16,6 +16,7 @@
 
 @section Styles {
 	<link rel="stylesheet" href="~/css/pages/operators.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/bulk-operations.css" asp-append-version="true" />
 }
 
 <div class="operators-container">
@@ -23,6 +24,22 @@
 	<div class="operators-header">
 		<h1 class="operators-title">@ViewData["Title"]</h1>
 		<p class="operators-subtitle">Manage your skilled workforce and track operator availability</p>
+
+		@if (User.IsAdmin())
+		{
+			<!-- Bulk Operations Section -->
+			<div class="bulk-operations" id="bulk-operations" style="display: none;">
+				<div class="bulk-actions">
+					<button type="button" class="btn-bulk btn-bulk-delete" id="bulk-delete-btn">
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+						</svg>
+						Delete Selected
+					</button>
+					<span class="selected-count" id="selected-count">0 selected</span>
+				</div>
+			</div>
+		}
 	</div>
 
 	@if (User?.Identity?.IsAuthenticated ?? false)
@@ -36,6 +53,18 @@
 					</svg>
 					Add New Operator
 				</a>
+			</div>
+		}
+
+		@if (User.IsAdmin())
+		{
+			<!-- Select All Section -->
+			<div class="select-all-section">
+				<label class="checkbox-container">
+					<input type="checkbox" id="select-all-checkbox" class="bulk-checkbox">
+					<span class="checkmark"></span>
+					Select All
+				</label>
 			</div>
 		}
 
@@ -74,7 +103,17 @@
 		<div class="operators-grid">
 			@foreach (var o in Model.Operators)
 			{
-				<div class="operator-card fade-in">
+				<div class="operator-card fade-in" data-operator-id="@o.Id">
+					@if (User.IsAdmin())
+					{
+						<!-- Checkbox for bulk operations -->
+						<div class="operator-checkbox">
+							<label class="checkbox-container">
+								<input type="checkbox" class="operator-select-checkbox" data-operator-id="@o.Id">
+								<span class="checkmark"></span>
+							</label>
+						</div>
+					}
 					<!-- Card Header -->
 					<div class="operator-card-header">
 						@{
@@ -268,5 +307,7 @@
 
 @section Scripts {
 	<script src="~/js/pages/operators.js" asp-append-version="true"></script>
+	<script src="~/js/bulk-operations.js" asp-append-version="true"></script>
 	<partial name="_ValidationScriptsPartial" />
+	@Html.AntiForgeryToken()
 }
