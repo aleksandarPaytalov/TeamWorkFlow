@@ -99,6 +99,7 @@ namespace TeamWorkFlow.Core.Services
 	        };
 
 	        var projects = await projectsToBeDisplayed
+		        .Include(p => p.Tasks)
 		        .Skip((currentPage - 1) * projectsPerPage)
 		        .Take(projectsPerPage)
 		        .Select(p => new ProjectServiceModel()
@@ -107,7 +108,13 @@ namespace TeamWorkFlow.Core.Services
 			        ProjectName = p.ProjectName,
 			        ProjectNumber = p.ProjectNumber,
 			        Status = p.ProjectStatus.Name,
-			        TotalParts = p.Parts.Count
+			        TotalParts = p.Parts.Count,
+			        // Time tracking properties
+			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        TotalEstimatedHours = p.Tasks.Sum(t => t.EstimatedTime),
+			        CompletionPercentage = p.Tasks.Sum(t => t.EstimatedTime) > 0
+				        ? (double)p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime) / p.Tasks.Sum(t => t.EstimatedTime) * 100
+				        : 0
 		        })
 		        .ToListAsync();
 
@@ -259,12 +266,10 @@ namespace TeamWorkFlow.Core.Services
 			        Appliance = p.Appliance ?? string.Empty,
 			        ClientName = p.ClientName ?? string.Empty,
 			        Status = p.ProjectStatus.Name,
-			        TotalHoursSpent = p.TotalHoursSpent,
 			        TotalParts = p.Parts.Count,
 			        // Task-based calculations
 			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
 			        TotalEstimatedHours = p.Tasks.Sum(t => t.EstimatedTime),
-			        TimeVariance = p.TotalHoursSpent - p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
 			        CompletionPercentage = p.Tasks.Sum(t => t.EstimatedTime) > 0
 				        ? (double)p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime) / p.Tasks.Sum(t => t.EstimatedTime) * 100
 				        : 0,

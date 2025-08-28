@@ -8,15 +8,12 @@ namespace TeamWorkFlow.Core.Models.Project
 
 		public string Appliance { get; set; } = string.Empty;
 
-		public int TotalHoursSpent { get; set; }
-
 		public IEnumerable<ProjectPartServiceModel> Parts { get; set; } = new List<ProjectPartServiceModel>();
 
 		// Task-based time calculations
-		public int CalculatedTotalHours { get; set; }
-		public int TotalEstimatedHours { get; set; }
-		public int TimeVariance { get; set; }
-		public double CompletionPercentage { get; set; }
+		public new int CalculatedTotalHours { get; set; }
+		public new int TotalEstimatedHours { get; set; }
+		public new double CompletionPercentage { get; set; }
 
 		// Task counts
 		public int FinishedTasksCount { get; set; }
@@ -25,18 +22,11 @@ namespace TeamWorkFlow.Core.Models.Project
 		public int TotalTasksCount { get; set; }
 
 		// Calculated properties for display
-		public string FormattedCompletionPercentage => $"{CompletionPercentage:F1}%";
+		public new string FormattedCompletionPercentage => $"{CompletionPercentage:F1}%";
 
-		public string TimeVarianceStatus => TimeVariance switch
-		{
-			> 0 => "Under Estimate",
-			< 0 => "Over Estimate",
-			0 => "On Target"
-		};
+		public bool IsOnTrack => CompletionPercentage >= 90; // Consider on track if 90%+ complete
 
-		public bool IsOnTrack => Math.Abs(TimeVariance) <= (TotalHoursSpent * 0.1); // Within 10% variance
-
-		public string ProjectHealthStatus
+		public new string ProjectHealthStatus
 		{
 			get
 			{
@@ -48,7 +38,7 @@ namespace TeamWorkFlow.Core.Models.Project
 			}
 		}
 
-		public string GetFormattedDuration(int hours)
+		public new string GetFormattedDuration(int hours)
 		{
 			if (hours < 8)
 				return $"{hours}h";
@@ -62,8 +52,7 @@ namespace TeamWorkFlow.Core.Models.Project
 			return $"{days}d {remainingHours}h";
 		}
 
-		public string FormattedTotalHoursSpent => GetFormattedDuration(TotalHoursSpent);
-		public string FormattedCalculatedTotalHours => GetFormattedDuration(CalculatedTotalHours);
-		public string FormattedTotalEstimatedHours => GetFormattedDuration(TotalEstimatedHours);
+		public new string FormattedCalculatedTotalHours => GetFormattedDuration(CalculatedTotalHours);
+		public new string FormattedTotalEstimatedHours => GetFormattedDuration(TotalEstimatedHours);
 	}
 }

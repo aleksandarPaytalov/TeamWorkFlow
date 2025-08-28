@@ -156,24 +156,6 @@
 							</div>
 							<div class="metric-value">@Model.FormattedTotalEstimatedHours</div>
 						</div>
-
-						<div class="time-metric">
-							<div class="metric-header">
-								<h4>Manual Estimate</h4>
-								<span class="metric-subtitle">Original estimate</span>
-							</div>
-							<div class="metric-value">@Model.FormattedTotalHoursSpent</div>
-						</div>
-
-						<div class="time-metric">
-							<div class="metric-header">
-								<h4>Variance</h4>
-								<span class="metric-subtitle">@Model.TimeVarianceStatus</span>
-							</div>
-							<div class="metric-value variance-@Model.TimeVarianceStatus.ToLower().Replace(" ", "-")">
-								@(Model.TimeVariance > 0 ? "+" : "")@Model.TimeVariance h
-							</div>
-						</div>
 					</div>
 
 					<div class="progress-section">
@@ -210,10 +192,6 @@
 							@if (Model.IsOnTrack)
 							{
 								<span class="health-badge">On Track</span>
-							}
-							else
-							{
-								<span class="health-badge">Needs Attention</span>
 							}
 						</div>
 					</div>
