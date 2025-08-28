@@ -1020,6 +1020,46 @@ public void Setup()
 
 		#endregion
 
+		#region Project-Tasks Relationship Tests
+
+		[Test]
+		public async Task Project_TasksNavigationProperty_WorksCorrectly()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>()
+				.Include(p => p.Tasks)
+				.FirstOrDefaultAsync();
+
+			// Assert
+			Assert.That(project, Is.Not.Null, "Project should exist");
+			Assert.That(project.Tasks, Is.Not.Null, "Tasks navigation property should not be null");
+
+			// Check if we can access tasks through the project
+			var taskCount = project.Tasks.Count;
+			Assert.That(taskCount, Is.GreaterThanOrEqualTo(0), "Task count should be non-negative");
+		}
+
+		[Test]
+		public async Task Project_CanLoadTasksWithInclude()
+		{
+			// Arrange & Act
+			var projectsWithTasks = await _repository.AllReadOnly<Project>()
+				.Include(p => p.Tasks)
+				.ToListAsync();
+
+			// Assert
+			Assert.That(projectsWithTasks, Is.Not.Null);
+			Assert.That(projectsWithTasks.Count, Is.GreaterThan(0), "Should have projects in database");
+
+			// Verify that Tasks navigation property is accessible
+			foreach (var project in projectsWithTasks)
+			{
+				Assert.That(project.Tasks, Is.Not.Null, $"Tasks collection should not be null for project {project.ProjectName}");
+			}
+		}
+
+		#endregion
+
 		[TearDown]
 		public void TearDown()
 		{

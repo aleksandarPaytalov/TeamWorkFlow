@@ -42,5 +42,6 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         public int TotalHoursSpent { get; set; }
 
         public ICollection<Part> Parts { get; set; } = new List<Part>();
+        public ICollection<Task> Tasks { get; set; } = new List<Task>();
     }
 }
