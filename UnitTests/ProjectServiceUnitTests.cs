@@ -1185,6 +1185,262 @@ public void Setup()
 
 		#endregion
 
+		#region Cost Calculation Tests
+
+		[Test]
+		public async Task GetProjectCostCalculationByIdAsync_WithValidProject_ReturnsCorrectModel()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>().FirstOrDefaultAsync();
+			Assert.That(project, Is.Not.Null, "Project is null");
+
+			// Act
+			var result = await _projectService.GetProjectCostCalculationByIdAsync(project.Id);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.ProjectId, Is.EqualTo(project.Id));
+			Assert.That(result.ProjectName, Is.EqualTo(project.ProjectName));
+			Assert.That(result.ProjectNumber, Is.EqualTo(project.ProjectNumber));
+			Assert.That(result.HourlyRate, Is.EqualTo(0)); // Default value
+			Assert.That(result.CalculatedTotalHours, Is.GreaterThanOrEqualTo(0));
+		}
+
+		[Test]
+		public async Task GetProjectCostCalculationByIdAsync_WithNonExistentProject_ReturnsNull()
+		{
+			// Act
+			var result = await _projectService.GetProjectCostCalculationByIdAsync(999);
+
+			// Assert
+			Assert.That(result, Is.Null);
+		}
+
+		[Test]
+		public async Task CalculateProjectCostAsync_WithValidData_ReturnsCorrectCalculation()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>().FirstOrDefaultAsync();
+			Assert.That(project, Is.Not.Null, "Project is null");
+
+			var hourlyRate = 50.00m;
+
+			// Act
+			var result = await _projectService.CalculateProjectCostAsync(project.Id, hourlyRate);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.ProjectId, Is.EqualTo(project.Id));
+			Assert.That(result.HourlyRate, Is.EqualTo(hourlyRate));
+			Assert.That(result.TotalLaborCost, Is.EqualTo(result.CalculatedTotalHours * hourlyRate));
+		}
+
+		[Test]
+		public async Task CalculateProjectCostAsync_WithZeroHourlyRate_ReturnsZeroCost()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>().FirstOrDefaultAsync();
+			Assert.That(project, Is.Not.Null, "Project is null");
+
+			var hourlyRate = 0m;
+
+			// Act
+			var result = await _projectService.CalculateProjectCostAsync(project.Id, hourlyRate);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.HourlyRate, Is.EqualTo(0));
+			Assert.That(result.TotalLaborCost, Is.EqualTo(0));
+		}
+
+		[Test]
+		public async Task CalculateProjectCostAsync_WithHighHourlyRate_CalculatesCorrectly()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>().FirstOrDefaultAsync();
+			Assert.That(project, Is.Not.Null, "Project is null");
+
+			var hourlyRate = 150.75m;
+
+			// Act
+			var result = await _projectService.CalculateProjectCostAsync(project.Id, hourlyRate);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.HourlyRate, Is.EqualTo(hourlyRate));
+			Assert.That(result.TotalLaborCost, Is.EqualTo(result.CalculatedTotalHours * hourlyRate));
+		}
+
+		[Test]
+		public void CalculateProjectCostAsync_WithNonExistentProject_ThrowsArgumentException()
+		{
+			// Arrange
+			var nonExistentProjectId = 999;
+			var hourlyRate = 50.00m;
+
+			// Act & Assert
+			Assert.ThrowsAsync<ArgumentException>(async () =>
+				await _projectService.CalculateProjectCostAsync(nonExistentProjectId, hourlyRate));
+		}
+
+		[Test]
+		public async Task CalculateProjectCostAsync_WithProjectWithFinishedTasks_CalculatesBasedOnFinishedTasksOnly()
+		{
+			// Arrange - Create a test user first
+			var testUser = new IdentityUser
+			{
+				Id = "test-user-id",
+				UserName = "testuser@example.com",
+				Email = "testuser@example.com",
+				EmailConfirmed = true
+			};
+			await _dbContext.Users.AddAsync(testUser);
+			await _dbContext.SaveChangesAsync();
+
+			// Create a project with mixed task statuses
+			var project = new Project()
+			{
+				ProjectName = "Cost Test Project",
+				ProjectNumber = "CTP001",
+				ProjectStatusId = 1,
+				TotalHoursSpent = 100
+			};
+
+			await _dbContext.Projects.AddAsync(project);
+			await _dbContext.SaveChangesAsync();
+
+			// Add tasks with different statuses
+			var finishedTask1 = new TeamWorkFlow.Infrastructure.Data.Models.Task()
+			{
+				Name = "Finished Task 1",
+				ProjectId = project.Id,
+				TaskStatusId = 3, // Finished
+				EstimatedTime = 20,
+				StartDate = DateTime.Now,
+				PriorityId = 1,
+				CreatorId = testUser.Id
+			};
+
+			var finishedTask2 = new TeamWorkFlow.Infrastructure.Data.Models.Task()
+			{
+				Name = "Finished Task 2",
+				ProjectId = project.Id,
+				TaskStatusId = 3, // Finished
+				EstimatedTime = 30,
+				StartDate = DateTime.Now,
+				PriorityId = 1,
+				CreatorId = testUser.Id
+			};
+
+			var inProgressTask = new TeamWorkFlow.Infrastructure.Data.Models.Task()
+			{
+				Name = "In Progress Task",
+				ProjectId = project.Id,
+				TaskStatusId = 2, // In Progress
+				EstimatedTime = 40,
+				StartDate = DateTime.Now,
+				PriorityId = 1,
+				CreatorId = testUser.Id
+			};
+
+			await _dbContext.Tasks.AddRangeAsync(finishedTask1, finishedTask2, inProgressTask);
+			await _dbContext.SaveChangesAsync();
+
+			var hourlyRate = 50.00m;
+
+			// Act
+			var result = await _projectService.CalculateProjectCostAsync(project.Id, hourlyRate);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.CalculatedTotalHours, Is.EqualTo(50)); // Only finished tasks: 20 + 30
+			Assert.That(result.TotalLaborCost, Is.EqualTo(2500.00m)); // 50 hours * $50/hour
+		}
+
+		[Test]
+		public async Task CalculateProjectCostAsync_WithProjectWithNoFinishedTasks_ReturnsZeroHours()
+		{
+			// Arrange - Create a test user first
+			var testUser = new IdentityUser
+			{
+				Id = "test-user-id-2",
+				UserName = "testuser2@example.com",
+				Email = "testuser2@example.com",
+				EmailConfirmed = true
+			};
+			await _dbContext.Users.AddAsync(testUser);
+			await _dbContext.SaveChangesAsync();
+
+			// Create a project with only non-finished tasks
+			var project = new Project()
+			{
+				ProjectName = "No Finished Tasks Project",
+				ProjectNumber = "NFT001",
+				ProjectStatusId = 1,
+				TotalHoursSpent = 100
+			};
+
+			await _dbContext.Projects.AddAsync(project);
+			await _dbContext.SaveChangesAsync();
+
+			// Add only non-finished tasks
+			var openTask = new TeamWorkFlow.Infrastructure.Data.Models.Task()
+			{
+				Name = "Open Task",
+				ProjectId = project.Id,
+				TaskStatusId = 1, // Open
+				EstimatedTime = 20,
+				StartDate = DateTime.Now,
+				PriorityId = 1,
+				CreatorId = testUser.Id
+			};
+
+			var inProgressTask = new TeamWorkFlow.Infrastructure.Data.Models.Task()
+			{
+				Name = "In Progress Task",
+				ProjectId = project.Id,
+				TaskStatusId = 2, // In Progress
+				EstimatedTime = 30,
+				StartDate = DateTime.Now,
+				PriorityId = 1,
+				CreatorId = testUser.Id
+			};
+
+			await _dbContext.Tasks.AddRangeAsync(openTask, inProgressTask);
+			await _dbContext.SaveChangesAsync();
+
+			var hourlyRate = 75.00m;
+
+			// Act
+			var result = await _projectService.CalculateProjectCostAsync(project.Id, hourlyRate);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.CalculatedTotalHours, Is.EqualTo(0)); // No finished tasks
+			Assert.That(result.TotalLaborCost, Is.EqualTo(0)); // 0 hours * any rate = 0
+		}
+
+		[Test]
+		public async Task ProjectCostCalculationModel_FormattedCalculatedTotalHours_WorksCorrectly()
+		{
+			// Arrange
+			var project = await _repository.AllReadOnly<Project>().FirstOrDefaultAsync();
+			Assert.That(project, Is.Not.Null, "Project is null");
+
+			// Act
+			var result = await _projectService.GetProjectCostCalculationByIdAsync(project.Id);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.FormattedCalculatedTotalHours, Is.Not.Null);
+			Assert.That(result.FormattedCalculatedTotalHours, Is.Not.Empty);
+
+			// Should contain 'h' for hours or 'd' for days
+			Assert.That(result.FormattedCalculatedTotalHours.Contains('h') || result.FormattedCalculatedTotalHours.Contains('d'), Is.True);
+		}
+
+		#endregion
+
 		[TearDown]
 		public void TearDown()
 		{
