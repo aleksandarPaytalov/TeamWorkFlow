@@ -249,6 +249,7 @@ namespace TeamWorkFlow.Core.Services
         public async Task<ProjectDetailsServiceModel?> GetProjectDetailsByIdAsync(int projectId)
         {
 	        return await _repository.AllReadOnly<Project>()
+		        .Include(p => p.Tasks)
 		        .Where(p => p.Id == projectId)
 		        .Select(p => new ProjectDetailsServiceModel()
 		        {
@@ -259,7 +260,19 @@ namespace TeamWorkFlow.Core.Services
 			        ClientName = p.ClientName ?? string.Empty,
 			        Status = p.ProjectStatus.Name,
 			        TotalHoursSpent = p.TotalHoursSpent,
-			        TotalParts = p.Parts.Count
+			        TotalParts = p.Parts.Count,
+			        // Task-based calculations
+			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        TotalEstimatedHours = p.Tasks.Sum(t => t.EstimatedTime),
+			        TimeVariance = p.TotalHoursSpent - p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        CompletionPercentage = p.Tasks.Sum(t => t.EstimatedTime) > 0
+				        ? (double)p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime) / p.Tasks.Sum(t => t.EstimatedTime) * 100
+				        : 0,
+			        // Task counts
+			        FinishedTasksCount = p.Tasks.Count(t => t.TaskStatusId == 3),
+			        InProgressTasksCount = p.Tasks.Count(t => t.TaskStatusId == 2),
+			        OpenTasksCount = p.Tasks.Count(t => t.TaskStatusId == 1),
+			        TotalTasksCount = p.Tasks.Count
 		        })
 		        .FirstOrDefaultAsync();
         }
@@ -291,6 +304,59 @@ namespace TeamWorkFlow.Core.Services
 	        {
 		        throw new ArgumentException($"{ProjectNotExisting}");
 	        }
+        }
+
+        public async Task<ProjectTimeCalculationServiceModel?> GetProjectTimeCalculationByIdAsync(int projectId)
+        {
+	        return await _repository.AllReadOnly<Project>()
+		        .Include(p => p.Tasks)
+		        .Where(p => p.Id == projectId)
+		        .Select(p => new ProjectTimeCalculationServiceModel()
+		        {
+			        ProjectId = p.Id,
+			        ProjectName = p.ProjectName,
+			        ProjectNumber = p.ProjectNumber,
+			        TotalHoursSpent = p.TotalHoursSpent,
+			        // Task-based calculations
+			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        TotalEstimatedHours = p.Tasks.Sum(t => t.EstimatedTime),
+			        TimeVariance = p.TotalHoursSpent - p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        CompletionPercentage = p.Tasks.Sum(t => t.EstimatedTime) > 0
+				        ? (double)p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime) / p.Tasks.Sum(t => t.EstimatedTime) * 100
+				        : 0,
+			        // Task counts
+			        FinishedTasksCount = p.Tasks.Count(t => t.TaskStatusId == 3),
+			        InProgressTasksCount = p.Tasks.Count(t => t.TaskStatusId == 2),
+			        OpenTasksCount = p.Tasks.Count(t => t.TaskStatusId == 1),
+			        TotalTasksCount = p.Tasks.Count
+		        })
+		        .FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<ProjectTimeCalculationServiceModel>> GetAllProjectsWithTimeCalculationsAsync()
+        {
+	        return await _repository.AllReadOnly<Project>()
+		        .Include(p => p.Tasks)
+		        .Select(p => new ProjectTimeCalculationServiceModel()
+		        {
+			        ProjectId = p.Id,
+			        ProjectName = p.ProjectName,
+			        ProjectNumber = p.ProjectNumber,
+			        TotalHoursSpent = p.TotalHoursSpent,
+			        // Task-based calculations
+			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        TotalEstimatedHours = p.Tasks.Sum(t => t.EstimatedTime),
+			        TimeVariance = p.TotalHoursSpent - p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        CompletionPercentage = p.Tasks.Sum(t => t.EstimatedTime) > 0
+				        ? (double)p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime) / p.Tasks.Sum(t => t.EstimatedTime) * 100
+				        : 0,
+			        // Task counts
+			        FinishedTasksCount = p.Tasks.Count(t => t.TaskStatusId == 3),
+			        InProgressTasksCount = p.Tasks.Count(t => t.TaskStatusId == 2),
+			        OpenTasksCount = p.Tasks.Count(t => t.TaskStatusId == 1),
+			        TotalTasksCount = p.Tasks.Count
+		        })
+		        .ToListAsync();
         }
 	}
 }

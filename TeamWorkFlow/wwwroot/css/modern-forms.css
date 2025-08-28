@@ -519,3 +519,87 @@
         transform: translateY(0);
     }
 }
+
+/* Project Form Specific Enhancements */
+.project-form-container {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 600px;
+}
+
+.project-form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.project-form-header h2 {
+    color: #1f2937;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.project-form-subtitle {
+    color: #6b7280;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Enhanced info alert for project setup */
+.alert-info {
+    background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+    border: 1px solid #93c5fd;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.alert-info svg {
+    color: #3b82f6;
+    flex-shrink: 0;
+}
+
+.alert-info strong {
+    color: #1e40af;
+}
+
+.alert-info div {
+    color: #1e3a8a;
+    line-height: 1.5;
+}
+
+/* Enhanced submit button for project forms */
+.enhanced-submit-btn {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    border: none;
+    padding: 0.875rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    min-width: 150px;
+}
+
+.enhanced-submit-btn:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15);
+}
+
+.enhanced-submit-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Form help text for project forms */
+.form-help-text {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+    line-height: 1.4;
+}

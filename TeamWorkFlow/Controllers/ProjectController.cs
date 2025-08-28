@@ -69,10 +69,8 @@ namespace TeamWorkFlow.Controllers
 				ModelState.AddModelError(nameof(model.ProjectStatusId), $"{StatusNotExisting}");
 		    }
 
-		    if (model.TotalHoursSpent < 0)
-		    {
-				ModelState.AddModelError(nameof(model.TotalHoursSpent), $"{StringNumberRange}");
-		    }
+		    // Set default 1 hour for project setup/initialization time
+		    model.TotalHoursSpent = 1;
 
 		    if (!ModelState.IsValid)
 		    {

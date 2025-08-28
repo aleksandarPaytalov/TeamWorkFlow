@@ -43,5 +43,47 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
 
         public ICollection<Part> Parts { get; set; } = new List<Part>();
         public ICollection<Task> Tasks { get; set; } = new List<Task>();
+
+        // Calculated properties for task-based time tracking
+        /// <summary>
+        /// Total hours from all finished tasks (TaskStatusId = 3)
+        /// </summary>
+        public int CalculatedTotalHours => Tasks
+            .Where(t => t.TaskStatusId == 3) // 3 = "finished" status
+            .Sum(t => t.EstimatedTime);
+
+        /// <summary>
+        /// Total estimated hours from all tasks regardless of status
+        /// </summary>
+        public int TotalEstimatedHours => Tasks.Sum(t => t.EstimatedTime);
+
+        /// <summary>
+        /// Variance between manual estimate (TotalHoursSpent) and actual finished task hours
+        /// Positive value means manual estimate is higher than actual
+        /// Negative value means actual work exceeded manual estimate
+        /// </summary>
+        public int TimeVariance => TotalHoursSpent - CalculatedTotalHours;
+
+        /// <summary>
+        /// Percentage of project completion based on finished tasks
+        /// </summary>
+        public double CompletionPercentage => TotalEstimatedHours > 0
+            ? (double)CalculatedTotalHours / TotalEstimatedHours * 100
+            : 0;
+
+        /// <summary>
+        /// Number of finished tasks
+        /// </summary>
+        public int FinishedTasksCount => Tasks.Count(t => t.TaskStatusId == 3);
+
+        /// <summary>
+        /// Number of tasks in progress
+        /// </summary>
+        public int InProgressTasksCount => Tasks.Count(t => t.TaskStatusId == 2);
+
+        /// <summary>
+        /// Number of open tasks
+        /// </summary>
+        public int OpenTasksCount => Tasks.Count(t => t.TaskStatusId == 1);
     }
 }

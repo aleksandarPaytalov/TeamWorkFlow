@@ -123,7 +123,98 @@
 								</svg>
 								Hours Spent
 							</span>
-							<span class="detail-value"><strong>@Model.TotalHoursSpent</strong> hours</span>
+							<span class="detail-value"><strong>@Model.CalculatedTotalHours</strong> hours</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Time Tracking Section -->
+				<div class="details-section">
+					<div class="section-header">
+						<h3 class="section-title">
+							<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+							</svg>
+							Time Tracking & Progress
+						</h3>
+						<span class="section-count">@Model.FormattedCompletionPercentage complete</span>
+					</div>
+
+					<div class="time-tracking-grid">
+						<div class="time-metric">
+							<div class="metric-header">
+								<h4>Actual Hours</h4>
+								<span class="metric-subtitle">From finished tasks</span>
+							</div>
+							<div class="metric-value">@Model.FormattedCalculatedTotalHours</div>
+						</div>
+
+						<div class="time-metric">
+							<div class="metric-header">
+								<h4>Estimated Hours</h4>
+								<span class="metric-subtitle">Total estimated</span>
+							</div>
+							<div class="metric-value">@Model.FormattedTotalEstimatedHours</div>
+						</div>
+
+						<div class="time-metric">
+							<div class="metric-header">
+								<h4>Manual Estimate</h4>
+								<span class="metric-subtitle">Original estimate</span>
+							</div>
+							<div class="metric-value">@Model.FormattedTotalHoursSpent</div>
+						</div>
+
+						<div class="time-metric">
+							<div class="metric-header">
+								<h4>Variance</h4>
+								<span class="metric-subtitle">@Model.TimeVarianceStatus</span>
+							</div>
+							<div class="metric-value variance-@Model.TimeVarianceStatus.ToLower().Replace(" ", "-")">
+								@(Model.TimeVariance > 0 ? "+" : "")@Model.TimeVariance h
+							</div>
+						</div>
+					</div>
+
+					<div class="progress-section">
+						<div class="progress-header">
+							<h4>Project Progress</h4>
+							<span class="progress-percentage">@Model.FormattedCompletionPercentage</span>
+						</div>
+						<div class="progress-bar">
+							<div class="progress-fill" style="width: @Model.CompletionPercentage%"></div>
+						</div>
+						<div class="task-summary">
+							<div class="task-stat">
+								<span class="task-count">@Model.FinishedTasksCount</span>
+								<span class="task-label">Finished</span>
+							</div>
+							<div class="task-stat">
+								<span class="task-count">@Model.InProgressTasksCount</span>
+								<span class="task-label">In Progress</span>
+							</div>
+							<div class="task-stat">
+								<span class="task-count">@Model.OpenTasksCount</span>
+								<span class="task-label">Open</span>
+							</div>
+							<div class="task-stat">
+								<span class="task-count">@Model.TotalTasksCount</span>
+								<span class="task-label">Total</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="project-health">
+						<div class="health-indicator health-@Model.ProjectHealthStatus.ToLower().Replace(" ", "-")">
+							<span class="health-status">@Model.ProjectHealthStatus</span>
+							@if (Model.IsOnTrack)
+							{
+								<span class="health-badge">On Track</span>
+							}
+							else
+							{
+								<span class="health-badge">Needs Attention</span>
+							}
 						</div>
 					</div>
 				</div>

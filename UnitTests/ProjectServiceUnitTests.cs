@@ -1060,6 +1060,131 @@ public void Setup()
 
 		#endregion
 
+		#region Time Calculation Tests
+
+		[Test]
+		public async Task GetProjectTimeCalculationByIdAsync_ReturnsCorrectCalculations()
+		{
+			// Arrange
+			var projectId = 2; // Project with tasks in seeded data
+
+			// Act
+			var result = await _projectService.GetProjectTimeCalculationByIdAsync(projectId);
+
+			// Assert
+			Assert.That(result, Is.Not.Null, "Project time calculation should not be null");
+			Assert.That(result.ProjectId, Is.EqualTo(projectId));
+			Assert.That(result.ProjectName, Is.Not.Empty);
+			Assert.That(result.ProjectNumber, Is.Not.Empty);
+			Assert.That(result.TotalHoursSpent, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.CalculatedTotalHours, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.TotalEstimatedHours, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.CompletionPercentage, Is.InRange(0, 100));
+		}
+
+		[Test]
+		public async Task GetAllProjectsWithTimeCalculationsAsync_ReturnsAllProjects()
+		{
+			// Act
+			var result = await _projectService.GetAllProjectsWithTimeCalculationsAsync();
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.Count(), Is.GreaterThan(0), "Should return projects with time calculations");
+
+			foreach (var project in result)
+			{
+				Assert.That(project.ProjectId, Is.GreaterThan(0));
+				Assert.That(project.ProjectName, Is.Not.Empty);
+				Assert.That(project.ProjectNumber, Is.Not.Empty);
+				Assert.That(project.CompletionPercentage, Is.InRange(0, 100));
+			}
+		}
+
+		[Test]
+		public async Task ProjectDetailsServiceModel_IncludesTimeCalculations()
+		{
+			// Arrange
+			var projectId = 2; // Project with tasks
+
+			// Act
+			var result = await _projectService.GetProjectDetailsByIdAsync(projectId);
+
+			// Assert
+			Assert.That(result, Is.Not.Null);
+			Assert.That(result.CalculatedTotalHours, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.TotalEstimatedHours, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.CompletionPercentage, Is.InRange(0, 100));
+			Assert.That(result.FinishedTasksCount, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.InProgressTasksCount, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.OpenTasksCount, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.TotalTasksCount, Is.GreaterThanOrEqualTo(0));
+		}
+
+		[Test]
+		public void ProjectTimeCalculationServiceModel_FormattedProperties_WorkCorrectly()
+		{
+			// Arrange
+			var model = new ProjectTimeCalculationServiceModel
+			{
+				TotalHoursSpent = 40,
+				CalculatedTotalHours = 32,
+				TotalEstimatedHours = 48,
+				CompletionPercentage = 66.7,
+				TimeVariance = 8
+			};
+
+			// Act & Assert
+			Assert.That(model.FormattedCompletionPercentage, Is.EqualTo("66.7%"));
+			Assert.That(model.TimeVarianceStatus, Is.EqualTo("Under Estimate"));
+			Assert.That(model.FormattedTotalHoursSpent, Is.EqualTo("5d"));
+			Assert.That(model.FormattedCalculatedTotalHours, Is.EqualTo("4d"));
+			Assert.That(model.FormattedTotalEstimatedHours, Is.EqualTo("6d"));
+		}
+
+		#endregion
+
+		#region Project Creation with Default Time Tests
+
+		[Test]
+		public async Task AddNewProjectsAsync_SetsDefaultOneHourSetupTime()
+		{
+			// Arrange
+			var model = new ProjectFormModel
+			{
+				ProjectName = "Test Project with Default Time",
+				ProjectNumber = "TP9999",
+				ProjectStatusId = 1,
+				TotalHoursSpent = 1, // This should be set by controller
+				ClientName = "Test Client",
+				Appliance = "Test Application"
+			};
+
+			// Act
+			var projectId = await _projectService.AddNewProjectsAsync(model);
+
+			// Assert
+			Assert.That(projectId, Is.GreaterThan(0), "Project should be created successfully");
+
+			var createdProject = await _projectService.GetProjectDetailsByIdAsync(projectId);
+			Assert.That(createdProject, Is.Not.Null, "Created project should be retrievable");
+			Assert.That(createdProject.TotalHoursSpent, Is.EqualTo(1), "Project should have 1 hour default setup time");
+			Assert.That(createdProject.ProjectName, Is.EqualTo("Test Project with Default Time"));
+			Assert.That(createdProject.ProjectNumber, Is.EqualTo("TP9999"));
+		}
+
+		[Test]
+		public void ProjectFormModel_HasDefaultOneHourValue()
+		{
+			// Arrange & Act
+			var model = new ProjectFormModel();
+
+			// Assert
+			Assert.That(model.TotalHoursSpent, Is.EqualTo(1), "ProjectFormModel should default to 1 hour for setup time");
+		}
+
+		#endregion
+
 		[TearDown]
 		public void TearDown()
 		{
