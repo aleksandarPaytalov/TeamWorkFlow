@@ -378,6 +378,322 @@ namespace UnitTests.Controllers
             // Assert
             Assert.That(publicMethods, Does.Contain("All"));
             Assert.That(publicMethods, Does.Contain("Add"));
+            Assert.That(publicMethods, Does.Contain("SetEstimatedTime"));
         }
+
+        #region SetEstimatedTime Tests
+
+        [Test]
+        public async Task SetEstimatedTime_WithUnauthenticatedUser_ReturnsUnauthorized()
+        {
+            // Arrange
+            _mockUser.Setup(x => x.IsInRole("Administrator")).Returns(false);
+            _mockUser.Setup(x => x.IsInRole("Operator")).Returns(false);
+
+            int taskId = 1;
+            int estimatedTime = 10;
+
+            // Act
+            var result = await _controller.SetEstimatedTime(taskId, estimatedTime);
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            Assert.That(jsonResult, Is.Not.Null);
+
+            var resultData = jsonResult!.Value as dynamic;
+            Assert.That(resultData, Is.Not.Null);
+
+            // Use reflection to access anonymous object properties
+            var successProperty = resultData!.GetType().GetProperty("success");
+            var messageProperty = resultData.GetType().GetProperty("message");
+
+            Assert.That(successProperty!.GetValue(resultData), Is.False);
+            Assert.That(messageProperty!.GetValue(resultData), Is.EqualTo("Unauthorized"));
+        }
+
+        [Test]
+        public async Task SetEstimatedTime_WithAdminUser_CallsTaskService()
+        {
+            // Arrange
+            _mockUser.Setup(x => x.IsInRole("Administrator")).Returns(true);
+            _mockUser.Setup(x => x.IsInRole("Operator")).Returns(false);
+
+            int taskId = 1;
+            int estimatedTime = 10;
+
+            _mockTaskService.Setup(x => x.SetEstimatedTimeAsync(taskId, estimatedTime))
+                .ReturnsAsync((true, "Estimated time updated successfully"));
+
+            // Act
+            var result = await _controller.SetEstimatedTime(taskId, estimatedTime);
+
+            // Assert
+            _mockTaskService.Verify(x => x.SetEstimatedTimeAsync(taskId, estimatedTime), Times.Once);
+
+            var jsonResult = result as JsonResult;
+            Assert.That(jsonResult, Is.Not.Null);
+
+            var resultData = jsonResult!.Value as dynamic;
+            var successProperty = resultData!.GetType().GetProperty("success");
+            var messageProperty = resultData.GetType().GetProperty("message");
+
+            Assert.That(successProperty!.GetValue(resultData), Is.True);
+            Assert.That(messageProperty!.GetValue(resultData), Is.EqualTo("Estimated time updated successfully"));
+        }
+
+        [Test]
+        public async Task SetEstimatedTime_WithOperatorUser_CallsTaskService()
+        {
+            // Arrange
+            _mockUser.Setup(x => x.IsInRole("Administrator")).Returns(false);
+            _mockUser.Setup(x => x.IsInRole("Operator")).Returns(true);
+
+            int taskId = 1;
+            int estimatedTime = 15;
+
+            _mockTaskService.Setup(x => x.SetEstimatedTimeAsync(taskId, estimatedTime))
+                .ReturnsAsync((true, "Estimated time updated successfully"));
+
+            // Act
+            var result = await _controller.SetEstimatedTime(taskId, estimatedTime);
+
+            // Assert
+            _mockTaskService.Verify(x => x.SetEstimatedTimeAsync(taskId, estimatedTime), Times.Once);
+
+            var jsonResult = result as JsonResult;
+            Assert.That(jsonResult, Is.Not.Null);
+
+            var resultData = jsonResult!.Value as dynamic;
+            var successProperty = resultData!.GetType().GetProperty("success");
+            var messageProperty = resultData.GetType().GetProperty("message");
+
+            Assert.That(successProperty!.GetValue(resultData), Is.True);
+            Assert.That(messageProperty!.GetValue(resultData), Is.EqualTo("Estimated time updated successfully"));
+        }
+
+        [Test]
+        public async Task SetEstimatedTime_WithInvalidTimeBelowRange_ReturnsError()
+        {
+            // Arrange
+            _mockUser.Setup(x => x.IsInRole("Administrator")).Returns(true);
+
+            int taskId = 1;
+            int invalidEstimatedTime = 0;
+
+            // Act
+            var result = await _controller.SetEstimatedTime(taskId, invalidEstimatedTime);
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            Assert.That(jsonResult, Is.Not.Null);
+
+            var resultData = jsonResult!.Value as dynamic;
+            var successProperty = resultData!.GetType().GetProperty("success");
+            var messageProperty = resultData.GetType().GetProperty("message");
+
+            Assert.That(successProperty!.GetValue(resultData), Is.False);
+            Assert.That(messageProperty!.GetValue(resultData), Is.EqualTo("Estimated time must be between 1 and 1000 hours"));
+
+            // Verify service was not called
+            _mockTaskService.Verify(x => x.SetEstimatedTimeAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        }
+
+        [Test]
+        public async Task SetEstimatedTime_WithInvalidTimeAboveRange_ReturnsError()
+        {
+            // Arrange
+            _mockUser.Setup(x => x.IsInRole("Administrator")).Returns(true);
+
+            int taskId = 1;
+            int invalidEstimatedTime = 1001;
+
+            // Act
+            var result = await _controller.SetEstimatedTime(taskId, invalidEstimatedTime);
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            Assert.That(jsonResult, Is.Not.Null);
+
+            var resultData = jsonResult!.Value as dynamic;
+            var successProperty = resultData!.GetType().GetProperty("success");
+            var messageProperty = resultData.GetType().GetProperty("message");
+
+            Assert.That(successProperty!.GetValue(resultData), Is.False);
+            Assert.That(messageProperty!.GetValue(resultData), Is.EqualTo("Estimated time must be between 1 and 1000 hours"));
+
+            // Verify service was not called
+            _mockTaskService.Verify(x => x.SetEstimatedTimeAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        }
+
+        [Test]
+        public async Task SetEstimatedTime_WithValidTimeAtMinimumBoundary_ReturnsSuccess()
+        {
+            // Arrange
+            _mockUser.Setup(x => x.IsInRole("Administrator")).Returns(true);
+
+            int taskId = 1;
+            int minimumValidTime = 1;
+
+            _mockTaskService.Setup(x => x.SetEstimatedTimeAsync(taskId, minimumValidTime))
+                .ReturnsAsync((true, "Estimated time updated successfully"));
+
+            // Act
+            var result = await _controller.SetEstimatedTime(taskId, minimumValidTime);
+
+            // Assert
+            _mockTaskService.Verify(x => x.SetEstimatedTimeAsync(taskId, minimumValidTime), Times.Once);
+
+            var jsonResult = result as JsonResult;
+            Assert.That(jsonResult, Is.Not.Null);
+
+            var resultData = jsonResult!.Value as dynamic;
+            var successProperty = resultData!.GetType().GetProperty("success");
+
+            Assert.That(successProperty!.GetValue(resultData), Is.True);
+        }
+
+        [Test]
+        public async Task SetEstimatedTime_WithValidTimeAtMaximumBoundary_ReturnsSuccess()
+        {
+            // Arrange
+            _mockUser.Setup(x => x.IsInRole("Administrator")).Returns(true);
+
+            int taskId = 1;
+            int maximumValidTime = 1000;
+
+            _mockTaskService.Setup(x => x.SetEstimatedTimeAsync(taskId, maximumValidTime))
+                .ReturnsAsync((true, "Estimated time updated successfully"));
+
+            // Act
+            var result = await _controller.SetEstimatedTime(taskId, maximumValidTime);
+
+            // Assert
+            _mockTaskService.Verify(x => x.SetEstimatedTimeAsync(taskId, maximumValidTime), Times.Once);
+
+            var jsonResult = result as JsonResult;
+            Assert.That(jsonResult, Is.Not.Null);
+
+            var resultData = jsonResult!.Value as dynamic;
+            var successProperty = resultData!.GetType().GetProperty("success");
+
+            Assert.That(successProperty!.GetValue(resultData), Is.True);
+        }
+
+        [Test]
+        public async Task SetEstimatedTime_WhenServiceReturnsFailure_ReturnsServiceError()
+        {
+            // Arrange
+            _mockUser.Setup(x => x.IsInRole("Administrator")).Returns(true);
+
+            int taskId = 999;
+            int estimatedTime = 10;
+            string serviceErrorMessage = "Task not found";
+
+            _mockTaskService.Setup(x => x.SetEstimatedTimeAsync(taskId, estimatedTime))
+                .ReturnsAsync((false, serviceErrorMessage));
+
+            // Act
+            var result = await _controller.SetEstimatedTime(taskId, estimatedTime);
+
+            // Assert
+            _mockTaskService.Verify(x => x.SetEstimatedTimeAsync(taskId, estimatedTime), Times.Once);
+
+            var jsonResult = result as JsonResult;
+            Assert.That(jsonResult, Is.Not.Null);
+
+            var resultData = jsonResult!.Value as dynamic;
+            var successProperty = resultData!.GetType().GetProperty("success");
+            var messageProperty = resultData.GetType().GetProperty("message");
+
+            Assert.That(successProperty!.GetValue(resultData), Is.False);
+            Assert.That(messageProperty!.GetValue(resultData), Is.EqualTo(serviceErrorMessage));
+        }
+
+        [Test]
+        public async Task SetEstimatedTime_WithNegativeTime_ReturnsError()
+        {
+            // Arrange
+            _mockUser.Setup(x => x.IsInRole("Administrator")).Returns(true);
+
+            int taskId = 1;
+            int negativeTime = -5;
+
+            // Act
+            var result = await _controller.SetEstimatedTime(taskId, negativeTime);
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            Assert.That(jsonResult, Is.Not.Null);
+
+            var resultData = jsonResult!.Value as dynamic;
+            var successProperty = resultData!.GetType().GetProperty("success");
+            var messageProperty = resultData.GetType().GetProperty("message");
+
+            Assert.That(successProperty!.GetValue(resultData), Is.False);
+            Assert.That(messageProperty!.GetValue(resultData), Is.EqualTo("Estimated time must be between 1 and 1000 hours"));
+
+            // Verify service was not called
+            _mockTaskService.Verify(x => x.SetEstimatedTimeAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        }
+
+        [Test]
+        public async Task SetEstimatedTime_WithValidMidRangeTime_ReturnsSuccess()
+        {
+            // Arrange
+            _mockUser.Setup(x => x.IsInRole("Administrator")).Returns(true);
+
+            int taskId = 5;
+            int midRangeTime = 500;
+
+            _mockTaskService.Setup(x => x.SetEstimatedTimeAsync(taskId, midRangeTime))
+                .ReturnsAsync((true, "Estimated time updated successfully"));
+
+            // Act
+            var result = await _controller.SetEstimatedTime(taskId, midRangeTime);
+
+            // Assert
+            _mockTaskService.Verify(x => x.SetEstimatedTimeAsync(taskId, midRangeTime), Times.Once);
+
+            var jsonResult = result as JsonResult;
+            Assert.That(jsonResult, Is.Not.Null);
+
+            var resultData = jsonResult!.Value as dynamic;
+            var successProperty = resultData!.GetType().GetProperty("success");
+            var messageProperty = resultData.GetType().GetProperty("message");
+
+            Assert.That(successProperty!.GetValue(resultData), Is.True);
+            Assert.That(messageProperty!.GetValue(resultData), Is.EqualTo("Estimated time updated successfully"));
+        }
+
+        [Test]
+        public async Task SetEstimatedTime_WithGuestUser_ReturnsUnauthorized()
+        {
+            // Arrange
+            _mockUser.Setup(x => x.IsInRole("Administrator")).Returns(false);
+            _mockUser.Setup(x => x.IsInRole("Operator")).Returns(false);
+            _mockUser.Setup(x => x.IsInRole("Guest")).Returns(true);
+
+            int taskId = 1;
+            int estimatedTime = 10;
+
+            // Act
+            var result = await _controller.SetEstimatedTime(taskId, estimatedTime);
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            Assert.That(jsonResult, Is.Not.Null);
+
+            var resultData = jsonResult!.Value as dynamic;
+            var successProperty = resultData!.GetType().GetProperty("success");
+            var messageProperty = resultData.GetType().GetProperty("message");
+
+            Assert.That(successProperty!.GetValue(resultData), Is.False);
+            Assert.That(messageProperty!.GetValue(resultData), Is.EqualTo("Unauthorized"));
+
+            // Verify service was not called
+            _mockTaskService.Verify(x => x.SetEstimatedTimeAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        }
+
+        #endregion
     }
 }
