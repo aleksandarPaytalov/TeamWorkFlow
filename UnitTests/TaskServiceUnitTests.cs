@@ -96,12 +96,12 @@ public void Setup()
 					.FirstOrDefaultAsync();
 
 			// Act
-			TaskServiceModel? result = await _taskService.GetTaskByIdAsync(task.Id);
+			TaskServiceModel? result = await _taskService.GetTaskByIdAsync(task!.Id);
 
 			// Assert
 			Assert.NotNull(result);
 			Assert.That(result, Is.Not.Null);
-			Assert.That(result!.Id, Is.EqualTo(task?.Id));
+			Assert.That(result!.Id, Is.EqualTo(task.Id));
 		}
 
 		[Test]
@@ -873,7 +873,7 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task EditTaskAsync_WithInvalidTaskId_DoesNotThrowException()
+		public void EditTaskAsync_WithInvalidTaskId_DoesNotThrowException()
 		{
 			// Arrange
 			int invalidTaskId = 99999;
@@ -891,7 +891,7 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task DeleteTaskAsync_WithInvalidTaskId_DoesNotThrowException()
+		public void DeleteTaskAsync_WithInvalidTaskId_DoesNotThrowException()
 		{
 			// Arrange
 			int invalidTaskId = 99999;
@@ -1036,7 +1036,7 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task RemoveAssignedTaskFromUserCollection_WithInvalidIds_DoesNotThrowException()
+		public void RemoveAssignedTaskFromUserCollection_WithInvalidIds_DoesNotThrowException()
 		{
 			// Arrange
 			int invalidTaskId = 99999;
@@ -1048,7 +1048,7 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task RemoveFromCollection_WithInvalidTaskId_DoesNotThrowException()
+		public void RemoveFromCollection_WithInvalidTaskId_DoesNotThrowException()
 		{
 			// Arrange
 			string userId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77";
@@ -1060,7 +1060,7 @@ public void Setup()
 		}
 
 		[Test]
-		public async Task GetMyTasksAsync_WithInvalidUserId_ThrowsException()
+		public void GetMyTasksAsync_WithInvalidUserId_ThrowsException()
 		{
 			// Arrange
 			string invalidUserId = "invalid-user-id-12345";

@@ -171,9 +171,10 @@ namespace UnitTests
 		{
 			// Arrange
 			var machine = await _repository.AllReadOnly<Machine>().FirstOrDefaultAsync();
+			Assert.That(machine, Is.Not.Null);
 			var expectedMachine = new MachineFormModel
 			{
-				Id = machine.Id,
+				Id = machine!.Id,
 				Name = machine.Name,
 				CalibrationSchedule = machine.CalibrationSchedule.ToString(Messages.DateFormat, CultureInfo.InvariantCulture),
 				Capacity = machine.Capacity,
@@ -221,10 +222,11 @@ namespace UnitTests
 		{
 			// Arrange
 			var machine = await _repository.AllReadOnly<Machine>().FirstOrDefaultAsync();
+			Assert.That(machine, Is.Not.Null);
 			var model = new MachineFormModel
 			{
 				Name = "Machine 1",
-				CalibrationSchedule = machine.CalibrationSchedule.ToString(Messages.DateFormat, CultureInfo.InvariantCulture),
+				CalibrationSchedule = machine!.CalibrationSchedule.ToString(Messages.DateFormat, CultureInfo.InvariantCulture),
 				Capacity = 10,
 				IsCalibrated = "true",
 				ImageUrl = "https://www.example.com"
@@ -248,10 +250,11 @@ namespace UnitTests
 		{
 			// Arrange
 			var machine = await _repository.AllReadOnly<Machine>().FirstOrDefaultAsync();
+			Assert.That(machine, Is.Not.Null);
 			var model = new MachineFormModel
 			{
 				Name = "Machine 1",
-				CalibrationSchedule = machine.CalibrationSchedule.ToString(Messages.DateFormat, CultureInfo.InvariantCulture),
+				CalibrationSchedule = machine!.CalibrationSchedule.ToString(Messages.DateFormat, CultureInfo.InvariantCulture),
 				Capacity = 10,
 				IsCalibrated = "yes",
 				ImageUrl = "https://www.example.com"
@@ -266,6 +269,7 @@ namespace UnitTests
 		{
 			// Arrange
 			var machine = await _repository.AllReadOnly<Machine>().FirstOrDefaultAsync();
+			Assert.That(machine, Is.Not.Null);
 			var model = new MachineFormModel
 			{
 				Name = "Machine 1",
@@ -276,7 +280,7 @@ namespace UnitTests
 			};
 
 			// Act & Assert
-			Assert.ThrowsAsync<ArgumentException>(() => _machineService.EditMachineAsync(model, machine.Id));
+			Assert.ThrowsAsync<ArgumentException>(() => _machineService.EditMachineAsync(model, machine!.Id));
 		}
 
 		[Test]
@@ -284,6 +288,7 @@ namespace UnitTests
 		{
 			// Arrange
 			var machine = await _repository.AllReadOnly<Machine>().FirstOrDefaultAsync();
+			Assert.That(machine, Is.Not.Null);
 			var model = new MachineFormModel
 			{
 				Name = "Machine 1",
@@ -294,7 +299,7 @@ namespace UnitTests
 			};
 
 			// Act & Assert
-			Assert.ThrowsAsync<ArgumentException>(() => _machineService.EditMachineAsync(model, machine.Id));
+			Assert.ThrowsAsync<ArgumentException>(() => _machineService.EditMachineAsync(model, machine!.Id));
 		}
 
 

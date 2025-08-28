@@ -104,7 +104,7 @@ namespace UnitTests.Controllers
         public async Task Summary_WithNullSummaryData_ShouldReturnOkWithNull()
         {
             // Arrange
-            _mockSummaryService.Setup(x => x.SummaryAsync())
+            _mockSummaryService.Setup(x => x.SummaryAsync())!
                 .ReturnsAsync((SummaryServiceModel?)null);
 
             // Act
