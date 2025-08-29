@@ -10,9 +10,9 @@ namespace TeamWorkFlow.Core.Models.Project
         public int TotalHoursSpent { get; set; }
 
         // Task-based calculations
-        public int CalculatedTotalHours { get; set; }
-        public int TotalEstimatedHours { get; set; }
-        public int TimeVariance { get; set; }
+        public double CalculatedActualHours { get; set; }
+        public int TotalPlannedHours { get; set; }
+        public double TimeOverview { get; set; }
         public double CompletionPercentage { get; set; }
 
         // Task counts
@@ -24,21 +24,23 @@ namespace TeamWorkFlow.Core.Models.Project
         // Calculated properties for display
         public string FormattedCompletionPercentage => $"{CompletionPercentage:F1}%";
         
-        public string TimeVarianceStatus => TimeVariance switch
+        public string TimeOverviewStatus => TimeOverview switch
         {
-            > 0 => "Under Estimate",
-            < 0 => "Over Estimate", 
-            0 => "On Target"
+            > 0 => "Over Planned",
+            < 0 => "Under Planned",
+            0 => "On Target",
+            _ => "Unknown"
         };
 
-        public string TimeVarianceDescription => TimeVariance switch
+        public string TimeOverviewDescription => TimeOverview switch
         {
-            > 0 => $"Project is {TimeVariance}h under the manual estimate",
-            < 0 => $"Project is {Math.Abs(TimeVariance)}h over the manual estimate",
-            0 => "Project time matches manual estimate exactly"
+            > 0 => $"Project took {TimeOverview:F1}h more than planned",
+            < 0 => $"Project completed {Math.Abs(TimeOverview):F1}h under planned time",
+            0 => "Project time matches planned estimate exactly",
+            _ => "Time overview unavailable"
         };
 
-        public bool IsOnTrack => Math.Abs(TimeVariance) <= (TotalHoursSpent * 0.1); // Within 10% variance
+        public bool IsOnTrack => Math.Abs(TimeOverview) <= (TotalPlannedHours * 0.1); // Within 10% variance
 
         public string ProjectHealthStatus
         {
@@ -52,22 +54,36 @@ namespace TeamWorkFlow.Core.Models.Project
             }
         }
 
-        public string GetFormattedDuration(int hours)
+        public string GetFormattedDuration(double hours)
+        {
+            if (hours < 8)
+                return $"{hours:F1}h";
+
+            int days = (int)(hours / 8);
+            double remainingHours = hours % 8;
+
+            if (remainingHours < 0.1)
+                return $"{days}d";
+
+            return $"{days}d {remainingHours:F1}h";
+        }
+
+        public string GetFormattedDurationInt(int hours)
         {
             if (hours < 8)
                 return $"{hours}h";
-            
+
             int days = hours / 8;
             int remainingHours = hours % 8;
-            
+
             if (remainingHours == 0)
                 return $"{days}d";
-            
+
             return $"{days}d {remainingHours}h";
         }
 
-        public string FormattedTotalHoursSpent => GetFormattedDuration(TotalHoursSpent);
-        public string FormattedCalculatedTotalHours => GetFormattedDuration(CalculatedTotalHours);
-        public string FormattedTotalEstimatedHours => GetFormattedDuration(TotalEstimatedHours);
+        public string FormattedTotalHoursSpent => GetFormattedDurationInt(TotalHoursSpent);
+        public string FormattedCalculatedActualHours => GetFormattedDuration(CalculatedActualHours);
+        public string FormattedTotalPlannedHours => GetFormattedDurationInt(TotalPlannedHours);
     }
 }

@@ -19,7 +19,7 @@ namespace UnitTests
                 ProjectId = 123,
                 ProjectName = "Test Project",
                 ProjectNumber = "TP-123",
-                CalculatedTotalHours = 100,
+                CalculatedActualHours = 10.0,
                 HourlyRate = 50.00m
             };
 
@@ -27,7 +27,7 @@ namespace UnitTests
             Assert.That(model.ProjectId, Is.EqualTo(123));
             Assert.That(model.ProjectName, Is.EqualTo("Test Project"));
             Assert.That(model.ProjectNumber, Is.EqualTo("TP-123"));
-            Assert.That(model.CalculatedTotalHours, Is.EqualTo(100));
+            Assert.That(model.CalculatedActualHours, Is.EqualTo(10.0));
             Assert.That(model.HourlyRate, Is.EqualTo(50.00m));
         }
 
@@ -37,7 +37,7 @@ namespace UnitTests
             // Arrange
             var model = new ProjectCostCalculationModel
             {
-                CalculatedTotalHours = 100,
+                CalculatedActualHours = 10.00,
                 HourlyRate = 50.00m
             };
 
@@ -45,7 +45,7 @@ namespace UnitTests
             var totalCost = model.TotalLaborCost;
 
             // Assert
-            Assert.That(totalCost, Is.EqualTo(5000.00m));
+            Assert.That(totalCost, Is.EqualTo(500.00m)); // 10.0 hours * 50.00 rate
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace UnitTests
             // Arrange
             var model = new ProjectCostCalculationModel
             {
-                CalculatedTotalHours = 0,
+                CalculatedActualHours = 0.0,
                 HourlyRate = 50.00m
             };
 
@@ -71,7 +71,7 @@ namespace UnitTests
             // Arrange
             var model = new ProjectCostCalculationModel
             {
-                CalculatedTotalHours = 100,
+                CalculatedActualHours = 10.00,
                 HourlyRate = 0m
             };
 
@@ -88,7 +88,7 @@ namespace UnitTests
             // Arrange
             var model = new ProjectCostCalculationModel
             {
-                CalculatedTotalHours = 150, // 150 hours
+                CalculatedActualHours = 15.00, // 150 hours
                 HourlyRate = 75.50m
             };
 
@@ -96,29 +96,29 @@ namespace UnitTests
             var totalCost = model.TotalLaborCost;
 
             // Assert
-            Assert.That(totalCost, Is.EqualTo(11325.00m)); // 150 * 75.50
+            Assert.That(totalCost, Is.EqualTo(1132.50m)); // 15.0 * 75.50
         }
 
         [Test]
         public void ProjectCostCalculationModel_FormattedCalculatedTotalHours_FormatsCorrectly()
         {
             // Arrange & Act
-            var model1 = new ProjectCostCalculationModel { CalculatedTotalHours = 0 };
-            var model2 = new ProjectCostCalculationModel { CalculatedTotalHours = 5 };
-            var model3 = new ProjectCostCalculationModel { CalculatedTotalHours = 23 };
-            var model4 = new ProjectCostCalculationModel { CalculatedTotalHours = 24 };
-            var model5 = new ProjectCostCalculationModel { CalculatedTotalHours = 25 };
-            var model6 = new ProjectCostCalculationModel { CalculatedTotalHours = 48 };
-            var model7 = new ProjectCostCalculationModel { CalculatedTotalHours = 49 };
+            var model1 = new ProjectCostCalculationModel { CalculatedActualHours = 0.0 };
+            var model2 = new ProjectCostCalculationModel { CalculatedActualHours = 5.0 };
+            var model3 = new ProjectCostCalculationModel { CalculatedActualHours = 2.03 };
+            var model4 = new ProjectCostCalculationModel { CalculatedActualHours = 24.0 };
+            var model5 = new ProjectCostCalculationModel { CalculatedActualHours = 25.0 }; // 1d 1h
+            var model6 = new ProjectCostCalculationModel { CalculatedActualHours = 48.0 }; // 2d
+            var model7 = new ProjectCostCalculationModel { CalculatedActualHours = 49.0 }; // 2d 1h
 
             // Assert
-            Assert.That(model1.FormattedCalculatedTotalHours, Is.EqualTo("0h"));
-            Assert.That(model2.FormattedCalculatedTotalHours, Is.EqualTo("5h"));
-            Assert.That(model3.FormattedCalculatedTotalHours, Is.EqualTo("23h"));
-            Assert.That(model4.FormattedCalculatedTotalHours, Is.EqualTo("1d")); // 24 hours = 1 day exactly
-            Assert.That(model5.FormattedCalculatedTotalHours, Is.EqualTo("1d 1h"));
-            Assert.That(model6.FormattedCalculatedTotalHours, Is.EqualTo("2d"));
-            Assert.That(model7.FormattedCalculatedTotalHours, Is.EqualTo("2d 1h"));
+            Assert.That(model1.FormattedCalculatedActualHours, Is.EqualTo("0h"));
+            Assert.That(model2.FormattedCalculatedActualHours, Is.EqualTo("5.0h"));
+            Assert.That(model3.FormattedCalculatedActualHours, Is.EqualTo("2.0h")); // 2.03 rounds to 2.0
+            Assert.That(model4.FormattedCalculatedActualHours, Is.EqualTo("1d")); // 24 hours = 1 day exactly
+            Assert.That(model5.FormattedCalculatedActualHours, Is.EqualTo("1d 1.0h")); // 25 hours = 1d 1h
+            Assert.That(model6.FormattedCalculatedActualHours, Is.EqualTo("2d")); // 48 hours = 2d exactly
+            Assert.That(model7.FormattedCalculatedActualHours, Is.EqualTo("2d 1.0h")); // 49 hours = 2d 1h
         }
 
         [Test]
@@ -194,12 +194,12 @@ namespace UnitTests
             var model = new ProjectDetailsServiceModel
             {
                 HourlyRate = 75.00m,
-                CalculatedTotalHours = 120
+                CalculatedActualHours = 12.00
             };
 
             // Assert
             Assert.That(model.HourlyRate, Is.EqualTo(75.00m));
-            Assert.That(model.CalculatedTotalHours, Is.EqualTo(120));
+            Assert.That(model.CalculatedActualHours, Is.EqualTo(12.0));
         }
 
         [Test]
@@ -209,14 +209,14 @@ namespace UnitTests
             var model = new ProjectDetailsServiceModel
             {
                 HourlyRate = 60.00m,
-                CalculatedTotalHours = 80
+                CalculatedActualHours = 8.00
             };
 
             // Act
             var totalCost = model.TotalLaborCost;
 
             // Assert
-            Assert.That(totalCost, Is.EqualTo(4800.00m)); // 60 * 80
+            Assert.That(totalCost, Is.EqualTo(480.00m)); // 60 * 8.0
         }
 
         [Test]
@@ -226,13 +226,13 @@ namespace UnitTests
             var model1 = new ProjectDetailsServiceModel
             {
                 HourlyRate = 0m,
-                CalculatedTotalHours = 100
+                CalculatedActualHours = 10.00
             };
 
             var model2 = new ProjectDetailsServiceModel
             {
                 HourlyRate = 50m,
-                CalculatedTotalHours = 0
+                CalculatedActualHours = 0.0
             };
 
             // Act
@@ -251,14 +251,14 @@ namespace UnitTests
             var model = new ProjectDetailsServiceModel
             {
                 HourlyRate = 150.75m,
-                CalculatedTotalHours = 500
+                CalculatedActualHours = 50.00
             };
 
             // Act
             var totalCost = model.TotalLaborCost;
 
             // Assert
-            Assert.That(totalCost, Is.EqualTo(75375.00m)); // 150.75 * 500
+            Assert.That(totalCost, Is.EqualTo(7537.50m)); // 150.75 * 50.0
         }
 
         [Test]
@@ -303,7 +303,7 @@ namespace UnitTests
             // Arrange
             var model = new ProjectCostCalculationModel
             {
-                CalculatedTotalHours = int.MaxValue,
+                CalculatedActualHours = int.MaxValue,
                 HourlyRate = 10000.00m // Maximum allowed rate
             };
 
@@ -321,7 +321,7 @@ namespace UnitTests
             // Arrange
             var model = new ProjectCostCalculationModel
             {
-                CalculatedTotalHours = 1,
+                CalculatedActualHours = 1.0,
                 HourlyRate = 0.01m // Minimum allowed rate
             };
 
@@ -338,14 +338,14 @@ namespace UnitTests
             // Arrange
             var model = new ProjectCostCalculationModel
             {
-                CalculatedTotalHours = 1000 // 1000 hours = 41 days + 16 hours
+                CalculatedActualHours = 1000.0 // 1000 hours = 41 days + 16 hours
             };
 
             // Act
-            var formatted = model.FormattedCalculatedTotalHours;
+            var formatted = model.FormattedCalculatedActualHours;
 
             // Assert
-            Assert.That(formatted, Is.EqualTo("41d 16h"));
+            Assert.That(formatted, Is.EqualTo("41d 16.0h")); // Double formatting shows .0
         }
 
         #endregion

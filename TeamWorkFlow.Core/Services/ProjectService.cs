@@ -111,8 +111,8 @@ namespace TeamWorkFlow.Core.Services
 			        Status = p.ProjectStatus.Name,
 			        TotalParts = p.Parts.Count,
 			        // Time tracking properties
-			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
-			        TotalEstimatedHours = p.Tasks.Sum(t => t.EstimatedTime),
+			        CalculatedActualHours = p.Tasks.Where(t => t.TaskStatusId == 3 && t.ActualTime.HasValue).Sum(t => t.ActualTime!.Value),
+			        TotalPlannedHours = p.Tasks.Sum(t => t.EstimatedTime),
 			        CompletionPercentage = p.Tasks.Sum(t => t.EstimatedTime) > 0
 				        ? (double)p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime) / p.Tasks.Sum(t => t.EstimatedTime) * 100
 				        : 0
@@ -269,8 +269,8 @@ namespace TeamWorkFlow.Core.Services
 			        Status = p.ProjectStatus.Name,
 			        TotalParts = p.Parts.Count,
 			        // Task-based calculations
-			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
-			        TotalEstimatedHours = p.Tasks.Sum(t => t.EstimatedTime),
+			        CalculatedActualHours = p.Tasks.Where(t => t.TaskStatusId == 3 && t.ActualTime.HasValue).Sum(t => t.ActualTime!.Value),
+			        TotalPlannedHours = p.Tasks.Sum(t => t.EstimatedTime),
 			        CompletionPercentage = p.Tasks.Sum(t => t.EstimatedTime) > 0
 				        ? (double)p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime) / p.Tasks.Sum(t => t.EstimatedTime) * 100
 				        : 0,
@@ -299,7 +299,7 @@ namespace TeamWorkFlow.Core.Services
 			        .ToListAsync();
 
 		        // Calculate contribution percentages
-		        var totalProjectHours = project.CalculatedTotalHours;
+		        var totalProjectHours = project.CalculatedActualHours;
 		        if (totalProjectHours > 0)
 		        {
 			        foreach (var contribution in operatorContributions)
@@ -358,9 +358,9 @@ namespace TeamWorkFlow.Core.Services
 			        ProjectNumber = p.ProjectNumber,
 			        TotalHoursSpent = p.TotalHoursSpent,
 			        // Task-based calculations
-			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
-			        TotalEstimatedHours = p.Tasks.Sum(t => t.EstimatedTime),
-			        TimeVariance = p.TotalHoursSpent - p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        CalculatedActualHours = p.Tasks.Where(t => t.TaskStatusId == 3 && t.ActualTime.HasValue).Sum(t => t.ActualTime!.Value),
+			        TotalPlannedHours = p.Tasks.Sum(t => t.EstimatedTime),
+			        TimeOverview = p.Tasks.Where(t => t.TaskStatusId == 3 && t.ActualTime.HasValue).Sum(t => t.ActualTime!.Value) - p.Tasks.Sum(t => t.EstimatedTime),
 			        CompletionPercentage = p.Tasks.Sum(t => t.EstimatedTime) > 0
 				        ? (double)p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime) / p.Tasks.Sum(t => t.EstimatedTime) * 100
 				        : 0,
@@ -384,9 +384,9 @@ namespace TeamWorkFlow.Core.Services
 			        ProjectNumber = p.ProjectNumber,
 			        TotalHoursSpent = p.TotalHoursSpent,
 			        // Task-based calculations
-			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
-			        TotalEstimatedHours = p.Tasks.Sum(t => t.EstimatedTime),
-			        TimeVariance = p.TotalHoursSpent - p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        CalculatedActualHours = p.Tasks.Where(t => t.TaskStatusId == 3 && t.ActualTime.HasValue).Sum(t => t.ActualTime!.Value),
+			        TotalPlannedHours = p.Tasks.Sum(t => t.EstimatedTime),
+			        TimeOverview = p.Tasks.Where(t => t.TaskStatusId == 3 && t.ActualTime.HasValue).Sum(t => t.ActualTime!.Value) - p.Tasks.Sum(t => t.EstimatedTime),
 			        CompletionPercentage = p.Tasks.Sum(t => t.EstimatedTime) > 0
 				        ? (double)p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime) / p.Tasks.Sum(t => t.EstimatedTime) * 100
 				        : 0,
@@ -409,7 +409,7 @@ namespace TeamWorkFlow.Core.Services
 			        ProjectId = p.Id,
 			        ProjectName = p.ProjectName,
 			        ProjectNumber = p.ProjectNumber,
-			        CalculatedTotalHours = p.Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime),
+			        CalculatedActualHours = p.Tasks.Where(t => t.TaskStatusId == 3 && t.ActualTime.HasValue).Sum(t => t.ActualTime!.Value),
 			        HourlyRate = 0 // Default value, will be set by user input
 		        })
 		        .FirstOrDefaultAsync();
