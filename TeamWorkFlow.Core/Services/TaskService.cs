@@ -811,6 +811,8 @@ namespace TeamWorkFlow.Core.Services
 
 
 
+
+
         // Task status management
         public async Task<(bool Success, string Message)> ChangeTaskStatusAsync(int taskId, int statusId, string userId)
         {
@@ -853,7 +855,18 @@ namespace TeamWorkFlow.Core.Services
                     {
                         // Calculate working hours: 8 hours per working day
                         var totalDays = Math.Ceiling(timeSpan.TotalDays);
-                        task.ActualTime = Math.Round(totalDays * 8, 2);
+                        var baseHours = totalDays * 8;
+
+                        // Get the number of operators assigned to this task
+                        var operatorCount = await _repository.AllReadOnly<TaskOperator>()
+                            .Where(to => to.TaskId == task.Id)
+                            .CountAsync();
+
+                        // If no operators assigned, default to 1 person
+                        var multiplier = operatorCount > 0 ? operatorCount : 1;
+
+                        // Calculate total person-hours (base hours × number of people)
+                        task.ActualTime = Math.Round(baseHours * multiplier, 2);
                     }
                 }
             }
