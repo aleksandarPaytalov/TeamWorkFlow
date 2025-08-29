@@ -14,7 +14,9 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 			{
 				data.TaskOperatorOne,
 				data.TaskOperatorTwo,
-				data.TaskOperatorThree
+				data.TaskOperatorThree,
+				data.TaskOperatorFour,
+				data.TaskOperatorFive
 			});
 		}
 	}
