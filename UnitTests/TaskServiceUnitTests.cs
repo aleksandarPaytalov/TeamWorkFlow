@@ -413,22 +413,23 @@ public void Setup()
 		{
 			// Arrange
 			string userId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77";
-			var myAssignedTasks = await _repository.AllReadOnly<TaskOperator>()
+
+			// Get initial count for this specific user
+			var initialUserTasksCount = await _repository.AllReadOnly<TaskOperator>()
 				.Include(to => to.Operator)
 				.Where(to => to.Operator.UserId == userId)
-				.ToListAsync();
-			Assert.That(myAssignedTasks, Is.Not.Null, "Task is null");
+				.CountAsync();
 
-			int expected = myAssignedTasks.Count;
-
+			// Find a task that is NOT assigned to ANY operator (so it can be added)
 			var task = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
 				.Include(t => t.Project)
 				.Include(t => t.TaskStatus)
 				.Include(t => t.Priority)
 				.Include(t => t.Machine)
 				.Include(t => t.Creator)
-				.FirstOrDefaultAsync();	
-			Assert.That(task, Is.Not.Null, "Task is null");
+				.Where(t => !t.TasksOperators.Any()) // Get a task not assigned to any operator
+				.FirstOrDefaultAsync();
+			Assert.That(task, Is.Not.Null, "No unassigned task found");
 
 			var taskToAdd = new TaskServiceModel()
 			{
@@ -446,11 +447,13 @@ public void Setup()
 			// Act
 			await _taskService.AddTaskToMyCollection(taskToAdd, userId);
 
-			var actualTasksNumber = await _repository.AllReadOnly<TaskOperator>()
+			// Assert - Check that this specific user now has one more task
+			var finalUserTasksCount = await _repository.AllReadOnly<TaskOperator>()
+				.Include(to => to.Operator)
+				.Where(to => to.Operator.UserId == userId)
 				.CountAsync();
 
-			// Assert
-			Assert.That(actualTasksNumber, Is.EqualTo(expected + 1));
+			Assert.That(finalUserTasksCount, Is.EqualTo(initialUserTasksCount + 1));
 		}
 
 		[Test]
@@ -458,22 +461,23 @@ public void Setup()
 		{
 			// Arrange
 			string userId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77";
-			var myAssignedTasks = await _repository.AllReadOnly<TaskOperator>()
+
+			// Get initial count for this specific user
+			var initialUserTasksCount = await _repository.AllReadOnly<TaskOperator>()
 				.Include(to => to.Operator)
 				.Where(to => to.Operator.UserId == userId)
-				.ToListAsync();
-			Assert.That(myAssignedTasks, Is.Not.Null, "Task is null");
+				.CountAsync();
 
-			int expected = myAssignedTasks.Count;
-
+			// Find a task that is NOT assigned to ANY operator (so it can be added)
 			var task = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
 				.Include(t => t.Project)
 				.Include(t => t.TaskStatus)
 				.Include(t => t.Priority)
 				.Include(t => t.Machine)
 				.Include(t => t.Creator)
-				.FirstOrDefaultAsync();	
-			Assert.That(task, Is.Not.Null, "Task is null");
+				.Where(t => !t.TasksOperators.Any()) // Get a task not assigned to any operator
+				.FirstOrDefaultAsync();
+			Assert.That(task, Is.Not.Null, "No unassigned task found");
 
 			var taskToAdd = new TaskServiceModel()
 			{
@@ -488,19 +492,28 @@ public void Setup()
 				Status = task.TaskStatus.Name
 			};
 
+			// First add the task to the collection
 			await _taskService.AddTaskToMyCollection(taskToAdd, userId);
 
-			var actualTasksNumber = await _repository.AllReadOnly<TaskOperator>()
+			// Verify it was added
+			var userTasksCountAfterAdd = await _repository.AllReadOnly<TaskOperator>()
+				.Include(to => to.Operator)
+				.Where(to => to.Operator.UserId == userId)
 				.CountAsync();
+			Assert.That(userTasksCountAfterAdd, Is.EqualTo(initialUserTasksCount + 1));
 
-			// Act
+			// Act - Remove the task from the collection
+			// Clear the context to avoid tracking conflicts
+			_dbContext.ChangeTracker.Clear();
 			await _taskService.RemoveFromCollection(task.Id, userId);
 
-			var actualTasksNumberAfterRemove = await _repository.AllReadOnly<TaskOperator>()
+			// Assert - Check that we're back to the original count for this user
+			var finalUserTasksCount = await _repository.AllReadOnly<TaskOperator>()
+				.Include(to => to.Operator)
+				.Where(to => to.Operator.UserId == userId)
 				.CountAsync();
 
-			// Assert
-			Assert.That(actualTasksNumberAfterRemove, Is.EqualTo(expected));
+			Assert.That(finalUserTasksCount, Is.EqualTo(initialUserTasksCount));
 		}
 
 		[Test]
@@ -2448,7 +2461,7 @@ public void Setup()
 			Assert.That(updatedTask.EndDate, Is.EqualTo(DateTime.Now).Within(TimeSpan.FromSeconds(5)));
 			Assert.That(updatedTask.CompletedById, Is.EqualTo(userId));
 			Assert.That(updatedTask.ActualTime, Is.Not.Null);
-			Assert.That(updatedTask.ActualTime, Is.EqualTo(5.0).Within(0.1)); // Should be approximately 5 hours
+			Assert.That(updatedTask.ActualTime, Is.EqualTo(8.0)); // 5 hours = 1 day × 8 hours × 1 operator = 8 hours
 		}
 
 		[Test]
@@ -2498,11 +2511,71 @@ public void Setup()
 			// Assert
 			Assert.That(result.Success, Is.True);
 
-			// Verify fractional hours are calculated correctly
+			// Verify working hours are calculated correctly (2.5 hours = 1 day × 8 hours × 1 operator = 8 hours)
 			var updatedTask = await _repository.GetByIdAsync<TeamWorkFlow.Infrastructure.Data.Models.Task>(task.Id);
 			Assert.That(updatedTask, Is.Not.Null);
 			Assert.That(updatedTask!.ActualTime, Is.Not.Null);
-			Assert.That(updatedTask.ActualTime, Is.EqualTo(2.5).Within(0.1)); // Should be approximately 2.5 hours
+			Assert.That(updatedTask.ActualTime, Is.EqualTo(8.0)); // 1 day × 8 hours × 1 operator (no operators assigned)
+		}
+
+		[Test]
+		public async Task ChangeTaskStatusAsync_WithMultipleOperators_CalculatesPersonHours()
+		{
+			// Arrange
+			var task = await _repository.All<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.FirstOrDefaultAsync();
+
+			Assert.That(task, Is.Not.Null);
+
+			// Clear any existing TaskOperator assignments for this task
+			var existingAssignments = await _repository.All<TeamWorkFlow.Infrastructure.Data.Models.TaskOperator>()
+				.Where(to => to.TaskId == task!.Id)
+				.ToListAsync();
+			foreach (var assignment in existingAssignments)
+			{
+				_repository.DeleteTaskOperator(assignment);
+			}
+
+			// Assign 2 operators to the task
+			var operator1 = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Operator>()
+				.FirstOrDefaultAsync();
+			var operator2 = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Operator>()
+				.Skip(1).FirstOrDefaultAsync();
+
+			Assert.That(operator1, Is.Not.Null);
+			Assert.That(operator2, Is.Not.Null);
+
+			// Add TaskOperator assignments
+			await _repository.AddAsync(new TeamWorkFlow.Infrastructure.Data.Models.TaskOperator
+			{
+				TaskId = task!.Id,
+				OperatorId = operator1!.Id
+			});
+			await _repository.AddAsync(new TeamWorkFlow.Infrastructure.Data.Models.TaskOperator
+			{
+				TaskId = task.Id,
+				OperatorId = operator2!.Id
+			});
+
+			// Set start date to exactly 8 hours ago (1 working day)
+			var startDate = DateTime.Now.AddHours(-8);
+			task.StartDate = startDate;
+			await _repository.SaveChangesAsync();
+
+			var finishedStatusId = 3; // Finished status
+			var userId = "b806eee6-2ceb-4956-9643-e2e2e82289d2"; // Guest user ID from seeded data
+
+			// Act
+			var result = await _taskService.ChangeTaskStatusAsync(task.Id, finishedStatusId, userId);
+
+			// Assert
+			Assert.That(result.Success, Is.True);
+
+			// Verify person-hours are calculated correctly (1 day × 8 hours × 2 operators = 16 person-hours)
+			var updatedTask = await _repository.GetByIdAsync<TeamWorkFlow.Infrastructure.Data.Models.Task>(task.Id);
+			Assert.That(updatedTask, Is.Not.Null);
+			Assert.That(updatedTask!.ActualTime, Is.Not.Null);
+			Assert.That(updatedTask.ActualTime, Is.EqualTo(16.0)); // 1 day × 8 hours × 2 operators
 		}
 
 		[Test]
@@ -2572,7 +2645,7 @@ public void Setup()
 		public async Task ChangeTaskStatusAsync_ToFinishedWithoutStartDate_HandlesGracefully()
 		{
 			// Arrange
-			var task = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+			var task = await _repository.All<TeamWorkFlow.Infrastructure.Data.Models.Task>()
 				.FirstOrDefaultAsync();
 
 			Assert.That(task, Is.Not.Null);
@@ -2590,13 +2663,13 @@ public void Setup()
 			// Assert
 			Assert.That(result.Success, Is.True);
 
-			// Verify the task was updated but actual time is not calculated
+			// Verify the task was updated but actual time is not calculated due to unreasonable timespan
 			var updatedTask = await _repository.GetByIdAsync<TeamWorkFlow.Infrastructure.Data.Models.Task>(task.Id);
 			Assert.That(updatedTask, Is.Not.Null);
 			Assert.That(updatedTask!.TaskStatusId, Is.EqualTo(finishedStatusId));
 			Assert.That(updatedTask.EndDate, Is.Not.Null);
 			Assert.That(updatedTask.CompletedById, Is.EqualTo(userId));
-			// ActualTime should not be calculated when start date is default
+			// ActualTime should not be calculated when timespan is unreasonable (> 365 days)
 			Assert.That(updatedTask.ActualTime, Is.Null);
 		}
 
