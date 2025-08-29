@@ -809,6 +809,8 @@ namespace TeamWorkFlow.Core.Services
             return (true, "Estimated time updated successfully");
         }
 
+
+
         // Task status management
         public async Task<(bool Success, string Message)> ChangeTaskStatusAsync(int taskId, int statusId, string userId)
         {
@@ -849,7 +851,9 @@ namespace TeamWorkFlow.Core.Services
                     // Only calculate if the time span is reasonable (not negative and not too large)
                     if (timeSpan.TotalHours >= 0 && timeSpan.TotalDays <= 365)
                     {
-                        task.ActualTime = Math.Round(timeSpan.TotalHours, 2);
+                        // Calculate working hours: 8 hours per working day
+                        var totalDays = Math.Ceiling(timeSpan.TotalDays);
+                        task.ActualTime = Math.Round(totalDays * 8, 2);
                     }
                 }
             }
