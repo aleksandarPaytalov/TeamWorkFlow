@@ -239,17 +239,31 @@ public class SprintToDoTests : BaseTest
         // Assert - Handle both possible behaviors (local vs CI/CD environment)
         if (await CanAccessSprintPage())
         {
-            // Should show filter elements (actual structure may vary)
-            // Check for any filter-related elements
-            var hasSearchInput = await Page.Locator("input[type='search'], input[placeholder*='search'], input[name*='search']").IsVisibleAsync();
-            var hasStatusFilter = await Page.Locator("select, .filter, .dropdown").First.IsVisibleAsync();
-            var hasFilterText = await Page.Locator("text=filter, text=search, text=status, text=priority").IsVisibleAsync();
+            // Wait for the page to fully load
+            await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+            // Check for specific filter elements that should be present on Sprint page
+            // These elements are in the Backlog Tasks column
+            var hasSearchInput = await Page.Locator("#searchInput").IsVisibleAsync();
+            var hasStatusFilter = await Page.Locator("#statusFilter").IsVisibleAsync();
+            var hasPriorityFilter = await Page.Locator("#priorityFilter").IsVisibleAsync();
+            var hasProjectFilter = await Page.Locator("#projectFilter").IsVisibleAsync();
+            var hasFilterSection = await Page.Locator(".column-filters").IsVisibleAsync();
+
+            // Also check for filter-related text or placeholders
+            var hasSearchPlaceholder = await Page.Locator("input[placeholder*='Search']").IsVisibleAsync();
+            var hasFilterDropdowns = await Page.Locator("select.form-select").CountAsync() > 0;
 
             // At least some filtering capability should be present
-            var hasAnyFilters = hasSearchInput || hasStatusFilter || hasFilterText;
+            var hasAnyFilters = hasSearchInput || hasStatusFilter || hasPriorityFilter ||
+                               hasProjectFilter || hasFilterSection || hasSearchPlaceholder || hasFilterDropdowns;
 
             Assert.That(hasAnyFilters, Is.True,
-                "Sprint page should have some filtering or search capability");
+                $"Sprint page should have some filtering or search capability. " +
+                $"Found: SearchInput={hasSearchInput}, StatusFilter={hasStatusFilter}, " +
+                $"PriorityFilter={hasPriorityFilter}, ProjectFilter={hasProjectFilter}, " +
+                $"FilterSection={hasFilterSection}, SearchPlaceholder={hasSearchPlaceholder}, " +
+                $"FilterDropdowns={hasFilterDropdowns}");
         }
         else
         {
