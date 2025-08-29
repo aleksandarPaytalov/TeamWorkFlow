@@ -2342,7 +2342,7 @@ public void Setup()
 			Assert.That(status, Is.Not.Null);
 
 			// Act
-			var result = await _taskService.ChangeTaskStatusAsync(task!.Id, status!.Id);
+			var result = await _taskService.ChangeTaskStatusAsync(task!.Id, status!.Id, "test-user-id");
 
 			// Assert
 			Assert.That(result.Success, Is.True);
@@ -2364,7 +2364,7 @@ public void Setup()
 			Assert.That(status, Is.Not.Null);
 
 			// Act
-			var result = await _taskService.ChangeTaskStatusAsync(invalidTaskId, status!.Id);
+			var result = await _taskService.ChangeTaskStatusAsync(invalidTaskId, status!.Id, "test-user-id");
 
 			// Assert
 			Assert.That(result.Success, Is.False);
@@ -2382,11 +2382,185 @@ public void Setup()
 			Assert.That(task, Is.Not.Null);
 
 			// Act
-			var result = await _taskService.ChangeTaskStatusAsync(task!.Id, invalidStatusId);
+			var result = await _taskService.ChangeTaskStatusAsync(task!.Id, invalidStatusId, "test-user-id");
 
 			// Assert
 			Assert.That(result.Success, Is.False);
 			Assert.That(result.Message, Is.EqualTo("Invalid status"));
+		}
+
+		[Test]
+		public async Task ChangeTaskStatusAsync_FromOpenToInProgress_SetsStartDateAutomatically()
+		{
+			// Arrange
+			var task = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.Where(t => t.TaskStatusId == 1) // Open status
+				.FirstOrDefaultAsync();
+
+			Assert.That(task, Is.Not.Null);
+
+			var originalStartDate = task!.StartDate;
+			var inProgressStatusId = 2; // In Progress status
+			var userId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77"; // Admin user ID from seeded data
+
+			// Act
+			var result = await _taskService.ChangeTaskStatusAsync(task.Id, inProgressStatusId, userId);
+
+			// Assert
+			Assert.That(result.Success, Is.True);
+
+			// Verify the start date was updated to current time
+			var updatedTask = await _repository.GetByIdAsync<TeamWorkFlow.Infrastructure.Data.Models.Task>(task.Id);
+			Assert.That(updatedTask, Is.Not.Null);
+			Assert.That(updatedTask!.TaskStatusId, Is.EqualTo(inProgressStatusId));
+			Assert.That(updatedTask.StartDate, Is.GreaterThan(originalStartDate));
+			Assert.That(updatedTask.StartDate, Is.EqualTo(DateTime.Now).Within(TimeSpan.FromSeconds(5)));
+		}
+
+		[Test]
+		public async Task ChangeTaskStatusAsync_ToFinished_SetsEndDateAndCalculatesActualTime()
+		{
+			// Arrange
+			var task = await _repository.All<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.FirstOrDefaultAsync();
+
+			Assert.That(task, Is.Not.Null);
+
+			// Set a known recent start date for calculation (within 30 days)
+			var startDate = DateTime.Now.AddHours(-5); // 5 hours ago
+			task!.StartDate = startDate;
+			await _repository.SaveChangesAsync();
+
+			var finishedStatusId = 3; // Finished status
+			var userId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77"; // Admin user ID from seeded data
+
+			// Act
+			var result = await _taskService.ChangeTaskStatusAsync(task.Id, finishedStatusId, userId);
+
+			// Assert
+			Assert.That(result.Success, Is.True);
+
+			// Verify the task was updated correctly
+			var updatedTask = await _repository.GetByIdAsync<TeamWorkFlow.Infrastructure.Data.Models.Task>(task.Id);
+			Assert.That(updatedTask, Is.Not.Null);
+			Assert.That(updatedTask!.TaskStatusId, Is.EqualTo(finishedStatusId));
+			Assert.That(updatedTask.EndDate, Is.Not.Null);
+			Assert.That(updatedTask.EndDate, Is.EqualTo(DateTime.Now).Within(TimeSpan.FromSeconds(5)));
+			Assert.That(updatedTask.CompletedById, Is.EqualTo(userId));
+			Assert.That(updatedTask.ActualTime, Is.Not.Null);
+			Assert.That(updatedTask.ActualTime, Is.EqualTo(5.0).Within(0.1)); // Should be approximately 5 hours
+		}
+
+		[Test]
+		public async Task ChangeTaskStatusAsync_ToFinished_TracksCompletionUser()
+		{
+			// Arrange
+			var task = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.FirstOrDefaultAsync();
+
+			Assert.That(task, Is.Not.Null);
+
+			var finishedStatusId = 3; // Finished status
+			var userId = "7bf9623c-54d9-45ba-84c6-52806dcee7bd"; // Operator user ID from seeded data
+
+			// Act
+			var result = await _taskService.ChangeTaskStatusAsync(task!.Id, finishedStatusId, userId);
+
+			// Assert
+			Assert.That(result.Success, Is.True);
+
+			// Verify the completion user was tracked
+			var updatedTask = await _repository.GetByIdAsync<TeamWorkFlow.Infrastructure.Data.Models.Task>(task.Id);
+			Assert.That(updatedTask, Is.Not.Null);
+			Assert.That(updatedTask!.CompletedById, Is.EqualTo(userId));
+		}
+
+		[Test]
+		public async Task ChangeTaskStatusAsync_SameDayCompletion_CalculatesCorrectActualTime()
+		{
+			// Arrange
+			var task = await _repository.All<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.FirstOrDefaultAsync();
+
+			Assert.That(task, Is.Not.Null);
+
+			// Set start date to 2.5 hours ago (recent date within 30 days for calculation)
+			var startDate = DateTime.Now.AddHours(-2.5);
+			task!.StartDate = startDate;
+			await _repository.SaveChangesAsync();
+
+			var finishedStatusId = 3; // Finished status
+			var userId = "b806eee6-2ceb-4956-9643-e2e2e82289d2"; // Guest user ID from seeded data
+
+			// Act
+			var result = await _taskService.ChangeTaskStatusAsync(task.Id, finishedStatusId, userId);
+
+			// Assert
+			Assert.That(result.Success, Is.True);
+
+			// Verify fractional hours are calculated correctly
+			var updatedTask = await _repository.GetByIdAsync<TeamWorkFlow.Infrastructure.Data.Models.Task>(task.Id);
+			Assert.That(updatedTask, Is.Not.Null);
+			Assert.That(updatedTask!.ActualTime, Is.Not.Null);
+			Assert.That(updatedTask.ActualTime, Is.EqualTo(2.5).Within(0.1)); // Should be approximately 2.5 hours
+		}
+
+		[Test]
+		public async Task ChangeTaskStatusAsync_NonOpenToInProgress_DoesNotChangeStartDate()
+		{
+			// Arrange
+			var task = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.Where(t => t.TaskStatusId != 1) // Not Open status
+				.FirstOrDefaultAsync();
+
+			Assert.That(task, Is.Not.Null);
+
+			var originalStartDate = task!.StartDate;
+			var inProgressStatusId = 2; // In Progress status
+			var userId = "7bf9623c-54d9-45ba-84c6-52806dcee7bd"; // Operator user ID from seeded data
+
+			// Act
+			var result = await _taskService.ChangeTaskStatusAsync(task.Id, inProgressStatusId, userId);
+
+			// Assert
+			Assert.That(result.Success, Is.True);
+
+			// Verify the start date was NOT changed
+			var updatedTask = await _repository.GetByIdAsync<TeamWorkFlow.Infrastructure.Data.Models.Task>(task.Id);
+			Assert.That(updatedTask, Is.Not.Null);
+			Assert.That(updatedTask!.StartDate, Is.EqualTo(originalStartDate));
+		}
+
+		[Test]
+		public async Task ChangeTaskStatusAsync_ToFinishedWithoutStartDate_HandlesGracefully()
+		{
+			// Arrange
+			var task = await _repository.AllReadOnly<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.FirstOrDefaultAsync();
+
+			Assert.That(task, Is.Not.Null);
+
+			// Set start date to default (edge case)
+			task!.StartDate = default(DateTime);
+			await _repository.SaveChangesAsync();
+
+			var finishedStatusId = 3; // Finished status
+			var userId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77"; // Admin user ID from seeded data
+
+			// Act
+			var result = await _taskService.ChangeTaskStatusAsync(task.Id, finishedStatusId, userId);
+
+			// Assert
+			Assert.That(result.Success, Is.True);
+
+			// Verify the task was updated but actual time is not calculated
+			var updatedTask = await _repository.GetByIdAsync<TeamWorkFlow.Infrastructure.Data.Models.Task>(task.Id);
+			Assert.That(updatedTask, Is.Not.Null);
+			Assert.That(updatedTask!.TaskStatusId, Is.EqualTo(finishedStatusId));
+			Assert.That(updatedTask.EndDate, Is.Not.Null);
+			Assert.That(updatedTask.CompletedById, Is.EqualTo(userId));
+			// ActualTime should not be calculated when start date is default
+			Assert.That(updatedTask.ActualTime, Is.Null);
 		}
 
 		#endregion

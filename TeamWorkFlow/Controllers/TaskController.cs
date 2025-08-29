@@ -571,7 +571,8 @@ namespace TeamWorkFlow.Controllers
 		        return Json(new { success = false, message = "Unauthorized" });
 	        }
 
-	        var result = await _taskService.ChangeTaskStatusAsync(taskId, statusId);
+	        var userId = User.Id();
+	        var result = await _taskService.ChangeTaskStatusAsync(taskId, statusId, userId);
 	        return Json(new { success = result.Success, message = result.Message });
         }
 

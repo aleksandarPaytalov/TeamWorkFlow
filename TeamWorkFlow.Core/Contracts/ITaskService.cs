@@ -71,7 +71,7 @@ namespace TeamWorkFlow.Core.Contracts
         Task<(bool Success, string Message)> SetEstimatedTimeAsync(int taskId, int estimatedTime);
 
         // Task status management
-        Task<(bool Success, string Message)> ChangeTaskStatusAsync(int taskId, int statusId);
+        Task<(bool Success, string Message)> ChangeTaskStatusAsync(int taskId, int statusId, string userId);
 
     }
 }

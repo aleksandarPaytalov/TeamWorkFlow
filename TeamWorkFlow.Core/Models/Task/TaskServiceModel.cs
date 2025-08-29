@@ -15,6 +15,8 @@ namespace TeamWorkFlow.Core.Models.Task
         public string StartDate { get; set; } = string.Empty;
         public string? EndDate { get; set; }
         public int EstimatedTime { get; set; }
+        public double? ActualTime { get; set; }
+        public string? CompletedBy { get; set; }
 
         // Machine information
         public int? MachineId { get; set; }

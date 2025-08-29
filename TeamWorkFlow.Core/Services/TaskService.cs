@@ -29,6 +29,7 @@ namespace TeamWorkFlow.Core.Services
         {
             return await _repository.AllReadOnly<Infrastructure.Data.Models.Task>()
                 .Include(t => t.TaskStatus)
+                .Include(t => t.CompletedBy)
                 .Where(t => t.TaskStatus.Name.ToLower() != "finished") // Exclude finished tasks
                 .Select(t => new TaskServiceModel()
                 {
@@ -41,6 +42,8 @@ namespace TeamWorkFlow.Core.Services
                     StartDate = t.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
                     EndDate = t.EndDate != null ? t.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
                     Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+                    ActualTime = t.ActualTime,
+                    CompletedBy = t.CompletedBy != null ? t.CompletedBy.UserName : null,
                     EstimatedTime = t.EstimatedTime
 				})
                 .ToListAsync();
@@ -82,6 +85,7 @@ namespace TeamWorkFlow.Core.Services
                 .Include(t => t.Machine)
                 .Include(t => t.TasksOperators)
                 .ThenInclude(to => to.Operator)
+                .Include(t => t.CompletedBy)
                 .Skip((currentPage - 1) * tasksPerPage)
                 .Take(tasksPerPage)
                 .Select(t => new TaskServiceModel()
@@ -96,6 +100,8 @@ namespace TeamWorkFlow.Core.Services
                     EndDate = t.EndDate != null ? t.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
                     Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
                     EstimatedTime = t.EstimatedTime,
+                    ActualTime = t.ActualTime,
+                    CompletedBy = t.CompletedBy != null ? t.CompletedBy.UserName : null,
                     MachineId = t.MachineId,
                     MachineName = t.Machine != null ? t.Machine.Name : null,
                     Operators = t.TasksOperators.Select(to => new TaskOperatorModel
@@ -283,6 +289,7 @@ namespace TeamWorkFlow.Core.Services
 	        var operatorId = await GetOperatorIdByUserId(userId);
 
             var model = await _repository.AllReadOnly<TaskOperator>()
+	            .Include(to => to.Task.CompletedBy)
 	            .Where(to => to.OperatorId == operatorId && to.Task.TaskStatus.Name.ToLower() != "finished") // Exclude finished tasks
 	            .Select(to => new TaskServiceModel()
 	            {
@@ -295,6 +302,8 @@ namespace TeamWorkFlow.Core.Services
 					StartDate = to.Task.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
 					EndDate = to.Task.EndDate != null ? to.Task.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
 					Deadline = to.Task.DeadLine != null ? to.Task.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+					ActualTime = to.Task.ActualTime,
+					CompletedBy = to.Task.CompletedBy != null ? to.Task.CompletedBy.UserName : null,
 					EstimatedTime = to.Task.EstimatedTime
 				})
 	            .ToListAsync();
@@ -340,6 +349,7 @@ namespace TeamWorkFlow.Core.Services
         public async Task<TaskServiceModel?> GetTaskByIdAsync(int id)
         {
 	        var taskModel = await _repository.AllReadOnly<Infrastructure.Data.Models.Task>()
+		        .Include(t => t.CompletedBy)
 		        .Where(t => t.Id == id)
 		        .Select(t => new TaskServiceModel()
 		        {
@@ -356,7 +366,9 @@ namespace TeamWorkFlow.Core.Services
 			        Deadline = t.DeadLine != null
 				        ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture)
 				        : string.Empty,
-			        EstimatedTime = t.EstimatedTime
+			        EstimatedTime = t.EstimatedTime,
+			        ActualTime = t.ActualTime,
+			        CompletedBy = t.CompletedBy != null ? t.CompletedBy.UserName : null
 		        })
 		        .FirstOrDefaultAsync();
 
@@ -392,6 +404,7 @@ namespace TeamWorkFlow.Core.Services
         public async Task<ICollection<TaskServiceModel>> GetAllAssignedTasksAsync()
         {
 	        var model = await _repository.AllReadOnly<TaskOperator>()
+		        .Include(to => to.Task.CompletedBy)
 		        .Where(to => to.Task.TaskStatus.Name.ToLower() != "finished") // Exclude finished tasks
 		        .Select(to => new TaskServiceModel()
 				{
@@ -403,6 +416,8 @@ namespace TeamWorkFlow.Core.Services
 					ProjectNumber = to.Task.Project.ProjectNumber,
 					StartDate = to.Task.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
 					EndDate = to.Task.EndDate != null ? to.Task.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+					ActualTime = to.Task.ActualTime,
+					CompletedBy = to.Task.CompletedBy != null ? to.Task.CompletedBy.UserName : null,
 					Deadline = to.Task.DeadLine != null ? to.Task.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
 					EstimatedTime = to.Task.EstimatedTime
 				})
@@ -438,6 +453,7 @@ namespace TeamWorkFlow.Core.Services
         public async Task<(ICollection<TaskServiceModel> Tasks, int TotalCount)> GetAllAssignedTasksAsync(int page, int pageSize)
         {
             var query = _repository.AllReadOnly<TaskOperator>()
+                .Include(to => to.Task.CompletedBy)
                 .Where(to => to.Task.TaskStatus.Name.ToLower() != "finished"); // Exclude finished tasks
             var totalCount = await query.CountAsync();
             var tasks = await query
@@ -454,7 +470,9 @@ namespace TeamWorkFlow.Core.Services
                     ProjectNumber = to.Task.Project.ProjectNumber,
                     StartDate = to.Task.StartDate.ToString(DateFormat, CultureInfo.InvariantCulture),
                     EndDate = to.Task.EndDate != null ? to.Task.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
-                    Deadline = to.Task.DeadLine != null ? to.Task.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty
+                    Deadline = to.Task.DeadLine != null ? to.Task.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
+                    ActualTime = to.Task.ActualTime,
+                    CompletedBy = to.Task.CompletedBy != null ? to.Task.CompletedBy.UserName : null
                 })
                 .ToListAsync();
             return (tasks, totalCount);
@@ -469,6 +487,7 @@ namespace TeamWorkFlow.Core.Services
                 .Include(t => t.Machine)
                 .Include(t => t.TasksOperators)
                 .ThenInclude(to => to.Operator)
+                .Include(t => t.CompletedBy)
                 .Where(t => t.TaskStatus.Name.ToLower() != "finished"); // Exclude finished tasks from main list
 
             var totalCount = await query.CountAsync();
@@ -488,6 +507,8 @@ namespace TeamWorkFlow.Core.Services
                     EndDate = t.EndDate != null ? t.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
                     Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
                     EstimatedTime = t.EstimatedTime,
+                    ActualTime = t.ActualTime,
+                    CompletedBy = t.CompletedBy != null ? t.CompletedBy.UserName : null,
                     MachineId = t.MachineId,
                     MachineName = t.Machine != null ? t.Machine.Name : null,
                     Operators = t.TasksOperators.Select(to => new TaskOperatorModel
@@ -518,6 +539,7 @@ namespace TeamWorkFlow.Core.Services
                 .Include(t => t.Machine)
                 .Include(t => t.TasksOperators)
                 .ThenInclude(to => to.Operator)
+                .Include(t => t.CompletedBy)
                 .Where(t => t.TaskStatus.Name.ToLower() == "finished"); // Only finished tasks
 
             // Apply search filter
@@ -561,6 +583,8 @@ namespace TeamWorkFlow.Core.Services
                     EndDate = t.EndDate != null ? t.EndDate.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
                     Deadline = t.DeadLine != null ? t.DeadLine.Value.ToString(DateFormat, CultureInfo.InvariantCulture) : string.Empty,
                     EstimatedTime = t.EstimatedTime,
+                    ActualTime = t.ActualTime,
+                    CompletedBy = t.CompletedBy != null ? t.CompletedBy.UserName : null,
                     MachineId = t.MachineId,
                     MachineName = t.Machine != null ? t.Machine.Name : null,
                     Operators = t.TasksOperators.Select(to => new TaskOperatorModel
@@ -786,7 +810,7 @@ namespace TeamWorkFlow.Core.Services
         }
 
         // Task status management
-        public async Task<(bool Success, string Message)> ChangeTaskStatusAsync(int taskId, int statusId)
+        public async Task<(bool Success, string Message)> ChangeTaskStatusAsync(int taskId, int statusId, string userId)
         {
             var task = await _repository.GetByIdAsync<Infrastructure.Data.Models.Task>(taskId);
             if (task == null)
@@ -800,7 +824,35 @@ namespace TeamWorkFlow.Core.Services
                 return (false, "Invalid status");
             }
 
+            var previousStatusId = task.TaskStatusId;
             task.TaskStatusId = statusId;
+
+            // Handle status transitions
+            var now = DateTime.Now;
+
+            // When changing from Open (1) to In Progress (2), set start date
+            if (previousStatusId == 1 && statusId == 2)
+            {
+                task.StartDate = now;
+            }
+            // When changing to Finished (3), set end date, calculate actual time, and track completion user
+            else if (statusId == 3)
+            {
+                task.EndDate = now;
+                task.CompletedById = userId;
+
+                // Calculate actual time in hours if start date is valid
+                if (task.StartDate != default(DateTime))
+                {
+                    var timeSpan = now - task.StartDate;
+                    // Only calculate if the time span is reasonable (not negative and not too large)
+                    if (timeSpan.TotalHours >= 0 && timeSpan.TotalDays <= 365)
+                    {
+                        task.ActualTime = Math.Round(timeSpan.TotalHours, 2);
+                    }
+                }
+            }
+
             await _repository.SaveChangesAsync();
 
             var statusName = await _repository.AllReadOnly<TaskStatus>()
