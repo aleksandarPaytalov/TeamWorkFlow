@@ -16,8 +16,8 @@ namespace TeamWorkFlow.Core.Models.Project
 		public int TotalParts { get; set; }
 
 		// Time tracking properties
-		public int CalculatedTotalHours { get; set; }
-		public int TotalEstimatedHours { get; set; }
+		public double CalculatedActualHours { get; set; }
+		public int TotalPlannedHours { get; set; }
 		public double CompletionPercentage { get; set; }
 
 		// Calculated properties for display
@@ -35,7 +35,21 @@ namespace TeamWorkFlow.Core.Models.Project
 			}
 		}
 
-		public string GetFormattedDuration(int hours)
+		public string GetFormattedDuration(double hours)
+		{
+			if (hours < 8)
+				return $"{hours:F1}h";
+
+			int days = (int)(hours / 8);
+			double remainingHours = hours % 8;
+
+			if (remainingHours < 0.1)
+				return $"{days}d";
+
+			return $"{days}d {remainingHours:F1}h";
+		}
+
+		public string GetFormattedDurationInt(int hours)
 		{
 			if (hours < 8)
 				return $"{hours}h";
@@ -49,8 +63,8 @@ namespace TeamWorkFlow.Core.Models.Project
 			return $"{days}d {remainingHours}h";
 		}
 
-		public string FormattedCalculatedTotalHours => GetFormattedDuration(CalculatedTotalHours);
-		public string FormattedTotalEstimatedHours => GetFormattedDuration(TotalEstimatedHours);
+		public string FormattedCalculatedActualHours => GetFormattedDuration(CalculatedActualHours);
+		public string FormattedTotalPlannedHours => GetFormattedDurationInt(TotalPlannedHours);
 
 		// Progress bar color logic
 		public string ProgressBarColor

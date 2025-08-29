@@ -264,7 +264,7 @@ namespace TeamWorkFlow.Controllers
 			    {
 				    success = true,
 				    totalLaborCost = formattedTotalCost,
-				    calculatedTotalHours = costCalculation.FormattedCalculatedTotalHours,
+				    calculatedActualHours = costCalculation.FormattedCalculatedActualHours,
 				    hourlyRate = formattedHourlyRate,
 				    currency = currency
 			    });

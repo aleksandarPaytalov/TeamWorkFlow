@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -986,7 +986,7 @@ public void Setup()
 				Appliance = "Test Appliance",
 				ClientName = "Test Client",
 				Status = "Ready",
-				CalculatedTotalHours = 120,
+				CalculatedActualHours = 12.00,
 				TotalParts = 30
 			};
 
@@ -997,7 +997,7 @@ public void Setup()
 			Assert.That(model.Appliance, Is.EqualTo("Test Appliance"));
 			Assert.That(model.ClientName, Is.EqualTo("Test Client"));
 			Assert.That(model.Status, Is.EqualTo("Ready"));
-			Assert.That(model.CalculatedTotalHours, Is.EqualTo(120));
+			Assert.That(model.CalculatedActualHours, Is.EqualTo(12.0));
 			Assert.That(model.TotalParts, Is.EqualTo(30));
 		}
 
@@ -1014,7 +1014,7 @@ public void Setup()
 			Assert.That(model.Appliance, Is.EqualTo(string.Empty));
 			Assert.That(model.ClientName, Is.EqualTo(string.Empty));
 			Assert.That(model.Status, Is.EqualTo(string.Empty));
-			Assert.That(model.CalculatedTotalHours, Is.EqualTo(0));
+			Assert.That(model.CalculatedActualHours, Is.EqualTo(0));
 			Assert.That(model.TotalParts, Is.EqualTo(0));
 		}
 
@@ -1077,8 +1077,8 @@ public void Setup()
 			Assert.That(result.ProjectName, Is.Not.Empty);
 			Assert.That(result.ProjectNumber, Is.Not.Empty);
 			Assert.That(result.TotalHoursSpent, Is.GreaterThanOrEqualTo(0));
-			Assert.That(result.CalculatedTotalHours, Is.GreaterThanOrEqualTo(0));
-			Assert.That(result.TotalEstimatedHours, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.CalculatedActualHours, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.TotalPlannedHours, Is.GreaterThanOrEqualTo(0));
 			Assert.That(result.CompletionPercentage, Is.InRange(0, 100));
 		}
 
@@ -1112,8 +1112,8 @@ public void Setup()
 
 			// Assert
 			Assert.That(result, Is.Not.Null);
-			Assert.That(result.CalculatedTotalHours, Is.GreaterThanOrEqualTo(0));
-			Assert.That(result.TotalEstimatedHours, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.CalculatedActualHours, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.TotalPlannedHours, Is.GreaterThanOrEqualTo(0));
 			Assert.That(result.CompletionPercentage, Is.InRange(0, 100));
 			Assert.That(result.FinishedTasksCount, Is.GreaterThanOrEqualTo(0));
 			Assert.That(result.InProgressTasksCount, Is.GreaterThanOrEqualTo(0));
@@ -1128,18 +1128,18 @@ public void Setup()
 			var model = new ProjectTimeCalculationServiceModel
 			{
 				TotalHoursSpent = 40,
-				CalculatedTotalHours = 32,
-				TotalEstimatedHours = 48,
+				CalculatedActualHours = 32.5,
+				TotalPlannedHours = 48,
 				CompletionPercentage = 66.7,
-				TimeVariance = 8
+				TimeOverview = -15.5
 			};
 
 			// Act & Assert
 			Assert.That(model.FormattedCompletionPercentage, Is.EqualTo("66.7%"));
-			Assert.That(model.TimeVarianceStatus, Is.EqualTo("Under Estimate"));
+			Assert.That(model.TimeOverviewStatus, Is.EqualTo("Under Planned"));
 			Assert.That(model.FormattedTotalHoursSpent, Is.EqualTo("5d"));
-			Assert.That(model.FormattedCalculatedTotalHours, Is.EqualTo("4d"));
-			Assert.That(model.FormattedTotalEstimatedHours, Is.EqualTo("6d"));
+			Assert.That(model.FormattedCalculatedActualHours, Is.EqualTo("4d 0.5h"));
+			Assert.That(model.FormattedTotalPlannedHours, Is.EqualTo("6d"));
 		}
 
 		#endregion
@@ -1168,7 +1168,7 @@ public void Setup()
 
 			var createdProject = await _projectService.GetProjectDetailsByIdAsync(projectId);
 			Assert.That(createdProject, Is.Not.Null, "Created project should be retrievable");
-			Assert.That(createdProject.CalculatedTotalHours, Is.EqualTo(0), "Project should have 0 calculated hours initially");
+			Assert.That(createdProject.CalculatedActualHours, Is.EqualTo(0), "Project should have 0 calculated hours initially");
 			Assert.That(createdProject.ProjectName, Is.EqualTo("Test Project with Default Time"));
 			Assert.That(createdProject.ProjectNumber, Is.EqualTo("TP9999"));
 		}
@@ -1203,7 +1203,7 @@ public void Setup()
 			Assert.That(result.ProjectName, Is.EqualTo(project.ProjectName));
 			Assert.That(result.ProjectNumber, Is.EqualTo(project.ProjectNumber));
 			Assert.That(result.HourlyRate, Is.EqualTo(0)); // Default value
-			Assert.That(result.CalculatedTotalHours, Is.GreaterThanOrEqualTo(0));
+			Assert.That(result.CalculatedActualHours, Is.GreaterThanOrEqualTo(0));
 		}
 
 		[Test]
@@ -1232,7 +1232,7 @@ public void Setup()
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ProjectId, Is.EqualTo(project.Id));
 			Assert.That(result.HourlyRate, Is.EqualTo(hourlyRate));
-			Assert.That(result.TotalLaborCost, Is.EqualTo(result.CalculatedTotalHours * hourlyRate));
+			Assert.That(result.TotalLaborCost, Is.EqualTo((decimal)result.CalculatedActualHours * hourlyRate));
 		}
 
 		[Test]
@@ -1268,7 +1268,7 @@ public void Setup()
 			// Assert
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.HourlyRate, Is.EqualTo(hourlyRate));
-			Assert.That(result.TotalLaborCost, Is.EqualTo(result.CalculatedTotalHours * hourlyRate));
+			Assert.That(result.TotalLaborCost, Is.EqualTo((decimal)result.CalculatedActualHours * hourlyRate));
 		}
 
 		[Test]
@@ -1316,7 +1316,9 @@ public void Setup()
 				ProjectId = project.Id,
 				TaskStatusId = 3, // Finished
 				EstimatedTime = 20,
+				ActualTime = 20.0, // Set actual time for finished task
 				StartDate = DateTime.Now,
+				EndDate = DateTime.Now.AddHours(20),
 				PriorityId = 1,
 				CreatorId = testUser.Id
 			};
@@ -1327,7 +1329,9 @@ public void Setup()
 				ProjectId = project.Id,
 				TaskStatusId = 3, // Finished
 				EstimatedTime = 30,
+				ActualTime = 30.0, // Set actual time for finished task
 				StartDate = DateTime.Now,
+				EndDate = DateTime.Now.AddHours(30),
 				PriorityId = 1,
 				CreatorId = testUser.Id
 			};
@@ -1353,7 +1357,7 @@ public void Setup()
 
 			// Assert
 			Assert.That(result, Is.Not.Null);
-			Assert.That(result.CalculatedTotalHours, Is.EqualTo(50)); // Only finished tasks: 20 + 30
+			Assert.That(result.CalculatedActualHours, Is.EqualTo(50.0)); // Only finished tasks: 20 + 30
 			Assert.That(result.TotalLaborCost, Is.EqualTo(2500.00m)); // 50 hours * $50/hour
 		}
 
@@ -1416,7 +1420,7 @@ public void Setup()
 
 			// Assert
 			Assert.That(result, Is.Not.Null);
-			Assert.That(result.CalculatedTotalHours, Is.EqualTo(0)); // No finished tasks
+			Assert.That(result.CalculatedActualHours, Is.EqualTo(0)); // No finished tasks
 			Assert.That(result.TotalLaborCost, Is.EqualTo(0)); // 0 hours * any rate = 0
 		}
 
@@ -1432,11 +1436,11 @@ public void Setup()
 
 			// Assert
 			Assert.That(result, Is.Not.Null);
-			Assert.That(result.FormattedCalculatedTotalHours, Is.Not.Null);
-			Assert.That(result.FormattedCalculatedTotalHours, Is.Not.Empty);
+			Assert.That(result.FormattedCalculatedActualHours, Is.Not.Null);
+			Assert.That(result.FormattedCalculatedActualHours, Is.Not.Empty);
 
 			// Should contain 'h' for hours or 'd' for days
-			Assert.That(result.FormattedCalculatedTotalHours.Contains('h') || result.FormattedCalculatedTotalHours.Contains('d'), Is.True);
+			Assert.That(result.FormattedCalculatedActualHours.Contains('h') || result.FormattedCalculatedActualHours.Contains('d'), Is.True);
 		}
 
 		#endregion

@@ -14,13 +14,13 @@ namespace TeamWorkFlow.Core.Models.Project
 		public IEnumerable<OperatorContributionServiceModel> OperatorContributions { get; set; } = new List<OperatorContributionServiceModel>();
 
 		// Task-based time calculations
-		public new int CalculatedTotalHours { get; set; }
-		public new int TotalEstimatedHours { get; set; }
+		public new double CalculatedActualHours { get; set; }
+		public new int TotalPlannedHours { get; set; }
 		public new double CompletionPercentage { get; set; }
 
 		// Cost calculation properties
 		public decimal HourlyRate { get; set; }
-		public decimal TotalLaborCost => CalculatedTotalHours * HourlyRate;
+		public decimal TotalLaborCost => (decimal)CalculatedActualHours * HourlyRate;
 
 		// Task counts
 		public int FinishedTasksCount { get; set; }
@@ -45,7 +45,21 @@ namespace TeamWorkFlow.Core.Models.Project
 			}
 		}
 
-		public new string GetFormattedDuration(int hours)
+		public new string GetFormattedDuration(double hours)
+		{
+			if (hours < 8)
+				return $"{hours:F1}h";
+
+			int days = (int)(hours / 8);
+			double remainingHours = hours % 8;
+
+			if (remainingHours < 0.1)
+				return $"{days}d";
+
+			return $"{days}d {remainingHours:F1}h";
+		}
+
+		public new string GetFormattedDurationInt(int hours)
 		{
 			if (hours < 8)
 				return $"{hours}h";
@@ -59,7 +73,7 @@ namespace TeamWorkFlow.Core.Models.Project
 			return $"{days}d {remainingHours}h";
 		}
 
-		public new string FormattedCalculatedTotalHours => GetFormattedDuration(CalculatedTotalHours);
-		public new string FormattedTotalEstimatedHours => GetFormattedDuration(TotalEstimatedHours);
+		public new string FormattedCalculatedActualHours => GetFormattedDuration(CalculatedActualHours);
+		public new string FormattedTotalPlannedHours => GetFormattedDurationInt(TotalPlannedHours);
 	}
 }

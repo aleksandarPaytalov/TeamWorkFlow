@@ -74,7 +74,7 @@ namespace UnitTests.Controllers
                 ProjectId = projectId,
                 ProjectName = "Test Project",
                 ProjectNumber = "TP001",
-                CalculatedTotalHours = 100,
+                CalculatedActualHours = 10.00,
                 HourlyRate = hourlyRate
             };
 
@@ -101,7 +101,7 @@ namespace UnitTests.Controllers
             var currencyProperty = resultValue.GetType().GetProperty("currency");
 
             Assert.That(successProperty?.GetValue(resultValue), Is.EqualTo(true));
-            Assert.That(totalLaborCostProperty?.GetValue(resultValue), Is.EqualTo("$5000.00"));
+            Assert.That(totalLaborCostProperty?.GetValue(resultValue), Is.EqualTo("$500.00")); // 10.0 hours * $50.00
             Assert.That(hourlyRateProperty?.GetValue(resultValue), Is.EqualTo("$50.00"));
             Assert.That(currencyProperty?.GetValue(resultValue), Is.EqualTo("USD"));
         }
@@ -119,7 +119,7 @@ namespace UnitTests.Controllers
                 ProjectId = projectId,
                 ProjectName = "Test Project",
                 ProjectNumber = "TP001",
-                CalculatedTotalHours = 80,
+                CalculatedActualHours = 8.00,
                 HourlyRate = hourlyRate
             };
 
@@ -139,7 +139,7 @@ namespace UnitTests.Controllers
             var totalLaborCostProperty = resultValue?.GetType().GetProperty("totalLaborCost");
             var hourlyRateProperty = resultValue?.GetType().GetProperty("hourlyRate");
 
-            Assert.That(totalLaborCostProperty?.GetValue(resultValue), Is.EqualTo("€3600.00"));
+            Assert.That(totalLaborCostProperty?.GetValue(resultValue), Is.EqualTo("€360.00")); // 8.0 hours * €45.00
             Assert.That(hourlyRateProperty?.GetValue(resultValue), Is.EqualTo("€45.00"));
         }
 
@@ -288,7 +288,7 @@ namespace UnitTests.Controllers
                 ProjectId = projectId,
                 ProjectName = "Test Project",
                 ProjectNumber = "TP001",
-                CalculatedTotalHours = 100,
+                CalculatedActualHours = 10.00,
                 HourlyRate = hourlyRate
             };
 
@@ -309,7 +309,7 @@ namespace UnitTests.Controllers
             var totalLaborCostProperty = resultValue?.GetType().GetProperty("totalLaborCost");
 
             Assert.That(currencyProperty?.GetValue(resultValue), Is.EqualTo("USD"));
-            Assert.That(totalLaborCostProperty?.GetValue(resultValue), Is.EqualTo("$5000.00"));
+            Assert.That(totalLaborCostProperty?.GetValue(resultValue), Is.EqualTo("$500.00")); // 10.0 hours * $50.00
         }
 
         #endregion

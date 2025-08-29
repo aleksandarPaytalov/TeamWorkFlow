@@ -197,6 +197,22 @@
 									</div>
 								}
 
+								@if (task.ActualTime.HasValue)
+								{
+									<div class="archive-timeline-item">
+										<span class="archive-timeline-label">Actual Time:</span>
+										<span class="archive-timeline-date">@task.ActualTime.Value.ToString("F1")h</span>
+									</div>
+								}
+
+								@if (!string.IsNullOrEmpty(task.CompletedBy))
+								{
+									<div class="archive-timeline-item">
+										<span class="archive-timeline-label">Completed By:</span>
+										<span class="archive-timeline-date">@task.CompletedBy</span>
+									</div>
+								}
+
 								@if (!string.IsNullOrEmpty(task.Deadline))
 								{
 									<div class="archive-timeline-item">

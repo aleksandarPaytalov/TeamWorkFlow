@@ -46,29 +46,29 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
 
         // Calculated properties for task-based time tracking
         /// <summary>
-        /// Total hours from all finished tasks (TaskStatusId = 3)
+        /// Total actual hours from all finished tasks (TaskStatusId = 3) based on start/end date difference
         /// </summary>
-        public int CalculatedTotalHours => Tasks
-            .Where(t => t.TaskStatusId == 3) // 3 = "finished" status
-            .Sum(t => t.EstimatedTime);
+        public double CalculatedActualHours => Tasks
+            .Where(t => t.TaskStatusId == 3 && t.ActualTime.HasValue) // 3 = "finished" status
+            .Sum(t => t.ActualTime.Value);
 
         /// <summary>
-        /// Total estimated hours from all tasks regardless of status
+        /// Total planned hours from all tasks regardless of status (sum of estimated times)
         /// </summary>
-        public int TotalEstimatedHours => Tasks.Sum(t => t.EstimatedTime);
+        public int TotalPlannedHours => Tasks.Sum(t => t.EstimatedTime);
 
         /// <summary>
-        /// Variance between manual estimate (TotalHoursSpent) and actual finished task hours
-        /// Positive value means manual estimate is higher than actual
-        /// Negative value means actual work exceeded manual estimate
+        /// Overview: difference between actual time and planned time
+        /// Positive value means actual work exceeded planned estimate
+        /// Negative value means work was completed under planned estimate
         /// </summary>
-        public int TimeVariance => TotalHoursSpent - CalculatedTotalHours;
+        public double TimeOverview => CalculatedActualHours - TotalPlannedHours;
 
         /// <summary>
         /// Percentage of project completion based on finished tasks
         /// </summary>
-        public double CompletionPercentage => TotalEstimatedHours > 0
-            ? (double)CalculatedTotalHours / TotalEstimatedHours * 100
+        public double CompletionPercentage => TotalPlannedHours > 0
+            ? Tasks.Where(t => t.TaskStatusId == 3).Sum(t => t.EstimatedTime) / (double)TotalPlannedHours * 100
             : 0;
 
         /// <summary>

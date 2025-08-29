@@ -108,6 +108,8 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 		public TaskOperator TaskOperatorOne { get; set; } = null!;
 		public TaskOperator TaskOperatorTwo { get; set; } = null!;
 		public TaskOperator TaskOperatorThree { get; set; } = null!;
+		public TaskOperator TaskOperatorFour { get; set; } = null!;
+		public TaskOperator TaskOperatorFive { get; set; } = null!;
 
 		public SeedData()
         {
@@ -144,6 +146,20 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 	        {
 		        OperatorId = 2,
 		        TaskId = 2
+	        };
+
+	        // Add operator to TaskFive (finished task) to demonstrate single operator calculation
+	        TaskOperatorFour = new TaskOperator()
+	        {
+		        OperatorId = 2,
+		        TaskId = 5
+	        };
+
+	        // Add second operator to TaskFive to demonstrate multiple operator calculation
+	        TaskOperatorFive = new TaskOperator()
+	        {
+		        OperatorId = 3,
+		        TaskId = 5
 	        };
         }
 		private void SeedPart()
@@ -579,11 +595,11 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 		        Name = "Housing Front Panel - LOP.",
 		        Description =
 			        "LOP dimensional report for phase 1 (T0) - samples from the tool maker should arrive in Calendar week 48.",
-		        StartDate = new DateTime(2023, 11, 03),
+		        StartDate = new DateTime(2024, 09, 01),
 		        TaskStatusId = 1,
 		        PriorityId = 2,
 		        CreatorId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
-		        DeadLine = new DateTime(2023, 12, 12),
+		        DeadLine = new DateTime(2024, 10, 15),
 		        EstimatedTime = 25,
 		        MachineId = 1,
 		        ProjectId = 2
@@ -594,11 +610,11 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 		        Id = 2,
 		        Name = "Housing Klima - PPAP",
 		        Description = "PPAP level 3",
-		        StartDate = new DateTime(2024, 06, 06),
+		        StartDate = new DateTime(2024, 08, 15),
 		        TaskStatusId = 2,
 		        PriorityId = 2,
 		        CreatorId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
-		        DeadLine = new DateTime(2024, 07, 07),
+		        DeadLine = new DateTime(2024, 09, 30),
 		        EstimatedTime = 32,
 		        MachineId = 2,
 		        ProjectId = 3
@@ -639,14 +655,16 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 		        Name = "BMW Front panel - Sample order No. 954",
 		        Description =
 			        "Validation of the part on another production machine. Full dimensional report of 5 shots from the new machine. Results must be compared with measurements of the part from the serial (validated) production machine",
-		        StartDate = new DateTime(2024, 06, 06),
-		        EndDate = new DateTime(2024, 07, 12),
+		        StartDate = new DateTime(2024, 08, 01),
+		        EndDate = new DateTime(2024, 08, 15),
 		        TaskStatusId = 3,
 		        PriorityId = 1,
 		        CreatorId = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
 		        EstimatedTime = 10,
 		        MachineId = 2,
-		        ProjectId = 1
+		        ProjectId = 1,
+		        ActualTime = 224.0, // 14 days × 8 hours × 2 operators = 224 person-hours
+		        CompletedById = "7bf9623c-54d9-45ba-84c6-52806dcee7bd"
 	        };
 
 	        TaskSix = new Task()
@@ -655,15 +673,17 @@ namespace TeamWorkFlow.Infrastructure.Data.SeedDatabase
 		        Name = "Housing Klima module V6 - PPAP",
 		        Description =
 			        "PPAP documents level 3 must be performed. Note: Deviations on dimensions 10 and 150 have been accepted from the customer. Drawing will be adjusted with next PPAP revision",
-		        StartDate = new DateTime(2024, 06, 06),
-		        EndDate = new DateTime(2024, 06, 12),
+		        StartDate = new DateTime(2024, 08, 20),
+		        EndDate = new DateTime(2024, 08, 25),
 		        TaskStatusId = 3,
 		        PriorityId = 3,
 		        CreatorId = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
-		        DeadLine = new DateTime(2024, 06, 12),
+		        DeadLine = new DateTime(2024, 08, 25),
 		        EstimatedTime = 16,
 		        MachineId = 3,
-		        ProjectId = 3
+		        ProjectId = 3,
+		        ActualTime = 40.0, // 5 days × 8 hours × 1 operator = 40 person-hours
+		        CompletedById = "cf41999b-9cad-4b75-977d-a2fdb3d02e77"
 	        };
         }
 	}

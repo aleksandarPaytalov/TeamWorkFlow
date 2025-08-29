@@ -123,7 +123,7 @@
 								</svg>
 								Hours Spent
 							</span>
-							<span class="detail-value"><strong>@Model.CalculatedTotalHours</strong> hours</span>
+							<span class="detail-value"><strong>@Model.CalculatedActualHours</strong> hours</span>
 						</div>
 					</div>
 				</div>
@@ -146,15 +146,15 @@
 								<h4>Actual Hours</h4>
 								<span class="metric-subtitle">From finished tasks</span>
 							</div>
-							<div class="metric-value">@Model.FormattedCalculatedTotalHours</div>
+							<div class="metric-value">@Model.FormattedCalculatedActualHours</div>
 						</div>
 
 						<div class="time-metric">
 							<div class="metric-header">
-								<h4>Estimated Hours</h4>
-								<span class="metric-subtitle">Total estimated</span>
+								<h4>Planned Hours</h4>
+								<span class="metric-subtitle">Total planned</span>
 							</div>
-							<div class="metric-value">@Model.FormattedTotalEstimatedHours</div>
+							<div class="metric-value">@Model.FormattedTotalPlannedHours</div>
 						</div>
 					</div>
 
@@ -355,7 +355,7 @@
 							<div class="cost-summary">
 								<div class="cost-item">
 									<span class="cost-item-label">Total Hours (Finished Tasks)</span>
-									<span class="cost-item-value" id="totalHours">@Model.FormattedCalculatedTotalHours</span>
+									<span class="cost-item-value" id="totalHours">@Model.FormattedCalculatedActualHours</span>
 								</div>
 								<div class="cost-item">
 									<span class="cost-item-label">Hourly Rate</span>

@@ -89,6 +89,17 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         [Comment("Order position in sprint for drag-and-drop functionality")]
         public int SprintOrder { get; set; } = 0;
 
+        [MaxLength(TaskCreatorIdMaxLength)]
+        [Comment("User identifier who completed the task")]
+        public string? CompletedById { get; set; }
+
+        [ForeignKey(nameof(CompletedById))]
+        [Comment("User who completed the task")]
+        public IdentityUser? CompletedBy { get; set; }
+
+        [Comment("Actual time spent on the task in hours (calculated from start and end dates)")]
+        public double? ActualTime { get; set; }
+
         [Comment("Planned start date in sprint")]
         public DateTime? PlannedStartDate { get; set; }
 
