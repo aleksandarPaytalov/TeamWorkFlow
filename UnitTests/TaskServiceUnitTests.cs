@@ -2506,6 +2506,43 @@ public void Setup()
 		}
 
 		[Test]
+		public async Task ChangeTaskStatusAsync_OpenToInProgress_OverwritesExistingStartDate()
+		{
+			// Arrange
+			var task = await _repository.All<TeamWorkFlow.Infrastructure.Data.Models.Task>()
+				.FirstOrDefaultAsync();
+
+			Assert.That(task, Is.Not.Null);
+
+			// Set an initial start date (e.g., from task creation)
+			var initialStartDate = DateTime.Now.AddDays(-1); // 1 day ago
+			task!.StartDate = initialStartDate;
+			task.TaskStatusId = 1; // Open status
+			await _repository.SaveChangesAsync();
+
+			var userId = "b806eee6-2ceb-4956-9643-e2e2e82289d2"; // Guest user ID from seeded data
+			var beforeTransition = DateTime.Now;
+
+			// Act - Change status from Open (1) to In Progress (2)
+			var result = await _taskService.ChangeTaskStatusAsync(task.Id, 2, userId);
+
+			var afterTransition = DateTime.Now;
+
+			// Assert
+			Assert.That(result.Success, Is.True);
+
+			// Reload task to get updated values
+			var updatedTask = await _repository.GetByIdAsync<TeamWorkFlow.Infrastructure.Data.Models.Task>(task.Id);
+			Assert.That(updatedTask, Is.Not.Null);
+
+			// Verify that the start date was overwritten with current timestamp
+			Assert.That(updatedTask!.StartDate, Is.Not.EqualTo(initialStartDate));
+			Assert.That(updatedTask.StartDate, Is.GreaterThanOrEqualTo(beforeTransition));
+			Assert.That(updatedTask.StartDate, Is.LessThanOrEqualTo(afterTransition));
+			Assert.That(updatedTask.TaskStatusId, Is.EqualTo(2)); // In Progress
+		}
+
+		[Test]
 		public async Task ChangeTaskStatusAsync_NonOpenToInProgress_DoesNotChangeStartDate()
 		{
 			// Arrange

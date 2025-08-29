@@ -830,7 +830,8 @@ namespace TeamWorkFlow.Core.Services
             // Handle status transitions
             var now = DateTime.Now;
 
-            // When changing from Open (1) to In Progress (2), set start date
+            // When changing from Open (1) to In Progress (2), always set start date to current time
+            // This overwrites any previously set start date to ensure accurate tracking
             if (previousStatusId == 1 && statusId == 2)
             {
                 task.StartDate = now;
