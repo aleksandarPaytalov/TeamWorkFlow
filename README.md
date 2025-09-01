@@ -37,7 +37,7 @@ TeamWorkFlow is a modern, web-based manufacturing workflow management system des
 - **Role-based Access**: Secure authentication with Administrator and Operator roles
 - **Scalable Architecture**: Clean architecture pattern with separation of concerns
 - **Data Integrity**: Comprehensive validation and error handling
-- **High Test Coverage**: 90.1% core layer coverage with comprehensive unit testing
+- **High Test Coverage**: 90.1% core layer coverage with comprehensive unit testing (688 tests)
 - **Professional Design**: Modern glassmorphism effects and interactive user experience
 
 ## ✨ Features
@@ -117,8 +117,8 @@ TeamWorkFlow is a modern, web-based manufacturing workflow management system des
 - **IDE**: Visual Studio / Visual Studio Code
 - **Version Control**: Git
 - **Package Manager**: NuGet
-- **Testing**: Comprehensive unit tests with NUnit (304 tests, 90.1% coverage)
-- **E2E Testing**: Playwright tests for end-to-end UI testing and workflows
+- **Testing**: Comprehensive unit tests with NUnit (688 tests, 90.1% coverage)
+- **E2E Testing**: Playwright tests for end-to-end UI testing and workflows (124 tests)
 - **Code Coverage**: ReportGenerator for detailed coverage analysis
 - **Database Migrations**: Entity Framework Core Migrations
 - **CI/CD**: GitHub Actions for automated testing
@@ -146,7 +146,7 @@ TeamWorkFlow/
 │   ├── Migrations/              # Database migrations
 │   ├── Constants/               # Data constants
 │   └── Common/                  # Common infrastructure code
-├── UnitTests/                   # Comprehensive unit test suite (304 tests)
+├── UnitTests/                   # Comprehensive unit test suite (688 tests)
 │   ├── TaskServiceUnitTests.cs      # 92.5% coverage
 │   ├── OperatorServiceUnitTests.cs  # 100% coverage
 │   ├── MachineServiceUnitTests.cs   # 96.4% coverage
@@ -368,7 +368,7 @@ The application seeds default user accounts:
 
 ### Comprehensive Test Coverage
 
-The project maintains **90.1% core layer coverage** with **304 comprehensive unit tests** across all service layers:
+The project maintains **90.1% core layer coverage** with **688 comprehensive unit tests** across all service layers:
 
 ```bash
 # Run all tests
@@ -392,19 +392,31 @@ dotnet test TeamWorkFlow.PlaywrightTests/
 
 # Run specific Playwright test suite
 dotnet test TeamWorkFlow.PlaywrightTests/ --filter "TaskManagementTests"
+
+# Use enhanced PowerShell scripts for better test management:
+# Run unit tests with coverage analysis
+.\run-coverage.ps1
+
+# Install Playwright browsers and dependencies
+.\install-playwright.ps1
+
+# Run Playwright tests with enhanced features
+.\TeamWorkFlow.PlaywrightTests\run-playwright-tests.ps1
 ```
 
 ### Service Coverage Statistics
 
 | Service | Coverage | Tests | Status |
 |---------|----------|-------|--------|
-| **TaskService** | 92.5% | 50+ tests | ✅ Excellent |
-| **OperatorService** | 100% | 45+ tests | ✅ Perfect |
-| **MachineService** | 96.4% | 37+ tests | ✅ Excellent |
-| **ProjectService** | 100% | 40+ tests | ✅ Perfect |
-| **PartService** | 100% | 35+ tests | ✅ Perfect |
-| **SummaryService** | 100% | 13+ tests | ✅ Perfect |
-| **Overall Core Layer** | **90.1%** | **304 tests** | ✅ **Excellent** |
+| **TaskService** | 92.5% | 125 tests | ✅ Excellent |
+| **OperatorService** | 100% | 61 tests | ✅ Perfect |
+| **MachineService** | 96.4% | 58 tests | ✅ Excellent |
+| **ProjectService** | 100% | 75 tests | ✅ Perfect |
+| **PartService** | 100% | 46 tests | ✅ Perfect |
+| **SummaryService** | 100% | 14 tests | ✅ Perfect |
+| **Controllers** | 95%+ | 107 tests | ✅ Excellent |
+| **Core Components** | 90%+ | 102 tests | ✅ Excellent |
+| **Overall Core Layer** | **90.1%** | **688 tests** | ✅ **Excellent** |
 
 ### Test Categories
 
@@ -426,19 +438,27 @@ dotnet test TeamWorkFlow.PlaywrightTests/ --filter "TaskManagementTests"
 
 ```
 UnitTests/
-├── TaskServiceUnitTests.cs      # 50+ tests covering all task operations
-├── OperatorServiceUnitTests.cs  # 45+ tests with 100% coverage
-├── MachineServiceUnitTests.cs   # 37+ tests covering all machine operations
-├── ProjectServiceUnitTests.cs   # 40+ tests with 100% coverage
-├── PartServiceUnitTests.cs      # 35+ tests with 100% coverage
-└── SummaryServiceUnitTests.cs   # 13+ tests with 100% coverage
+├── TaskServiceUnitTests.cs      # 125 tests covering all task operations
+├── OperatorServiceUnitTests.cs  # 61 tests with 100% coverage
+├── MachineServiceUnitTests.cs   # 58 tests covering all machine operations
+├── ProjectServiceUnitTests.cs   # 75 tests with 100% coverage
+├── PartServiceUnitTests.cs      # 46 tests with 100% coverage
+├── SummaryServiceUnitTests.cs   # 14 tests with 100% coverage
+├── Controllers/                 # 107 controller tests
+├── Core Models & Extensions/    # 102 core component tests
+└── Additional Test Suites/      # 100+ additional tests
 
-TeamWorkFlow.PlaywrightTests/
+TeamWorkFlow.PlaywrightTests/           # End-to-end UI tests (124 tests)
 ├── Tests/
-│   ├── AuthenticationUITestsSimple.cs # Login/logout and security tests
+│   ├── AuthenticationUITestsSimple.cs # Login/logout and security tests (7 tests)
 │   ├── TaskManagementTests.cs   # Task CRUD workflow tests (11 tests)
-│   ├── ProjectManagementTests.cs # Project management tests
-│   ├── NavigationAndUITests.cs  # UI/UX and responsive design tests
+│   ├── ProjectManagementTests.cs # Project management tests (12 tests)
+│   ├── NavigationAndUITests.cs  # UI/UX and responsive design tests (15 tests)
+│   ├── ErrorPageTests.cs        # Error page handling tests (14 tests)
+│   ├── ErrorScenarioTests.cs    # Error scenario tests (14 tests)
+│   ├── RoleRightsMatrixTests.cs # Role-based access tests (25 tests)
+│   ├── SprintToDoTests.cs       # Sprint management tests (19 tests)
+│   ├── ProjectCostCalculationTests.cs # Cost calculation tests (7 tests)
 │   └── BaseTest.cs              # Common test setup and utilities
 └── PageObjects/
     ├── BasePage.cs              # Common page functionality
@@ -450,7 +470,7 @@ TeamWorkFlow.PlaywrightTests/
 
 ### Quality Assurance
 
-- **All Tests Passing**: 304/304 unit tests pass consistently
+- **All Tests Passing**: 688/688 unit tests pass consistently
 - **E2E Testing**: Playwright tests for UI and workflow validation
 - **CI/CD Integration**: Automated testing in GitHub Actions
 - **Coverage Reporting**: Detailed HTML coverage reports
@@ -464,7 +484,7 @@ TeamWorkFlow.PlaywrightTests/
 
 #### 🧪 **Comprehensive Test Coverage Achievement**
 - **90.1% Core Layer Coverage**: Achieved exceptional test coverage across all services
-- **304 Unit Tests**: Comprehensive test suite covering all business logic
+- **688 Unit Tests**: Comprehensive test suite covering all business logic
 - **Perfect Service Coverage**: 5 out of 6 services at 100% coverage
 - **Robust Testing**: All CRUD operations, sorting, filtering, and edge cases covered
 - **CI/CD Integration**: Automated testing with detailed coverage reporting
@@ -486,7 +506,7 @@ TeamWorkFlow.PlaywrightTests/
 
 #### 📊 **Quality Metrics Achieved**
 - **Test Coverage**: 90.1% (exceeding 80% target by 10.1%)
-- **Service Reliability**: All 304 tests passing consistently
+- **Service Reliability**: All 688 tests passing consistently
 - **Code Quality**: Comprehensive error handling and validation
 - **User Experience**: Professional, modern interface design
 - **Performance**: Optimized loading and interaction speeds
@@ -556,7 +576,7 @@ We welcome contributions to TeamWorkFlow! Please follow these guidelines:
 
 ### Recent Major Updates (December 2024)
 - 🎨 **Professional Landing Page**: Modern hero section with animations
-- 🧪 **Comprehensive Testing**: 500+ unit tests with 90.1% coverage
+- 🧪 **Comprehensive Testing**: 688 unit tests + 124 E2E tests with 90.1% coverage
 - 🎯 **Perfect Service Coverage**: 5+ services at 90+% coverage
 - 🚀 **Enhanced UX**: Smooth animations and interactive elements
 - 🔧 **Streamlined Navigation**: Removed redundant admin buttons

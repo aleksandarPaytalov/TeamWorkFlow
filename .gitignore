@@ -407,3 +407,4 @@ TeamWorkFlow.PlaywrightTests/*.log
 TeamWorkFlow.PlaywrightTests/trace.zip
 
 **/coveragereport/
+terraform.tfvars
