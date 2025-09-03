@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeamWorkFlow.Extensions;
 using TeamWorkFlow.Infrastructure.Data;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
 
 namespace TeamWorkFlow
 {
@@ -10,6 +13,17 @@ namespace TeamWorkFlow
 		public static async Task Main(string[] args)
 		{
 			var builder = WebApplication.CreateBuilder(args);
+
+			// Add Azure Key Vault configuration for production
+			if (builder.Environment.IsProduction())
+			{
+				var keyVaultEndpoint = builder.Configuration["KeyVaultEndpoint"];
+				if (!string.IsNullOrEmpty(keyVaultEndpoint))
+				{
+					var secretClient = new SecretClient(new Uri(keyVaultEndpoint), new DefaultAzureCredential());
+					builder.Configuration.AddAzureKeyVault(secretClient, new KeyVaultSecretManager());
+				}
+			}
 
 			builder.Services.AddApplicationDbContext(builder.Configuration);
 			builder.Services.AddApplicationIdentity(builder.Configuration);
