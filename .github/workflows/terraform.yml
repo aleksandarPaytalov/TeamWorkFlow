@@ -42,6 +42,12 @@ jobs:
         KEY_VAULT_NAME: ${{ secrets.AZURE_KEY_VAULT_NAME }}
       run: |
         echo "Retrieving variables from Key Vault: $KEY_VAULT_NAME"
+
+        # Verify Key Vault access
+        if ! az keyvault show --name $KEY_VAULT_NAME > /dev/null 2>&1; then
+          echo "Error: Cannot access Key Vault $KEY_VAULT_NAME"
+          exit 1
+        fi
         
         # Create terraform.tfvars file with values from Key Vault
         cat > terraform.tfvars << EOF
@@ -128,6 +134,12 @@ jobs:
         KEY_VAULT_NAME: ${{ secrets.AZURE_KEY_VAULT_NAME }}
       run: |
         echo "Retrieving variables from Key Vault: $KEY_VAULT_NAME"
+
+        # Verify Key Vault access
+        if ! az keyvault show --name $KEY_VAULT_NAME > /dev/null 2>&1; then
+          echo "Error: Cannot access Key Vault $KEY_VAULT_NAME"
+          exit 1
+        fi
         
         # Create terraform.tfvars file with values from Key Vault
         cat > terraform.tfvars << EOF
