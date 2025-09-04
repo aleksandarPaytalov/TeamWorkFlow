@@ -83,8 +83,7 @@ jobs:
         EOF
         
         echo "terraform.tfvars created successfully"
-        echo "Verifying terraform.tfvars file (without sensitive values):"
-        grep -v "password\|secret" terraform.tfvars || echo "Variables retrieved successfully"
+        echo "Variables retrieved from Key Vault successfully"
 
     # Initialize a new or existing Terraform working directory
     - name: Terraform Init
@@ -100,7 +99,9 @@ jobs:
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
-      run: terraform plan -input=false -out=tfplan
+      run: terraform plan -input=false -out=tfplan -no-color
+      env:
+        TF_LOG: ERROR
 
     # Save plan to artifacts
     - name: Upload Terraform Plan
@@ -171,6 +172,7 @@ jobs:
         EOF
         
         echo "terraform.tfvars created successfully"
+        echo "Variables retrieved from Key Vault successfully"
 
     # Install the latest version of Terraform CLI
     - name: Setup Terraform
@@ -188,4 +190,6 @@ jobs:
 
     # Terraform Apply
     - name: Terraform Apply
-      run: terraform apply -auto-approve tfplan
+      run: terraform apply -auto-approve tfplan -no-color
+      env:
+        TF_LOG: ERROR
