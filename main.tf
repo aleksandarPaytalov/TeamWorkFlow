@@ -37,7 +37,7 @@ resource "azurerm_linux_web_app" "alex-teamworkflow-app" {
   resource_group_name = azurerm_resource_group.alex-teamworkflow-rg.name
   location            = azurerm_resource_group.alex-teamworkflow-rg.location
   service_plan_id     = azurerm_service_plan.alex-teamworkflow-service.id
-  https_only = true
+  https_only          = true
 
   site_config {
     application_stack {
@@ -60,7 +60,7 @@ resource "azurerm_linux_web_app" "alex-teamworkflow-app" {
 resource "azurerm_app_service_source_control" "alex-teamworkflow-source" {
   app_id                 = azurerm_linux_web_app.alex-teamworkflow-app.id
   repo_url               = var.repo_url
-  branch                 = "main"
+  branch                 = "master"
   use_manual_integration = true
 }
 

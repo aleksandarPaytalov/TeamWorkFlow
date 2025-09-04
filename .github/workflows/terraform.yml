@@ -32,6 +32,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    # Install the latest version of Terraform CLI
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
     # Login to Azure via Azure CLI
     - name: Login to Azure
       uses: azure/login@v1
@@ -79,12 +83,7 @@ jobs:
         EOF
         
         echo "terraform.tfvars created successfully"
-        echo "Verifying terraform.tfvars file (without sensitive values):"
-        grep -v "password\|secret" terraform.tfvars || echo "Variables retrieved successfully"
-
-    # Install the latest version of Terraform CLI
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
+        echo "Variables retrieved from Key Vault successfully"
 
     # Initialize a new or existing Terraform working directory
     - name: Terraform Init
@@ -92,7 +91,7 @@ jobs:
 
     # Checks that all Terraform configuration files adhere to a canonical format
     - name: Terraform Format
-      run: terraform fmt -check
+      run: terraform fmt -check -diff *.tf
 
     # Validates the configuration files in a directory
     - name: Terraform Validate
@@ -100,7 +99,9 @@ jobs:
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
-      run: terraform plan -input=false -out=tfplan
+      run: terraform plan -input=false -out=tfplan -no-color
+      env:
+        TF_LOG: ERROR
 
     # Save plan to artifacts
     - name: Upload Terraform Plan
@@ -171,6 +172,7 @@ jobs:
         EOF
         
         echo "terraform.tfvars created successfully"
+        echo "Variables retrieved from Key Vault successfully"
 
     # Install the latest version of Terraform CLI
     - name: Setup Terraform
@@ -188,4 +190,6 @@ jobs:
 
     # Terraform Apply
     - name: Terraform Apply
-      run: terraform apply -auto-approve tfplan
+      run: terraform apply -auto-approve tfplan -no-color
+      env:
+        TF_LOG: ERROR
