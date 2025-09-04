@@ -37,7 +37,7 @@ resource "azurerm_linux_web_app" "alex-teamworkflow-app" {
   resource_group_name = azurerm_resource_group.alex-teamworkflow-rg.name
   location            = azurerm_resource_group.alex-teamworkflow-rg.location
   service_plan_id     = azurerm_service_plan.alex-teamworkflow-service.id
-  https_only = true
+  https_only          = true
 
   site_config {
     application_stack {
