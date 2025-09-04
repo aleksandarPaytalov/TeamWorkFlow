@@ -5,6 +5,13 @@ terraform {
       version = "4.39.0"
     }
   }
+
+  backend "azurerm" {
+    resource_group_name  = "StorageRG"
+    storage_account_name = "teamworkflowstorage"
+    container_name       = "teamworkflowcontainer"
+    key                  = "terraform.tfstate"
+  }
 }
 
 provider "azurerm" {
@@ -30,6 +37,7 @@ resource "azurerm_linux_web_app" "alex-teamworkflow-app" {
   resource_group_name = azurerm_resource_group.alex-teamworkflow-rg.name
   location            = azurerm_resource_group.alex-teamworkflow-rg.location
   service_plan_id     = azurerm_service_plan.alex-teamworkflow-service.id
+  https_only = true
 
   site_config {
     application_stack {
