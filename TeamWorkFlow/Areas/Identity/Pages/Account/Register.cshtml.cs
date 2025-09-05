@@ -11,6 +11,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text;
 using TeamWorkFlow.Extensions;
+using TeamWorkFlow.Infrastructure.Common;
+using TeamWorkFlow.Infrastructure.Data.Models;
 using static TeamWorkFlow.Infrastructure.Constants.CustomClaimsConstants;
 using static TeamWorkFlow.Core.Constants.UsersConstants;
 
@@ -25,6 +27,7 @@ namespace TeamWorkFlow.Areas.Identity.Pages.Account
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IRepository _repository;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
@@ -32,7 +35,8 @@ namespace TeamWorkFlow.Areas.Identity.Pages.Account
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            IRepository repository)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -41,6 +45,7 @@ namespace TeamWorkFlow.Areas.Identity.Pages.Account
             _logger = logger;
             _emailSender = emailSender;
             _roleManager = roleManager;
+            _repository = repository;
         }
 
         /// <summary>
@@ -93,13 +98,13 @@ namespace TeamWorkFlow.Areas.Identity.Pages.Account
         }
 
 
-        public Task OnGetAsync(string returnUrl = null)
+        public System.Threading.Tasks.Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
-            return Task.CompletedTask;
+            return System.Threading.Tasks.Task.CompletedTask;
         }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        public async System.Threading.Tasks.Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
             if (ModelState.IsValid)
@@ -116,15 +121,31 @@ namespace TeamWorkFlow.Areas.Identity.Pages.Account
 
                     await _userManager.AddClaimAsync(user, new Claim(UserName, $"{user.Email}"));
 
-                    // Automatically assign Guest role to new users
-                    if (!await _roleManager.RoleExistsAsync(GuestRole))
+                    // Automatically assign Administrator role to new users (for demo purposes)
+                    if (!await _roleManager.RoleExistsAsync(AdminRole))
                     {
-                        await _roleManager.CreateAsync(new IdentityRole(GuestRole));
+                        await _roleManager.CreateAsync(new IdentityRole(AdminRole));
                     }
-                    await _userManager.AddToRoleAsync(user, GuestRole);
-                    _logger.LogInformation($"User {user.Email} assigned to {GuestRole} role.");
+                    await _userManager.AddToRoleAsync(user, AdminRole);
+                    _logger.LogInformation($"User {user.Email} assigned to {AdminRole} role.");
 
                     var userId = await _userManager.GetUserIdAsync(user);
+
+                    // Create operator record for admin user (admins are also operators)
+                    var operatorModel = new Operator()
+                    {
+                        FullName = user.Email?.Split('@')[0] ?? "Admin User", // Use email prefix as default name
+                        Email = user.Email ?? string.Empty,
+                        PhoneNumber = "000-000-0000", // Default phone number
+                        AvailabilityStatusId = 1, // "At work" status for admins
+                        IsActive = true, // Admins start as active
+                        Capacity = 8, // Default capacity
+                        UserId = userId
+                    };
+
+                    await _repository.AddAsync(operatorModel);
+                    await _repository.SaveChangesAsync();
+                    _logger.LogInformation($"Operator record created for admin user {user.Email}.");
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
