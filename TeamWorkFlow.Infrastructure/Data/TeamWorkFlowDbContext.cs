@@ -63,6 +63,32 @@ namespace TeamWorkFlow.Infrastructure.Data
                 .HasForeignKey(r => r.ApprovedByUserId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            // Configure TaskTimeEntry relationships
+            builder.Entity<TaskTimeEntry>()
+                .HasOne(tte => tte.Task)
+                .WithMany()
+                .HasForeignKey(tte => tte.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<TaskTimeEntry>()
+                .HasOne(tte => tte.Operator)
+                .WithMany()
+                .HasForeignKey(tte => tte.OperatorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure TaskTimeSession relationships
+            builder.Entity<TaskTimeSession>()
+                .HasOne(tts => tts.Task)
+                .WithMany()
+                .HasForeignKey(tts => tts.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<TaskTimeSession>()
+                .HasOne(tts => tts.Operator)
+                .WithMany()
+                .HasForeignKey(tts => tts.OperatorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             base.OnModelCreating(builder);
         }
 
@@ -78,5 +104,7 @@ namespace TeamWorkFlow.Infrastructure.Data
         public DbSet<Task> Tasks { get; set; } = null!;
         public DbSet<TaskOperator> TasksOperators { get; set; } = null!;
         public DbSet<TaskStatus> TaskStatusEnumerable { get; set; } = null!;
+        public DbSet<TaskTimeEntry> TaskTimeEntries { get; set; } = null!;
+        public DbSet<TaskTimeSession> TaskTimeSessions { get; set; } = null!;
     }
 }
