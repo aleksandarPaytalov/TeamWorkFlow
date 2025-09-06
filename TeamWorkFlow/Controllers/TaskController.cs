@@ -6,6 +6,7 @@ using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Extensions;
 using TeamWorkFlow.Core.Models.Task;
 using TeamWorkFlow.Core.Models.BulkOperations;
+using TeamWorkFlow.Core.Models.TimeTracking;
 using TeamWorkFlow.Extensions;
 using static TeamWorkFlow.Core.Constants.Messages;
 using static TeamWorkFlow.Constants.MessageConstants;
@@ -17,12 +18,15 @@ namespace TeamWorkFlow.Controllers
     {
         private readonly ITaskService _taskService;
         private readonly IProjectService _projectService;
+        private readonly ITaskTimeTrackingService _timeTrackingService;
 
-        public TaskController(ITaskService taskService, 
-	        IProjectService projectService)
+        public TaskController(ITaskService taskService,
+	        IProjectService projectService,
+	        ITaskTimeTrackingService timeTrackingService)
         {
 	        _taskService = taskService;
 	        _projectService = projectService;
+	        _timeTrackingService = timeTrackingService;
         }
 
         [HttpGet]
@@ -640,6 +644,388 @@ namespace TeamWorkFlow.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
+        }
+
+        // ===== TIME TRACKING ACTIONS =====
+
+        /// <summary>
+        /// Starts a new work session for a task and operator
+        /// </summary>
+        /// <param name="taskId">Task identifier</param>
+        /// <param name="sessionType">Type of work session (optional)</param>
+        /// <returns>JSON result with success status and session details</returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> StartTimeTracking(int taskId, string sessionType = "Development")
+        {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized. Admin or Operator access required." });
+            }
+
+            try
+            {
+                var userId = User.Id();
+                int operatorId;
+
+                try
+                {
+                    operatorId = await _taskService.GetOperatorIdByUserId(userId);
+                }
+                catch
+                {
+                    return Json(new { success = false, message = "Operator information not found for current user." });
+                }
+
+                var result = await _timeTrackingService.StartWorkSessionAsync(taskId, operatorId, sessionType);
+
+                if (result.Success)
+                {
+                    return Json(new {
+                        success = true,
+                        message = result.Message,
+                        data = result.Data
+                    });
+                }
+                else
+                {
+                    return Json(new {
+                        success = false,
+                        message = result.Message
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"An error occurred while starting time tracking: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Pauses an active work session for a task and operator
+        /// </summary>
+        /// <param name="taskId">Task identifier</param>
+        /// <returns>JSON result with success status and session details</returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PauseTimeTracking(int taskId)
+        {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized. Admin or Operator access required." });
+            }
+
+            try
+            {
+                var userId = User.Id();
+                int operatorId;
+
+                try
+                {
+                    operatorId = await _taskService.GetOperatorIdByUserId(userId);
+                }
+                catch
+                {
+                    return Json(new { success = false, message = "Operator information not found for current user." });
+                }
+
+                var result = await _timeTrackingService.PauseWorkSessionAsync(taskId, operatorId);
+
+                if (result.Success)
+                {
+                    return Json(new {
+                        success = true,
+                        message = result.Message,
+                        data = result.Data
+                    });
+                }
+                else
+                {
+                    return Json(new {
+                        success = false,
+                        message = result.Message
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"An error occurred while pausing time tracking: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Resumes a paused work session for a task and operator
+        /// </summary>
+        /// <param name="taskId">Task identifier</param>
+        /// <returns>JSON result with success status and session details</returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResumeTimeTracking(int taskId)
+        {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized. Admin or Operator access required." });
+            }
+
+            try
+            {
+                var userId = User.Id();
+                int operatorId;
+
+                try
+                {
+                    operatorId = await _taskService.GetOperatorIdByUserId(userId);
+                }
+                catch
+                {
+                    return Json(new { success = false, message = "Operator information not found for current user." });
+                }
+
+                var result = await _timeTrackingService.ResumeWorkSessionAsync(taskId, operatorId);
+
+                if (result.Success)
+                {
+                    return Json(new {
+                        success = true,
+                        message = result.Message,
+                        data = result.Data
+                    });
+                }
+                else
+                {
+                    return Json(new {
+                        success = false,
+                        message = result.Message
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"An error occurred while resuming time tracking: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Finishes an active work session and creates a time entry record
+        /// </summary>
+        /// <param name="taskId">Task identifier</param>
+        /// <param name="notes">Optional notes about the work session</param>
+        /// <returns>JSON result with success status and session details</returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> FinishTimeTracking(int taskId, string? notes = null)
+        {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized. Admin or Operator access required." });
+            }
+
+            try
+            {
+                var userId = User.Id();
+                int operatorId;
+
+                try
+                {
+                    operatorId = await _taskService.GetOperatorIdByUserId(userId);
+                }
+                catch
+                {
+                    return Json(new { success = false, message = "Operator information not found for current user." });
+                }
+
+                var result = await _timeTrackingService.FinishWorkSessionAsync(taskId, operatorId, notes);
+
+                if (result.Success)
+                {
+                    return Json(new {
+                        success = true,
+                        message = result.Message,
+                        data = result.Data
+                    });
+                }
+                else
+                {
+                    return Json(new {
+                        success = false,
+                        message = result.Message
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"An error occurred while finishing time tracking: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Gets comprehensive time tracking information for a task and current operator
+        /// </summary>
+        /// <param name="taskId">Task identifier</param>
+        /// <returns>JSON result with time tracking data</returns>
+        [HttpGet]
+        public async Task<IActionResult> GetTimeTracking(int taskId)
+        {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized. Admin or Operator access required." });
+            }
+
+            try
+            {
+                var userId = User.Id();
+                int operatorId;
+
+                try
+                {
+                    operatorId = await _taskService.GetOperatorIdByUserId(userId);
+                }
+                catch
+                {
+                    return Json(new { success = false, message = "Operator information not found for current user." });
+                }
+
+                var trackingData = await _timeTrackingService.GetTaskTimeTrackingAsync(taskId, operatorId);
+
+                if (trackingData != null)
+                {
+                    return Json(new {
+                        success = true,
+                        data = trackingData
+                    });
+                }
+                else
+                {
+                    return Json(new {
+                        success = false,
+                        message = "Time tracking data not found for this task and operator."
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"An error occurred while retrieving time tracking data: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Gets work session history for current operator on a specific task
+        /// </summary>
+        /// <param name="taskId">Task identifier</param>
+        /// <param name="limit">Maximum number of sessions to return (default: 20)</param>
+        /// <returns>JSON result with session history</returns>
+        [HttpGet]
+        public async Task<IActionResult> GetWorkSessionHistory(int taskId, int limit = 20)
+        {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized. Admin or Operator access required." });
+            }
+
+            try
+            {
+                var userId = User.Id();
+                int operatorId;
+
+                try
+                {
+                    operatorId = await _taskService.GetOperatorIdByUserId(userId);
+                }
+                catch
+                {
+                    return Json(new { success = false, message = "Operator information not found for current user." });
+                }
+
+                var sessionHistory = await _timeTrackingService.GetWorkSessionHistoryAsync(taskId, operatorId, limit);
+
+                return Json(new {
+                    success = true,
+                    data = sessionHistory
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"An error occurred while retrieving session history: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Gets work session history for all operators on a specific task (Admin/Operator view)
+        /// </summary>
+        /// <param name="taskId">Task identifier</param>
+        /// <param name="limit">Maximum number of sessions to return (default: 20)</param>
+        /// <returns>JSON result with complete session history</returns>
+        [HttpGet]
+        public async Task<IActionResult> GetTaskWorkSessionHistory(int taskId, int limit = 20)
+        {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized. Admin or Operator access required." });
+            }
+
+            try
+            {
+                var sessionHistory = await _timeTrackingService.GetTaskWorkSessionHistoryAsync(taskId, limit);
+
+                return Json(new {
+                    success = true,
+                    data = sessionHistory
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"An error occurred while retrieving task session history: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Gets time variance analysis for a task and current operator
+        /// </summary>
+        /// <param name="taskId">Task identifier</param>
+        /// <returns>JSON result with variance analysis</returns>
+        [HttpGet]
+        public async Task<IActionResult> GetTimeVariance(int taskId)
+        {
+            if (User.IsAdmin() == false && User.IsOperator() == false)
+            {
+                return Json(new { success = false, message = "Unauthorized. Admin or Operator access required." });
+            }
+
+            try
+            {
+                var userId = User.Id();
+                int operatorId;
+
+                try
+                {
+                    operatorId = await _taskService.GetOperatorIdByUserId(userId);
+                }
+                catch
+                {
+                    return Json(new { success = false, message = "Operator information not found for current user." });
+                }
+
+                var varianceData = await _timeTrackingService.GetTimeVarianceAsync(taskId, operatorId);
+
+                if (varianceData != null)
+                {
+                    return Json(new {
+                        success = true,
+                        data = varianceData
+                    });
+                }
+                else
+                {
+                    return Json(new {
+                        success = false,
+                        message = "Variance data not available for this task and operator."
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"An error occurred while retrieving variance data: {ex.Message}" });
             }
         }
 	}
