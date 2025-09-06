@@ -1,0 +1,218 @@
+@*
+    Work Session History Modal
+    Displays session history for a task with operator details
+*@
+
+<!-- Work Session History Modal -->
+<div class="modal fade" id="sessionHistoryModal" tabindex="-1" aria-labelledby="sessionHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sessionHistoryModalLabel">
+                    <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Work Session History
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Loading State -->
+                <div class="history-loading" id="historyLoading" style="display: none;">
+                    <div class="text-center py-4">
+                        <div class="loading-spinner mx-auto mb-3"></div>
+                        <p class="text-muted">Loading session history...</p>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div class="history-error" id="historyError" style="display: none;">
+                    <div class="alert alert-danger" role="alert">
+                        <svg class="w-4 h-4 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span id="historyErrorMessage">Failed to load session history.</span>
+                    </div>
+                </div>
+
+                <!-- Session History Content -->
+                <div class="history-content" id="historyContent">
+                    <!-- Task Info Header -->
+                    <div class="task-info-header mb-4">
+                        <h6 class="task-name" id="historyTaskName">Task Name</h6>
+                        <div class="task-summary">
+                            <span class="badge bg-primary" id="historyTotalSessions">0 Sessions</span>
+                            <span class="badge bg-success" id="historyTotalTime">0h 0m</span>
+                        </div>
+                    </div>
+
+                    <!-- Session History Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">
+                                        <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                        </svg>
+                                        Operator
+                                    </th>
+                                    <th scope="col">
+                                        <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        Date
+                                    </th>
+                                    <th scope="col">
+                                        <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Duration
+                                    </th>
+                                    <th scope="col">
+                                        <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                        </svg>
+                                        Type
+                                    </th>
+                                    <th scope="col">
+                                        <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        Notes
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="sessionHistoryTableBody">
+                                <!-- Session rows will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="empty-state text-center py-5" id="historyEmptyState" style="display: none;">
+                        <svg class="w-16 h-16 mx-auto mb-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h6 class="text-muted">No Session History</h6>
+                        <p class="text-muted mb-0">No work sessions have been recorded for this task yet.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="refreshHistoryBtn">
+                    <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Time Variance Modal -->
+<div class="modal fade" id="timeVarianceModal" tabindex="-1" aria-labelledby="timeVarianceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="timeVarianceModalLabel">
+                    <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Time Variance Analysis
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Loading State -->
+                <div class="variance-loading" id="varianceLoading" style="display: none;">
+                    <div class="text-center py-4">
+                        <div class="loading-spinner mx-auto mb-3"></div>
+                        <p class="text-muted">Calculating variance analysis...</p>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div class="variance-error" id="varianceError" style="display: none;">
+                    <div class="alert alert-danger" role="alert">
+                        <svg class="w-4 h-4 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span id="varianceErrorMessage">Failed to load variance analysis.</span>
+                    </div>
+                </div>
+
+                <!-- Variance Content -->
+                <div class="variance-content" id="varianceContent">
+                    <!-- Variance Summary Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="variance-card estimated">
+                                <div class="variance-icon">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="variance-info">
+                                    <h6>Estimated Time</h6>
+                                    <span class="variance-value" id="varianceEstimatedTime">0h</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="variance-card actual">
+                                <div class="variance-icon">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="variance-info">
+                                    <h6>Actual Time</h6>
+                                    <span class="variance-value" id="varianceActualTime">0h 0m</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="variance-card difference" id="varianceDifferenceCard">
+                                <div class="variance-icon">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                    </svg>
+                                </div>
+                                <div class="variance-info">
+                                    <h6>Variance</h6>
+                                    <span class="variance-value" id="varianceDifference">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Variance Analysis -->
+                    <div class="variance-analysis">
+                        <h6 class="mb-3">Performance Analysis</h6>
+                        <div class="analysis-item" id="varianceAnalysis">
+                            <div class="analysis-indicator" id="varianceIndicator"></div>
+                            <div class="analysis-text" id="varianceAnalysisText">
+                                Analysis will appear here based on the variance data.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="empty-state text-center py-5" id="varianceEmptyState" style="display: none;">
+                        <svg class="w-16 h-16 mx-auto mb-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        <h6 class="text-muted">No Variance Data</h6>
+                        <p class="text-muted mb-0">Insufficient data to calculate variance analysis.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
