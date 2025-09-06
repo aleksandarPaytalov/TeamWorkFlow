@@ -316,6 +316,14 @@
 							</div>
 						}
 
+						<!-- Time Tracking Widget -->
+						@if (User.IsAdmin() || User.IsOperator())
+						{
+							ViewBag.TaskId = task.Id;
+							ViewBag.EstimatedTime = task.EstimatedTime;
+							<partial name="Partials/_TimeTrackingWidget" />
+						}
+
 						<!-- Action Buttons -->
 						@if (User.IsAdmin() || User.IsOperator())
 						{
@@ -442,6 +450,12 @@
 	</div>
 </div>
 
+<!-- Time Tracking Modals -->
+@if (User.IsAdmin() || User.IsOperator())
+{
+	<partial name="Partials/_WorkSessionHistory" />
+	<partial name="Partials/_FinishSessionModal" />
+}
 @section Scripts {
 	<script src="~/js/pages/tasks.js" asp-append-version="true"></script>
 	<script src="~/js/bulk-operations.js" asp-append-version="true"></script>

@@ -197,6 +197,14 @@
 					</div>
 				</div>
 
+				<!-- Time Tracking Widget -->
+				@if (User.Identity?.IsAuthenticated == true && (User.IsAdmin() || User.IsOperator()))
+				{
+					ViewBag.TaskId = Model.Id;
+					ViewBag.EstimatedTime = Model.EstimatedTime;
+					<partial name="Partials/_TimeTrackingWidget" />
+				}
+
 				<!-- Action Buttons -->
 				@if (User.Identity?.IsAuthenticated == true && (User.IsAdmin() || User.IsOperator()))
 				{
@@ -226,6 +234,12 @@
 	</div>
 </div>
 
+<!-- Time Tracking Modals -->
+@if (User.Identity?.IsAuthenticated == true && (User.IsAdmin() || User.IsOperator()))
+{
+	<partial name="Partials/_WorkSessionHistory" />
+	<partial name="Partials/_FinishSessionModal" />
+}
 @section Scripts {
 	<script src="~/js/pages/details.js?v=@DateTime.Now.Ticks"></script>
 }
