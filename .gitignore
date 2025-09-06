@@ -408,3 +408,5 @@ TeamWorkFlow.PlaywrightTests/trace.zip
 
 **/coveragereport/
 terraform.tfvars
+
+.augment/
