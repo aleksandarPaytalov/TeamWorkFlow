@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeTouchFeatures();
     initializeAccessibilityFeatures();
     initializeCostCalculation();
+    initializeEmptyStateIcons();
 });
 
 /**
@@ -778,4 +779,59 @@ function getProjectIdFromPage() {
 function getAntiForgeryToken() {
     const token = document.querySelector('input[name="__RequestVerificationToken"]');
     return token ? token.value : '';
+}
+
+/**
+ * Initialize empty state icons to ensure proper sizing
+ */
+function initializeEmptyStateIcons() {
+    // Fix empty state icon sizing issue
+    const emptyIcons = document.querySelectorAll('.empty-icon');
+
+    emptyIcons.forEach(icon => {
+        // Apply proper sizing with !important to override any conflicting CSS
+        icon.style.setProperty('width', '3rem', 'important');
+        icon.style.setProperty('height', '3rem', 'important');
+
+        // Also fix the background element if it exists
+        const iconWrapper = icon.closest('.empty-icon-wrapper');
+        if (iconWrapper) {
+            const bg = iconWrapper.querySelector('.empty-icon-bg');
+            if (bg) {
+                bg.style.setProperty('width', '3.75rem', 'important');
+                bg.style.setProperty('height', '3.75rem', 'important');
+            }
+        }
+    });
+
+    // Apply mobile-specific sizing on smaller screens
+    if (window.innerWidth <= 768) {
+        emptyIcons.forEach(icon => {
+            icon.style.setProperty('width', '2.5rem', 'important');
+            icon.style.setProperty('height', '2.5rem', 'important');
+
+            const iconWrapper = icon.closest('.empty-icon-wrapper');
+            if (iconWrapper) {
+                const bg = iconWrapper.querySelector('.empty-icon-bg');
+                if (bg) {
+                    bg.style.setProperty('width', '3.125rem', 'important');
+                    bg.style.setProperty('height', '3.125rem', 'important');
+                }
+            }
+        });
+    }
+
+    // Re-apply sizing on window resize
+    window.addEventListener('resize', function() {
+        const icons = document.querySelectorAll('.empty-icon');
+        icons.forEach(icon => {
+            if (window.innerWidth <= 768) {
+                icon.style.setProperty('width', '2.5rem', 'important');
+                icon.style.setProperty('height', '2.5rem', 'important');
+            } else {
+                icon.style.setProperty('width', '3rem', 'important');
+                icon.style.setProperty('height', '3rem', 'important');
+            }
+        });
+    });
 }
