@@ -46,47 +46,54 @@
                         </div>
                     </div>
 
-                    <!-- Session History Table -->
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th scope="col">
-                                        <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                        </svg>
-                                        Operator
-                                    </th>
-                                    <th scope="col">
-                                        <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                        </svg>
-                                        Date
-                                    </th>
-                                    <th scope="col">
-                                        <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                        Duration
-                                    </th>
-                                    <th scope="col">
-                                        <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                                        </svg>
-                                        Type
-                                    </th>
-                                    <th scope="col">
-                                        <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                        </svg>
-                                        Notes
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="sessionHistoryTableBody">
-                                <!-- Session rows will be populated by JavaScript -->
-                            </tbody>
-                        </table>
+                    <!-- Session History - Desktop Table View -->
+                    <div class="d-none d-md-block">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">
+                                            <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                            </svg>
+                                            Operator
+                                        </th>
+                                        <th scope="col">
+                                            <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                            Date
+                                        </th>
+                                        <th scope="col">
+                                            <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            Duration
+                                        </th>
+                                        <th scope="col">
+                                            <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                            </svg>
+                                            Type
+                                        </th>
+                                        <th scope="col">
+                                            <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                            Notes
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sessionHistoryTableBody">
+                                    <!-- Session rows will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Session History - Mobile Card View -->
+                    <div class="d-md-none" id="sessionHistoryCards">
+                        <!-- Session cards will be populated by JavaScript -->
                     </div>
 
                     <!-- Empty State -->
@@ -147,9 +154,9 @@
                 <!-- Variance Content -->
                 <div class="variance-content" id="varianceContent">
                     <!-- Variance Summary Cards -->
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <div class="variance-card estimated">
+                    <div class="row g-3 mb-4">
+                        <div class="col-12 col-sm-6 col-lg-4">
+                            <div class="variance-card estimated h-100">
                                 <div class="variance-icon">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -161,8 +168,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="variance-card actual">
+                        <div class="col-12 col-sm-6 col-lg-4">
+                            <div class="variance-card actual h-100">
                                 <div class="variance-icon">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -174,8 +181,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="variance-card difference" id="varianceDifferenceCard">
+                        <div class="col-12 col-sm-12 col-lg-4">
+                            <div class="variance-card difference h-100" id="varianceDifferenceCard">
                                 <div class="variance-icon">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
@@ -185,6 +192,22 @@
                                     <h6>Variance</h6>
                                     <span class="variance-value" id="varianceDifference">0%</span>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Metrics Row for Mobile -->
+                    <div class="row g-3 mb-4 d-lg-none">
+                        <div class="col-6">
+                            <div class="variance-metric-card">
+                                <div class="metric-label">Sessions</div>
+                                <div class="metric-value" id="varianceTotalSessions">0</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="variance-metric-card">
+                                <div class="metric-label">Avg Session</div>
+                                <div class="metric-value" id="varianceAvgSession">0m</div>
                             </div>
                         </div>
                     </div>

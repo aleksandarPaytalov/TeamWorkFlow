@@ -509,6 +509,7 @@ class TimeTrackingManager {
         $('#historyEmptyState').hide();
         $('table').show();
 
+        // Populate desktop table
         data.sessions.forEach(session => {
             // Validate session data
             if (!session) return;
@@ -549,6 +550,69 @@ class TimeTrackingManager {
             `);
             tbody.append(row);
         });
+
+        // Populate mobile cards
+        this.populateSessionCards(data.sessions);
+    }
+
+    /**
+     * Populate session cards for mobile view
+     */
+    populateSessionCards(sessions) {
+        const cardsContainer = $('#sessionHistoryCards');
+        cardsContainer.empty();
+
+        sessions.forEach(session => {
+            if (!session) return;
+
+            const operatorName = session.operatorName || 'Unknown';
+            const startTime = session.startTime || new Date().toISOString();
+            const durationMinutes = session.durationMinutes || 0;
+            const sessionType = session.sessionType || 'Development';
+            const notes = session.notes || 'No notes';
+
+            const card = $(`
+                <div class="session-history-card">
+                    <div class="session-card-header">
+                        <div class="session-operator">
+                            <div class="operator-avatar-small">
+                                ${this.getOperatorInitials(operatorName)}
+                            </div>
+                            <span class="session-operator-name">${operatorName}</span>
+                        </div>
+                        <span class="badge bg-secondary">${sessionType}</span>
+                    </div>
+                    <div class="session-card-body">
+                        <div class="session-detail">
+                            <span class="session-detail-label">Date</span>
+                            <span class="session-detail-value">${this.formatDate(startTime)}</span>
+                        </div>
+                        <div class="session-detail">
+                            <span class="session-detail-label">Duration</span>
+                            <span class="session-detail-value">
+                                <span class="badge bg-primary">${this.formatDurationHours(durationMinutes)}</span>
+                            </span>
+                        </div>
+                        ${notes !== 'No notes' ? `
+                        <div class="session-notes">
+                            <span class="session-detail-label">Notes</span>
+                            <div class="session-notes-text">${notes}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `);
+            cardsContainer.append(card);
+        });
+    }
+
+    /**
+     * Show session history error
+     */
+    showHistoryError(message) {
+        $('#historyError').show();
+        $('#historyErrorMessage').text(message);
+        $('#historyContent').hide();
     }
 
     /**
@@ -607,7 +671,11 @@ class TimeTrackingManager {
         // Update variance cards
         $('#varianceEstimatedTime').text(`${data.estimatedHours}h`);
         $('#varianceActualTime').text(this.formatDurationHours(data.actualMinutes));
-        $('#varianceDifference').text(`${data.variancePercentage > 0 ? '+' : ''}${data.variancePercentage}%`);
+        $('#varianceDifference').text(`${data.variancePercentage > 0 ? '+' : ''}${data.variancePercentage.toFixed(2)}%`);
+
+        // Update additional metrics for mobile
+        $('#varianceTotalSessions').text(data.totalSessions || 0);
+        $('#varianceAvgSession').text(this.formatDurationHours(Math.round(data.averageSessionMinutes || 0)));
 
         // Update variance card styling
         const diffCard = $('#varianceDifferenceCard');
@@ -637,21 +705,24 @@ class TimeTrackingManager {
         let analysis = '';
         let indicatorClass = '';
 
+        const roundedPercentage = data.variancePercentage.toFixed(2);
+        const absRoundedPercentage = Math.abs(data.variancePercentage).toFixed(2);
+
         if (data.variancePercentage > 25) {
             indicatorClass = 'analysis-danger';
-            analysis = `Task is significantly over estimate by ${data.variancePercentage}%. Consider reviewing task complexity or breaking it into smaller tasks.`;
+            analysis = `Task is significantly over estimate by ${roundedPercentage}%. Consider reviewing task complexity or breaking it into smaller tasks.`;
         } else if (data.variancePercentage > 10) {
             indicatorClass = 'analysis-warning';
-            analysis = `Task is over estimate by ${data.variancePercentage}%. This is within acceptable range but worth monitoring.`;
+            analysis = `Task is over estimate by ${roundedPercentage}%. This is within acceptable range but worth monitoring.`;
         } else if (data.variancePercentage < -25) {
             indicatorClass = 'analysis-warning';
-            analysis = `Task completed much faster than estimated (${Math.abs(data.variancePercentage)}% under). Consider if estimate was too conservative.`;
+            analysis = `Task completed much faster than estimated (${absRoundedPercentage}% under). Consider if estimate was too conservative.`;
         } else if (data.variancePercentage < -10) {
             indicatorClass = 'analysis-good';
-            analysis = `Task completed faster than estimated (${Math.abs(data.variancePercentage)}% under). Good efficiency!`;
+            analysis = `Task completed faster than estimated (${absRoundedPercentage}% under). Good efficiency!`;
         } else {
             indicatorClass = 'analysis-good';
-            analysis = `Task time is very close to estimate (${Math.abs(data.variancePercentage)}% variance). Excellent estimation accuracy!`;
+            analysis = `Task time is very close to estimate (${absRoundedPercentage}% variance). Excellent estimation accuracy!`;
         }
 
         indicator.addClass(indicatorClass);
