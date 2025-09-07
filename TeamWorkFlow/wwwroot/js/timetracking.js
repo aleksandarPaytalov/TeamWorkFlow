@@ -607,25 +607,27 @@ class TimeTrackingManager {
     populateTimeVariance(data) {
         if (!data.hasData) {
             $('#varianceEmptyState').show();
-            $('.variance-card').hide();
-            $('.variance-analysis').hide();
+            $('.variance-metric-card').hide();
+            $('.variance-additional-metrics').hide();
+            $('.variance-analysis-section').hide();
             return;
         }
 
         $('#varianceEmptyState').hide();
-        $('.variance-card').show();
-        $('.variance-analysis').show();
+        $('.variance-metric-card').show();
+        $('.variance-additional-metrics').show();
+        $('.variance-analysis-section').show();
 
-        // Update variance cards
+        // Update variance metric cards
         $('#varianceEstimatedTime').text(`${data.estimatedHours}h`);
         $('#varianceActualTime').text(this.formatDurationHours(data.actualMinutes));
         $('#varianceDifference').text(`${data.variancePercentage > 0 ? '+' : ''}${data.variancePercentage.toFixed(2)}%`);
 
-        // Update additional metrics for mobile
+        // Update additional metrics
         $('#varianceTotalSessions').text(data.totalSessions || 0);
         $('#varianceAvgSession').text(this.formatDurationHours(Math.round(data.averageSessionMinutes || 0)));
 
-        // Update variance card styling
+        // Update variance card styling based on percentage
         const diffCard = $('#varianceDifferenceCard');
         diffCard.removeClass('variance-over variance-under variance-on-track');
 
@@ -675,6 +677,15 @@ class TimeTrackingManager {
 
         indicator.addClass(indicatorClass);
         analysisText.text(analysis);
+    }
+
+    /**
+     * Show variance error
+     */
+    showVarianceError(message) {
+        $('#varianceError').show();
+        $('#varianceErrorMessage').text(message);
+        $('#varianceContent').hide();
     }
 
     /**

@@ -77,18 +77,18 @@
 
 <!-- Time Variance Modal -->
 <div class="modal fade" id="timeVarianceModal" tabindex="-1" aria-labelledby="timeVarianceModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="timeVarianceModalLabel">
-                    <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content variance-modal-content">
+            <div class="modal-header variance-modal-header">
+                <h5 class="modal-title variance-modal-title" id="timeVarianceModalLabel">
+                    <svg class="variance-title-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                     </svg>
                     Time Variance Analysis
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close variance-close-btn" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body variance-modal-body">
                 <!-- Loading State -->
                 <div class="variance-loading" id="varianceLoading" style="display: none;">
                     <div class="text-center py-4">
@@ -109,88 +109,99 @@
 
                 <!-- Variance Content -->
                 <div class="variance-content" id="varianceContent">
-                    <!-- Variance Summary Cards -->
-                    <div class="row g-3 mb-4">
-                        <div class="col-12 col-sm-6 col-lg-4">
-                            <div class="variance-card estimated h-100">
-                                <div class="variance-icon">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                                <div class="variance-info">
-                                    <h6>Estimated Time</h6>
-                                    <span class="variance-value" id="varianceEstimatedTime">0h</span>
-                                </div>
+                    <!-- Estimated Time Card -->
+                    <div class="variance-metric-card estimated-card">
+                        <div class="variance-metric-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="variance-metric-content">
+                            <div class="variance-metric-label">ESTIMATED TIME</div>
+                            <div class="variance-metric-value" id="varianceEstimatedTime">5h</div>
+                        </div>
+                    </div>
+
+                    <!-- Actual Time Card -->
+                    <div class="variance-metric-card actual-card">
+                        <div class="variance-metric-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="variance-metric-content">
+                            <div class="variance-metric-label">ACTUAL TIME</div>
+                            <div class="variance-metric-value" id="varianceActualTime">15m</div>
+                        </div>
+                    </div>
+
+                    <!-- Variance Card -->
+                    <div class="variance-metric-card variance-card" id="varianceDifferenceCard">
+                        <div class="variance-metric-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
+                        </div>
+                        <div class="variance-metric-content">
+                            <div class="variance-metric-label">VARIANCE</div>
+                            <div class="variance-metric-value" id="varianceDifference">-95%</div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Metrics Row -->
+                    <div class="variance-additional-metrics">
+                        <div class="variance-metric-small">
+                            <div class="metric-small-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="metric-small-content">
+                                <div class="metric-small-label">Total Sessions</div>
+                                <div class="metric-small-value" id="varianceTotalSessions">0</div>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-6 col-lg-4">
-                            <div class="variance-card actual h-100">
-                                <div class="variance-icon">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                                <div class="variance-info">
-                                    <h6>Actual Time</h6>
-                                    <span class="variance-value" id="varianceActualTime">0h 0m</span>
-                                </div>
+                        <div class="variance-metric-small">
+                            <div class="metric-small-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
                             </div>
-                        </div>
-                        <div class="col-12 col-sm-12 col-lg-4">
-                            <div class="variance-card difference h-100" id="varianceDifferenceCard">
-                                <div class="variance-icon">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                                    </svg>
-                                </div>
-                                <div class="variance-info">
-                                    <h6>Variance</h6>
-                                    <span class="variance-value" id="varianceDifference">0%</span>
-                                </div>
+                            <div class="metric-small-content">
+                                <div class="metric-small-label">Avg Session</div>
+                                <div class="metric-small-value" id="varianceAvgSession">0m</div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Additional Metrics Row for Mobile -->
-                    <div class="row g-3 mb-4 d-lg-none">
-                        <div class="col-6">
-                            <div class="variance-metric-card">
-                                <div class="metric-label">Sessions</div>
-                                <div class="metric-value" id="varianceTotalSessions">0</div>
-                            </div>
+                    <!-- Performance Analysis -->
+                    <div class="variance-analysis-section">
+                        <div class="analysis-header">
+                            <svg class="analysis-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                            <span class="analysis-title">Performance Analysis</span>
                         </div>
-                        <div class="col-6">
-                            <div class="variance-metric-card">
-                                <div class="metric-label">Avg Session</div>
-                                <div class="metric-value" id="varianceAvgSession">0m</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Variance Analysis -->
-                    <div class="variance-analysis">
-                        <h6 class="mb-3">Performance Analysis</h6>
-                        <div class="analysis-item" id="varianceAnalysis">
+                        <div class="analysis-content">
                             <div class="analysis-indicator" id="varianceIndicator"></div>
                             <div class="analysis-text" id="varianceAnalysisText">
                                 Analysis will appear here based on the variance data.
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Empty State -->
-                    <div class="empty-state text-center py-5" id="varianceEmptyState" style="display: none;">
-                        <svg class="w-16 h-16 mx-auto mb-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                        </svg>
-                        <h6 class="text-muted">No Variance Data</h6>
-                        <p class="text-muted mb-0">Insufficient data to calculate variance analysis.</p>
-                    </div>
+                <!-- Empty State -->
+                <div class="empty-state text-center py-5" id="varianceEmptyState" style="display: none;">
+                    <svg class="w-16 h-16 mx-auto mb-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <h6 class="text-muted">No Variance Data</h6>
+                    <p class="text-muted mb-0">Insufficient data to calculate variance analysis.</p>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer variance-modal-footer">
+                <button type="button" class="btn btn-secondary variance-close-button" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

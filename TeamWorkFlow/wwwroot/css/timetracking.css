@@ -1283,110 +1283,607 @@
     }
 }
 
-/* Time Variance Cards */
-.variance-card {
+/* Enhanced Time Variance Modal */
+.variance-modal-content {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.variance-modal-header {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1.5rem 2rem;
+    border-radius: 20px 20px 0 0;
+}
+
+.variance-modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+}
+
+.variance-title-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: #6366f1;
+    flex-shrink: 0;
+}
+
+.variance-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: #64748b;
+    opacity: 1;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.variance-close-btn:hover {
+    background-color: #f1f5f9;
+    color: #334155;
+    transform: scale(1.1);
+}
+
+.variance-modal-body {
+    padding: 2rem;
+    background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.variance-modal-footer {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-top: 1px solid #e2e8f0;
+    padding: 1.25rem 2rem;
+    border-radius: 0 0 20px 20px;
+    text-align: center;
+}
+
+.variance-close-button {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    border: none;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+}
+
+.variance-close-button:hover {
+    background: linear-gradient(135deg, #475569 0%, #334155 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(100, 116, 139, 0.4);
+    color: white;
+}
+
+/* Variance Metric Cards */
+.variance-metric-card {
     background: white;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e2e8f0;
     border-radius: 16px;
     padding: 2rem;
+    margin-bottom: 1rem;
     text-align: center;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.variance-card::before {
+.variance-metric-card::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 5px;
+    height: 4px;
     background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
 }
 
-.variance-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+.variance-metric-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-color: #c7d2fe;
 }
 
-/* Enhanced styling for larger screens */
-@media (min-width: 992px) {
-    .variance-card {
-        padding: 1.5rem 1.25rem;
-        border-radius: 16px;
-        min-height: 140px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .variance-card::before {
-        height: 4px;
-    }
-
-    .variance-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    }
-}
-
-.variance-card.estimated::before {
+.estimated-card::before {
     background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
 }
 
-.variance-card.actual::before {
+.actual-card::before {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
-.variance-card.variance-over::before {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-}
-
-.variance-card.variance-under::before {
+.variance-card::before {
     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
 }
 
-.variance-card.variance-on-track::before {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.variance-icon {
-    width: 4rem;
-    height: 4rem;
+.variance-metric-icon {
+    width: 3.5rem;
+    height: 3.5rem;
     margin: 0 auto 1.5rem;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #64748b;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
 }
 
-.variance-card:hover .variance-icon {
+.variance-metric-card:hover .variance-metric-icon {
     transform: scale(1.1);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
-.variance-info h6 {
-    color: #475569;
+.variance-metric-icon svg {
+    width: 1.75rem;
+    height: 1.75rem;
+}
+
+.variance-metric-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.variance-metric-label {
     font-size: 0.875rem;
     font-weight: 600;
-    margin-bottom: 0.75rem;
+    color: #64748b;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    line-height: 1.2;
 }
 
-.variance-value {
-    font-size: 1.5rem;
+.variance-metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.1;
+}
+
+/* Additional Metrics Section */
+.variance-additional-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.variance-metric-small {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.variance-metric-small:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #c7d2fe;
+}
+
+.metric-small-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.metric-small-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.metric-small-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.metric-small-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    line-height: 1.2;
+}
+
+.metric-small-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.1;
+}
+
+/* Performance Analysis Section */
+.variance-analysis-section {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.variance-analysis-section:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.analysis-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.analysis-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #6366f1;
+    flex-shrink: 0;
+}
+
+.analysis-title {
+    font-size: 1rem;
     font-weight: 700;
     color: #1e293b;
     line-height: 1.2;
-    word-break: break-word;
-    overflow-wrap: break-word;
+}
+
+.analysis-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.analysis-indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.analysis-good {
+    background-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.analysis-warning {
+    background-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.analysis-danger {
+    background-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.analysis-text {
+    color: #475569;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    font-weight: 500;
+    flex: 1;
+}
+
+/* Responsive Design for Variance Modal */
+@media (max-width: 768px) {
+    .variance-modal-content {
+        margin: 1rem;
+        border-radius: 16px;
+    }
+
+    .variance-modal-header {
+        padding: 1.25rem 1.5rem;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .variance-modal-title {
+        font-size: 1.125rem;
+    }
+
+    .variance-title-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+
+    .variance-modal-body {
+        padding: 1.5rem;
+        max-height: 60vh;
+    }
+
+    .variance-modal-footer {
+        padding: 1rem 1.5rem;
+    }
+
+    .variance-metric-card {
+        padding: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .variance-metric-icon {
+        width: 3rem;
+        height: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .variance-metric-icon svg {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    .variance-metric-label {
+        font-size: 0.8rem;
+    }
+
+    .variance-metric-value {
+        font-size: 1.75rem;
+    }
+
+    .variance-additional-metrics {
+        gap: 0.75rem;
+        margin: 1rem 0;
+    }
+
+    .variance-metric-small {
+        padding: 0.75rem;
+        gap: 0.5rem;
+    }
+
+    .metric-small-icon {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .metric-small-icon svg {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .metric-small-value {
+        font-size: 1rem;
+    }
+
+    .variance-analysis-section {
+        padding: 1.25rem;
+        margin-top: 1rem;
+    }
+
+    .analysis-content {
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+
+    .analysis-text {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .variance-modal-content {
+        margin: 0.5rem;
+        border-radius: 12px;
+    }
+
+    .variance-modal-header {
+        padding: 1rem;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .variance-modal-title {
+        font-size: 1rem;
+        gap: 0.5rem;
+    }
+
+    .variance-modal-body {
+        padding: 1rem;
+        max-height: 55vh;
+    }
+
+    .variance-modal-footer {
+        padding: 0.75rem 1rem;
+    }
+
+    .variance-close-button {
+        padding: 0.625rem 1.5rem;
+        font-size: 0.875rem;
+    }
+
+    .variance-metric-card {
+        padding: 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+    }
+
+    .variance-metric-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        margin-bottom: 0.75rem;
+        border-radius: 8px;
+    }
+
+    .variance-metric-icon svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+
+    .variance-metric-label {
+        font-size: 0.75rem;
+    }
+
+    .variance-metric-value {
+        font-size: 1.5rem;
+    }
+
+    .variance-additional-metrics {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        margin: 0.75rem 0;
+    }
+
+    .variance-metric-small {
+        padding: 0.75rem;
+        gap: 0.5rem;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .metric-small-icon {
+        width: 1.75rem;
+        height: 1.75rem;
+        align-self: center;
+    }
+
+    .metric-small-icon svg {
+        width: 0.875rem;
+        height: 0.875rem;
+    }
+
+    .metric-small-value {
+        font-size: 0.9rem;
+    }
+
+    .variance-analysis-section {
+        padding: 1rem;
+        margin-top: 0.75rem;
+        border-radius: 12px;
+    }
+
+    .analysis-header {
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+    }
+
+    .analysis-icon {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .analysis-title {
+        font-size: 0.9rem;
+    }
+
+    .analysis-content {
+        padding: 0.75rem;
+        gap: 0.5rem;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .analysis-indicator {
+        align-self: center;
+        margin-top: 0;
+    }
+
+    .analysis-text {
+        font-size: 0.75rem;
+        line-height: 1.5;
+    }
+}
+
+/* Variance Card State Styling */
+.variance-metric-card.variance-over::before {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.variance-metric-card.variance-under::before {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.variance-metric-card.variance-on-track::before {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+/* Enhanced Loading and Error States for Variance Modal */
+.variance-loading {
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.variance-error .alert {
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #991b1b;
+    border-left: 4px solid #dc2626;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+}
+
+/* Accessibility and Focus States */
+.variance-modal-content:focus-within {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+}
+
+.variance-metric-card:focus-within {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+    border-color: #c7d2fe;
+}
+
+/* Animation for Variance Cards */
+.variance-metric-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.variance-metric-card:nth-child(1) { animation-delay: 0.1s; }
+.variance-metric-card:nth-child(2) { animation-delay: 0.2s; }
+.variance-metric-card:nth-child(3) { animation-delay: 0.3s; }
+
+/* Print Styles for Variance Modal */
+@media print {
+    .variance-modal-header,
+    .variance-modal-footer {
+        display: none;
+    }
+
+    .variance-modal-body {
+        padding: 0;
+        background: white;
+    }
+
+    .variance-metric-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #000;
+        margin-bottom: 1rem;
+    }
 }
 
 /* Enhanced styling for larger screens */
