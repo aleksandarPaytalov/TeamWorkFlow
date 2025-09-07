@@ -983,9 +983,20 @@ namespace TeamWorkFlow.Controllers
 
                 var sessionHistory = await _timeTrackingService.GetWorkSessionHistoryAsync(taskId, operatorId, limit);
 
+                // Get task name for display
+                var task = await _taskService.GetTaskByIdAsync(taskId);
+                var taskName = task?.Name ?? "Task";
+
+                // Calculate total minutes
+                var totalMinutes = sessionHistory.Sum(s => s.DurationMinutes);
+
                 return Json(new {
                     success = true,
-                    data = sessionHistory
+                    data = new {
+                        taskName = taskName,
+                        sessions = sessionHistory,
+                        totalMinutes = totalMinutes
+                    }
                 });
             }
             catch (Exception ex)
@@ -1052,18 +1063,37 @@ namespace TeamWorkFlow.Controllers
 
                 var varianceData = await _timeTrackingService.GetTimeVarianceAsync(taskId, operatorId);
 
-                if (varianceData != null)
+                if (varianceData != null && varianceData.TotalSessions > 0)
                 {
+                    // Transform data to match JavaScript expectations
+                    var responseData = new {
+                        hasData = true,
+                        estimatedHours = varianceData.EstimatedTimeHours,
+                        actualMinutes = varianceData.ActualTimeMinutes,
+                        variancePercentage = varianceData.VariancePercentage,
+                        varianceMinutes = varianceData.VarianceMinutes,
+                        totalSessions = varianceData.TotalSessions,
+                        averageSessionMinutes = varianceData.AverageSessionMinutes,
+                        isOverEstimate = varianceData.IsOverEstimate,
+                        isUnderEstimate = varianceData.IsUnderEstimate,
+                        isWithinAcceptableRange = varianceData.IsWithinAcceptableRange,
+                        isSignificantVariance = varianceData.IsSignificantVariance,
+                        isCriticalVariance = varianceData.IsCriticalVariance,
+                        varianceStatus = varianceData.VarianceStatus,
+                        taskName = varianceData.TaskName,
+                        operatorName = varianceData.OperatorName
+                    };
+
                     return Json(new {
                         success = true,
-                        data = varianceData
+                        data = responseData
                     });
                 }
                 else
                 {
                     return Json(new {
-                        success = false,
-                        message = "Variance data not available for this task and operator."
+                        success = true,
+                        data = new { hasData = false }
                     });
                 }
             }
