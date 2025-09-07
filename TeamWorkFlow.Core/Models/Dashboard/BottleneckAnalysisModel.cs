@@ -52,6 +52,30 @@ namespace TeamWorkFlow.Core.Models.Dashboard
         public int TotalBottlenecks { get; set; }
 
         /// <summary>
+        /// Average delay time in hours
+        /// </summary>
+        [Display(Name = "Average Delay Hours")]
+        public decimal AverageDelayHours { get; set; }
+
+        /// <summary>
+        /// List of frequent bottleneck tasks
+        /// </summary>
+        [Display(Name = "Frequent Bottleneck Tasks")]
+        public List<BottleneckTaskModel> FrequentBottleneckTasks { get; set; } = new List<BottleneckTaskModel>();
+
+        /// <summary>
+        /// Delays grouped by category/project
+        /// </summary>
+        [Display(Name = "Delays by Category")]
+        public List<DelayCategoryModel> DelaysByCategory { get; set; } = new List<DelayCategoryModel>();
+
+        /// <summary>
+        /// Improvement recommendations
+        /// </summary>
+        [Display(Name = "Improvement Recommendations")]
+        public List<string> ImprovementRecommendations { get; set; } = new List<string>();
+
+        /// <summary>
         /// Percentage of tasks affected by bottlenecks
         /// </summary>
         [Display(Name = "Tasks Affected %")]
@@ -573,5 +597,92 @@ namespace TeamWorkFlow.Core.Models.Dashboard
         /// Common causes during this period
         /// </summary>
         public List<string> CommonCauses { get; set; } = new List<string>();
+    }
+
+    /// <summary>
+    /// Model for frequent bottleneck tasks
+    /// </summary>
+    public class BottleneckTaskModel
+    {
+        /// <summary>
+        /// Task name
+        /// </summary>
+        public string TaskName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Project name
+        /// </summary>
+        public string ProjectName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Number of occurrences
+        /// </summary>
+        public int Occurrences { get; set; }
+
+        /// <summary>
+        /// Average delay time in hours
+        /// </summary>
+        public decimal AverageDelayHours { get; set; }
+
+        /// <summary>
+        /// Total delay time in hours
+        /// </summary>
+        public decimal TotalDelayHours { get; set; }
+
+        /// <summary>
+        /// Formatted display of average delay
+        /// </summary>
+        public string AverageDelayFormatted => $"{AverageDelayHours:F1}h";
+
+        /// <summary>
+        /// Formatted display of total delay
+        /// </summary>
+        public string TotalDelayFormatted => $"{TotalDelayHours:F1}h";
+    }
+
+    /// <summary>
+    /// Model for delay categories
+    /// </summary>
+    public class DelayCategoryModel
+    {
+        /// <summary>
+        /// Category name (e.g., project name)
+        /// </summary>
+        public string CategoryName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Number of delays in this category
+        /// </summary>
+        public int DelayCount { get; set; }
+
+        /// <summary>
+        /// Total delay time in hours
+        /// </summary>
+        public decimal TotalDelayHours { get; set; }
+
+        /// <summary>
+        /// Average delay time in hours
+        /// </summary>
+        public decimal AverageDelayHours { get; set; }
+
+        /// <summary>
+        /// Percentage of total delays
+        /// </summary>
+        public decimal DelayPercentage { get; set; }
+
+        /// <summary>
+        /// Formatted display of total delay
+        /// </summary>
+        public string TotalDelayFormatted => $"{TotalDelayHours:F1}h";
+
+        /// <summary>
+        /// Formatted display of average delay
+        /// </summary>
+        public string AverageDelayFormatted => $"{AverageDelayHours:F1}h";
+
+        /// <summary>
+        /// Formatted display of delay percentage
+        /// </summary>
+        public string DelayPercentageFormatted => $"{DelayPercentage:F1}%";
     }
 }

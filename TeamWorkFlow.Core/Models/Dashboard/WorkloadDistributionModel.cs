@@ -578,6 +578,30 @@ namespace TeamWorkFlow.Core.Models.Dashboard
         public int OperatorsBelowAverage { get; set; }
 
         /// <summary>
+        /// Average workload percentage across all operators
+        /// </summary>
+        public decimal AverageWorkloadPercentage { get; set; }
+
+        /// <summary>
+        /// Standard deviation of workload distribution (alias for StandardDeviation)
+        /// </summary>
+        public decimal WorkloadStandardDeviation
+        {
+            get => StandardDeviation;
+            set => StandardDeviation = value;
+        }
+
+        /// <summary>
+        /// Number of overloaded operators (>100% workload)
+        /// </summary>
+        public int OverloadedOperators { get; set; }
+
+        /// <summary>
+        /// Number of underloaded operators (<70% workload)
+        /// </summary>
+        public int UnderloadedOperators { get; set; }
+
+        /// <summary>
         /// Formatted balance score
         /// </summary>
         public string BalanceScoreFormatted => $"{BalanceScore:F1}/100";
