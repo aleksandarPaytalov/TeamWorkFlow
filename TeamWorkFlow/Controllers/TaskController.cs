@@ -680,12 +680,19 @@ namespace TeamWorkFlow.Controllers
 
                 var result = await _timeTrackingService.StartWorkSessionAsync(taskId, operatorId, sessionType);
 
-                if (result.Success)
+                if (result.Success && result.Data != null)
                 {
+                    // Transform data to match JavaScript expectations
+                    var responseData = new {
+                        startTime = result.Data.CurrentSessionStartTime?.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
+                        sessionType = sessionType,
+                        isPaused = result.Data.IsCurrentSessionPaused
+                    };
+
                     return Json(new {
                         success = true,
                         message = result.Message,
-                        data = result.Data
+                        data = responseData
                     });
                 }
                 else
@@ -732,12 +739,18 @@ namespace TeamWorkFlow.Controllers
 
                 var result = await _timeTrackingService.PauseWorkSessionAsync(taskId, operatorId);
 
-                if (result.Success)
+                if (result.Success && result.Data != null)
                 {
+                    // Transform data to match JavaScript expectations
+                    var responseData = new {
+                        isPaused = true,
+                        pauseTime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+                    };
+
                     return Json(new {
                         success = true,
                         message = result.Message,
-                        data = result.Data
+                        data = responseData
                     });
                 }
                 else
@@ -784,12 +797,18 @@ namespace TeamWorkFlow.Controllers
 
                 var result = await _timeTrackingService.ResumeWorkSessionAsync(taskId, operatorId);
 
-                if (result.Success)
+                if (result.Success && result.Data != null)
                 {
+                    // Transform data to match JavaScript expectations
+                    var responseData = new {
+                        isPaused = false,
+                        resumeTime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+                    };
+
                     return Json(new {
                         success = true,
                         message = result.Message,
-                        data = result.Data
+                        data = responseData
                     });
                 }
                 else
@@ -837,12 +856,19 @@ namespace TeamWorkFlow.Controllers
 
                 var result = await _timeTrackingService.FinishWorkSessionAsync(taskId, operatorId, notes);
 
-                if (result.Success)
+                if (result.Success && result.Data != null)
                 {
+                    // Transform data to match JavaScript expectations
+                    var responseData = new {
+                        finishTime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
+                        totalActualMinutes = result.Data.TotalActualTimeMinutes,
+                        progressPercentage = (int)result.Data.CompletionPercentage
+                    };
+
                     return Json(new {
                         success = true,
                         message = result.Message,
-                        data = result.Data
+                        data = responseData
                     });
                 }
                 else
@@ -890,9 +916,27 @@ namespace TeamWorkFlow.Controllers
 
                 if (trackingData != null)
                 {
+                    // Transform data to match JavaScript expectations
+                    var responseData = new {
+                        taskId = trackingData.TaskId,
+                        taskName = trackingData.TaskName,
+                        hasActiveSession = trackingData.HasActiveSession,
+                        progressPercentage = (int)trackingData.CompletionPercentage,
+                        totalActualMinutes = trackingData.TotalActualTimeMinutes,
+                        estimatedTimeHours = trackingData.EstimatedTimeHours,
+                        currentSession = trackingData.HasActiveSession ? new {
+                            startTime = trackingData.CurrentSessionStartTime?.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
+                            isPaused = trackingData.IsCurrentSessionPaused,
+                            sessionType = !string.IsNullOrEmpty(trackingData.CurrentSessionStatus) ? trackingData.CurrentSessionStatus : "Development",
+                            currentDuration = trackingData.HasActiveSession && trackingData.CurrentSessionStartTime.HasValue
+                                ? (int)(DateTime.UtcNow - trackingData.CurrentSessionStartTime.Value).TotalMinutes - trackingData.CurrentSessionPausedMinutes
+                                : 0
+                        } : null
+                    };
+
                     return Json(new {
                         success = true,
-                        data = trackingData
+                        data = responseData
                     });
                 }
                 else

@@ -238,8 +238,10 @@
 <!-- Time Tracking Modals -->
 @if (User.Identity?.IsAuthenticated == true && (User.IsAdmin() || User.IsOperator()))
 {
+	<partial name="Partials/_SessionTypeModal" />
 	<partial name="Partials/_WorkSessionHistory" />
 	<partial name="Partials/_FinishSessionModal" />
+	<partial name="Partials/_TimeVarianceModal" />
 }
 @section Scripts {
 	<script src="~/js/pages/details.js?v=@DateTime.Now.Ticks"></script>

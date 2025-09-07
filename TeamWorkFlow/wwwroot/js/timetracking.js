@@ -214,7 +214,9 @@ class TimeTrackingManager {
     async showFinishSessionModal(taskId) {
         try {
             this.currentTaskId = taskId;
-            
+
+            console.log(`Loading session data for finish modal, task ${taskId}`);
+
             // Get current session data
             const response = await $.ajax({
                 url: '/Task/GetTimeTracking',
@@ -222,20 +224,24 @@ class TimeTrackingManager {
                 data: { taskId: taskId }
             });
 
-            if (response.success && response.data.hasActiveSession) {
+            console.log('Finish modal response:', response);
+
+            if (response.success && response.data && response.data.hasActiveSession && response.data.currentSession) {
                 const sessionData = response.data.currentSession;
-                
+
                 // Update modal with session data
-                $('#finishSessionDuration').text(this.formatDuration(sessionData.currentDuration));
+                const duration = sessionData.currentDuration || 0;
+                $('#finishSessionDuration').text(this.formatDuration(duration));
                 $('#finishSessionStartTime').text(this.formatDateTime(sessionData.startTime));
-                $('#finishSessionType').text(sessionData.sessionType);
-                
+                $('#finishSessionType').text(sessionData.sessionType || 'Development');
+
                 // Clear previous notes
                 $('#sessionNotes').val('');
                 this.updateCharacterCount();
-                
+
                 $('#finishSessionModal').modal('show');
             } else {
+                console.error('No active session found or invalid response:', response);
                 this.showNotification('No active session found', 'warning');
             }
         } catch (error) {
@@ -298,12 +304,17 @@ class TimeTrackingManager {
      */
     startTimer(taskId, startTime) {
         this.stopTimer(taskId); // Clear any existing timer
-        
+
+        console.log(`Starting timer for task ${taskId}, start time: ${startTime}`);
+
         const timer = setInterval(() => {
             const elapsed = this.calculateElapsed(startTime);
-            $(`#session-timer-${taskId}`).text(this.formatDuration(elapsed));
+            const timerElement = $(`#session-timer-${taskId}`);
+            const formattedTime = this.formatDuration(elapsed);
+            console.log(`Timer update for task ${taskId}: ${elapsed} minutes -> ${formattedTime}`);
+            timerElement.text(formattedTime);
         }, this.timerInterval);
-        
+
         this.activeTimers.set(taskId, timer);
     }
 
@@ -321,9 +332,27 @@ class TimeTrackingManager {
      * Calculate elapsed time from start time
      */
     calculateElapsed(startTime) {
-        const start = new Date(startTime);
-        const now = new Date();
-        return Math.floor((now - start) / 1000 / 60); // minutes
+        if (!startTime) {
+            console.warn('No start time provided for elapsed calculation');
+            return 0;
+        }
+
+        try {
+            const start = new Date(startTime);
+            const now = new Date();
+
+            if (isNaN(start.getTime())) {
+                console.error('Invalid start time:', startTime);
+                return 0;
+            }
+
+            const elapsed = Math.floor((now - start) / 1000 / 60); // minutes
+            console.log(`Elapsed calculation: ${startTime} -> ${elapsed} minutes`);
+            return Math.max(0, elapsed);
+        } catch (error) {
+            console.error('Error calculating elapsed time:', error);
+            return 0;
+        }
     }
 
     /**
@@ -348,10 +377,11 @@ class TimeTrackingManager {
      * Update session UI based on state
      */
     updateSessionUI(taskId, state, data = null) {
-        const widget = $(`.time-tracking-widget[data-task-id="${taskId}"]`);
         const statusElement = $(`#tracking-status-${taskId}`);
         const currentSession = $(`#current-session-${taskId}`);
-        
+
+        console.log(`Updating session UI for task ${taskId}, state: ${state}`, data);
+
         // Update status indicator
         const statusIndicator = statusElement.find('.status-indicator');
         const statusText = statusElement.find('.status-text');
@@ -376,6 +406,8 @@ class TimeTrackingManager {
                 
                 if (data && data.sessionType) {
                     $(`#session-type-${taskId}`).text(data.sessionType);
+                } else {
+                    $(`#session-type-${taskId}`).text('Development');
                 }
                 break;
                 
@@ -606,28 +638,37 @@ class TimeTrackingManager {
      */
     async refreshTimeTracking(taskId) {
         try {
+            console.log(`Refreshing time tracking for task ${taskId}`);
             const response = await $.ajax({
                 url: '/Task/GetTimeTracking',
                 method: 'GET',
                 data: { taskId: taskId }
             });
 
-            if (response.success) {
+            console.log('Time tracking response:', response);
+
+            if (response.success && response.data) {
                 this.updateProgressDisplay(taskId, response.data);
 
-                if (response.data.hasActiveSession) {
+                if (response.data.hasActiveSession && response.data.currentSession) {
                     const sessionState = response.data.currentSession.isPaused ? 'paused' : 'active';
+                    console.log(`Session state: ${sessionState}`, response.data.currentSession);
                     this.updateSessionUI(taskId, sessionState, response.data.currentSession);
 
-                    if (!response.data.currentSession.isPaused) {
+                    if (!response.data.currentSession.isPaused && response.data.currentSession.startTime) {
                         this.startTimer(taskId, response.data.currentSession.startTime);
                     }
                 } else {
+                    console.log('No active session, setting to inactive');
                     this.updateSessionUI(taskId, 'inactive');
                 }
+            } else {
+                console.error('Failed to get time tracking data:', response.message);
+                this.updateSessionUI(taskId, 'inactive');
             }
         } catch (error) {
             console.error('Error refreshing time tracking:', error);
+            this.updateSessionUI(taskId, 'inactive');
         }
     }
 
@@ -639,15 +680,21 @@ class TimeTrackingManager {
         const actualTime = $(`#actual-time-${taskId}`);
         const progressBar = $(`#progress-bar-${taskId} .progress-fill`);
 
-        progressPercentage.text(`${data.progressPercentage}%`);
-        actualTime.text(this.formatDurationHours(data.totalActualMinutes));
-        progressBar.css('width', `${Math.min(data.progressPercentage, 100)}%`);
+        // Handle undefined/null values
+        const percentage = data.progressPercentage || 0;
+        const actualMinutes = data.totalActualMinutes || 0;
+
+        console.log(`Updating progress for task ${taskId}: ${percentage}%, ${actualMinutes} minutes`);
+
+        progressPercentage.text(`${percentage}%`);
+        actualTime.text(this.formatDurationHours(actualMinutes));
+        progressBar.css('width', `${Math.min(percentage, 100)}%`);
 
         // Update progress bar color based on percentage
         progressBar.removeClass('progress-normal progress-warning progress-danger');
-        if (data.progressPercentage > 100) {
+        if (percentage > 100) {
             progressBar.addClass('progress-danger');
-        } else if (data.progressPercentage > 80) {
+        } else if (percentage > 80) {
             progressBar.addClass('progress-warning');
         } else {
             progressBar.addClass('progress-normal');
@@ -658,12 +705,17 @@ class TimeTrackingManager {
      * Load active sessions on page load
      */
     async loadActiveSessionsOnPageLoad() {
-        $('.time-tracking-widget').each(async (_, element) => {
+        const widgets = $('.time-tracking-widget');
+        console.log(`Found ${widgets.length} time tracking widgets`);
+
+        for (let i = 0; i < widgets.length; i++) {
+            const element = widgets[i];
             const taskId = $(element).data('task-id');
             if (taskId) {
+                console.log(`Loading time tracking data for task ${taskId}`);
                 await this.refreshTimeTracking(taskId);
             }
-        });
+        }
     }
 
     /**

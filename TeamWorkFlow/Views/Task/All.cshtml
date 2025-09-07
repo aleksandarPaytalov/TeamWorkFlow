@@ -454,8 +454,10 @@
 <!-- Time Tracking Modals -->
 @if (User.IsAdmin() || User.IsOperator())
 {
+	<partial name="Partials/_SessionTypeModal" />
 	<partial name="Partials/_WorkSessionHistory" />
 	<partial name="Partials/_FinishSessionModal" />
+	<partial name="Partials/_TimeVarianceModal" />
 }
 @section Scripts {
 	<script src="~/js/pages/tasks.js" asp-append-version="true"></script>
