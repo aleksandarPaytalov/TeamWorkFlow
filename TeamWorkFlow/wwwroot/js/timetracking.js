@@ -97,13 +97,6 @@ class TimeTrackingManager {
         $('#sessionNotes').on('input', () => {
             this.updateCharacterCount();
         });
-
-        // Refresh history button
-        $('#refreshHistoryBtn').on('click', () => {
-            if (this.currentTaskId) {
-                this.loadSessionHistory(this.currentTaskId);
-            }
-        });
     }
 
     /**
@@ -483,12 +476,9 @@ class TimeTrackingManager {
     }
 
     /**
-     * Populate session history table
+     * Populate session history cards
      */
     populateSessionHistory(data) {
-        const tbody = $('#sessionHistoryTableBody');
-        tbody.empty();
-
         // Validate data structure
         if (!data || !data.sessions || !Array.isArray(data.sessions)) {
             this.showHistoryError('Invalid session data received');
@@ -502,61 +492,19 @@ class TimeTrackingManager {
 
         if (data.sessions.length === 0) {
             $('#historyEmptyState').show();
-            $('table').hide();
+            $('#sessionHistoryCards').hide();
             return;
         }
 
         $('#historyEmptyState').hide();
-        $('table').show();
+        $('#sessionHistoryCards').show();
 
-        // Populate desktop table
-        data.sessions.forEach(session => {
-            // Validate session data
-            if (!session) return;
-
-            const operatorName = session.operatorName || 'Unknown';
-            const startTime = session.startTime || new Date().toISOString();
-            const durationMinutes = session.durationMinutes || 0;
-            const sessionType = session.sessionType || 'Development';
-            const notes = session.notes || 'No notes';
-
-            const row = $(`
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="operator-avatar-small me-2">
-                                ${this.getOperatorInitials(operatorName)}
-                            </div>
-                            ${operatorName}
-                        </div>
-                    </td>
-                    <td>${this.formatDate(startTime)}</td>
-                    <td>
-                        <span class="badge bg-primary">
-                            ${this.formatDurationHours(durationMinutes)}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="badge bg-secondary">
-                            ${sessionType}
-                        </span>
-                    </td>
-                    <td>
-                        <small class="text-muted">
-                            ${notes}
-                        </small>
-                    </td>
-                </tr>
-            `);
-            tbody.append(row);
-        });
-
-        // Populate mobile cards
+        // Populate session cards
         this.populateSessionCards(data.sessions);
     }
 
     /**
-     * Populate session cards for mobile view
+     * Populate session cards with enhanced design
      */
     populateSessionCards(sessions) {
         const cardsContainer = $('#sessionHistoryCards');
@@ -580,7 +528,7 @@ class TimeTrackingManager {
                             </div>
                             <span class="session-operator-name">${operatorName}</span>
                         </div>
-                        <span class="badge bg-secondary">${sessionType}</span>
+                        <span class="session-type-badge">${sessionType}</span>
                     </div>
                     <div class="session-card-body">
                         <div class="session-detail">
@@ -590,7 +538,7 @@ class TimeTrackingManager {
                         <div class="session-detail">
                             <span class="session-detail-label">Duration</span>
                             <span class="session-detail-value">
-                                <span class="badge bg-primary">${this.formatDurationHours(durationMinutes)}</span>
+                                <span class="session-duration-badge">${this.formatDurationHours(durationMinutes)}</span>
                             </span>
                         </div>
                         ${notes !== 'No notes' ? `
