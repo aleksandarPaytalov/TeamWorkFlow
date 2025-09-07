@@ -247,16 +247,21 @@ namespace TeamWorkFlow.Core.Services
                 var activeSession = await _repository.AllReadOnly<TaskTimeSession>()
                     .FirstOrDefaultAsync(s => s.TaskId == taskId && s.OperatorId == operatorId);
 
-                // Get completed sessions
-                var completedSessions = await _repository.AllReadOnly<TaskTimeEntry>()
+                // Get all completed sessions for totals calculation
+                var allCompletedSessions = await _repository.AllReadOnly<TaskTimeEntry>()
+                    .Where(e => e.TaskId == taskId && e.OperatorId == operatorId)
+                    .ToListAsync();
+
+                // Get recent sessions for display (limited to 5)
+                var recentSessions = await _repository.AllReadOnly<TaskTimeEntry>()
                     .Where(e => e.TaskId == taskId && e.OperatorId == operatorId)
                     .OrderByDescending(e => e.CreatedAt)
                     .Take(5)
                     .ToListAsync();
 
-                // Calculate totals
-                var totalActualMinutes = completedSessions.Sum(s => s.DurationMinutes);
-                var totalSessions = completedSessions.Count;
+                // Calculate totals from ALL sessions, not just recent ones
+                var totalActualMinutes = allCompletedSessions.Sum(s => s.DurationMinutes);
+                var totalSessions = allCompletedSessions.Count;
 
                 // Map to view model
                 var model = new TaskTimeTrackingModel
@@ -276,7 +281,7 @@ namespace TeamWorkFlow.Core.Services
                     TotalActualTimeMinutes = totalActualMinutes,
                     TotalCompletedSessions = totalSessions,
                     CompletionPercentage = task.EstimatedTime > 0 ? Math.Min(100, (totalActualMinutes / (task.EstimatedTime * 60m)) * 100) : 0,
-                    RecentSessions = completedSessions.Select(s => new WorkSessionModel
+                    RecentSessions = recentSessions.Select(s => new WorkSessionModel
                     {
                         Id = s.Id,
                         TaskId = s.TaskId,
