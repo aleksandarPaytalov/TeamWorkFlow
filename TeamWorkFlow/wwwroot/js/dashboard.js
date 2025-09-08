@@ -1077,6 +1077,15 @@
         }
     }
 
+    function showWarning(message) {
+        // Use toastr if available, otherwise console warn
+        if (typeof toastr !== 'undefined') {
+            toastr.warning(message);
+        } else {
+            console.warn('Warning:', message);
+        }
+    }
+
     function getAntiForgeryToken() {
         const token = document.querySelector('input[name="__RequestVerificationToken"]');
         return token ? token.value : '';
@@ -1405,8 +1414,9 @@
         const value = input.value;
 
         if (value) {
-            const date = new Date(value);
-            if (isNaN(date.getTime())) {
+            // Use our custom parser for dd/MM/yyyy format
+            const date = parseDateFromDisplay(value);
+            if (!date || isNaN(date.getTime())) {
                 showError('Please enter a valid date in dd/MM/yyyy format.');
                 input.focus();
                 return false;
@@ -1429,16 +1439,17 @@
         clearValidationStates();
 
         if (fromDateInput && toDateInput && fromDateInput.value && toDateInput.value) {
-            const fromDate = new Date(fromDateInput.value);
-            const toDate = new Date(toDateInput.value);
+            // Use our custom parser for dd/MM/yyyy format
+            const fromDate = parseDateFromDisplay(fromDateInput.value);
+            const toDate = parseDateFromDisplay(toDateInput.value);
 
-            if (fromDate > toDate) {
+            if (fromDate && toDate && fromDate > toDate) {
                 showError('From date cannot be later than To date.');
                 setValidationState(fromDateInput, 'error');
                 setValidationState(toDateInput, 'error');
                 fromDateInput.focus();
                 return false;
-            } else {
+            } else if (fromDate && toDate) {
                 setValidationState(fromDateInput, 'success');
                 setValidationState(toDateInput, 'success');
             }
@@ -2234,7 +2245,7 @@
         }, 50);
     }
 
-    // Alternative approach using direct input replacement
+    // Clean date picker implementation using only dd/MM/yyyy format
     function openDatePickerDirect(inputId) {
         console.log('openDatePickerDirect called with inputId:', inputId);
 
@@ -2244,103 +2255,276 @@
             return;
         }
 
-        // Store original input properties
-        const originalValue = input.value;
-        const originalType = input.type;
-        const originalPlaceholder = input.placeholder;
+        // Create a custom date picker modal
+        createDatePickerModal(input);
+    }
 
-        // Temporarily convert to date input
-        input.type = 'date';
-        input.removeAttribute('placeholder');
+    function createDatePickerModal(targetInput) {
+        // Remove any existing date picker modal
+        const existingModal = document.getElementById('custom-date-picker-modal');
+        if (existingModal) {
+            existingModal.remove();
+        }
 
-        // Set current value if valid
-        if (originalValue) {
-            try {
-                const serverFormat = convertToServerFormat(originalValue);
-                if (serverFormat) {
-                    input.value = serverFormat;
-                }
-            } catch (e) {
-                console.warn('Error converting current value:', e);
-                input.value = '';
+        // Create modal overlay
+        const modal = document.createElement('div');
+        modal.id = 'custom-date-picker-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.2s ease;
+        `;
+
+        // Create date picker container
+        const container = document.createElement('div');
+        container.style.cssText = `
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            max-width: 320px;
+            width: 90%;
+            animation: slideIn 0.3s ease;
+        `;
+
+        // Get current date or parse existing value
+        let currentDate = new Date();
+        if (targetInput.value && targetInput.value.trim()) {
+            const parsedDate = parseDateFromDisplay(targetInput.value.trim());
+            if (parsedDate) {
+                currentDate = parsedDate;
             }
         }
 
-        // Focus and open picker
-        input.focus();
+        // Create date picker content
+        container.innerHTML = `
+            <div style="text-align: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; color: #333; font-size: 18px;">Select Date</h3>
+            </div>
+            <div id="date-picker-calendar"></div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button id="date-picker-today" style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer;">Today</button>
+                <button id="date-picker-clear" style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer;">Clear</button>
+                <button id="date-picker-cancel" style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer;">Cancel</button>
+            </div>
+        `;
 
-        // Try to open the date picker
-        setTimeout(() => {
-            try {
-                if (input.showPicker) {
-                    input.showPicker();
-                    console.log('Date picker opened successfully');
-                } else {
-                    input.click();
-                    console.log('Date picker opened with click');
-                }
-            } catch (e) {
-                console.warn('Error opening date picker:', e);
-            }
-        }, 10);
+        modal.appendChild(container);
+        document.body.appendChild(modal);
 
-        // Handle date selection
-        const handleChange = function() {
-            console.log('Date selected:', input.value);
-            if (input.value) {
-                try {
-                    const selectedDate = new Date(input.value);
-                    const displayFormat = formatDateForDisplay(selectedDate);
-                    console.log('Formatted date:', displayFormat);
-
-                    // Restore original input type and set formatted value
-                    input.type = originalType;
-                    input.placeholder = originalPlaceholder;
-                    input.value = displayFormat;
-
-                    console.log('Input restored with value:', displayFormat);
-                } catch (e) {
-                    console.error('Error formatting date:', e);
-                    // Restore original state on error
-                    input.type = originalType;
-                    input.placeholder = originalPlaceholder;
-                    input.value = originalValue;
-                }
-            } else {
-                // Restore original state if no date selected
-                input.type = originalType;
-                input.placeholder = originalPlaceholder;
-                input.value = originalValue;
-            }
-
-            // Remove event listener
-            input.removeEventListener('change', handleChange);
-            input.removeEventListener('blur', handleBlur);
-        };
-
-        // Handle blur (cancel)
-        const handleBlur = function() {
-            console.log('Date picker blur event');
-            setTimeout(() => {
-                // Restore original state if still a date input
-                if (input.type === 'date') {
-                    input.type = originalType;
-                    input.placeholder = originalPlaceholder;
-                    input.value = originalValue;
-
-                    // Remove event listeners
-                    input.removeEventListener('change', handleChange);
-                    input.removeEventListener('blur', handleBlur);
-
-                    console.log('Input restored to original state');
-                }
-            }, 200);
-        };
+        // Generate calendar
+        generateCalendar(currentDate, targetInput);
 
         // Add event listeners
-        input.addEventListener('change', handleChange);
-        input.addEventListener('blur', handleBlur);
+        document.getElementById('date-picker-today').addEventListener('click', () => {
+            const today = new Date();
+            const todayFormatted = formatDateForDisplay(today);
+            targetInput.value = todayFormatted;
+            triggerInputEvents(targetInput);
+            modal.remove();
+        });
+
+        document.getElementById('date-picker-clear').addEventListener('click', () => {
+            targetInput.value = '';
+            triggerInputEvents(targetInput);
+            modal.remove();
+        });
+
+        document.getElementById('date-picker-cancel').addEventListener('click', () => {
+            modal.remove();
+        });
+
+        // Close on overlay click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+
+        // Add CSS animations
+        if (!document.getElementById('date-picker-styles')) {
+            const style = document.createElement('style');
+            style.id = 'date-picker-styles';
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes slideIn {
+                    from { transform: scale(0.9) translateY(-20px); opacity: 0; }
+                    to { transform: scale(1) translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
     }
+
+    function generateCalendar(currentDate, targetInput) {
+        const calendarContainer = document.getElementById('date-picker-calendar');
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+
+        // Create month/year header with navigation
+        const header = document.createElement('div');
+        header.style.cssText = `
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 0 5px;
+        `;
+
+        const prevButton = document.createElement('button');
+        prevButton.innerHTML = '‹';
+        prevButton.style.cssText = `
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+        `;
+        prevButton.addEventListener('click', () => {
+            const newDate = new Date(year, month - 1, 1);
+            generateCalendar(newDate, targetInput);
+        });
+
+        const monthYear = document.createElement('span');
+        monthYear.style.cssText = `
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+        `;
+        monthYear.textContent = currentDate.toLocaleDateString('en-GB', {
+            month: 'long',
+            year: 'numeric'
+        });
+
+        const nextButton = document.createElement('button');
+        nextButton.innerHTML = '›';
+        nextButton.style.cssText = `
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+        `;
+        nextButton.addEventListener('click', () => {
+            const newDate = new Date(year, month + 1, 1);
+            generateCalendar(newDate, targetInput);
+        });
+
+        header.appendChild(prevButton);
+        header.appendChild(monthYear);
+        header.appendChild(nextButton);
+
+        // Create calendar grid
+        const grid = document.createElement('div');
+        grid.style.cssText = `
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            text-align: center;
+        `;
+
+        // Add day headers
+        const dayHeaders = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+        dayHeaders.forEach(day => {
+            const dayHeader = document.createElement('div');
+            dayHeader.style.cssText = `
+                padding: 8px 4px;
+                font-weight: bold;
+                color: #666;
+                font-size: 12px;
+            `;
+            dayHeader.textContent = day;
+            grid.appendChild(dayHeader);
+        });
+
+        // Get first day of month and number of days
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const today = new Date();
+
+        // Add empty cells for days before month starts
+        for (let i = 0; i < firstDay; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.style.cssText = `padding: 8px 4px;`;
+            grid.appendChild(emptyCell);
+        }
+
+        // Add days of the month
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayCell = document.createElement('button');
+            const cellDate = new Date(year, month, day);
+            const isToday = cellDate.toDateString() === today.toDateString();
+
+            dayCell.textContent = day;
+            dayCell.style.cssText = `
+                padding: 8px 4px;
+                border: none;
+                background: ${isToday ? '#e3f2fd' : 'transparent'};
+                cursor: pointer;
+                border-radius: 4px;
+                font-size: 14px;
+                color: ${isToday ? '#1976d2' : '#333'};
+                font-weight: ${isToday ? 'bold' : 'normal'};
+            `;
+
+            dayCell.addEventListener('mouseenter', () => {
+                if (!isToday) {
+                    dayCell.style.backgroundColor = '#f5f5f5';
+                }
+            });
+
+            dayCell.addEventListener('mouseleave', () => {
+                if (!isToday) {
+                    dayCell.style.backgroundColor = 'transparent';
+                }
+            });
+
+            dayCell.addEventListener('click', () => {
+                const selectedDate = new Date(year, month, day);
+                const formattedDate = formatDateForDisplay(selectedDate);
+                targetInput.value = formattedDate;
+                triggerInputEvents(targetInput);
+                document.getElementById('custom-date-picker-modal').remove();
+            });
+
+            grid.appendChild(dayCell);
+        }
+
+        // Clear and populate calendar container
+        calendarContainer.innerHTML = '';
+        calendarContainer.appendChild(header);
+        calendarContainer.appendChild(grid);
+    }
+
+    function triggerInputEvents(input) {
+        // Trigger input event
+        const inputEvent = new Event('input', { bubbles: true });
+        input.dispatchEvent(inputEvent);
+
+        // Trigger change event
+        const changeEvent = new Event('change', { bubbles: true });
+        input.dispatchEvent(changeEvent);
+
+        // Trigger validation
+        if (typeof validateAndFormatDate === 'function') {
+            validateAndFormatDate({ target: input });
+        }
+    }
+
+
 
     // Make all functions globally accessible
     window.openDatePicker = openDatePicker;
