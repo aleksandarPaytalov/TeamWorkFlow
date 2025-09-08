@@ -15,13 +15,16 @@ namespace TeamWorkFlow.Controllers
     public class DashboardController : BaseController
     {
         private readonly ITaskAnalyticsService _analyticsService;
+        private readonly IReportService _reportService;
         private readonly ILogger<DashboardController> _logger;
 
         public DashboardController(
             ITaskAnalyticsService analyticsService,
+            IReportService reportService,
             ILogger<DashboardController> logger)
         {
             _analyticsService = analyticsService;
+            _reportService = reportService;
             _logger = logger;
         }
 
@@ -283,24 +286,43 @@ namespace TeamWorkFlow.Controllers
                     return Unauthorized();
                 }
 
+                _logger.LogInformation("Starting PDF export with filters: {Filters} by user: {User}", filters, User.Identity?.Name);
+
+                // Validate filters
+                if (filters.FromDate > filters.ToDate)
+                {
+                    TempData["UserMessageError"] = "From date cannot be later than To date.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 var dashboardData = await _analyticsService.GetDashboardDataAsync(filters);
 
                 if (dashboardData == null)
                 {
-                    return BadRequest("Unable to generate report data");
+                    TempData["UserMessageError"] = "Unable to generate report data for the selected period.";
+                    return RedirectToAction(nameof(Index));
                 }
 
-                // TODO: Implement PDF generation in Step 11
-                // For now, return a placeholder response
-                _logger.LogInformation("PDF export requested by user: {User}", User.Identity?.Name);
-                TempData["UserMessageError"] = "PDF export functionality will be implemented in Step 11.";
+                // Validate data for reporting
+                if (!_reportService.ValidateReportData(dashboardData))
+                {
+                    TempData["UserMessageError"] = "Insufficient data available for the selected period.";
+                    return RedirectToAction(nameof(Index));
+                }
 
-                return RedirectToAction(nameof(Index));
+                // Generate PDF report
+                var pdfBytes = await _reportService.GeneratePdfReportAsync(dashboardData, filters);
+
+                var fileName = $"Performance_Report_{filters.FromDate:yyyyMMdd}_{filters.ToDate:yyyyMMdd}.pdf";
+
+                _logger.LogInformation("PDF report generated successfully: {FileName} by user: {User}", fileName, User.Identity?.Name);
+
+                return File(pdfBytes, "application/pdf", fileName);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error exporting PDF report");
-                TempData["UserMessageError"] = "An error occurred while generating the PDF report.";
+                TempData["UserMessageError"] = "An error occurred while generating the PDF report. Please try again.";
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -322,24 +344,43 @@ namespace TeamWorkFlow.Controllers
                     return Unauthorized();
                 }
 
+                _logger.LogInformation("Starting Excel export with filters: {Filters} by user: {User}", filters, User.Identity?.Name);
+
+                // Validate filters
+                if (filters.FromDate > filters.ToDate)
+                {
+                    TempData["UserMessageError"] = "From date cannot be later than To date.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 var dashboardData = await _analyticsService.GetDashboardDataAsync(filters);
 
                 if (dashboardData == null)
                 {
-                    return BadRequest("Unable to generate report data");
+                    TempData["UserMessageError"] = "Unable to generate report data for the selected period.";
+                    return RedirectToAction(nameof(Index));
                 }
 
-                // TODO: Implement Excel generation in Step 11
-                // For now, return a placeholder response
-                _logger.LogInformation("Excel export requested by user: {User}", User.Identity?.Name);
-                TempData["UserMessageError"] = "Excel export functionality will be implemented in Step 11.";
+                // Validate data for reporting
+                if (!_reportService.ValidateReportData(dashboardData))
+                {
+                    TempData["UserMessageError"] = "Insufficient data available for the selected period.";
+                    return RedirectToAction(nameof(Index));
+                }
 
-                return RedirectToAction(nameof(Index));
+                // Generate Excel report
+                var excelBytes = await _reportService.GenerateExcelReportAsync(dashboardData, filters);
+
+                var fileName = $"Performance_Report_{filters.FromDate:yyyyMMdd}_{filters.ToDate:yyyyMMdd}.xlsx";
+
+                _logger.LogInformation("Excel report generated successfully: {FileName} by user: {User}", fileName, User.Identity?.Name);
+
+                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error exporting Excel report");
-                TempData["UserMessageError"] = "An error occurred while generating the Excel report.";
+                TempData["UserMessageError"] = "An error occurred while generating the Excel report. Please try again.";
                 return RedirectToAction(nameof(Index));
             }
         }

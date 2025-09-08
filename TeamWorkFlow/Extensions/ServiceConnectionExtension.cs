@@ -21,6 +21,7 @@ namespace TeamWorkFlow.Extensions
 			services.AddScoped<IUserRoleService, UserRoleService>();
 			services.AddScoped<ITaskTimeTrackingService, TaskTimeTrackingService>();
 			services.AddScoped<ITaskAnalyticsService, TaskAnalyticsService>();
+			services.AddScoped<IReportService, ReportService>();
 
 			// Add memory cache for analytics service
 			services.AddMemoryCache();
