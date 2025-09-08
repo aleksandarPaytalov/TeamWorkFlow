@@ -73,8 +73,24 @@
     }
 
     function loadInitialData() {
-        // Initial data is loaded server-side, but we can initialize charts here
-        initializeCharts();
+        const startTime = performance.now();
+
+        try {
+            // Initial data is loaded server-side, but we can initialize charts here
+            initializeCharts();
+
+            // Initialize auto-refresh
+            initializeAutoRefresh();
+
+            // Initialize accessibility features
+            initializeAccessibility();
+
+            // Track performance
+            trackPerformance('initialization', startTime);
+
+        } catch (error) {
+            handleError(error, 'initialization');
+        }
     }
 
     function handleApplyFilters() {
@@ -105,8 +121,9 @@
     }
 
     function handleRefreshData() {
+        const startTime = performance.now();
         showLoading();
-        
+
         // Refresh all sections
         Promise.all([
             refreshSection('efficiency'),
@@ -115,10 +132,15 @@
             refreshSection('trends')
         ]).then(() => {
             hideLoading();
+            trackPerformance('data refresh', startTime);
             showSuccess('Dashboard data refreshed successfully.');
+
+            // Refresh charts with new data
+            refreshCharts();
+
         }).catch(error => {
             hideLoading();
-            showError('Failed to refresh dashboard data: ' + error.message);
+            handleError(error, 'refresh');
         });
     }
 
@@ -182,21 +204,759 @@
     }
 
     function updateSectionContent(sectionType, data) {
-        // This would update the specific section with new data
-        // For now, we'll just log the data since we need the partial views
-        console.log(`Updated ${sectionType} section with data:`, data);
-        
-        // In a full implementation, this would:
-        // 1. Update charts with new data
-        // 2. Update tables and lists
-        // 3. Refresh KPI cards
-        // 4. Update trend indicators
+        console.log(`Updating ${sectionType} section with data:`, data);
+
+        try {
+            switch (sectionType) {
+                case 'efficiency':
+                    updateEfficiencySection(data);
+                    break;
+                case 'operators':
+                    updateOperatorSection(data);
+                    break;
+                case 'bottlenecks':
+                    updateBottleneckSection(data);
+                    break;
+                case 'trends':
+                    updateTrendSection(data);
+                    break;
+                default:
+                    console.warn('Unknown section type:', sectionType);
+            }
+        } catch (error) {
+            console.error(`Error updating ${sectionType} section:`, error);
+        }
+    }
+
+    function updateEfficiencySection(data) {
+        // Update KPI cards
+        updateKPICard('on-time-rate', data.onTimeCompletionRate, '%');
+        updateKPICard('avg-overrun', data.averageTimeOverrunPercentage, '%');
+        updateKPICard('tasks-completed', data.totalTasksCompleted, '');
+        updateKPICard('efficiency-score', data.overallEfficiencyScore, '');
+
+        // Update efficiency chart
+        if (charts.efficiency && data.trendData) {
+            const chartData = {
+                labels: data.trendData.map(d => d.dateFormatted || d.periodLabel),
+                data: data.trendData.map(d => d.onTimeRate || d.value)
+            };
+            updateChartDataSafe(charts.efficiency, chartData, 'efficiency');
+        }
+
+        // Update trend indicators
+        updateTrendIndicator('efficiency-trend', data.efficiencyTrend);
+    }
+
+    function updateOperatorSection(data) {
+        // Update operator performance chart
+        if (charts.operator && data.operators) {
+            const chartColors = {
+                success: '#10b981',
+                warning: '#f59e0b',
+                danger: '#ef4444'
+            };
+
+            const chartData = {
+                labels: data.operators.map(op => op.operatorName),
+                data: data.operators.map(op => op.efficiencyRating)
+            };
+
+            const backgroundColors = data.operators.map(op => {
+                if (op.efficiencyRating >= 85) return chartColors.success;
+                if (op.efficiencyRating >= 70) return chartColors.warning;
+                return chartColors.danger;
+            });
+
+            charts.operator.data.datasets[0].backgroundColor = backgroundColors;
+            updateChartDataSafe(charts.operator, chartData, 'operator');
+        }
+
+        // Update operator table
+        updateOperatorTable(data.operators);
+
+        // Update summary cards
+        if (data.summary) {
+            updateKPICard('top-performers', data.summary.topPerformers, '');
+            updateKPICard('team-average', data.summary.teamAverage, '%');
+            updateKPICard('needs-attention', data.summary.needsAttention, '');
+        }
+    }
+
+    function updateBottleneckSection(data) {
+        // Update bottleneck chart
+        if (charts.bottleneck && data.delaysByCategory) {
+            const chartData = {
+                labels: data.delaysByCategory.map(d => d.categoryName),
+                data: data.delaysByCategory.map(d => d.delayCount)
+            };
+            updateChartDataSafe(charts.bottleneck, chartData, 'bottleneck');
+        }
+
+        // Update bottleneck stats
+        updateKPICard('total-bottlenecks', data.totalBottlenecks, '');
+        updateKPICard('avg-delay', data.averageDelayHours, 'h');
+        updateKPICard('tasks-affected', data.tasksAffectedPercentage, '%');
+        updateKPICard('severity-score', data.severityScore, '');
+
+        // Update bottleneck list
+        updateBottleneckList(data.frequentBottleneckTasks);
+    }
+
+    function updateTrendSection(data) {
+        // Update main trend chart
+        if (charts.mainTrend && data.trendData) {
+            charts.mainTrend.data.labels = data.timeLabels || [];
+
+            if (data.completionTrendData) {
+                charts.mainTrend.data.datasets[0].data = data.completionTrendData.map(d => d.value);
+            }
+            if (data.efficiencyTrendData) {
+                charts.mainTrend.data.datasets[1].data = data.efficiencyTrendData.map(d => d.value);
+            }
+            if (data.workloadTrendData) {
+                charts.mainTrend.data.datasets[2].data = data.workloadTrendData.map(d => d.value);
+            }
+
+            charts.mainTrend.update();
+        }
+
+        // Update secondary charts
+        updateSecondaryTrendCharts(data);
+
+        // Update trend overview
+        updateTrendOverview(data);
+    }
+
+    function updateSecondaryTrendCharts(data) {
+        const chartMappings = {
+            'completion-trend-chart': data.completionTrendData,
+            'efficiency-trend-chart': data.efficiencyTrendData,
+            'workload-trend-chart': data.workloadTrendData,
+            'variance-trend-chart': data.varianceTrendData
+        };
+
+        Object.keys(chartMappings).forEach(chartId => {
+            if (charts[chartId] && chartMappings[chartId]) {
+                const chartData = {
+                    labels: chartMappings[chartId].map(d => d.dateFormatted || d.label),
+                    data: chartMappings[chartId].map(d => d.value)
+                };
+                updateChartDataSafe(charts[chartId], chartData, chartId);
+            }
+        });
+    }
+
+    // Helper functions for updating UI elements
+    function updateKPICard(cardId, value, suffix = '') {
+        const element = document.getElementById(cardId);
+        if (element) {
+            const valueElement = element.querySelector('.metric-value, .stat-value, .summary-value');
+            if (valueElement) {
+                const formattedValue = typeof value === 'number' ? value.toFixed(1) : value;
+                valueElement.textContent = formattedValue + suffix;
+            }
+        }
+    }
+
+    function updateTrendIndicator(indicatorId, trendValue) {
+        const element = document.getElementById(indicatorId);
+        if (element && typeof trendValue === 'number') {
+            const icon = element.querySelector('i');
+            const text = element.querySelector('.trend-text');
+
+            if (icon) {
+                icon.className = trendValue >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down';
+            }
+
+            if (text) {
+                text.textContent = Math.abs(trendValue).toFixed(1) + '% vs last period';
+            }
+
+            element.className = element.className.replace(/positive|negative/g, '') +
+                               (trendValue >= 0 ? ' positive' : ' negative');
+        }
+    }
+
+    function updateOperatorTable(operators) {
+        const tableBody = document.querySelector('#operator-table tbody');
+        if (!tableBody || !operators) return;
+
+        tableBody.innerHTML = '';
+
+        operators.forEach((operator, index) => {
+            const row = document.createElement('tr');
+            row.className = operator.isTopPerformer ? 'top-performer' :
+                           operator.needsAttention ? 'needs-attention' : '';
+
+            row.innerHTML = `
+                <td><span class="${operator.rankClass || ''}">${index + 1}</span></td>
+                <td>
+                    <div class="operator-info">
+                        <strong>${operator.operatorName}</strong>
+                        <small class="text-muted d-block">${operator.operatorEmail || ''}</small>
+                    </div>
+                </td>
+                <td>${operator.tasksCompleted || 0}</td>
+                <td><span class="${operator.efficiencyClass || ''}">${operator.efficiencyRating?.toFixed(1) || '0'}%</span></td>
+                <td>${operator.onTimeCompletionRate?.toFixed(1) || '0'}%</td>
+                <td>${operator.averageCompletionTimeHours?.toFixed(1) || '0'}h</td>
+                <td>
+                    <span class="badge ${operator.isTopPerformer ? 'bg-success' : operator.needsAttention ? 'bg-warning' : 'bg-secondary'}">
+                        ${operator.performanceStatus || 'Normal'}
+                    </span>
+                </td>
+                <td>
+                    <span class="${operator.trendClass || ''}">
+                        <i class="${operator.trendIcon || 'fas fa-minus'}"></i>
+                        ${operator.performanceTrend?.toFixed(1) || '0'}%
+                    </span>
+                </td>
+            `;
+
+            tableBody.appendChild(row);
+        });
+    }
+
+    function updateBottleneckList(bottlenecks) {
+        const listContainer = document.querySelector('.bottleneck-list');
+        if (!listContainer || !bottlenecks) return;
+
+        listContainer.innerHTML = '';
+
+        bottlenecks.slice(0, 10).forEach(bottleneck => {
+            const item = document.createElement('div');
+            item.className = 'bottleneck-item';
+
+            const delayPercentage = Math.min(100, (bottleneck.averageDelayHours / 8 * 100));
+
+            item.innerHTML = `
+                <div class="bottleneck-header">
+                    <div class="bottleneck-title">
+                        <strong>${bottleneck.taskName}</strong>
+                        <span class="project-name">(${bottleneck.projectName})</span>
+                    </div>
+                    <div class="bottleneck-metrics">
+                        <span class="occurrences">${bottleneck.occurrences} times</span>
+                        <span class="avg-delay">${bottleneck.averageDelayHours?.toFixed(1) || '0'}h avg</span>
+                    </div>
+                </div>
+                <div class="bottleneck-progress">
+                    <div class="progress">
+                        <div class="progress-bar bg-warning" style="width: ${delayPercentage.toFixed(0)}%"></div>
+                    </div>
+                    <small class="text-muted">Total delay: ${bottleneck.totalDelayHours?.toFixed(1) || '0'}h</small>
+                </div>
+            `;
+
+            listContainer.appendChild(item);
+        });
+    }
+
+    function updateTrendOverview(data) {
+        if (data.overallTrendDirection) {
+            updateKPICard('overall-trend', data.overallTrendDirection, '');
+        }
+        if (data.trendConfidence) {
+            updateKPICard('trend-confidence', data.trendConfidence, '%');
+        }
+        if (data.totalDataPoints) {
+            updateKPICard('data-points', data.totalDataPoints, '');
+        }
+        if (data.analysisPeriod) {
+            updateKPICard('analysis-period', data.analysisPeriod, '');
+        }
     }
 
     function initializeCharts() {
-        // Initialize Chart.js charts
-        // This will be implemented in Step 8 when we create the chart components
-        console.log('Charts will be initialized in Step 8');
+        console.log('Initializing dashboard charts...');
+
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js not loaded. Charts will not be available.');
+            return;
+        }
+
+        // Set global Chart.js defaults
+        Chart.defaults.font.family = "'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        Chart.defaults.color = '#374151';
+        Chart.defaults.plugins.legend.position = 'top';
+
+        // Chart color palette
+        const chartColors = {
+            primary: '#3b82f6',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            info: '#06b6d4',
+            secondary: '#6b7280'
+        };
+
+        // Initialize individual charts
+        initializeEfficiencyChart(chartColors);
+        initializeOperatorChart(chartColors);
+        initializeBottleneckChart(chartColors);
+        initializeTrendCharts(chartColors);
+
+        console.log('Dashboard charts initialized successfully');
+    }
+
+    function initializeEfficiencyChart(colors) {
+        const ctx = document.getElementById('efficiency-comparison-chart');
+        if (!ctx) return;
+
+        try {
+            charts.efficiency = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'On-Time Rate (%)',
+                        data: [],
+                        borderColor: colors.primary,
+                        backgroundColor: colors.primary + '20',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: colors.primary,
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                color: '#f3f4f6'
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+
+            // Load data if available
+            loadEfficiencyChartData();
+
+        } catch (error) {
+            console.error('Error initializing efficiency chart:', error);
+        }
+    }
+
+    function initializeOperatorChart(colors) {
+        const ctx = document.getElementById('operator-performance-chart');
+        if (!ctx) return;
+
+        try {
+            charts.operator = new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Efficiency Rating (%)',
+                        data: [],
+                        backgroundColor: [],
+                        borderColor: '#dee2e6',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
+                                },
+                                afterLabel: function(context) {
+                                    const rating = context.parsed.y;
+                                    if (rating >= 85) return 'Performance: Excellent';
+                                    if (rating >= 70) return 'Performance: Good';
+                                    return 'Performance: Needs Improvement';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 0
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                color: '#f3f4f6'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Load data if available
+            loadOperatorChartData(colors);
+
+        } catch (error) {
+            console.error('Error initializing operator chart:', error);
+        }
+    }
+
+    function initializeBottleneckChart(colors) {
+        const ctx = document.getElementById('bottleneck-categories-chart');
+        if (!ctx) return;
+
+        try {
+            charts.bottleneck = new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            colors.danger,
+                            colors.warning,
+                            colors.info,
+                            colors.success,
+                            colors.primary,
+                            colors.secondary
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+
+            // Load data if available
+            loadBottleneckChartData();
+
+        } catch (error) {
+            console.error('Error initializing bottleneck chart:', error);
+        }
+    }
+
+    function initializeTrendCharts(colors) {
+        // Main trend chart
+        const mainTrendCtx = document.getElementById('main-trend-chart');
+        if (mainTrendCtx) {
+            try {
+                charts.mainTrend = new Chart(mainTrendCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'Completion Rate (%)',
+                                data: [],
+                                borderColor: colors.primary,
+                                backgroundColor: colors.primary + '20',
+                                tension: 0.4,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Efficiency Score (%)',
+                                data: [],
+                                borderColor: colors.success,
+                                backgroundColor: colors.success + '20',
+                                tension: 0.4,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Workload (Tasks)',
+                                data: [],
+                                borderColor: colors.warning,
+                                backgroundColor: colors.warning + '20',
+                                tension: 0.4,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                display: true,
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                beginAtZero: true,
+                                grid: {
+                                    drawOnChartArea: false,
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + ' tasks';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error initializing main trend chart:', error);
+            }
+        }
+
+        // Secondary trend charts
+        const secondaryCharts = [
+            { id: 'completion-trend-chart', label: 'Completion Rate', color: colors.primary },
+            { id: 'efficiency-trend-chart', label: 'Efficiency Score', color: colors.success },
+            { id: 'workload-trend-chart', label: 'Workload', color: colors.warning },
+            { id: 'variance-trend-chart', label: 'Variance', color: colors.danger }
+        ];
+
+        secondaryCharts.forEach(config => {
+            const ctx = document.getElementById(config.id);
+            if (ctx) {
+                try {
+                    charts[config.id] = new Chart(ctx.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: [],
+                            datasets: [{
+                                label: config.label,
+                                data: [],
+                                borderColor: config.color,
+                                backgroundColor: config.color + '20',
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 3,
+                                pointHoverRadius: 5
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    display: true,
+                                    grid: {
+                                        display: false
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: '#f3f4f6'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error(`Error initializing ${config.id}:`, error);
+                }
+            }
+        });
+
+        // Load trend data
+        loadTrendChartsData();
+    }
+
+    // Data loading functions
+    function loadEfficiencyChartData() {
+        // Try to get data from the page if available
+        const chartData = getChartDataFromPage('efficiency-chart-data');
+        if (chartData && charts.efficiency) {
+            updateChartData(charts.efficiency, chartData);
+        }
+    }
+
+    function loadOperatorChartData(colors) {
+        const chartData = getChartDataFromPage('operator-chart-data');
+        if (chartData && charts.operator) {
+            // Generate colors based on performance
+            const backgroundColors = chartData.data.map(value => {
+                if (value >= 85) return colors.success;
+                if (value >= 70) return colors.warning;
+                return colors.danger;
+            });
+
+            charts.operator.data.datasets[0].backgroundColor = backgroundColors;
+            updateChartData(charts.operator, chartData);
+        }
+    }
+
+    function loadBottleneckChartData() {
+        const chartData = getChartDataFromPage('bottleneck-chart-data');
+        if (chartData && charts.bottleneck) {
+            updateChartData(charts.bottleneck, chartData);
+        }
+    }
+
+    function loadTrendChartsData() {
+        const trendData = getChartDataFromPage('trend-chart-data');
+        if (trendData) {
+            // Update main trend chart
+            if (charts.mainTrend) {
+                charts.mainTrend.data.labels = trendData.labels || [];
+                if (trendData.completion) {
+                    charts.mainTrend.data.datasets[0].data = trendData.completion;
+                }
+                if (trendData.efficiency) {
+                    charts.mainTrend.data.datasets[1].data = trendData.efficiency;
+                }
+                if (trendData.workload) {
+                    charts.mainTrend.data.datasets[2].data = trendData.workload;
+                }
+                charts.mainTrend.update();
+            }
+
+            // Update secondary charts
+            const secondaryData = {
+                'completion-trend-chart': trendData.completion,
+                'efficiency-trend-chart': trendData.efficiency,
+                'workload-trend-chart': trendData.workload,
+                'variance-trend-chart': trendData.variance
+            };
+
+            Object.keys(secondaryData).forEach(chartId => {
+                if (charts[chartId] && secondaryData[chartId]) {
+                    charts[chartId].data.labels = trendData.labels || [];
+                    charts[chartId].data.datasets[0].data = secondaryData[chartId];
+                    charts[chartId].update();
+                }
+            });
+        }
+    }
+
+    // Utility functions for chart management
+    function updateChartData(chart, data) {
+        if (!chart || !data) return;
+
+        chart.data.labels = data.labels || [];
+        if (data.data) {
+            chart.data.datasets[0].data = data.data;
+        }
+        chart.update();
+    }
+
+    function getChartDataFromPage(dataId) {
+        const dataElement = document.getElementById(dataId);
+        if (dataElement) {
+            try {
+                return JSON.parse(dataElement.textContent);
+            } catch (error) {
+                console.warn(`Failed to parse chart data for ${dataId}:`, error);
+            }
+        }
+        return null;
+    }
+
+    // Chart refresh functions
+    function refreshCharts() {
+        console.log('Refreshing all charts...');
+
+        loadEfficiencyChartData();
+        loadOperatorChartData({
+            primary: '#3b82f6',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444'
+        });
+        loadBottleneckChartData();
+        loadTrendChartsData();
     }
 
     function handleExportPdf() {
@@ -311,6 +1071,208 @@
         return token ? token.value : '';
     }
 
+    // Auto-refresh functionality
+    let autoRefreshInterval = null;
+    let autoRefreshEnabled = false;
+
+    function initializeAutoRefresh() {
+        const autoRefreshToggle = document.getElementById('auto-refresh-toggle');
+        const autoRefreshInterval = document.getElementById('auto-refresh-interval');
+
+        if (autoRefreshToggle) {
+            autoRefreshToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    startAutoRefresh();
+                } else {
+                    stopAutoRefresh();
+                }
+            });
+        }
+
+        if (autoRefreshInterval) {
+            autoRefreshInterval.addEventListener('change', function() {
+                if (autoRefreshEnabled) {
+                    stopAutoRefresh();
+                    startAutoRefresh();
+                }
+            });
+        }
+    }
+
+    function startAutoRefresh() {
+        const intervalSelect = document.getElementById('auto-refresh-interval');
+        const intervalMinutes = intervalSelect ? parseInt(intervalSelect.value) : 5;
+        const intervalMs = intervalMinutes * 60 * 1000;
+
+        autoRefreshEnabled = true;
+        autoRefreshInterval = setInterval(() => {
+            console.log('Auto-refreshing dashboard data...');
+            handleRefreshData();
+        }, intervalMs);
+
+        showSuccess(`Auto-refresh enabled (every ${intervalMinutes} minutes)`);
+    }
+
+    function stopAutoRefresh() {
+        if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+            autoRefreshInterval = null;
+        }
+        autoRefreshEnabled = false;
+        showSuccess('Auto-refresh disabled');
+    }
+
+    // Enhanced error handling
+    function handleError(error, context = '') {
+        console.error(`Dashboard error ${context}:`, error);
+
+        let errorMessage = 'An unexpected error occurred.';
+
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            errorMessage = 'Network error. Please check your connection and try again.';
+        } else if (error.status === 401) {
+            errorMessage = 'Your session has expired. Please log in again.';
+            // Redirect to login after a delay
+            setTimeout(() => {
+                window.location.href = '/Account/Login';
+            }, 3000);
+        } else if (error.status === 403) {
+            errorMessage = 'You do not have permission to access this data.';
+        } else if (error.status === 404) {
+            errorMessage = 'The requested data could not be found.';
+        } else if (error.status >= 500) {
+            errorMessage = 'Server error. Please try again later.';
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        showError(errorMessage);
+
+        // Show retry option for certain errors
+        if (error.status >= 500 || error.name === 'TypeError') {
+            showRetryOption(context);
+        }
+    }
+
+    function showRetryOption(context) {
+        const retryContainer = document.getElementById('retry-container');
+        if (retryContainer) {
+            retryContainer.style.display = 'block';
+
+            const retryButton = retryContainer.querySelector('.retry-button');
+            if (retryButton) {
+                retryButton.onclick = () => {
+                    retryContainer.style.display = 'none';
+                    if (context === 'refresh') {
+                        handleRefreshData();
+                    } else {
+                        window.location.reload();
+                    }
+                };
+            }
+        }
+    }
+
+    // Performance monitoring
+    function trackPerformance(operation, startTime) {
+        const endTime = performance.now();
+        const duration = endTime - startTime;
+
+        console.log(`Dashboard ${operation} completed in ${duration.toFixed(2)}ms`);
+
+        // Log slow operations
+        if (duration > 2000) {
+            console.warn(`Slow dashboard operation detected: ${operation} took ${duration.toFixed(2)}ms`);
+        }
+    }
+
+    // Responsive chart handling
+    function handleResize() {
+        Object.keys(charts).forEach(chartKey => {
+            if (charts[chartKey] && typeof charts[chartKey].resize === 'function') {
+                charts[chartKey].resize();
+            }
+        });
+    }
+
+    // Initialize resize handler
+    window.addEventListener('resize', debounce(handleResize, 250));
+
+    // Debounce utility function
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Enhanced data validation
+    function validateChartData(data, chartType) {
+        if (!data) {
+            console.warn(`No data provided for ${chartType} chart`);
+            return false;
+        }
+
+        if (!Array.isArray(data.labels) || !Array.isArray(data.data)) {
+            console.warn(`Invalid data structure for ${chartType} chart`);
+            return false;
+        }
+
+        if (data.labels.length !== data.data.length) {
+            console.warn(`Data length mismatch for ${chartType} chart`);
+            return false;
+        }
+
+        return true;
+    }
+
+    // Enhanced chart update with validation
+    function updateChartDataSafe(chart, data, chartType = 'unknown') {
+        if (!chart) {
+            console.warn(`Chart not found for ${chartType}`);
+            return;
+        }
+
+        if (!validateChartData(data, chartType)) {
+            return;
+        }
+
+        try {
+            chart.data.labels = data.labels;
+            if (data.data) {
+                chart.data.datasets[0].data = data.data;
+            }
+            chart.update('none'); // Use 'none' animation for better performance
+        } catch (error) {
+            console.error(`Error updating ${chartType} chart:`, error);
+        }
+    }
+
+    // Accessibility improvements
+    function initializeAccessibility() {
+        // Add ARIA labels to charts
+        Object.keys(charts).forEach(chartKey => {
+            const canvas = document.getElementById(chartKey.replace('charts.', '') + '-chart');
+            if (canvas) {
+                canvas.setAttribute('role', 'img');
+                canvas.setAttribute('aria-label', `${chartKey} performance chart`);
+            }
+        });
+
+        // Add keyboard navigation for interactive elements
+        const interactiveElements = document.querySelectorAll('.chart-container, .kpi-card, .filter-control');
+        interactiveElements.forEach(element => {
+            if (!element.hasAttribute('tabindex')) {
+                element.setAttribute('tabindex', '0');
+            }
+        });
+    }
+
     // Export functions for use by other scripts
     window.Dashboard = {
         refreshSection: refreshSection,
@@ -319,7 +1281,12 @@
         },
         getCurrentFilters: function() {
             return { ...currentFilters };
-        }
+        },
+        refreshCharts: refreshCharts,
+        startAutoRefresh: startAutoRefresh,
+        stopAutoRefresh: stopAutoRefresh,
+        charts: charts,
+        handleError: handleError
     };
 
 })();
