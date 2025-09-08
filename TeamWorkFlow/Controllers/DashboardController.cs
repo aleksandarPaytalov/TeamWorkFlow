@@ -386,6 +386,152 @@ namespace TeamWorkFlow.Controllers
         }
 
         /// <summary>
+        /// Get efficiency metrics data for real-time refresh
+        /// </summary>
+        /// <param name="filters">Filter parameters</param>
+        /// <returns>JSON response with efficiency metrics</returns>
+        [HttpPost]
+        public async Task<IActionResult> GetEfficiencyData([FromBody] ReportFilterModel filters)
+        {
+            try
+            {
+                // Check authorization
+                if (!User.Identity?.IsAuthenticated == true || (!User.IsAdmin() && !User.IsOperator()))
+                {
+                    return Unauthorized();
+                }
+
+                var dashboardData = await _analyticsService.GetDashboardDataAsync(filters);
+
+                if (dashboardData?.EfficiencyMetrics == null)
+                {
+                    return Json(new { success = false, message = "No efficiency data available" });
+                }
+
+                return Json(new {
+                    success = true,
+                    data = dashboardData.EfficiencyMetrics
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting efficiency data");
+                return Json(new { success = false, message = "Error retrieving efficiency data" });
+            }
+        }
+
+        /// <summary>
+        /// Get operator performance data for real-time refresh
+        /// </summary>
+        /// <param name="filters">Filter parameters</param>
+        /// <returns>JSON response with operator performance data</returns>
+        [HttpPost]
+        public async Task<IActionResult> GetOperatorData([FromBody] ReportFilterModel filters)
+        {
+            try
+            {
+                // Check authorization
+                if (!User.Identity?.IsAuthenticated == true || (!User.IsAdmin() && !User.IsOperator()))
+                {
+                    return Unauthorized();
+                }
+
+                var dashboardData = await _analyticsService.GetDashboardDataAsync(filters);
+
+                if (dashboardData?.OperatorPerformance == null)
+                {
+                    return Json(new { success = false, message = "No operator data available" });
+                }
+
+                return Json(new {
+                    success = true,
+                    data = new {
+                        operators = dashboardData.OperatorPerformance,
+                        chartData = GenerateOperatorChartData(dashboardData.OperatorPerformance)
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting operator data");
+                return Json(new { success = false, message = "Error retrieving operator data" });
+            }
+        }
+
+        /// <summary>
+        /// Get bottleneck analysis data for real-time refresh
+        /// </summary>
+        /// <param name="filters">Filter parameters</param>
+        /// <returns>JSON response with bottleneck analysis data</returns>
+        [HttpPost]
+        public async Task<IActionResult> GetBottleneckData([FromBody] ReportFilterModel filters)
+        {
+            try
+            {
+                // Check authorization
+                if (!User.Identity?.IsAuthenticated == true || (!User.IsAdmin() && !User.IsOperator()))
+                {
+                    return Unauthorized();
+                }
+
+                var dashboardData = await _analyticsService.GetDashboardDataAsync(filters);
+
+                if (dashboardData?.BottleneckAnalysis == null)
+                {
+                    return Json(new { success = false, message = "No bottleneck data available" });
+                }
+
+                return Json(new {
+                    success = true,
+                    data = new {
+                        bottleneckAnalysis = dashboardData.BottleneckAnalysis,
+                        chartData = GenerateBottleneckChartData(dashboardData.BottleneckAnalysis)
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting bottleneck data");
+                return Json(new { success = false, message = "Error retrieving bottleneck data" });
+            }
+        }
+
+        /// <summary>
+        /// Get trend chart data for real-time refresh
+        /// </summary>
+        /// <param name="filters">Filter parameters</param>
+        /// <returns>JSON response with trend chart data</returns>
+        [HttpPost]
+        public async Task<IActionResult> GetTrendData([FromBody] ReportFilterModel filters)
+        {
+            try
+            {
+                // Check authorization
+                if (!User.Identity?.IsAuthenticated == true || (!User.IsAdmin() && !User.IsOperator()))
+                {
+                    return Unauthorized();
+                }
+
+                var dashboardData = await _analyticsService.GetDashboardDataAsync(filters);
+
+                if (dashboardData?.TrendCharts == null)
+                {
+                    return Json(new { success = false, message = "No trend data available" });
+                }
+
+                return Json(new {
+                    success = true,
+                    data = dashboardData.TrendCharts
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting trend data");
+                return Json(new { success = false, message = "Error retrieving trend data" });
+            }
+        }
+
+        /// <summary>
         /// Get operator productivity data for detailed analysis
         /// </summary>
         /// <param name="operatorId">Operator ID</param>
@@ -458,6 +604,92 @@ namespace TeamWorkFlow.Controllers
                 _logger.LogError(ex, "Error retrieving workload distribution data");
                 return StatusCode(500, "Internal server error");
             }
+        }
+
+        /// <summary>
+        /// Generate chart data for operator performance visualization
+        /// </summary>
+        /// <param name="operators">List of operator performance data</param>
+        /// <returns>Chart data object</returns>
+        private object GenerateOperatorChartData(List<OperatorPerformanceModel> operators)
+        {
+            if (operators == null || !operators.Any())
+            {
+                return new { labels = new string[0], datasets = new object[0] };
+            }
+
+            var labels = operators.Select(o => o.OperatorName).ToArray();
+            var efficiencyData = operators.Select(o => o.EfficiencyRating).ToArray();
+            var tasksData = operators.Select(o => o.TasksCompleted).ToArray();
+
+            return new
+            {
+                labels = labels,
+                datasets = new object[]
+                {
+                    new
+                    {
+                        label = "Efficiency Rating (%)",
+                        data = efficiencyData,
+                        backgroundColor = "rgba(54, 162, 235, 0.6)",
+                        borderColor = "rgba(54, 162, 235, 1)",
+                        borderWidth = 2,
+                        yAxisID = "y"
+                    },
+                    new
+                    {
+                        label = "Tasks Completed",
+                        data = tasksData,
+                        backgroundColor = "rgba(255, 99, 132, 0.6)",
+                        borderColor = "rgba(255, 99, 132, 1)",
+                        borderWidth = 2,
+                        yAxisID = "y1"
+                    }
+                }
+            };
+        }
+
+        /// <summary>
+        /// Generate chart data for bottleneck analysis visualization
+        /// </summary>
+        /// <param name="bottleneckAnalysis">Bottleneck analysis data</param>
+        /// <returns>Chart data object</returns>
+        private object GenerateBottleneckChartData(BottleneckAnalysisModel bottleneckAnalysis)
+        {
+            if (bottleneckAnalysis?.FrequentDelayPatterns == null || !bottleneckAnalysis.FrequentDelayPatterns.Any())
+            {
+                return new { labels = new string[0], datasets = new object[0] };
+            }
+
+            var labels = bottleneckAnalysis.FrequentDelayPatterns.Select(p => p.PatternName).Take(10).ToArray();
+            var delayData = bottleneckAnalysis.FrequentDelayPatterns.Select(p => p.AverageDelayMinutes / 60.0).Take(10).ToArray(); // Convert to hours
+            var frequencyData = bottleneckAnalysis.FrequentDelayPatterns.Select(p => p.Occurrences).Take(10).ToArray();
+
+            return new
+            {
+                labels = labels,
+                datasets = new object[]
+                {
+                    new
+                    {
+                        label = "Average Delay (Hours)",
+                        data = delayData,
+                        backgroundColor = "rgba(255, 206, 86, 0.6)",
+                        borderColor = "rgba(255, 206, 86, 1)",
+                        borderWidth = 2,
+                        yAxisID = "y"
+                    },
+                    new
+                    {
+                        label = "Occurrence Count",
+                        data = frequencyData,
+                        backgroundColor = "rgba(75, 192, 192, 0.6)",
+                        borderColor = "rgba(75, 192, 192, 1)",
+                        borderWidth = 2,
+                        yAxisID = "y1"
+                    }
+                }
+            };
         }
     }
 }

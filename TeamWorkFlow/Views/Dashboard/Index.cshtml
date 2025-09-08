@@ -214,6 +214,58 @@
                 </div>
             </div>
 
+            <!-- Real-time Refresh Controls -->
+            <div class="refresh-controls">
+                <h3 class="refresh-title">Data Refresh</h3>
+                <div class="refresh-section">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-outline-info" id="manual-refresh-btn" title="Refresh dashboard data">
+                                <i class="fas fa-sync-alt"></i> Refresh Now
+                            </button>
+                        </div>
+                        <div class="col-auto">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="auto-refresh-toggle">
+                                <label class="form-check-label" for="auto-refresh-toggle">
+                                    Auto-Refresh
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <select class="form-select form-select-sm" id="auto-refresh-interval" style="width: auto;">
+                                <option value="1">1 minute</option>
+                                <option value="2">2 minutes</option>
+                                <option value="5" selected>5 minutes</option>
+                                <option value="10">10 minutes</option>
+                                <option value="15">15 minutes</option>
+                                <option value="30">30 minutes</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <span id="refresh-indicator" class="spinner-border spinner-border-sm text-info" style="display: none;" role="status" aria-hidden="true"></span>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-2">
+                        <div class="col-12">
+                            <div class="refresh-status-panel">
+                                <div class="row g-2 small text-muted">
+                                    <div class="col-auto">
+                                        <strong>Status:</strong> <span id="refresh-status" class="badge text-muted">Disabled</span>
+                                    </div>
+                                    <div class="col-auto">
+                                        <strong>Last Refresh:</strong> <span id="last-refresh-time">Never</span>
+                                    </div>
+                                    <div class="col-auto">
+                                        <strong>Next Refresh:</strong> <span id="next-refresh-time">N/A</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Export Actions (Admin Only) -->
             @if (User?.IsAdmin() == true)
             {

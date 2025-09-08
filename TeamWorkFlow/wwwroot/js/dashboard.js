@@ -1071,13 +1071,21 @@
         return token ? token.value : '';
     }
 
-    // Auto-refresh functionality
+    // Enhanced Auto-refresh functionality with real-time capabilities
     let autoRefreshInterval = null;
     let autoRefreshEnabled = false;
+    let refreshInProgress = false;
+    let lastRefreshTime = null;
+    let refreshFailureCount = 0;
+    let refreshStatusInterval = null;
+    const MAX_REFRESH_FAILURES = 3;
+    const REFRESH_RETRY_DELAY = 5000; // 5 seconds
 
     function initializeAutoRefresh() {
         const autoRefreshToggle = document.getElementById('auto-refresh-toggle');
-        const autoRefreshInterval = document.getElementById('auto-refresh-interval');
+        const autoRefreshIntervalSelect = document.getElementById('auto-refresh-interval');
+        const manualRefreshBtn = document.getElementById('manual-refresh-btn');
+        const refreshStatusBtn = document.getElementById('refresh-status-btn');
 
         if (autoRefreshToggle) {
             autoRefreshToggle.addEventListener('change', function() {
@@ -1089,14 +1097,32 @@
             });
         }
 
-        if (autoRefreshInterval) {
-            autoRefreshInterval.addEventListener('change', function() {
+        if (autoRefreshIntervalSelect) {
+            autoRefreshIntervalSelect.addEventListener('change', function() {
                 if (autoRefreshEnabled) {
                     stopAutoRefresh();
                     startAutoRefresh();
                 }
             });
         }
+
+        if (manualRefreshBtn) {
+            manualRefreshBtn.addEventListener('click', function() {
+                performManualRefresh();
+            });
+        }
+
+        if (refreshStatusBtn) {
+            refreshStatusBtn.addEventListener('click', function() {
+                updateRefreshStatus();
+            });
+        }
+
+        // Initialize refresh status display
+        initializeRefreshStatus();
+
+        // Set up periodic status updates
+        refreshStatusInterval = setInterval(updateRefreshStatus, 1000);
     }
 
     function startAutoRefresh() {
@@ -1105,11 +1131,14 @@
         const intervalMs = intervalMinutes * 60 * 1000;
 
         autoRefreshEnabled = true;
+        refreshFailureCount = 0; // Reset failure count
+
         autoRefreshInterval = setInterval(() => {
             console.log('Auto-refreshing dashboard data...');
-            handleRefreshData();
+            performDataRefresh(false); // false = auto refresh
         }, intervalMs);
 
+        updateRefreshStatus();
         showSuccess(`Auto-refresh enabled (every ${intervalMinutes} minutes)`);
     }
 
@@ -1119,7 +1148,437 @@
             autoRefreshInterval = null;
         }
         autoRefreshEnabled = false;
+        updateRefreshStatus();
         showSuccess('Auto-refresh disabled');
+    }
+
+    function performManualRefresh() {
+        if (refreshInProgress) {
+            showWarning('Refresh already in progress. Please wait...');
+            return;
+        }
+
+        console.log('Manual refresh triggered');
+        performDataRefresh(true); // true = manual refresh
+    }
+
+    async function performDataRefresh(isManual = false) {
+        if (refreshInProgress) {
+            console.log('Refresh already in progress, skipping...');
+            return;
+        }
+
+        refreshInProgress = true;
+        updateRefreshStatus();
+
+        try {
+            const refreshType = isManual ? 'Manual' : 'Auto';
+            console.log(`${refreshType} refresh started`);
+
+            // Show loading indicator
+            showRefreshIndicator(true);
+
+            // Get current filters
+            const filters = getCurrentFilters();
+
+            // Perform incremental data refresh
+            await refreshDashboardData(filters);
+
+            // Update last refresh time
+            lastRefreshTime = new Date();
+            refreshFailureCount = 0;
+
+            console.log(`${refreshType} refresh completed successfully`);
+
+            if (isManual) {
+                showSuccess('Dashboard data refreshed successfully');
+            }
+
+        } catch (error) {
+            refreshFailureCount++;
+            console.error('Refresh failed:', error);
+
+            if (isManual) {
+                showError('Failed to refresh dashboard data. Please try again.');
+            }
+
+            // Auto-disable refresh after max failures
+            if (refreshFailureCount >= MAX_REFRESH_FAILURES && autoRefreshEnabled) {
+                stopAutoRefresh();
+                showError(`Auto-refresh disabled after ${MAX_REFRESH_FAILURES} consecutive failures`);
+            }
+
+        } finally {
+            refreshInProgress = false;
+            showRefreshIndicator(false);
+            updateRefreshStatus();
+        }
+    }
+
+    // Refresh status and indicator functions
+    function initializeRefreshStatus() {
+        updateRefreshStatus();
+
+        // Add visibility change listener to pause/resume refresh when tab is hidden
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && autoRefreshEnabled) {
+                console.log('Tab hidden, pausing auto-refresh');
+            } else if (!document.hidden && autoRefreshEnabled) {
+                console.log('Tab visible, resuming auto-refresh');
+                updateRefreshStatus();
+            }
+        });
+    }
+
+    function updateRefreshStatus() {
+        const statusElement = document.getElementById('refresh-status');
+        const lastRefreshElement = document.getElementById('last-refresh-time');
+        const nextRefreshElement = document.getElementById('next-refresh-time');
+
+        if (statusElement) {
+            let statusText = 'Disabled';
+            let statusClass = 'text-muted';
+
+            if (refreshInProgress) {
+                statusText = 'Refreshing...';
+                statusClass = 'text-info';
+            } else if (autoRefreshEnabled) {
+                statusText = 'Active';
+                statusClass = 'text-success';
+            } else if (refreshFailureCount > 0) {
+                statusText = `Failed (${refreshFailureCount})`;
+                statusClass = 'text-danger';
+            }
+
+            statusElement.textContent = statusText;
+            statusElement.className = `badge ${statusClass}`;
+        }
+
+        if (lastRefreshElement && lastRefreshTime) {
+            const timeAgo = getTimeAgo(lastRefreshTime);
+            lastRefreshElement.textContent = timeAgo;
+        }
+
+        if (nextRefreshElement && autoRefreshEnabled && autoRefreshInterval) {
+            const intervalSelect = document.getElementById('auto-refresh-interval');
+            const intervalMinutes = intervalSelect ? parseInt(intervalSelect.value) : 5;
+            const nextRefresh = new Date(Date.now() + (intervalMinutes * 60 * 1000));
+            nextRefreshElement.textContent = nextRefresh.toLocaleTimeString();
+        } else if (nextRefreshElement) {
+            nextRefreshElement.textContent = 'N/A';
+        }
+    }
+
+    function showRefreshIndicator(show) {
+        const indicator = document.getElementById('refresh-indicator');
+        const manualBtn = document.getElementById('manual-refresh-btn');
+
+        if (indicator) {
+            indicator.style.display = show ? 'inline-block' : 'none';
+        }
+
+        if (manualBtn) {
+            manualBtn.disabled = show;
+            if (show) {
+                manualBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            } else {
+                manualBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Now';
+            }
+        }
+    }
+
+    function getTimeAgo(date) {
+        const now = new Date();
+        const diffMs = now - date;
+        const diffSecs = Math.floor(diffMs / 1000);
+        const diffMins = Math.floor(diffSecs / 60);
+        const diffHours = Math.floor(diffMins / 60);
+
+        if (diffSecs < 60) {
+            return `${diffSecs} seconds ago`;
+        } else if (diffMins < 60) {
+            return `${diffMins} minutes ago`;
+        } else if (diffHours < 24) {
+            return `${diffHours} hours ago`;
+        } else {
+            return date.toLocaleString();
+        }
+    }
+
+    // Data refresh functions
+    async function refreshDashboardData(filters) {
+        try {
+            // Refresh efficiency metrics
+            await refreshEfficiencyData(filters);
+
+            // Refresh operator performance
+            await refreshOperatorData(filters);
+
+            // Refresh bottleneck analysis
+            await refreshBottleneckData(filters);
+
+            // Refresh trend charts
+            await refreshTrendData(filters);
+
+            console.log('All dashboard sections refreshed successfully');
+
+        } catch (error) {
+            console.error('Error refreshing dashboard data:', error);
+            throw error;
+        }
+    }
+
+    async function refreshEfficiencyData(filters) {
+        try {
+            const response = await fetch('/Dashboard/GetEfficiencyData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getAntiForgeryToken()
+                },
+                body: JSON.stringify(filters)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            updateEfficiencyMetrics(data);
+
+        } catch (error) {
+            console.error('Error refreshing efficiency data:', error);
+            throw error;
+        }
+    }
+
+    async function refreshOperatorData(filters) {
+        try {
+            const response = await fetch('/Dashboard/GetOperatorData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getAntiForgeryToken()
+                },
+                body: JSON.stringify(filters)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            updateOperatorPerformance(data);
+
+        } catch (error) {
+            console.error('Error refreshing operator data:', error);
+            throw error;
+        }
+    }
+
+    async function refreshBottleneckData(filters) {
+        try {
+            const response = await fetch('/Dashboard/GetBottleneckData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getAntiForgeryToken()
+                },
+                body: JSON.stringify(filters)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            updateBottleneckAnalysis(data);
+
+        } catch (error) {
+            console.error('Error refreshing bottleneck data:', error);
+            throw error;
+        }
+    }
+
+    async function refreshTrendData(filters) {
+        try {
+            const response = await fetch('/Dashboard/GetTrendData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getAntiForgeryToken()
+                },
+                body: JSON.stringify(filters)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            updateTrendCharts(data);
+
+        } catch (error) {
+            console.error('Error refreshing trend data:', error);
+            throw error;
+        }
+    }
+
+    // Data update functions for UI refresh
+    function updateEfficiencyMetrics(data) {
+        try {
+            // Update KPI cards
+            const onTimeRate = document.getElementById('on-time-completion-rate');
+            const overrunRate = document.getElementById('average-overrun-rate');
+            const tasksCompleted = document.getElementById('tasks-completed');
+            const efficiencyScore = document.getElementById('efficiency-score');
+
+            if (onTimeRate && data.onTimeCompletionRate !== undefined) {
+                onTimeRate.textContent = `${data.onTimeCompletionRate.toFixed(1)}%`;
+            }
+            if (overrunRate && data.averageTimeOverrunPercentage !== undefined) {
+                overrunRate.textContent = `${data.averageTimeOverrunPercentage.toFixed(1)}%`;
+            }
+            if (tasksCompleted && data.totalTasksCompleted !== undefined) {
+                tasksCompleted.textContent = data.totalTasksCompleted;
+            }
+            if (efficiencyScore && data.overallEfficiencyScore !== undefined) {
+                efficiencyScore.textContent = data.overallEfficiencyScore.toFixed(1);
+            }
+
+            // Update efficiency chart if it exists
+            if (charts.efficiency && data.efficiencyTrend) {
+                updateChart(charts.efficiency, data.efficiencyTrend);
+            }
+
+            console.log('Efficiency metrics updated');
+        } catch (error) {
+            console.error('Error updating efficiency metrics:', error);
+        }
+    }
+
+    function updateOperatorPerformance(data) {
+        try {
+            // Update operator performance table
+            const tableBody = document.querySelector('#operator-performance-table tbody');
+            if (tableBody && data.operators) {
+                tableBody.innerHTML = '';
+
+                data.operators.forEach(operator => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${operator.operatorName}</td>
+                        <td>${operator.efficiencyRating.toFixed(1)}%</td>
+                        <td>${operator.tasksCompleted}</td>
+                        <td>${operator.averageCompletionTimeHours.toFixed(1)}h</td>
+                        <td>
+                            <span class="badge ${operator.isTopPerformer ? 'bg-success' : operator.needsAttention ? 'bg-warning' : 'bg-secondary'}">
+                                ${operator.isTopPerformer ? 'Top Performer' : operator.needsAttention ? 'Needs Attention' : 'Average'}
+                            </span>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+
+            // Update operator performance chart if it exists
+            if (charts.operatorPerformance && data.chartData) {
+                updateChart(charts.operatorPerformance, data.chartData);
+            }
+
+            console.log('Operator performance updated');
+        } catch (error) {
+            console.error('Error updating operator performance:', error);
+        }
+    }
+
+    function updateBottleneckAnalysis(data) {
+        try {
+            // Update bottleneck summary cards
+            const totalBottlenecks = document.getElementById('total-bottlenecks');
+            const averageDelay = document.getElementById('average-delay');
+            const tasksAffected = document.getElementById('tasks-affected');
+            const severityScore = document.getElementById('severity-score');
+
+            if (totalBottlenecks && data.totalBottlenecks !== undefined) {
+                totalBottlenecks.textContent = data.totalBottlenecks;
+            }
+            if (averageDelay && data.averageDelayHours !== undefined) {
+                averageDelay.textContent = `${data.averageDelayHours.toFixed(1)}h`;
+            }
+            if (tasksAffected && data.tasksAffectedPercentage !== undefined) {
+                tasksAffected.textContent = `${data.tasksAffectedPercentage.toFixed(1)}%`;
+            }
+            if (severityScore && data.severityScoreFormatted !== undefined) {
+                severityScore.textContent = data.severityScoreFormatted;
+            }
+
+            // Update bottleneck chart if it exists
+            if (charts.bottlenecks && data.chartData) {
+                updateChart(charts.bottlenecks, data.chartData);
+            }
+
+            console.log('Bottleneck analysis updated');
+        } catch (error) {
+            console.error('Error updating bottleneck analysis:', error);
+        }
+    }
+
+    function updateTrendCharts(data) {
+        try {
+            // Update completion trend chart
+            if (charts.completionTrend && data.completionTrendData) {
+                updateChart(charts.completionTrend, data.completionTrendData);
+            }
+
+            // Update workload trend chart
+            if (charts.workloadTrend && data.workloadTrendData) {
+                updateChart(charts.workloadTrend, data.workloadTrendData);
+            }
+
+            // Update efficiency trend chart
+            if (charts.efficiencyTrend && data.efficiencyTrendData) {
+                updateChart(charts.efficiencyTrend, data.efficiencyTrendData);
+            }
+
+            // Update variance trend chart
+            if (charts.varianceTrend && data.varianceTrendData) {
+                updateChart(charts.varianceTrend, data.varianceTrendData);
+            }
+
+            console.log('Trend charts updated');
+        } catch (error) {
+            console.error('Error updating trend charts:', error);
+        }
+    }
+
+    function updateChart(chart, newData) {
+        try {
+            if (!chart || !newData) {
+                console.warn('Chart or data is null/undefined');
+                return;
+            }
+
+            // Update chart data
+            if (newData.labels) {
+                chart.data.labels = newData.labels;
+            }
+
+            if (newData.datasets) {
+                chart.data.datasets = newData.datasets;
+            } else if (newData.data) {
+                // Handle simple data format
+                if (chart.data.datasets[0]) {
+                    chart.data.datasets[0].data = newData.data;
+                }
+            }
+
+            // Update chart with animation
+            chart.update('active');
+
+        } catch (error) {
+            console.error('Error updating chart:', error);
+        }
     }
 
     // Enhanced error handling
@@ -1285,6 +1744,9 @@
         refreshCharts: refreshCharts,
         startAutoRefresh: startAutoRefresh,
         stopAutoRefresh: stopAutoRefresh,
+        performManualRefresh: performManualRefresh,
+        updateRefreshStatus: updateRefreshStatus,
+        refreshDashboardData: refreshDashboardData,
         charts: charts,
         handleError: handleError
     };

@@ -314,6 +314,125 @@
     border-color: #adb5bd;
 }
 
+/* Refresh Controls */
+.refresh-controls {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+    margin-bottom: 24px;
+}
+
+.refresh-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.refresh-title::before {
+    content: "🔄";
+    font-size: 1.5rem;
+}
+
+.refresh-section {
+    background: rgba(13, 110, 253, 0.02);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid rgba(13, 110, 253, 0.1);
+}
+
+.refresh-status-panel {
+    background: rgba(108, 117, 125, 0.05);
+    border-radius: 6px;
+    padding: 12px;
+    border: 1px solid rgba(108, 117, 125, 0.15);
+}
+
+#manual-refresh-btn {
+    min-width: 140px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-width: 2px;
+}
+
+#manual-refresh-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
+}
+
+#manual-refresh-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#auto-refresh-toggle {
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+#auto-refresh-interval {
+    min-width: 120px;
+    font-size: 0.875rem;
+}
+
+#refresh-status {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+#refresh-status.text-success {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+    border: 1px solid rgba(25, 135, 84, 0.2);
+}
+
+#refresh-status.text-info {
+    background-color: rgba(13, 202, 240, 0.1);
+    color: #0dcaf0;
+    border: 1px solid rgba(13, 202, 240, 0.2);
+}
+
+#refresh-status.text-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+#refresh-status.text-muted {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+    border: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+#refresh-indicator {
+    width: 16px;
+    height: 16px;
+}
+
+#last-refresh-time,
+#next-refresh-time {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+}
+
+/* Refresh animation */
+@keyframes refreshPulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.refresh-controls.refreshing {
+    animation: refreshPulse 2s infinite;
+}
+
 /* Export Actions */
 .export-actions {
     background: white;
