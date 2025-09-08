@@ -1,0 +1,414 @@
+@model TrendChartModel
+
+<div class="trend-charts-section">
+    <div class="section-header">
+        <h3 class="section-title">
+            <i class="fas fa-chart-area"></i>
+            Trend Analysis
+        </h3>
+        <p class="section-description">Time-series analysis of performance trends and patterns</p>
+    </div>
+
+    <!-- Chart Controls -->
+    <div class="chart-controls">
+        <div class="control-group">
+            <label for="trend-granularity">Time Period:</label>
+            <select id="trend-granularity" class="form-select">
+                <option value="daily" selected="@(Model.Granularity == "daily")">Daily</option>
+                <option value="weekly" selected="@(Model.Granularity == "weekly")">Weekly</option>
+                <option value="monthly" selected="@(Model.Granularity == "monthly")">Monthly</option>
+                <option value="quarterly" selected="@(Model.Granularity == "quarterly")">Quarterly</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="trend-metric">Metric:</label>
+            <select id="trend-metric" class="form-select">
+                <option value="completion">Task Completion</option>
+                <option value="efficiency">Efficiency Score</option>
+                <option value="workload">Workload Distribution</option>
+                <option value="variance">Time Variance</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <button id="refresh-trends" class="btn btn-outline-primary">
+                <i class="fas fa-sync-alt"></i>
+                Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Trend Overview -->
+    <div class="trend-overview">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="trend-stat">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value @Model.TrendDirectionClass">
+                            <i class="@Model.TrendDirectionIcon"></i>
+                            @Model.OverallTrendDirection
+                        </div>
+                        <div class="stat-label">Overall Trend</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="trend-stat">
+                    <div class="stat-icon">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value @Model.TrendConfidenceClass">@Model.TrendConfidenceFormatted</div>
+                        <div class="stat-label">Confidence</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="trend-stat">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">@Model.TotalDataPoints</div>
+                        <div class="stat-label">Data Points</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="trend-stat">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">@Model.AnalysisPeriod</div>
+                        <div class="stat-label">Analysis Period</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Sufficiency Warning -->
+    @if (!Model.HasSufficientData)
+    {
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            @Model.DataSufficiencyWarning
+        </div>
+    }
+
+    <!-- Main Trend Chart -->
+    <div class="main-trend-chart">
+        <div class="chart-header">
+            <h4>Performance Trends</h4>
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <span class="legend-color completion"></span>
+                    <span class="legend-label">Completion Rate</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color efficiency"></span>
+                    <span class="legend-label">Efficiency Score</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color workload"></span>
+                    <span class="legend-label">Workload</span>
+                </div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="main-trend-chart" width="400" height="300"></canvas>
+        </div>
+    </div>
+
+    <!-- Secondary Charts Grid -->
+    <div class="secondary-charts">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h5>Completion Trends</h5>
+                    <div class="chart-container">
+                        <canvas id="completion-trend-chart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="chart-summary">
+                        <div class="summary-item">
+                            <span class="label">Current Period:</span>
+                            <span class="value">@Model.CompletionTrendLine.ProjectedNextValue.ToString("F1")</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Trend:</span>
+                            <span class="value @Model.CompletionTrendLine.DirectionClass">@Model.CompletionTrendLine.Direction</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h5>Efficiency Trends</h5>
+                    <div class="chart-container">
+                        <canvas id="efficiency-trend-chart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="chart-summary">
+                        <div class="summary-item">
+                            <span class="label">Current:</span>
+                            <span class="value">@Model.EfficiencyTrendLine.ProjectedNextValue.ToString("F1")</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Trend:</span>
+                            <span class="value @Model.EfficiencyTrendLine.DirectionClass">@Model.EfficiencyTrendLine.Direction</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h5>Workload Distribution</h5>
+                    <div class="chart-container">
+                        <canvas id="workload-trend-chart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="chart-summary">
+                        <div class="summary-item">
+                            <span class="label">Peak Load:</span>
+                            <span class="value">@(Model.WorkloadTrendData.Any() ? Model.WorkloadTrendData.Max(w => w.Value).ToString("F0") : "0") tasks</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Average:</span>
+                            <span class="value">@(Model.WorkloadTrendData.Any() ? Model.WorkloadTrendData.Average(w => w.Value).ToString("F1") : "0") tasks</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h5>Variance Analysis</h5>
+                    <div class="chart-container">
+                        <canvas id="variance-trend-chart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="chart-summary">
+                        <div class="summary-item">
+                            <span class="label">Current Variance:</span>
+                            <span class="value">@(Model.VarianceTrendData.Any() ? Model.VarianceTrendData.Last().Value.ToString("F1") : "0")%</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Trend:</span>
+                            <span class="value">@(Model.VarianceTrendData.Count >= 2 && Model.VarianceTrendData.Last().Value < Model.VarianceTrendData[Model.VarianceTrendData.Count - 2].Value ? "Improving" : "Stable")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trend Insights -->
+    @if (Model.KeyInsights.Any())
+    {
+        <div class="trend-insights">
+            <h4>Key Insights</h4>
+            <div class="insights-grid">
+                @foreach (var insight in Model.KeyInsights.Take(6))
+                {
+                    <div class="insight-card @insight.TypeClass">
+                        <div class="insight-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="insight-content">
+                            <h6>@insight.Title</h6>
+                            <p>@insight.Description</p>
+                            <div class="insight-meta">
+                                <span class="confidence">Confidence: @insight.Confidence.ToString("F0")%</span>
+                                <span class="period">@insight.TimePeriod</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Period Comparison -->
+    <div class="period-comparison">
+        <h4>Period Comparison</h4>
+        <div class="comparison-cards">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="comparison-card">
+                        <h6>@Model.PeriodComparison.CurrentPeriod</h6>
+                        <div class="comparison-value current">@Model.PeriodComparison.CurrentValue.ToString("F1")</div>
+                        <div class="comparison-label">Current Period</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="comparison-card">
+                        <h6>@Model.PeriodComparison.PreviousPeriod</h6>
+                        <div class="comparison-value previous">@Model.PeriodComparison.PreviousValue.ToString("F1")</div>
+                        <div class="comparison-label">Previous Period</div>
+                    </div>
+                </div>
+            </div>
+            <div class="comparison-summary">
+                <div class="change-indicator @Model.PeriodComparison.ChangeClass">
+                    <i class="fas fa-@(Model.PeriodComparison.Change >= 0 ? "arrow-up" : "arrow-down")"></i>
+                    @Model.PeriodComparison.ChangeFormatted (@Model.PeriodComparison.ChangePercentageFormatted)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Chart !== 'undefined') {
+            initializeTrendCharts();
+        }
+
+        // Initialize controls
+        initializeTrendControls();
+    });
+
+    function initializeTrendCharts() {
+        // Main Trend Chart
+        if (document.getElementById('main-trend-chart')) {
+            const mainCtx = document.getElementById('main-trend-chart').getContext('2d');
+            const completionData = @Html.Raw(Json.Serialize(Model.CompletionTrendData ?? new List<TrendDataPoint>()));
+            const efficiencyData = @Html.Raw(Json.Serialize(Model.EfficiencyTrendData ?? new List<TrendDataPoint>()));
+            const workloadData = @Html.Raw(Json.Serialize(Model.WorkloadTrendData ?? new List<TrendDataPoint>()));
+
+            new Chart(mainCtx, {
+                type: 'line',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.TimeLabels ?? new List<string>())),
+                    datasets: [
+                        {
+                            label: 'Completion Rate (%)',
+                            data: completionData.map(d => d.value),
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Efficiency Score (%)',
+                            data: efficiencyData.map(d => d.value),
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Workload (Tasks)',
+                            data: workloadData.map(d => d.value),
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true,
+                            max: 100
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize secondary charts
+        initializeSecondaryCharts();
+    }
+
+    function initializeSecondaryCharts() {
+        const chartConfigs = [
+            { id: 'completion-trend-chart', data: @Html.Raw(Json.Serialize(Model.CompletionTrendData ?? new List<TrendDataPoint>())), color: '#3b82f6' },
+            { id: 'efficiency-trend-chart', data: @Html.Raw(Json.Serialize(Model.EfficiencyTrendData ?? new List<TrendDataPoint>())), color: '#10b981' },
+            { id: 'workload-trend-chart', data: @Html.Raw(Json.Serialize(Model.WorkloadTrendData ?? new List<TrendDataPoint>())), color: '#f59e0b' },
+            { id: 'variance-trend-chart', data: @Html.Raw(Json.Serialize(Model.VarianceTrendData ?? new List<TrendDataPoint>())), color: '#ef4444' }
+        ];
+
+        chartConfigs.forEach(config => {
+            const element = document.getElementById(config.id);
+            if (element) {
+                const ctx = element.getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: config.data.map(d => d.label || d.dateFormatted),
+                        datasets: [{
+                            data: config.data.map(d => d.value),
+                            borderColor: config.color,
+                            backgroundColor: config.color + '20',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    function initializeTrendControls() {
+        const granularitySelect = document.getElementById('trend-granularity');
+        const metricSelect = document.getElementById('trend-metric');
+        const refreshButton = document.getElementById('refresh-trends');
+
+        if (granularitySelect) {
+            granularitySelect.addEventListener('change', function() {
+                updateTrendCharts();
+            });
+        }
+
+        if (metricSelect) {
+            metricSelect.addEventListener('change', function() {
+                updateTrendCharts();
+            });
+        }
+
+        if (refreshButton) {
+            refreshButton.addEventListener('click', function() {
+                refreshTrendData();
+            });
+        }
+    }
+
+    function updateTrendCharts() {
+        // Implement chart update logic
+        console.log('Updating trend charts...');
+    }
+
+    function refreshTrendData() {
+        // Implement data refresh logic
+        console.log('Refreshing trend data...');
+    }
+</script>

@@ -1,0 +1,154 @@
+@model EfficiencyMetricsModel
+
+<div class="efficiency-metrics-section">
+    <div class="section-header">
+        <h3 class="section-title">
+            <i class="fas fa-chart-line"></i>
+            Efficiency Metrics
+        </h3>
+        <p class="section-description">Task completion efficiency and performance indicators</p>
+    </div>
+
+    <div class="metrics-grid">
+        <!-- On-Time Completion Rate -->
+        <div class="metric-card primary">
+            <div class="metric-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="metric-content">
+                <div class="metric-value">@Model.OnTimeCompletionRate.ToString("F1")%</div>
+                <div class="metric-label">On-Time Completion</div>
+                <div class="metric-trend @(Model.EfficiencyTrend >= 0 ? "positive" : "negative")">
+                    <i class="fas fa-arrow-@(Model.EfficiencyTrend >= 0 ? "up" : "down")"></i>
+                    @Math.Abs(Model.EfficiencyTrend).ToString("F1")% vs last period
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Time Overrun -->
+        <div class="metric-card warning">
+            <div class="metric-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="metric-content">
+                <div class="metric-value">@Model.AverageTimeOverrunPercentage.ToString("F1")%</div>
+                <div class="metric-label">Average Overrun</div>
+                <div class="metric-trend @(Model.EfficiencyTrend >= 0 ? "positive" : "negative")">
+                    <i class="fas fa-arrow-@(Model.EfficiencyTrend >= 0 ? "up" : "down")"></i>
+                    @Math.Abs(Model.EfficiencyTrend).ToString("F1")% vs last period
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Tasks Completed -->
+        <div class="metric-card success">
+            <div class="metric-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="metric-content">
+                <div class="metric-value">@Model.TotalTasksCompleted</div>
+                <div class="metric-label">Tasks Completed</div>
+                <div class="metric-trend @(Model.EfficiencyTrend >= 0 ? "positive" : "negative")">
+                    <i class="fas fa-arrow-@(Model.EfficiencyTrend >= 0 ? "up" : "down")"></i>
+                    @Math.Abs(Model.EfficiencyTrend) vs last period
+                </div>
+            </div>
+        </div>
+
+        <!-- Efficiency Score -->
+        <div class="metric-card info">
+            <div class="metric-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="metric-content">
+                <div class="metric-value">@Model.OverallEfficiencyScore.ToString("F1")</div>
+                <div class="metric-label">Efficiency Score</div>
+                <div class="metric-trend @(Model.EfficiencyTrend >= 0 ? "positive" : "negative")">
+                    <i class="fas fa-arrow-@(Model.EfficiencyTrend >= 0 ? "up" : "down")"></i>
+                    @Math.Abs(Model.EfficiencyTrend).ToString("F1") vs last period
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Metrics -->
+    <div class="detailed-metrics">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="detail-card">
+                    <h4>Average Completion Time</h4>
+                    <div class="detail-value">
+                        @Model.AverageActualTimeHours.ToString("F1") hours
+                        <span class="vs-estimated">(vs @Model.AverageEstimatedTimeHours.ToString("F1") estimated)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: @Math.Min(100, (Model.AverageActualTimeHours / Model.AverageEstimatedTimeHours * 100)).ToString("F0")%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="detail-card">
+                    <h4>Efficiency Status</h4>
+                    <div class="detail-value">
+                        @Model.OverallEfficiencyScore.ToString("F1")/100
+                        <span class="quality-indicator @(Model.OverallEfficiencyScore >= 85 ? "excellent" : Model.OverallEfficiencyScore >= 70 ? "good" : "needs-improvement")">
+                            @Model.EfficiencyStatus
+                        </span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill quality" style="width: @Model.OverallEfficiencyScore%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trend Data Chart -->
+    @if (Model.TrendData != null && Model.TrendData.Any())
+    {
+        <div class="period-comparison">
+            <h4>Efficiency Trend</h4>
+            <div class="comparison-chart">
+                <canvas id="efficiency-comparison-chart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    // Initialize efficiency metrics charts when document is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Chart !== 'undefined' && document.getElementById('efficiency-comparison-chart')) {
+            initializeEfficiencyChart();
+        }
+    });
+
+    function initializeEfficiencyChart() {
+        const ctx = document.getElementById('efficiency-comparison-chart').getContext('2d');
+        const data = @Html.Raw(Json.Serialize(Model.TrendData ?? new List<EfficiencyTrendPoint>()));
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map(d => d.dateFormatted || d.periodLabel),
+                datasets: [{
+                    label: 'On-Time Rate (%)',
+                    data: data.map(d => d.onTimeRate),
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+</script>

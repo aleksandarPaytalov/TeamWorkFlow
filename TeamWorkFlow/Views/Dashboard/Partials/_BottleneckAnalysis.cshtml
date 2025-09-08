@@ -1,0 +1,242 @@
+@model BottleneckAnalysisModel
+
+<div class="bottleneck-analysis-section">
+    <div class="section-header">
+        <h3 class="section-title">
+            <i class="fas fa-exclamation-triangle"></i>
+            Bottleneck Analysis
+        </h3>
+        <p class="section-description">Identify and analyze workflow bottlenecks and delays</p>
+    </div>
+
+    <!-- Bottleneck Overview -->
+    <div class="bottleneck-overview">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="bottleneck-stat critical">
+                    <div class="stat-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">@Model.TotalBottlenecks</div>
+                        <div class="stat-label">Total Bottlenecks</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="bottleneck-stat warning">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">@Model.AverageDelayHours.ToString("F1")h</div>
+                        <div class="stat-label">Avg Delay Time</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="bottleneck-stat info">
+                    <div class="stat-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">@Model.TasksAffectedPercentage.ToString("F1")%</div>
+                        <div class="stat-label">Tasks Affected</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="bottleneck-stat success">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value @Model.SeverityClass">@Model.SeverityScoreFormatted</div>
+                        <div class="stat-label">Severity Score</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Impact Summary -->
+    <div class="impact-summary">
+        <div class="alert @(Model.RequiresImmediateAttention ? "alert-danger" : "alert-info")">
+            <i class="fas fa-info-circle"></i>
+            <strong>Impact Summary:</strong> @Model.ImpactSummary
+        </div>
+    </div>
+
+    <!-- Bottleneck Categories Chart -->
+    <div class="bottleneck-categories">
+        <div class="chart-header">
+            <h4>Bottleneck Categories</h4>
+            <div class="chart-controls">
+                <select id="bottleneck-period" class="form-select">
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="quarter">This Quarter</option>
+                </select>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="bottleneck-categories-chart" width="400" height="300"></canvas>
+        </div>
+    </div>
+
+    <!-- Frequent Bottleneck Tasks -->
+    @if (Model.FrequentBottleneckTasks.Any())
+    {
+        <div class="frequent-bottlenecks">
+            <h4>Frequent Bottleneck Tasks</h4>
+            <div class="bottleneck-list">
+                @foreach (var task in Model.FrequentBottleneckTasks.Take(10))
+                {
+                    <div class="bottleneck-item">
+                        <div class="bottleneck-header">
+                            <div class="bottleneck-title">
+                                <strong>@task.TaskName</strong>
+                                <span class="project-name">(@task.ProjectName)</span>
+                            </div>
+                            <div class="bottleneck-metrics">
+                                <span class="occurrences">@task.Occurrences times</span>
+                                <span class="avg-delay">@task.AverageDelayFormatted avg</span>
+                            </div>
+                        </div>
+                        <div class="bottleneck-progress">
+                            <div class="progress">
+                                <div class="progress-bar bg-warning" style="width: @Math.Min(100, (task.AverageDelayHours / 8 * 100)).ToString("F0")%"></div>
+                            </div>
+                            <small class="text-muted">Total delay: @task.TotalDelayFormatted</small>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Root Causes -->
+    @if (Model.RootCauseCategories.Any())
+    {
+        <div class="root-causes">
+            <h4>Root Cause Analysis</h4>
+            <div class="causes-grid">
+                @foreach (var cause in Model.RootCauseCategories.Take(6))
+                {
+                    <div class="cause-card">
+                        <div class="cause-header">
+                            <h6>@cause.Category</h6>
+                            <span class="cause-percentage">@cause.PercentageFormatted</span>
+                        </div>
+                        <div class="cause-details">
+                            <div class="cause-stat">
+                                <span class="label">Incidents:</span>
+                                <span class="value">@cause.IncidentCount</span>
+                            </div>
+                            <div class="cause-stat">
+                                <span class="label">Avg Severity:</span>
+                                <span class="value">@cause.AverageSeverity.ToString("F1")/10</span>
+                            </div>
+                        </div>
+                        @if (cause.Examples.Any())
+                        {
+                            <div class="cause-examples">
+                                <small class="text-muted">Examples:</small>
+                                <ul class="examples-list">
+                                    @foreach (var example in cause.Examples.Take(2))
+                                    {
+                                        <li>@example</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Improvement Recommendations -->
+    @if (Model.Recommendations.Any())
+    {
+        <div class="recommendations">
+            <h4>Improvement Recommendations</h4>
+            <div class="recommendations-list">
+                @foreach (var rec in Model.Recommendations.OrderByDescending(r => r.Priority).Take(5))
+                {
+                    <div class="recommendation-card">
+                        <div class="recommendation-header">
+                            <div class="recommendation-title">@rec.Title</div>
+                            <div class="recommendation-priority">
+                                <span class="@rec.PriorityClass">@rec.PriorityText</span>
+                            </div>
+                        </div>
+                        <div class="recommendation-content">
+                            <p>@rec.Description</p>
+                            <div class="recommendation-metrics">
+                                <div class="metric">
+                                    <span class="metric-label">Expected Impact:</span>
+                                    <span class="metric-value">@rec.ExpectedImpact/10</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Implementation Effort:</span>
+                                    <span class="metric-value">@rec.ImplementationEffort/10</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Timeframe:</span>
+                                    <span class="metric-value">@rec.EstimatedTimeframe</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Chart !== 'undefined') {
+            initializeBottleneckCharts();
+        }
+
+        // Initialize period selector
+        initializeBottleneckControls();
+    });
+
+    function initializeBottleneckCharts() {
+        // Categories Chart
+        if (document.getElementById('bottleneck-categories-chart')) {
+            const categoriesCtx = document.getElementById('bottleneck-categories-chart').getContext('2d');
+            const categories = @Html.Raw(Json.Serialize(Model.DelaysByCategory?.ToDictionary(d => d.CategoryName, d => d.DelayCount) ?? new Dictionary<string, int>()));
+
+            new Chart(categoriesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categories),
+                    datasets: [{
+                        data: Object.values(categories),
+                        backgroundColor: [
+                            '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+    }
+
+    function initializeBottleneckControls() {
+        const periodSelect = document.getElementById('bottleneck-period');
+        if (periodSelect) {
+            periodSelect.addEventListener('change', function() {
+                // Implement period change logic here
+                console.log('Period changed to:', this.value);
+            });
+        }
+    }
+</script>
