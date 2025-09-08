@@ -365,10 +365,11 @@ namespace TeamWorkFlow.Core.Services
                 if (!tasks.Any())
                     return 0;
 
-                var overrunPercentages = tasks.Select(t =>
-                    ((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100);
+                var overrunPercentages = tasks
+                    .Where(t => t.EstimatedTime > 0) // Safety check to prevent division by zero
+                    .Select(t => ((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100);
 
-                return overrunPercentages.Average();
+                return overrunPercentages.Any() ? overrunPercentages.Average() : 0;
             }
             catch (Exception ex)
             {
@@ -575,15 +576,25 @@ namespace TeamWorkFlow.Core.Services
                 result.AverageActualTimeHours = (decimal)tasksWithValidData.Average(t => t.ActualTime!.Value);
                 result.AverageEstimatedTimeHours = (decimal)tasksWithValidData.Average(t => t.EstimatedTime);
 
-                // Calculate average overrun percentage
-                var overrunPercentages = tasksWithValidData.Select(t =>
-                    ((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100);
-                result.AverageTimeOverrunPercentage = overrunPercentages.Average();
+                // Calculate average overrun percentage with safety check for division by zero
+                var overrunPercentages = tasksWithValidData
+                    .Where(t => t.EstimatedTime > 0) // Additional safety check to prevent division by zero
+                    .Select(t => ((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100);
 
-                // Calculate high variance tasks (>20% variance)
-                var highVarianceTasks = tasksWithValidData.Count(t =>
-                    Math.Abs(((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100) > 20);
-                result.HighVarianceTasksPercentage = (decimal)highVarianceTasks / tasksWithValidData.Count * 100;
+                if (overrunPercentages.Any())
+                {
+                    result.AverageTimeOverrunPercentage = overrunPercentages.Average();
+                }
+
+                // Calculate high variance tasks (>20% variance) with safety check for division by zero
+                var highVarianceTasks = tasksWithValidData
+                    .Where(t => t.EstimatedTime > 0) // Additional safety check to prevent division by zero
+                    .Count(t => Math.Abs(((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100) > 20);
+
+                if (tasksWithValidData.Count > 0)
+                {
+                    result.HighVarianceTasksPercentage = (decimal)highVarianceTasks / tasksWithValidData.Count * 100;
+                }
             }
 
             // Calculate trend data (compare with previous period)
@@ -664,9 +675,14 @@ namespace TeamWorkFlow.Core.Services
                     performance.OnTimeCompletionRate = (decimal)tasksWithTime.Count(t => t.ActualTime <= t.EstimatedTime) /
                                                      tasksWithTime.Count * 100;
 
-                    var overrunPercentages = tasksWithTime.Select(t =>
-                        ((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100);
-                    performance.AverageOverrunPercentage = overrunPercentages.Average();
+                    var overrunPercentages = tasksWithTime
+                        .Where(t => t.EstimatedTime > 0) // Safety check to prevent division by zero
+                        .Select(t => ((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100);
+
+                    if (overrunPercentages.Any())
+                    {
+                        performance.AverageOverrunPercentage = overrunPercentages.Average();
+                    }
 
                     // Calculate efficiency rating (weighted score)
                     performance.EfficiencyRating = CalculateEfficiencyRating(
@@ -937,9 +953,14 @@ namespace TeamWorkFlow.Core.Services
                     result.OnTimeDeliveryRate = (decimal)tasksWithTime.Count(t => t.ActualTime <= t.EstimatedTime) /
                                                 tasksWithTime.Count * 100;
 
-                    var overrunPercentages = tasksWithTime.Select(t =>
-                        ((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100);
-                    result.AverageTimeVariance = overrunPercentages.Average();
+                    var overrunPercentages = tasksWithTime
+                        .Where(t => t.EstimatedTime > 0) // Safety check to prevent division by zero
+                        .Select(t => ((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100);
+
+                    if (overrunPercentages.Any())
+                    {
+                        result.AverageTimeVariance = overrunPercentages.Average();
+                    }
                 }
             }
 
@@ -1059,9 +1080,10 @@ namespace TeamWorkFlow.Core.Services
                     var onTimeCount = periodTasks.Count(t => t.ActualTime <= t.EstimatedTime);
                     var onTimeRate = (decimal)onTimeCount / periodTasks.Count * 100;
 
-                    var overrunPercentages = periodTasks.Select(t =>
-                        ((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100);
-                    var avgOverrun = overrunPercentages.Average();
+                    var overrunPercentages = periodTasks
+                        .Where(t => t.EstimatedTime > 0) // Safety check to prevent division by zero
+                        .Select(t => ((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100);
+                    var avgOverrun = overrunPercentages.Any() ? overrunPercentages.Average() : 0;
 
                     trendData.Add(new EfficiencyTrendPoint
                     {

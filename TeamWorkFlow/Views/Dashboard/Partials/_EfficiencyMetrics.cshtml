@@ -82,7 +82,7 @@
                         <span class="vs-estimated">(vs @Model.AverageEstimatedTimeHours.ToString("F1") estimated)</span>
                     </div>
                     <div class="progress-bar">
-                        <div class="progress-fill" style="width: @Math.Min(100, (Model.AverageActualTimeHours / Model.AverageEstimatedTimeHours * 100)).ToString("F0")%"></div>
+                        <div class="progress-fill" style="width: @Math.Min(100, Model.AverageEstimatedTimeHours > 0 ? (Model.AverageActualTimeHours / Model.AverageEstimatedTimeHours * 100) : 0).ToString("F0")%"></div>
                     </div>
                 </div>
             </div>
