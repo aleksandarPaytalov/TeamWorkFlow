@@ -81,6 +81,108 @@
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
+/* Date Input Wrapper Styles */
+.date-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.date-input-wrapper .filter-input.date-input {
+    padding-right: 40px;
+    width: 100%;
+}
+
+.calendar-icon {
+    position: absolute;
+    right: 12px;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: color 0.15s ease-in-out;
+    z-index: 2;
+    pointer-events: auto;
+}
+
+.calendar-icon:hover {
+    color: #007bff;
+}
+
+.date-input-wrapper:focus-within .calendar-icon {
+    color: #007bff;
+}
+
+/* Mobile responsive improvements for date inputs */
+@media (max-width: 768px) {
+    .filter-group {
+        min-width: 120px;
+    }
+
+    .date-input-wrapper .filter-input.date-input {
+        font-size: 0.8rem;
+        padding: 6px 35px 6px 10px;
+    }
+
+    .calendar-icon {
+        right: 8px;
+        font-size: 0.8rem;
+    }
+
+    .filter-label {
+        font-size: 0.8rem;
+    }
+}
+
+/* Enhanced date input styling */
+.filter-input.date-input {
+    position: relative;
+    background-color: #fff;
+    color: #495057;
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 0.5px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.filter-input.date-input::placeholder {
+    color: #999;
+    font-style: normal;
+    text-align: center;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+.filter-input.date-input:focus {
+    text-align: left;
+}
+
+
+
+/* Date input validation states */
+.filter-input.date-input.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.filter-input.date-input.is-valid {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+/* Enhanced calendar icon states */
+.calendar-icon:active {
+    transform: scale(0.95);
+    color: #0056b3;
+}
+
+.date-input-wrapper.has-error .calendar-icon {
+    color: #dc3545;
+}
+
+.date-input-wrapper.has-success .calendar-icon {
+    color: #28a745;
+}
+
 .filter-actions {
     display: flex;
     gap: 8px;

@@ -55,8 +55,9 @@ namespace TeamWorkFlow.Controllers
                 // Set default filters if not provided
                 filters ??= new ReportFilterModel
                 {
-                    FromDate = DateTime.UtcNow.AddDays(-30),
-                    ToDate = DateTime.UtcNow,
+                    // Don't set default dates - let them be null for empty inputs
+                    FromDate = null,
+                    ToDate = null,
                     TimeGranularity = "weekly",
                     SortBy = "efficiency"
                 };

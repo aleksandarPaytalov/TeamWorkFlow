@@ -7,6 +7,7 @@
 @section Styles {
     <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 }
 
 @Html.AntiForgeryToken()
@@ -29,14 +30,20 @@
             <form id="dashboard-filters" class="filters-form">
                 <div class="filter-group">
                     <label for="fromDate" class="filter-label">From Date:</label>
-                    <input type="date" id="fromDate" name="fromDate" class="filter-input"
-                           value="@Model.AppliedFilters?.FromDate?.ToString("yyyy-MM-dd")" />
+                    <div class="date-input-wrapper">
+                        <input type="text" id="fromDate" name="fromDate" class="filter-input date-input"
+                               placeholder="dd/MM/yyyy" />
+                        <i class="calendar-icon fas fa-calendar-alt" onclick="openDatePickerDirect('fromDate')" title="Open calendar"></i>
+                    </div>
                 </div>
 
                 <div class="filter-group">
                     <label for="toDate" class="filter-label">To Date:</label>
-                    <input type="date" id="toDate" name="toDate" class="filter-input"
-                           value="@Model.AppliedFilters?.ToDate?.ToString("yyyy-MM-dd")" />
+                    <div class="date-input-wrapper">
+                        <input type="text" id="toDate" name="toDate" class="filter-input date-input"
+                               placeholder="dd/MM/yyyy" />
+                        <i class="calendar-icon fas fa-calendar-alt" onclick="openDatePickerDirect('toDate')" title="Open calendar"></i>
+                    </div>
                 </div>
 
                 <div class="filter-group">

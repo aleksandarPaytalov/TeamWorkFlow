@@ -15,7 +15,10 @@
 
     function initializeDashboard() {
         console.log('Initializing Performance Dashboard...');
-        
+
+        // Initialize date inputs with default values if empty
+        initializeDateInputs();
+
         // Get current filter values from the form
         currentFilters = {
             fromDate: document.getElementById('fromDate')?.value || null,
@@ -95,23 +98,31 @@
 
     function handleApplyFilters() {
         showLoading();
-        
+
         // Get filter values
-        const fromDate = document.getElementById('fromDate')?.value;
-        const toDate = document.getElementById('toDate')?.value;
+        const fromDateDisplay = document.getElementById('fromDate')?.value?.trim();
+        const toDateDisplay = document.getElementById('toDate')?.value?.trim();
         const granularity = document.getElementById('granularity')?.value;
 
-        // Validate date range
-        if (fromDate && toDate && new Date(fromDate) > new Date(toDate)) {
-            hideLoading();
-            showError('From date cannot be later than to date.');
-            return;
+        // Convert display format to server format (only if values exist)
+        const fromDate = fromDateDisplay ? convertToServerFormat(fromDateDisplay) : '';
+        const toDate = toDateDisplay ? convertToServerFormat(toDateDisplay) : '';
+
+        // Validate date range (only if both dates are provided)
+        if (fromDate && toDate) {
+            const fromDateObj = new Date(fromDate);
+            const toDateObj = new Date(toDate);
+            if (fromDateObj > toDateObj) {
+                hideLoading();
+                showError('From date cannot be later than to date.');
+                return;
+            }
         }
 
         // Update current filters
         currentFilters = { fromDate, toDate, granularity };
 
-        // Reload page with new filters
+        // Reload page with new filters (only include non-empty values)
         const params = new URLSearchParams();
         if (fromDate) params.append('fromDate', fromDate);
         if (toDate) params.append('toDate', toDate);
@@ -1305,6 +1316,269 @@
         }
     }
 
+    /**
+     * Initialize date inputs with enhanced functionality
+     */
+    function initializeDateInputs() {
+        const fromDateInput = document.getElementById('fromDate');
+        const toDateInput = document.getElementById('toDate');
+
+        // Only set values if they come from the server (existing filters)
+        // Don't set default values on initial page load
+
+        // Add date format validation and input formatting
+        if (fromDateInput) {
+            fromDateInput.addEventListener('input', formatDateInput);
+            fromDateInput.addEventListener('blur', validateAndFormatDate);
+            fromDateInput.addEventListener('keypress', handleDateKeyPress);
+        }
+        if (toDateInput) {
+            toDateInput.addEventListener('input', formatDateInput);
+            toDateInput.addEventListener('blur', validateAndFormatDate);
+            toDateInput.addEventListener('keypress', handleDateKeyPress);
+        }
+
+        // Create hidden date inputs for form submission
+        createHiddenDateInputs();
+    }
+
+    /**
+     * Format date for display (dd/MM/yyyy)
+     */
+    function formatDateForDisplay(date) {
+        if (!date) return '';
+
+        // Handle both Date objects and date strings
+        if (typeof date === 'string') {
+            date = new Date(date);
+        }
+
+        if (isNaN(date.getTime())) return '';
+
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    /**
+     * Parse dd/MM/yyyy format to Date object
+     */
+    function parseDateFromDisplay(dateString) {
+        if (!dateString) return null;
+
+        const parts = dateString.split('/');
+        if (parts.length !== 3) return null;
+
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
+        const year = parseInt(parts[2], 10);
+
+        const date = new Date(year, month, day);
+
+        // Validate the date
+        if (date.getDate() !== day || date.getMonth() !== month || date.getFullYear() !== year) {
+            return null;
+        }
+
+        return date;
+    }
+
+    /**
+     * Convert dd/MM/yyyy to yyyy-MM-dd for server
+     */
+    function convertToServerFormat(dateString) {
+        const date = parseDateFromDisplay(dateString);
+        if (!date) return '';
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    /**
+     * Validate date input and show format hint
+     */
+    function validateDateInput(event) {
+        const input = event.target;
+        const value = input.value;
+
+        if (value) {
+            const date = new Date(value);
+            if (isNaN(date.getTime())) {
+                showError('Please enter a valid date in dd/MM/yyyy format.');
+                input.focus();
+                return false;
+            }
+
+            // Validate date range
+            validateDateRange();
+        }
+        return true;
+    }
+
+    /**
+     * Validate that From Date is not later than To Date
+     */
+    function validateDateRange() {
+        const fromDateInput = document.getElementById('fromDate');
+        const toDateInput = document.getElementById('toDate');
+
+        // Clear previous validation states
+        clearValidationStates();
+
+        if (fromDateInput && toDateInput && fromDateInput.value && toDateInput.value) {
+            const fromDate = new Date(fromDateInput.value);
+            const toDate = new Date(toDateInput.value);
+
+            if (fromDate > toDate) {
+                showError('From date cannot be later than To date.');
+                setValidationState(fromDateInput, 'error');
+                setValidationState(toDateInput, 'error');
+                fromDateInput.focus();
+                return false;
+            } else {
+                setValidationState(fromDateInput, 'success');
+                setValidationState(toDateInput, 'success');
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Set validation state for date input
+     */
+    function setValidationState(input, state) {
+        const wrapper = input.closest('.date-input-wrapper');
+
+        // Remove existing states
+        input.classList.remove('is-valid', 'is-invalid');
+        wrapper.classList.remove('has-success', 'has-error');
+
+        // Add new state
+        if (state === 'success') {
+            input.classList.add('is-valid');
+            wrapper.classList.add('has-success');
+        } else if (state === 'error') {
+            input.classList.add('is-invalid');
+            wrapper.classList.add('has-error');
+        }
+    }
+
+    /**
+     * Clear all validation states
+     */
+    function clearValidationStates() {
+        const dateInputs = document.querySelectorAll('.filter-input.date-input');
+        dateInputs.forEach(input => {
+            clearValidationState(input);
+        });
+    }
+
+    /**
+     * Clear validation state for a single input
+     */
+    function clearValidationState(input) {
+        const wrapper = input.closest('.date-input-wrapper');
+        input.classList.remove('is-valid', 'is-invalid');
+        if (wrapper) {
+            wrapper.classList.remove('has-success', 'has-error');
+        }
+    }
+
+    /**
+     * Format date input as user types
+     */
+    function formatDateInput(event) {
+        const input = event.target;
+        let value = input.value.replace(/\D/g, ''); // Remove non-digits
+
+        // Format as dd/MM/yyyy
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2);
+        }
+        if (value.length >= 5) {
+            value = value.substring(0, 5) + '/' + value.substring(5, 9);
+        }
+
+        input.value = value;
+    }
+
+    /**
+     * Handle key press for date input
+     */
+    function handleDateKeyPress(event) {
+        const char = String.fromCharCode(event.which);
+
+        // Allow digits, forward slash, backspace, delete, arrow keys
+        if (!/[\d\/]/.test(char) &&
+            ![8, 9, 27, 13, 46, 37, 38, 39, 40].includes(event.keyCode)) {
+            event.preventDefault();
+        }
+    }
+
+    /**
+     * Validate and format date when user leaves input
+     */
+    function validateAndFormatDate(event) {
+        const input = event.target;
+        const value = input.value.trim();
+
+        if (!value) {
+            clearValidationState(input);
+            return;
+        }
+
+        const date = parseDateFromDisplay(value);
+        if (date) {
+            // Valid date - format it properly
+            input.value = formatDateForDisplay(date);
+            setValidationState(input, 'success');
+            validateDateRange();
+            updateHiddenInput(input);
+        } else {
+            // Invalid date
+            setValidationState(input, 'error');
+            showError('Please enter a valid date in dd/MM/yyyy format.');
+        }
+    }
+
+    /**
+     * Create hidden inputs for form submission in server format
+     */
+    function createHiddenDateInputs() {
+        const form = document.getElementById('dashboard-filters');
+        if (!form) return;
+
+        // Create hidden inputs for server submission
+        const hiddenFromDate = document.createElement('input');
+        hiddenFromDate.type = 'hidden';
+        hiddenFromDate.name = 'fromDateServer';
+        hiddenFromDate.id = 'fromDateServer';
+
+        const hiddenToDate = document.createElement('input');
+        hiddenToDate.type = 'hidden';
+        hiddenToDate.name = 'toDateServer';
+        hiddenToDate.id = 'toDateServer';
+
+        form.appendChild(hiddenFromDate);
+        form.appendChild(hiddenToDate);
+    }
+
+    /**
+     * Update hidden input with server format
+     */
+    function updateHiddenInput(input) {
+        const inputId = input.id;
+        const hiddenInput = document.getElementById(inputId + 'Server');
+
+        if (hiddenInput && input.value) {
+            const serverFormat = convertToServerFormat(input.value);
+            hiddenInput.value = serverFormat;
+        }
+    }
+
     // Data refresh functions
     async function refreshDashboardData(filters) {
         try {
@@ -1731,6 +2005,347 @@
             }
         });
     }
+
+    /**
+     * Open date picker when calendar icon is clicked
+     */
+    function openDatePicker(inputId) {
+        console.log('openDatePicker called with inputId:', inputId);
+
+        const input = document.getElementById(inputId);
+        if (!input) {
+            console.error('Input element not found:', inputId);
+            return;
+        }
+
+        console.log('Input found, creating date picker...');
+
+        // Create a temporary HTML5 date input for the picker
+        const tempDateInput = document.createElement('input');
+        tempDateInput.type = 'date';
+        tempDateInput.style.position = 'absolute';
+        tempDateInput.style.left = '-9999px';
+        tempDateInput.style.opacity = '0';
+        tempDateInput.style.pointerEvents = 'none';
+
+        // Set current value if valid
+        const currentValue = input.value.trim();
+        console.log('Current input value:', currentValue);
+
+        if (currentValue) {
+            try {
+                const serverFormat = convertToServerFormat(currentValue);
+                console.log('Converted to server format:', serverFormat);
+                if (serverFormat) {
+                    tempDateInput.value = serverFormat;
+                }
+            } catch (e) {
+                console.warn('Error converting current value:', e);
+            }
+        }
+
+        // Add to DOM temporarily
+        document.body.appendChild(tempDateInput);
+        console.log('Temp input added to DOM');
+
+        // Handle date selection
+        tempDateInput.addEventListener('change', function() {
+            console.log('Date selected:', this.value);
+            try {
+                if (this.value) {
+                    const selectedDate = new Date(this.value);
+                    const displayFormat = formatDateForDisplay(selectedDate);
+                    console.log('Formatted for display:', displayFormat);
+                    input.value = displayFormat;
+
+                    // Trigger validation if function exists
+                    if (typeof validateAndFormatDate === 'function') {
+                        try {
+                            validateAndFormatDate({ target: input });
+                        } catch (e) {
+                            console.warn('Validation error:', e);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Error processing selected date:', e);
+            }
+
+            // Clean up
+            try {
+                if (document.body.contains(this)) {
+                    document.body.removeChild(this);
+                    console.log('Temp input removed');
+                }
+            } catch (e) {
+                console.warn('Error removing temp input:', e);
+            }
+        });
+
+        // Handle cancel/close
+        tempDateInput.addEventListener('blur', function() {
+            setTimeout(() => {
+                try {
+                    if (document.body.contains(this)) {
+                        document.body.removeChild(this);
+                        console.log('Temp input removed on blur');
+                    }
+                } catch (e) {
+                    console.warn('Error removing temp input on blur:', e);
+                }
+            }, 100);
+        });
+
+        // Open the date picker
+        console.log('Attempting to open date picker...');
+        try {
+            tempDateInput.focus();
+            if (tempDateInput.showPicker) {
+                tempDateInput.showPicker();
+                console.log('showPicker() called successfully');
+            } else {
+                console.log('showPicker() not available, trying click()');
+                tempDateInput.click();
+            }
+        } catch (e) {
+            console.warn('Error opening date picker:', e);
+            try {
+                tempDateInput.click();
+                console.log('Fallback click() called');
+            } catch (e2) {
+                console.error('Both showPicker() and click() failed:', e2);
+            }
+        }
+    }
+
+    // Working date picker function
+    function openDatePickerSimple(inputId) {
+        console.log('openDatePickerSimple called with inputId:', inputId);
+
+        const input = document.getElementById(inputId);
+        if (!input) {
+            console.error('Input element not found:', inputId);
+            return;
+        }
+
+        // Create a visible but transparent date input overlay
+        const dateInput = document.createElement('input');
+        dateInput.type = 'date';
+
+        // Position it exactly over the text input
+        const rect = input.getBoundingClientRect();
+        dateInput.style.position = 'fixed';
+        dateInput.style.top = rect.top + 'px';
+        dateInput.style.left = rect.left + 'px';
+        dateInput.style.width = rect.width + 'px';
+        dateInput.style.height = rect.height + 'px';
+        dateInput.style.opacity = '0';
+        dateInput.style.zIndex = '9999';
+        dateInput.style.border = 'none';
+        dateInput.style.background = 'transparent';
+        dateInput.style.cursor = 'pointer';
+
+        // Set current value if valid
+        const currentValue = input.value.trim();
+        if (currentValue) {
+            try {
+                const serverFormat = convertToServerFormat(currentValue);
+                if (serverFormat) {
+                    dateInput.value = serverFormat;
+                    console.log('Set initial value:', serverFormat);
+                }
+            } catch (e) {
+                console.warn('Error converting current value:', e);
+            }
+        }
+
+        // Add to body
+        document.body.appendChild(dateInput);
+        console.log('Date input added to DOM');
+
+        // Handle date selection
+        dateInput.addEventListener('change', function() {
+            console.log('Date selected:', this.value);
+            if (this.value) {
+                try {
+                    const selectedDate = new Date(this.value);
+                    const displayFormat = formatDateForDisplay(selectedDate);
+                    console.log('Setting input value to:', displayFormat);
+                    input.value = displayFormat;
+
+                    // Trigger input event
+                    const inputEvent = new Event('input', { bubbles: true });
+                    input.dispatchEvent(inputEvent);
+
+                    console.log('Input value set successfully');
+                } catch (e) {
+                    console.error('Error formatting selected date:', e);
+                }
+            }
+            // Clean up
+            this.remove();
+            console.log('Date input removed');
+        });
+
+        // Handle click outside or escape
+        dateInput.addEventListener('blur', function() {
+            console.log('Date input blur event');
+            setTimeout(() => {
+                if (document.body.contains(this)) {
+                    this.remove();
+                    console.log('Date input removed on blur');
+                }
+            }, 100);
+        });
+
+        // Handle escape key
+        dateInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                this.remove();
+                console.log('Date input removed on escape');
+            }
+        });
+
+        // Focus and open picker immediately
+        dateInput.focus();
+        console.log('Date input focused');
+
+        // Try to open the picker
+        setTimeout(() => {
+            try {
+                if (dateInput.showPicker) {
+                    dateInput.showPicker();
+                    console.log('showPicker() called successfully');
+                } else {
+                    console.log('showPicker() not available, trying click');
+                    dateInput.click();
+                }
+            } catch (e) {
+                console.error('Error opening date picker:', e);
+                // Try alternative approach
+                try {
+                    dateInput.click();
+                    console.log('Fallback click() called');
+                } catch (e2) {
+                    console.error('Both methods failed:', e2);
+                    dateInput.remove();
+                }
+            }
+        }, 50);
+    }
+
+    // Alternative approach using direct input replacement
+    function openDatePickerDirect(inputId) {
+        console.log('openDatePickerDirect called with inputId:', inputId);
+
+        const input = document.getElementById(inputId);
+        if (!input) {
+            console.error('Input element not found:', inputId);
+            return;
+        }
+
+        // Store original input properties
+        const originalValue = input.value;
+        const originalType = input.type;
+        const originalPlaceholder = input.placeholder;
+
+        // Temporarily convert to date input
+        input.type = 'date';
+        input.removeAttribute('placeholder');
+
+        // Set current value if valid
+        if (originalValue) {
+            try {
+                const serverFormat = convertToServerFormat(originalValue);
+                if (serverFormat) {
+                    input.value = serverFormat;
+                }
+            } catch (e) {
+                console.warn('Error converting current value:', e);
+                input.value = '';
+            }
+        }
+
+        // Focus and open picker
+        input.focus();
+
+        // Try to open the date picker
+        setTimeout(() => {
+            try {
+                if (input.showPicker) {
+                    input.showPicker();
+                    console.log('Date picker opened successfully');
+                } else {
+                    input.click();
+                    console.log('Date picker opened with click');
+                }
+            } catch (e) {
+                console.warn('Error opening date picker:', e);
+            }
+        }, 10);
+
+        // Handle date selection
+        const handleChange = function() {
+            console.log('Date selected:', input.value);
+            if (input.value) {
+                try {
+                    const selectedDate = new Date(input.value);
+                    const displayFormat = formatDateForDisplay(selectedDate);
+                    console.log('Formatted date:', displayFormat);
+
+                    // Restore original input type and set formatted value
+                    input.type = originalType;
+                    input.placeholder = originalPlaceholder;
+                    input.value = displayFormat;
+
+                    console.log('Input restored with value:', displayFormat);
+                } catch (e) {
+                    console.error('Error formatting date:', e);
+                    // Restore original state on error
+                    input.type = originalType;
+                    input.placeholder = originalPlaceholder;
+                    input.value = originalValue;
+                }
+            } else {
+                // Restore original state if no date selected
+                input.type = originalType;
+                input.placeholder = originalPlaceholder;
+                input.value = originalValue;
+            }
+
+            // Remove event listener
+            input.removeEventListener('change', handleChange);
+            input.removeEventListener('blur', handleBlur);
+        };
+
+        // Handle blur (cancel)
+        const handleBlur = function() {
+            console.log('Date picker blur event');
+            setTimeout(() => {
+                // Restore original state if still a date input
+                if (input.type === 'date') {
+                    input.type = originalType;
+                    input.placeholder = originalPlaceholder;
+                    input.value = originalValue;
+
+                    // Remove event listeners
+                    input.removeEventListener('change', handleChange);
+                    input.removeEventListener('blur', handleBlur);
+
+                    console.log('Input restored to original state');
+                }
+            }, 200);
+        };
+
+        // Add event listeners
+        input.addEventListener('change', handleChange);
+        input.addEventListener('blur', handleBlur);
+    }
+
+    // Make all functions globally accessible
+    window.openDatePicker = openDatePicker;
+    window.openDatePickerSimple = openDatePickerSimple;
+    window.openDatePickerDirect = openDatePickerDirect;
 
     // Export functions for use by other scripts
     window.Dashboard = {
