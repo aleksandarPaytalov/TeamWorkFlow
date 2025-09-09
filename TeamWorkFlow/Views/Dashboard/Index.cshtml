@@ -124,7 +124,7 @@
                         </svg>
                     </div>
                     <div class="kpi-content">
-                        <h3 class="kpi-value">@(Model.TotalOperatorsAnalyzed)</h3>
+                        <h3 class="kpi-value">@(Model.KpiSummary?.ActiveOperators ?? 0)</h3>
                         <p class="kpi-label">Active Operators</p>
                         <span class="kpi-period">Performance Tracked</span>
                     </div>

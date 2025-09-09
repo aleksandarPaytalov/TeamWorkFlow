@@ -11,6 +11,12 @@ namespace TeamWorkFlow.Core.Contracts
     public interface ITaskAnalyticsService
     {
         /// <summary>
+        /// Gets the count of active operators
+        /// </summary>
+        /// <returns>Number of active operators</returns>
+        Task<int> GetActiveOperatorsCountAsync();
+
+        /// <summary>
         /// Calculates efficiency metrics including on-time completion rates and time overrun analysis
         /// </summary>
         /// <param name="fromDate">Start date for analysis period (optional)</param>
@@ -19,9 +25,9 @@ namespace TeamWorkFlow.Core.Contracts
         /// <param name="projectIds">Filter by specific projects (optional)</param>
         /// <returns>Efficiency metrics model with completion rates and trend data</returns>
         Task<EfficiencyMetricsModel> GetEfficiencyMetricsAsync(
-            DateTime? fromDate = null, 
-            DateTime? toDate = null, 
-            IEnumerable<int>? operatorIds = null, 
+            DateTime? fromDate = null,
+            DateTime? toDate = null,
+            IEnumerable<int>? operatorIds = null,
             IEnumerable<int>? projectIds = null);
 
         /// <summary>

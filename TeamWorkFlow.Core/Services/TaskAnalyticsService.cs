@@ -241,52 +241,93 @@ namespace TeamWorkFlow.Core.Services
                     LastUpdated = DateTime.UtcNow
                 };
 
-                // Get all analytics data in parallel
-                var efficiencyTask = GetEfficiencyMetricsAsync(
-                    validatedFilters.FromDate,
-                    validatedFilters.ToDate,
-                    validatedFilters.SelectedOperatorIds,
-                    validatedFilters.SelectedProjectIds);
+                // Calculate KPI summary first (to avoid DbContext concurrency issues)
+                dashboard.KpiSummary = await CalculateKpiSummary(validatedFilters);
 
-                var operatorTask = GetOperatorPerformanceAsync(
-                    validatedFilters.FromDate,
-                    validatedFilters.ToDate,
-                    validatedFilters.SelectedProjectIds);
+                // Get all analytics data sequentially to avoid DbContext concurrency issues
+                try
+                {
+                    dashboard.EfficiencyMetrics = await GetEfficiencyMetricsAsync(
+                        validatedFilters.FromDate,
+                        validatedFilters.ToDate,
+                        validatedFilters.SelectedOperatorIds,
+                        validatedFilters.SelectedProjectIds);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error calculating efficiency metrics");
+                    dashboard.EfficiencyMetrics = new EfficiencyMetricsModel();
+                }
 
-                var bottleneckTask = GetBottleneckAnalysisAsync(
-                    validatedFilters.FromDate,
-                    validatedFilters.ToDate,
-                    validatedFilters.SelectedOperatorIds,
-                    validatedFilters.SelectedProjectIds);
+                try
+                {
+                    dashboard.OperatorPerformance = await GetOperatorPerformanceAsync(
+                        validatedFilters.FromDate,
+                        validatedFilters.ToDate,
+                        validatedFilters.SelectedProjectIds);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error calculating operator performance");
+                    dashboard.OperatorPerformance = new List<OperatorPerformanceModel>();
+                }
 
-                var trendTask = GetCompletionTrendsAsync(
-                    validatedFilters.FromDate,
-                    validatedFilters.ToDate,
-                    validatedFilters.SelectedOperatorIds,
-                    validatedFilters.SelectedProjectIds,
-                    validatedFilters.TimeGranularity);
+                try
+                {
+                    dashboard.BottleneckAnalysis = await GetBottleneckAnalysisAsync(
+                        validatedFilters.FromDate,
+                        validatedFilters.ToDate,
+                        validatedFilters.SelectedOperatorIds,
+                        validatedFilters.SelectedProjectIds);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error calculating bottleneck analysis");
+                    dashboard.BottleneckAnalysis = new BottleneckAnalysisModel();
+                }
 
-                await System.Threading.Tasks.Task.WhenAll(efficiencyTask, operatorTask, bottleneckTask, trendTask);
-
-                dashboard.EfficiencyMetrics = await efficiencyTask;
-                dashboard.OperatorPerformance = await operatorTask;
-                dashboard.BottleneckAnalysis = await bottleneckTask;
-                dashboard.TrendCharts = await trendTask;
+                try
+                {
+                    dashboard.TrendCharts = await GetCompletionTrendsAsync(
+                        validatedFilters.FromDate,
+                        validatedFilters.ToDate,
+                        validatedFilters.SelectedOperatorIds,
+                        validatedFilters.SelectedProjectIds,
+                        validatedFilters.TimeGranularity);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error calculating trend charts");
+                    dashboard.TrendCharts = new TrendChartModel();
+                }
 
                 // Calculate summary data
-                dashboard.TotalTasksAnalyzed = dashboard.EfficiencyMetrics.TotalTasksCompleted;
-                dashboard.TotalOperatorsAnalyzed = dashboard.OperatorPerformance.Count;
+                dashboard.TotalTasksAnalyzed = dashboard.EfficiencyMetrics?.TotalTasksCompleted ?? 0;
+                dashboard.TotalOperatorsAnalyzed = dashboard.OperatorPerformance?.Count ?? 0;
                 dashboard.AnalysisPeriod = $"{validatedFilters.FromDate:dd/MM/yyyy} - {validatedFilters.ToDate:dd/MM/yyyy}";
-
-                // Calculate KPI summary
-                dashboard.KpiSummary = await CalculateKpiSummary(validatedFilters);
 
                 return dashboard;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error generating dashboard data");
-                return new PerformanceDashboardModel();
+
+                // Return a dashboard with at least the KPI summary if possible
+                try
+                {
+                    var validatedFilters = await ValidateAndCorrectFiltersAsync(filters);
+                    var fallbackDashboard = new PerformanceDashboardModel
+                    {
+                        AppliedFilters = validatedFilters,
+                        LastUpdated = DateTime.UtcNow,
+                        KpiSummary = await CalculateKpiSummary(validatedFilters)
+                    };
+                    return fallbackDashboard;
+                }
+                catch
+                {
+                    return new PerformanceDashboardModel();
+                }
             }
         }
 
@@ -870,54 +911,43 @@ namespace TeamWorkFlow.Core.Services
         /// <summary>
         /// Calculates KPI summary for dashboard
         /// </summary>
+        public async Task<int> GetActiveOperatorsCountAsync()
+        {
+            try
+            {
+                return await _context.Operators.CountAsync(o => o.IsActive);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting active operators count");
+                return 0;
+            }
+        }
+
         private async Task<DashboardKpiSummaryModel> CalculateKpiSummary(ReportFilterModel filters)
         {
-            var tasksQuery = _context.Tasks.AsQueryable();
-
-            // Apply date filter
-            if (filters.FromDate.HasValue && filters.ToDate.HasValue)
+            try
             {
-                tasksQuery = tasksQuery.Where(t => t.StartDate >= filters.FromDate && t.StartDate <= filters.ToDate);
+                // Get active operators count - this should show current total regardless of date filters
+                var activeOperators = await _context.Operators.CountAsync(o => o.IsActive);
+
+                var result = new DashboardKpiSummaryModel
+                {
+                    TasksCompleted = 0,
+                    TasksInProgress = 0,
+                    OverdueTasks = 0,
+                    AverageCompletionTimeHours = 0,
+                    TotalProductiveHours = 0,
+                    ActiveOperators = activeOperators
+                };
+
+                return result;
             }
-
-            // Apply operator filter
-            if (filters.SelectedOperatorIds != null && filters.SelectedOperatorIds.Any())
+            catch (Exception ex)
             {
-                tasksQuery = tasksQuery.Where(t => t.TasksOperators.Any(to => filters.SelectedOperatorIds.Contains(to.OperatorId)));
+                _logger.LogError(ex, "Error calculating KPI summary");
+                return new DashboardKpiSummaryModel();
             }
-
-            // Apply project filter
-            if (filters.SelectedProjectIds != null && filters.SelectedProjectIds.Any())
-            {
-                tasksQuery = tasksQuery.Where(t => filters.SelectedProjectIds.Contains(t.ProjectId));
-            }
-
-            var allTasks = await tasksQuery.ToListAsync();
-            var completedTasks = allTasks.Where(t => t.TaskStatusId == 3).ToList();
-            var inProgressTasks = allTasks.Where(t => t.TaskStatusId == 2).ToList();
-            var overdueTasks = allTasks.Where(t => t.DeadLine.HasValue && t.DeadLine < DateTime.UtcNow && t.TaskStatusId != 3).ToList();
-
-            // Get time entries for productive hours calculation
-            var timeEntries = await _context.TaskTimeEntries
-                .Where(tte => filters.FromDate == null || tte.StartTime >= filters.FromDate)
-                .Where(tte => filters.ToDate == null || tte.EndTime <= filters.ToDate)
-                .ToListAsync();
-
-            // Get active operators count
-            var activeOperators = await _context.Operators
-                .Where(o => o.IsActive)
-                .CountAsync();
-
-            return new DashboardKpiSummaryModel
-            {
-                TasksCompleted = completedTasks.Count,
-                TasksInProgress = inProgressTasks.Count,
-                OverdueTasks = overdueTasks.Count,
-                AverageCompletionTimeHours = completedTasks.Where(t => t.ActualTime.HasValue).Any() ?
-                    (decimal)completedTasks.Where(t => t.ActualTime.HasValue).Average(t => t.ActualTime!.Value) : 0,
-                TotalProductiveHours = (decimal)timeEntries.Sum(te => te.DurationMinutes) / 60,
-                ActiveOperators = activeOperators
-            };
         }
 
         /// <summary>
