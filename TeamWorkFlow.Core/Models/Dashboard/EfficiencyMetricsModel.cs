@@ -16,10 +16,10 @@ namespace TeamWorkFlow.Core.Models.Dashboard
         public decimal OnTimeCompletionRate { get; set; }
 
         /// <summary>
-        /// Average percentage by which tasks exceed their estimated time
-        /// Positive = over estimate, Negative = under estimate
+        /// Average overtime hours per task (total overtime hours / total number of tasks)
+        /// Shows the average additional hours spent beyond estimates per task
         /// </summary>
-        [Display(Name = "Average Time Overrun %")]
+        [Display(Name = "Average Time Overrun (Hours)")]
         public decimal AverageTimeOverrunPercentage { get; set; }
 
         /// <summary>
@@ -93,15 +93,14 @@ namespace TeamWorkFlow.Core.Models.Dashboard
         public string OnTimeCompletionRateFormatted => $"{OnTimeCompletionRate:F1}%";
 
         /// <summary>
-        /// Formatted display of average time overrun
+        /// Formatted display of average time overrun in hours
         /// </summary>
         [Display(Name = "Avg Overrun")]
         public string AverageTimeOverrunFormatted
         {
             get
             {
-                var sign = AverageTimeOverrunPercentage >= 0 ? "+" : "";
-                return $"{sign}{AverageTimeOverrunPercentage:F1}%";
+                return $"{AverageTimeOverrunPercentage:F1}h";
             }
         }
 
@@ -132,15 +131,15 @@ namespace TeamWorkFlow.Core.Models.Dashboard
         }
 
         /// <summary>
-        /// CSS class for time overrun display
+        /// CSS class for time overrun display (based on hours)
         /// </summary>
         public string OverrunClass
         {
             get
             {
-                if (Math.Abs(AverageTimeOverrunPercentage) <= 10) return "text-success";
-                if (Math.Abs(AverageTimeOverrunPercentage) <= 25) return "text-warning";
-                return "text-danger";
+                if (AverageTimeOverrunPercentage <= 1) return "text-success";      // <= 1 hour average overrun
+                if (AverageTimeOverrunPercentage <= 3) return "text-warning";     // <= 3 hours average overrun
+                return "text-danger";                                             // > 3 hours average overrun
             }
         }
 
@@ -185,7 +184,8 @@ namespace TeamWorkFlow.Core.Models.Dashboard
                 var overrunWeight = 0.4m;
 
                 var onTimeScore = OnTimeCompletionRate;
-                var overrunScore = Math.Max(0, 100 - Math.Abs(AverageTimeOverrunPercentage));
+                // Convert hours to score: 0 hours = 100 points, 5+ hours = 0 points
+                var overrunScore = Math.Max(0, 100 - (AverageTimeOverrunPercentage * 20));
 
                 return (onTimeScore * onTimeWeight) + (overrunScore * overrunWeight);
             }

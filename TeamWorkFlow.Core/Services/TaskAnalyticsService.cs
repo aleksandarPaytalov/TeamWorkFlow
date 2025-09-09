@@ -372,7 +372,7 @@ namespace TeamWorkFlow.Core.Services
         }
 
         /// <summary>
-        /// Calculates average time overrun percentage for completed tasks
+        /// Calculates average overtime hours per task for completed tasks
         /// </summary>
         public async Task<decimal> GetAverageTimeOverrunAsync(
             DateTime fromDate,
@@ -406,11 +406,13 @@ namespace TeamWorkFlow.Core.Services
                 if (!tasks.Any())
                     return 0;
 
-                var overrunPercentages = tasks
-                    .Where(t => t.EstimatedTime > 0) // Safety check to prevent division by zero
-                    .Select(t => ((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100);
+                // Calculate total overtime hours (only for tasks that went over estimate)
+                var totalOvertimeHours = tasks
+                    .Where(t => t.ActualTime > t.EstimatedTime) // Only tasks that went over
+                    .Sum(t => (decimal)t.ActualTime!.Value - t.EstimatedTime);
 
-                return overrunPercentages.Any() ? overrunPercentages.Average() : 0;
+                // Return average overtime hours per task (total overtime / total number of tasks)
+                return totalOvertimeHours / tasks.Count;
             }
             catch (Exception ex)
             {
@@ -526,10 +528,40 @@ namespace TeamWorkFlow.Core.Services
         {
             try
             {
+                // Determine default date range based on time period if no dates are provided
+                DateTime defaultFromDate;
+                DateTime defaultToDate = DateTime.UtcNow;
+
+                if (filters.FromDate == null && filters.ToDate == null)
+                {
+                    // Set default date range based on TimeGranularity
+                    switch (filters.TimeGranularity?.ToLower())
+                    {
+                        case "daily":
+                            defaultFromDate = DateTime.UtcNow.AddDays(-1); // Last 1 day
+                            break;
+                        case "weekly":
+                            defaultFromDate = DateTime.UtcNow.AddDays(-7); // Last 1 week
+                            break;
+                        case "monthly":
+                            defaultFromDate = DateTime.UtcNow.AddDays(-30); // Last 1 month
+                            break;
+                        default:
+                            defaultFromDate = DateTime.UtcNow.AddDays(-7); // Default to weekly
+                            break;
+                    }
+                }
+                else
+                {
+                    // Use provided dates or fall back to 30 days if only one is provided
+                    defaultFromDate = filters.FromDate ?? DateTime.UtcNow.AddDays(-30);
+                    defaultToDate = filters.ToDate ?? DateTime.UtcNow;
+                }
+
                 var validatedFilters = new ReportFilterModel
                 {
-                    FromDate = filters.FromDate ?? DateTime.UtcNow.AddDays(-30),
-                    ToDate = filters.ToDate ?? DateTime.UtcNow,
+                    FromDate = filters.FromDate ?? defaultFromDate,
+                    ToDate = filters.ToDate ?? defaultToDate,
                     SelectedOperatorIds = filters.SelectedOperatorIds ?? new List<int>(),
                     SelectedProjectIds = filters.SelectedProjectIds ?? new List<int>(),
                     SelectedTaskStatuses = filters.SelectedTaskStatuses ?? new List<string>(),
@@ -617,15 +649,13 @@ namespace TeamWorkFlow.Core.Services
                 result.AverageActualTimeHours = (decimal)tasksWithValidData.Average(t => t.ActualTime!.Value);
                 result.AverageEstimatedTimeHours = (decimal)tasksWithValidData.Average(t => t.EstimatedTime);
 
-                // Calculate average overrun percentage with safety check for division by zero
-                var overrunPercentages = tasksWithValidData
-                    .Where(t => t.EstimatedTime > 0) // Additional safety check to prevent division by zero
-                    .Select(t => ((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100);
+                // Calculate average overtime hours per task (total overtime / total tasks)
+                var totalOvertimeHours = tasksWithValidData
+                    .Where(t => t.ActualTime > t.EstimatedTime) // Only tasks that went over
+                    .Sum(t => (decimal)t.ActualTime!.Value - t.EstimatedTime);
 
-                if (overrunPercentages.Any())
-                {
-                    result.AverageTimeOverrunPercentage = overrunPercentages.Average();
-                }
+                // Average overtime hours per task (total overtime / total number of tasks)
+                result.AverageTimeOverrunPercentage = totalOvertimeHours / tasksWithValidData.Count;
 
                 // Calculate high variance tasks (>20% variance) with safety check for division by zero
                 var highVarianceTasks = tasksWithValidData
@@ -716,14 +746,13 @@ namespace TeamWorkFlow.Core.Services
                     performance.OnTimeCompletionRate = (decimal)tasksWithTime.Count(t => t.ActualTime <= t.EstimatedTime) /
                                                      tasksWithTime.Count * 100;
 
-                    var overrunPercentages = tasksWithTime
-                        .Where(t => t.EstimatedTime > 0) // Safety check to prevent division by zero
-                        .Select(t => ((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100);
+                    // Calculate average overtime hours per task (total overtime / total tasks)
+                    var totalOvertimeHours = tasksWithTime
+                        .Where(t => t.ActualTime > t.EstimatedTime) // Only tasks that went over
+                        .Sum(t => (decimal)t.ActualTime!.Value - t.EstimatedTime);
 
-                    if (overrunPercentages.Any())
-                    {
-                        performance.AverageOverrunPercentage = overrunPercentages.Average();
-                    }
+                    // Average overtime hours per task (total overtime / total number of tasks)
+                    performance.AverageOverrunPercentage = totalOvertimeHours / tasksWithTime.Count;
 
                     // Calculate efficiency rating (weighted score)
                     performance.EfficiencyRating = CalculateEfficiencyRating(
@@ -983,14 +1012,13 @@ namespace TeamWorkFlow.Core.Services
                     result.OnTimeDeliveryRate = (decimal)tasksWithTime.Count(t => t.ActualTime <= t.EstimatedTime) /
                                                 tasksWithTime.Count * 100;
 
-                    var overrunPercentages = tasksWithTime
-                        .Where(t => t.EstimatedTime > 0) // Safety check to prevent division by zero
-                        .Select(t => ((decimal)t.ActualTime!.Value - t.EstimatedTime) / t.EstimatedTime * 100);
+                    // Calculate average overtime hours per task (total overtime / total tasks)
+                    var totalOvertimeHours = tasksWithTime
+                        .Where(t => t.ActualTime > t.EstimatedTime) // Only tasks that went over
+                        .Sum(t => (decimal)t.ActualTime!.Value - t.EstimatedTime);
 
-                    if (overrunPercentages.Any())
-                    {
-                        result.AverageTimeVariance = overrunPercentages.Average();
-                    }
+                    // Average overtime hours per task (total overtime / total number of tasks)
+                    result.AverageTimeVariance = totalOvertimeHours / tasksWithTime.Count;
                 }
             }
 

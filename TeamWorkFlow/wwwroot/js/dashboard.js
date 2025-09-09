@@ -56,7 +56,8 @@
     currentFilters = {
       fromDate: document.getElementById("fromDate")?.value || null,
       toDate: document.getElementById("toDate")?.value || null,
-      granularity: document.getElementById("granularity")?.value || "weekly",
+      timeGranularity:
+        document.getElementById("granularity")?.value || "weekly",
     };
   }
 
@@ -134,7 +135,7 @@
     // Get filter values
     const fromDateDisplay = document.getElementById("fromDate")?.value?.trim();
     const toDateDisplay = document.getElementById("toDate")?.value?.trim();
-    const granularity = document.getElementById("granularity")?.value;
+    const timeGranularity = document.getElementById("granularity")?.value;
 
     // Convert display format to server format (only if values exist)
     const fromDate = fromDateDisplay
@@ -154,13 +155,13 @@
     }
 
     // Update current filters
-    currentFilters = { fromDate, toDate, granularity };
+    currentFilters = { fromDate, toDate, timeGranularity };
 
     // Reload page with new filters (only include non-empty values)
     const params = new URLSearchParams();
     if (fromDate) params.append("fromDate", fromDate);
     if (toDate) params.append("toDate", toDate);
-    if (granularity) params.append("granularity", granularity);
+    if (timeGranularity) params.append("timeGranularity", timeGranularity);
 
     window.location.href = `/Dashboard?${params.toString()}`;
   }
@@ -2150,7 +2151,8 @@
     return {
       fromDate: document.getElementById("fromDate")?.value || null,
       toDate: document.getElementById("toDate")?.value || null,
-      granularity: document.getElementById("granularity")?.value || "weekly",
+      timeGranularity:
+        document.getElementById("granularity")?.value || "weekly",
     };
   }
 

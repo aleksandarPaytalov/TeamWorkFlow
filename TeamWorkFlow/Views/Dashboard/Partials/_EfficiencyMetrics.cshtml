@@ -31,7 +31,7 @@
                 <i class="fas fa-exclamation-triangle"></i>
             </div>
             <div class="metric-content">
-                <div class="metric-value">@Model.AverageTimeOverrunPercentage.ToString("F1")%</div>
+                <div class="metric-value">@Model.AverageTimeOverrunPercentage.ToString("F1")h</div>
                 <div class="metric-label">Average Overrun</div>
                 <div class="metric-trend @(Model.EfficiencyTrend >= 0 ? "positive" : "negative")">
                     <i class="fas fa-arrow-@(Model.EfficiencyTrend >= 0 ? "up" : "down")"></i>
