@@ -2,6 +2,9 @@
 (function () {
   "use strict";
 
+  // Global Chart.js reference (loaded externally)
+  /* global Chart */
+
   // Dashboard state
   let charts = {};
   let currentFilters = {};
@@ -14,12 +17,33 @@
       return;
     }
 
-    initializeDashboard();
-    setupEventListeners();
-    loadInitialData();
-
-    // Mark as initialized
-    window.DashboardInitialized = true;
+    // Check if Chart.js is loaded
+    if (typeof window.Chart === "undefined") {
+      console.warn("Chart.js not loaded yet, waiting...");
+      // Wait for Chart.js to load
+      setTimeout(() => {
+        if (typeof window.Chart !== "undefined") {
+          console.log("Chart.js loaded, initializing dashboard...");
+          initializeDashboard();
+          setupEventListeners();
+          loadInitialData();
+          window.DashboardInitialized = true;
+        } else {
+          console.error(
+            "Chart.js failed to load. Charts will not be available."
+          );
+          // Initialize without charts
+          initializeDashboard();
+          setupEventListeners();
+          window.DashboardInitialized = true;
+        }
+      }, 1000);
+    } else {
+      initializeDashboard();
+      setupEventListeners();
+      loadInitialData();
+      window.DashboardInitialized = true;
+    }
   });
 
   function initializeDashboard() {
@@ -188,6 +212,10 @@
         case "trends":
           endpoint = "/Dashboard/GetTrendData";
           break;
+        case "data":
+          // Handle general data refresh - reload the entire page
+          window.location.reload();
+          return;
         default:
           reject(new Error("Unknown section type: " + sectionType));
           return;
@@ -534,16 +562,16 @@
   function initializeCharts() {
     console.log("Initializing dashboard charts...");
 
-    if (typeof Chart === "undefined") {
+    if (typeof window.Chart === "undefined") {
       console.warn("Chart.js not loaded. Charts will not be available.");
       return;
     }
 
     // Set global Chart.js defaults
-    Chart.defaults.font.family =
+    window.Chart.defaults.font.family =
       "'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-    Chart.defaults.color = "#374151";
-    Chart.defaults.plugins.legend.position = "top";
+    window.Chart.defaults.color = "#374151";
+    window.Chart.defaults.plugins.legend.position = "top";
 
     // Chart color palette
     const chartColors = {
@@ -555,13 +583,16 @@
       secondary: "#6b7280",
     };
 
-    // Initialize individual charts
-    initializeEfficiencyChart(chartColors);
-    initializeOperatorChart(chartColors);
-    initializeBottleneckChart(chartColors);
-    initializeTrendCharts(chartColors);
-
-    console.log("Dashboard charts initialized successfully");
+    // Initialize individual charts with error handling
+    try {
+      initializeEfficiencyChart(chartColors);
+      initializeOperatorChart(chartColors);
+      initializeBottleneckChart(chartColors);
+      initializeTrendCharts(chartColors);
+      console.log("Dashboard charts initialized successfully");
+    } catch (error) {
+      console.error("Error initializing charts:", error);
+    }
   }
 
   function initializeEfficiencyChart(colors) {
@@ -570,12 +601,12 @@
 
     try {
       // Destroy existing chart if it exists
-      const existingChart = Chart.getChart(ctx);
+      const existingChart = window.Chart.getChart(ctx);
       if (existingChart) {
         existingChart.destroy();
       }
 
-      charts.efficiency = new Chart(ctx.getContext("2d"), {
+      charts.efficiency = new window.Chart(ctx.getContext("2d"), {
         type: "line",
         data: {
           labels: [],
@@ -658,12 +689,12 @@
 
     try {
       // Destroy existing chart if it exists
-      const existingChart = Chart.getChart(ctx);
+      const existingChart = window.Chart.getChart(ctx);
       if (existingChart) {
         existingChart.destroy();
       }
 
-      charts.operator = new Chart(ctx.getContext("2d"), {
+      charts.operator = new window.Chart(ctx.getContext("2d"), {
         type: "bar",
         data: {
           labels: [],
@@ -745,12 +776,12 @@
 
     try {
       // Destroy existing chart if it exists
-      const existingChart = Chart.getChart(ctx);
+      const existingChart = window.Chart.getChart(ctx);
       if (existingChart) {
         existingChart.destroy();
       }
 
-      charts.bottleneck = new Chart(ctx.getContext("2d"), {
+      charts.bottleneck = new window.Chart(ctx.getContext("2d"), {
         type: "doughnut",
         data: {
           labels: [],
@@ -818,12 +849,12 @@
     if (mainTrendCtx) {
       try {
         // Destroy existing chart if it exists
-        const existingChart = Chart.getChart(mainTrendCtx);
+        const existingChart = window.Chart.getChart(mainTrendCtx);
         if (existingChart) {
           existingChart.destroy();
         }
 
-        charts.mainTrend = new Chart(mainTrendCtx.getContext("2d"), {
+        charts.mainTrend = new window.Chart(mainTrendCtx.getContext("2d"), {
           type: "line",
           data: {
             labels: [],
@@ -924,12 +955,12 @@
       if (ctx) {
         try {
           // Destroy existing chart if it exists
-          const existingChart = Chart.getChart(ctx);
+          const existingChart = window.Chart.getChart(ctx);
           if (existingChart) {
             existingChart.destroy();
           }
 
-          charts[config.id] = new Chart(ctx.getContext("2d"), {
+          charts[config.id] = new window.Chart(ctx.getContext("2d"), {
             type: "line",
             data: {
               labels: [],
@@ -1220,7 +1251,6 @@
   let refreshFailureCount = 0;
   let refreshStatusInterval = null;
   const MAX_REFRESH_FAILURES = 3;
-  const REFRESH_RETRY_DELAY = 5000; // 5 seconds
 
   function initializeAutoRefresh() {
     const autoRefreshToggle = document.getElementById("auto-refresh-toggle");
@@ -1289,6 +1319,10 @@
     if (autoRefreshInterval) {
       clearInterval(autoRefreshInterval);
       autoRefreshInterval = null;
+    }
+    if (refreshStatusInterval) {
+      clearInterval(refreshStatusInterval);
+      refreshStatusInterval = null;
     }
     autoRefreshEnabled = false;
     updateRefreshStatus();
@@ -2108,6 +2142,15 @@
       };
       clearTimeout(timeout);
       timeout = setTimeout(later, wait);
+    };
+  }
+
+  // Get current filter values
+  function getCurrentFilters() {
+    return {
+      fromDate: document.getElementById("fromDate")?.value || null,
+      toDate: document.getElementById("toDate")?.value || null,
+      granularity: document.getElementById("granularity")?.value || "weekly",
     };
   }
 
