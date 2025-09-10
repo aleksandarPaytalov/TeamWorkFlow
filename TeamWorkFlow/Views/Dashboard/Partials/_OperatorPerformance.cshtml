@@ -112,38 +112,89 @@
     <div class="performance-insights">
         <div class="row">
             <div class="col-md-6">
-                <div class="insight-card">
-                    <h5>Top Performer</h5>
-                    @{
-                        var topPerformer = Model.OrderBy(o => o.Rank).FirstOrDefault();
-                    }
-                    @if (topPerformer != null)
-                    {
-                        <div class="top-performer-info">
-                            <div class="performer-name">@topPerformer.OperatorName</div>
-                            <div class="performer-stats">
-                                <span class="stat">@topPerformer.EfficiencyRatingFormatted efficiency</span>
-                                <span class="stat">@topPerformer.TasksCompleted tasks completed</span>
+                <div class="insight-card top-performer-card">
+                    <div class="insight-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="insight-content">
+                        <h5><i class="fas fa-star"></i> Top Performer</h5>
+                        @{
+                            var topPerformer = Model.OrderBy(o => o.Rank).FirstOrDefault();
+                        }
+                        @if (topPerformer != null)
+                        {
+                            <div class="top-performer-info">
+                                <div class="performer-name">@topPerformer.OperatorName</div>
+                                <div class="performer-stats">
+                                    <div class="stat-badge efficiency">
+                                        <i class="fas fa-chart-line"></i>
+                                        <span>@topPerformer.EfficiencyRatingFormatted efficiency</span>
+                                    </div>
+                                    <div class="stat-badge tasks">
+                                        <i class="fas fa-tasks"></i>
+                                        <span>@topPerformer.TasksCompleted tasks completed</span>
+                                    </div>
+                                    <div class="stat-badge time">
+                                        <i class="fas fa-clock"></i>
+                                        <span>@topPerformer.OnTimeRateFormatted on-time rate</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    }
+                        }
+                        else
+                        {
+                            <div class="no-data">
+                                <i class="fas fa-info-circle"></i>
+                                <span>No performance data available</span>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="insight-card">
-                    <h5>Team Statistics</h5>
-                    <div class="team-stats">
-                        <div class="stat-item">
-                            <span class="stat-label">Average Efficiency:</span>
-                            <span class="stat-value">@(Model.Any() ? Model.Average(o => o.EfficiencyRating).ToString("F1") : "0")%</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Average Completion Time:</span>
-                            <span class="stat-value">@(Model.Any() ? Model.Average(o => o.AverageCompletionTimeHours).ToString("F1") : "0")h</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Operators Needing Attention:</span>
-                            <span class="stat-value">@Model.Count(o => o.NeedsAttention)</span>
+                <div class="insight-card team-stats-card">
+                    <div class="insight-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="insight-content">
+                        <h5><i class="fas fa-chart-bar"></i> Team Statistics</h5>
+                        <div class="team-stats">
+                            <div class="stat-item">
+                                <div class="stat-icon">
+                                    <i class="fas fa-percentage"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <span class="stat-label">Average Efficiency</span>
+                                    <span class="stat-value">@(Model.Any() ? Model.Average(o => o.EfficiencyRating).ToString("F1") : "0")%</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">
+                                    <i class="fas fa-stopwatch"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <span class="stat-label">Average Completion Time</span>
+                                    <span class="stat-value">@(Model.Any() ? Model.Average(o => o.AverageCompletionTimeHours).ToString("F1") : "0")h</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <span class="stat-label">Operators Needing Attention</span>
+                                    <span class="stat-value attention-count">@Model.Count(o => o.NeedsAttention)</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <span class="stat-label">Total Active Operators</span>
+                                    <span class="stat-value">@Model.Count()</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

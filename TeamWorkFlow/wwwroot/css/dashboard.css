@@ -1061,50 +1061,200 @@
   margin-top: 24px;
 }
 
+/* Enhanced Insight Cards */
 .insight-card {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 20px;
-  border: 1px solid #e9ecef;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
   height: 100%;
+  display: flex;
+  gap: 16px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.insight-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #10b981, #f59e0b);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.insight-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.insight-card:hover::before {
+  opacity: 1;
+}
+
+/* Top Performer Card Specific */
+.top-performer-card::before {
+  background: linear-gradient(90deg, #ffd700, #ff6b35, #f7931e);
+}
+
+/* Team Stats Card Specific */
+.team-stats-card::before {
+  background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+}
+
+/* Insight Icon */
+.insight-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.top-performer-card .insight-icon {
+  background: linear-gradient(135deg, #ffd700 0%, #ff6b35 100%);
+}
+
+.team-stats-card .insight-icon {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Insight Content */
+.insight-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .insight-card h5 {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #2c3e50;
   margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
+.insight-card h5 i {
+  font-size: 0.9rem;
+  color: #667eea;
+}
+
+/* Top Performer Styling */
 .top-performer-info {
   text-align: center;
+  flex: 1;
 }
 
 .performer-name {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .performer-stats {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
-.performer-stats .stat {
-  font-size: 0.875rem;
-  color: #6c757d;
+.stat-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
+.stat-badge.efficiency {
+  background: linear-gradient(135deg, #d4edda, #c3e6cb);
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.stat-badge.tasks {
+  background: linear-gradient(135deg, #cce5ff, #b3d9ff);
+  color: #004085;
+  border: 1px solid #b3d9ff;
+}
+
+.stat-badge.time {
+  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.stat-badge:hover {
+  transform: scale(1.02);
+}
+
+.stat-badge i {
+  font-size: 0.75rem;
+}
+
+/* Team Stats Styling */
 .team-stats {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  flex: 1;
 }
 
 .stat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f3f4;
+  transition: all 0.2s ease;
+}
+
+.stat-item:last-child {
+  border-bottom: none;
+}
+
+.stat-item:hover {
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin: 0 -12px;
+}
+
+.stat-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: white;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-details {
+  flex: 1;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1117,9 +1267,34 @@
 }
 
 .stat-value {
-  font-size: 0.875rem;
+  font-size: 1rem;
+  font-weight: 700;
   color: #2c3e50;
-  font-weight: 600;
+}
+
+.stat-value.attention-count {
+  color: #dc3545;
+  background: rgba(220, 53, 69, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+}
+
+/* No Data State */
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.no-data i {
+  font-size: 2rem;
+  opacity: 0.5;
 }
 
 /* ===== BOTTLENECK ANALYSIS SECTION ===== */
@@ -1911,6 +2086,33 @@
   .table th:nth-child(4), .table td:nth-child(4) { width: 20%; } /* Efficiency */
   .table th:nth-child(5), .table td:nth-child(5) { width: 14%; } /* On-Time */
   .table th:nth-child(6), .table td:nth-child(6) { width: 14%; } /* Avg Time */
+
+  /* Enhanced Insight Cards - Large tablets */
+  .insight-card {
+    padding: 20px;
+    gap: 14px;
+  }
+
+  .insight-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .stat-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .performer-name {
+    font-size: 1.1rem;
+  }
+
+  .stat-badge {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
 }
 
 /* Medium screens (tablets) - 6 columns optimized */
@@ -1929,6 +2131,37 @@
   .table th:nth-child(4), .table td:nth-child(4) { width: 22%; } /* Efficiency */
   .table th:nth-child(5), .table td:nth-child(5) { width: 14%; } /* On-Time */
   .table th:nth-child(6), .table td:nth-child(6) { width: 14%; } /* Avg Time */
+
+  /* Enhanced Insight Cards - Medium tablets */
+  .insight-card {
+    padding: 18px;
+    gap: 12px;
+  }
+
+  .insight-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .stat-icon {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+  }
+
+  .performer-name {
+    font-size: 1rem;
+  }
+
+  .stat-badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+  }
+
+  .insight-card h5 {
+    font-size: 1rem;
+  }
 }
 
 /* Small screens (large phones) - 6 columns with excellent organization */
@@ -1960,6 +2193,59 @@
     font-size: 0.55rem;
     display: block;
     color: #666;
+  }
+
+  /* Enhanced Insight Cards - Mobile */
+  .insight-card {
+    flex-direction: column;
+    padding: 16px;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .insight-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    align-self: center;
+  }
+
+  .stat-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .performer-name {
+    font-size: 0.95rem;
+  }
+
+  .stat-badge {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+  }
+
+  .insight-card h5 {
+    font-size: 0.9rem;
+    justify-content: center;
+  }
+
+  .stat-item {
+    gap: 8px;
+  }
+
+  .stat-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+  }
+
+  .stat-value {
+    font-size: 0.85rem;
   }
 }
 
