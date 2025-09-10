@@ -288,11 +288,21 @@
 
     // Update efficiency chart
     if (charts.efficiency && data.trendData) {
-      const chartData = {
-        labels: data.trendData.map((d) => d.dateFormatted || d.periodLabel),
-        data: data.trendData.map((d) => d.onTimeRate || d.value),
-      };
-      updateChartDataSafe(charts.efficiency, chartData, "efficiency");
+      const labels = data.trendData.map(
+        (d) => d.dateFormatted || d.periodLabel
+      );
+      const onTimeRateData = data.trendData.map((d) => d.onTimeRate || 0);
+      const overrunData = data.trendData.map((d) =>
+        Math.abs(d.overrunPercentage || 0)
+      );
+      const tasksData = data.trendData.map((d) => d.tasksCompleted || 0);
+
+      // Update chart data
+      charts.efficiency.data.labels = labels;
+      charts.efficiency.data.datasets[0].data = onTimeRateData;
+      charts.efficiency.data.datasets[1].data = overrunData;
+      charts.efficiency.data.datasets[2].data = tasksData;
+      charts.efficiency.update();
     }
 
     // Update trend indicators
@@ -608,71 +618,135 @@
       }
 
       charts.efficiency = new window.Chart(ctx.getContext("2d"), {
-        type: "line",
+        type: "bar",
         data: {
           labels: [],
           datasets: [
             {
               label: "On-Time Rate (%)",
               data: [],
-              borderColor: colors.primary,
-              backgroundColor: colors.primary + "20",
-              tension: 0.4,
-              fill: true,
-              pointBackgroundColor: colors.primary,
-              pointBorderColor: "#ffffff",
-              pointBorderWidth: 2,
-              pointRadius: 4,
+              backgroundColor: "#3b82f6",
+              borderColor: "#2563eb",
+              borderWidth: 2,
+              borderRadius: 4,
+              borderSkipped: false,
+              yAxisID: "y",
+            },
+            {
+              label: "Overrun Percentage (%)",
+              data: [],
+              backgroundColor: "#f59e0b",
+              borderColor: "#d97706",
+              borderWidth: 2,
+              borderRadius: 4,
+              borderSkipped: false,
+              yAxisID: "y",
+            },
+            {
+              label: "Tasks Completed",
+              data: [],
+              backgroundColor: "#10b981",
+              borderColor: "#059669",
+              borderWidth: 2,
+              borderRadius: 4,
+              borderSkipped: false,
+              yAxisID: "y1",
             },
           ],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          interaction: {
+            mode: "index",
+            intersect: false,
+          },
           plugins: {
             legend: {
-              display: true,
-              position: "top",
+              display: false, // We have custom legend
             },
             tooltip: {
-              mode: "index",
-              intersect: false,
+              backgroundColor: "rgba(255, 255, 255, 0.95)",
+              titleColor: "#1f2937",
+              bodyColor: "#374151",
+              borderColor: "#e5e7eb",
+              borderWidth: 1,
+              cornerRadius: 8,
+              displayColors: true,
               callbacks: {
+                title: function (context) {
+                  return `Period: ${context[0].label}`;
+                },
                 label: function (context) {
-                  return (
-                    context.dataset.label +
-                    ": " +
-                    context.parsed.y.toFixed(1) +
-                    "%"
-                  );
+                  const datasetLabel = context.dataset.label;
+                  const value = context.parsed.y;
+
+                  if (datasetLabel.includes("Tasks")) {
+                    return `${datasetLabel}: ${value} tasks`;
+                  } else {
+                    return `${datasetLabel}: ${value.toFixed(1)}%`;
+                  }
                 },
               },
             },
           },
           scales: {
             x: {
-              display: true,
+              type: "category",
               grid: {
                 display: false,
               },
+              ticks: {
+                maxRotation: 45,
+                minRotation: 0,
+              },
             },
             y: {
-              beginAtZero: true,
-              max: 100,
-              ticks: {
-                callback: function (value) {
-                  return value + "%";
+              type: "linear",
+              display: true,
+              position: "left",
+              title: {
+                display: true,
+                text: "Percentage (%)",
+                color: "#6b7280",
+                font: {
+                  size: 12,
+                  weight: "600",
                 },
               },
               grid: {
-                color: "#f3f4f6",
+                color: "rgba(156, 163, 175, 0.2)",
+              },
+              ticks: {
+                color: "#6b7280",
+                font: {
+                  size: 11,
+                },
               },
             },
-          },
-          interaction: {
-            mode: "nearest",
-            axis: "x",
-            intersect: false,
+            y1: {
+              type: "linear",
+              display: true,
+              position: "right",
+              title: {
+                display: true,
+                text: "Tasks Count",
+                color: "#6b7280",
+                font: {
+                  size: 12,
+                  weight: "600",
+                },
+              },
+              grid: {
+                drawOnChartArea: false,
+              },
+              ticks: {
+                color: "#6b7280",
+                font: {
+                  size: 11,
+                },
+              },
+            },
           },
         },
       });

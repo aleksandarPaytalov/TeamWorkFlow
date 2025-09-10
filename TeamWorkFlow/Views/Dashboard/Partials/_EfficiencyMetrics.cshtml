@@ -142,53 +142,38 @@
         tasksGradient.addColorStop(1, 'rgba(16, 185, 129, 0.05)');
 
         new Chart(ctx, {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: data.map(d => d.dateFormatted || d.periodLabel),
                 datasets: [
                     {
                         label: 'On-Time Rate (%)',
                         data: data.map(d => d.onTimeRate),
-                        borderColor: '#3b82f6',
-                        backgroundColor: onTimeGradient,
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#3b82f6',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
+                        backgroundColor: '#3b82f6',
+                        borderColor: '#2563eb',
+                        borderWidth: 2,
+                        borderRadius: 4,
+                        borderSkipped: false,
                         yAxisID: 'y'
                     },
                     {
                         label: 'Overrun Percentage (%)',
                         data: data.map(d => Math.abs(d.overrunPercentage)),
-                        borderColor: '#f59e0b',
-                        backgroundColor: overrunGradient,
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#f59e0b',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
+                        backgroundColor: '#f59e0b',
+                        borderColor: '#d97706',
+                        borderWidth: 2,
+                        borderRadius: 4,
+                        borderSkipped: false,
                         yAxisID: 'y'
                     },
                     {
                         label: 'Tasks Completed',
                         data: data.map(d => d.tasksCompleted),
-                        borderColor: '#10b981',
-                        backgroundColor: tasksGradient,
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#10b981',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
+                        backgroundColor: '#10b981',
+                        borderColor: '#059669',
+                        borderWidth: 2,
+                        borderRadius: 4,
+                        borderSkipped: false,
                         yAxisID: 'y1'
                     }
                 ]
@@ -199,6 +184,65 @@
                 interaction: {
                     mode: 'index',
                     intersect: false,
+                },
+                indexAxis: 'x',
+                scales: {
+                    x: {
+                        type: 'category',
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 0
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Percentage (%)',
+                            color: '#6b7280',
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(156, 163, 175, 0.2)'
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Tasks Count',
+                            color: '#6b7280',
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            }
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
                 },
                 plugins: {
                     legend: {
@@ -236,76 +280,6 @@
                                     `⏱️ Overrun: ${Math.abs(dataPoint.overrunPercentage).toFixed(1)}%`,
                                     `📋 Tasks: ${dataPoint.tasksCompleted}`
                                 ];
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            color: 'rgba(156, 163, 175, 0.1)',
-                            drawBorder: false
-                        },
-                        ticks: {
-                            color: '#6b7280',
-                            font: {
-                                size: 12,
-                                weight: '500'
-                            }
-                        }
-                    },
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        beginAtZero: true,
-                        max: 100,
-                        grid: {
-                            color: 'rgba(156, 163, 175, 0.1)',
-                            drawBorder: false
-                        },
-                        ticks: {
-                            color: '#6b7280',
-                            font: {
-                                size: 12,
-                                weight: '500'
-                            },
-                            callback: function(value) {
-                                return value + '%';
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Percentage (%)',
-                            color: '#374151',
-                            font: {
-                                size: 13,
-                                weight: '600'
-                            }
-                        }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        beginAtZero: true,
-                        grid: {
-                            drawOnChartArea: false,
-                        },
-                        ticks: {
-                            color: '#6b7280',
-                            font: {
-                                size: 12,
-                                weight: '500'
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Tasks Count',
-                            color: '#374151',
-                            font: {
-                                size: 13,
-                                weight: '600'
                             }
                         }
                     }
