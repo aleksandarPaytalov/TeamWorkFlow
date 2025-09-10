@@ -37,13 +37,72 @@
         </div>
     </div>
 
-    <!-- Trend Data Chart -->
+    <!-- Enhanced Trend Data Chart -->
     @if (Model.TrendData != null && Model.TrendData.Any())
     {
-        <div class="period-comparison">
-            <h4>Efficiency Trend</h4>
-            <div class="comparison-chart">
-                <canvas id="efficiency-comparison-chart" width="400" height="200"></canvas>
+        <div class="efficiency-trend-section">
+            <div class="trend-header">
+                <h4 class="trend-title">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Efficiency Trend Analysis
+                </h4>
+                <div class="trend-legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);"></span>
+                        <span class="legend-label">On-Time Rate</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: linear-gradient(135deg, #f59e0b, #d97706);"></span>
+                        <span class="legend-label">Overrun %</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: linear-gradient(135deg, #10b981, #059669);"></span>
+                        <span class="legend-label">Tasks Completed</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="efficiency-comparison-chart"></canvas>
+            </div>
+            <div class="chart-insights">
+                <div class="insight-grid">
+                    <div class="insight-card">
+                        <div class="insight-icon">
+                            <i class="fas fa-trending-up"></i>
+                        </div>
+                        <div class="insight-content">
+                            <div class="insight-value" id="trend-direction">Calculating...</div>
+                            <div class="insight-label">Trend Direction</div>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="insight-content">
+                            <div class="insight-value" id="avg-performance">Calculating...</div>
+                            <div class="insight-label">Avg Performance</div>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="insight-content">
+                            <div class="insight-value" id="total-tasks">@Model.TrendData.Sum(t => t.TasksCompleted)</div>
+                            <div class="insight-label">Total Tasks</div>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="insight-content">
+                            <div class="insight-value" id="data-points">@Model.TrendData.Count</div>
+                            <div class="insight-label">Data Points</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     }
@@ -61,28 +120,227 @@
         const ctx = document.getElementById('efficiency-comparison-chart').getContext('2d');
         const data = @Html.Raw(Json.Serialize(Model.TrendData ?? new List<EfficiencyTrendPoint>()));
 
+        if (!data || data.length === 0) {
+            ctx.canvas.parentElement.innerHTML = '<div class="no-data-message"><i class="fas fa-chart-line"></i><p>No trend data available</p></div>';
+            return;
+        }
+
+        // Calculate insights
+        updateChartInsights(data);
+
+        // Create gradient backgrounds
+        const onTimeGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        onTimeGradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+        onTimeGradient.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
+
+        const overrunGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        overrunGradient.addColorStop(0, 'rgba(245, 158, 11, 0.3)');
+        overrunGradient.addColorStop(1, 'rgba(245, 158, 11, 0.05)');
+
+        const tasksGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        tasksGradient.addColorStop(0, 'rgba(16, 185, 129, 0.3)');
+        tasksGradient.addColorStop(1, 'rgba(16, 185, 129, 0.05)');
+
         new Chart(ctx, {
             type: 'line',
             data: {
                 labels: data.map(d => d.dateFormatted || d.periodLabel),
-                datasets: [{
-                    label: 'On-Time Rate (%)',
-                    data: data.map(d => d.onTimeRate),
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    tension: 0.4
-                }]
+                datasets: [
+                    {
+                        label: 'On-Time Rate (%)',
+                        data: data.map(d => d.onTimeRate),
+                        borderColor: '#3b82f6',
+                        backgroundColor: onTimeGradient,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#3b82f6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Overrun Percentage (%)',
+                        data: data.map(d => Math.abs(d.overrunPercentage)),
+                        borderColor: '#f59e0b',
+                        backgroundColor: overrunGradient,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#f59e0b',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Tasks Completed',
+                        data: data.map(d => d.tasksCompleted),
+                        borderColor: '#10b981',
+                        backgroundColor: tasksGradient,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        yAxisID: 'y1'
+                    }
+                ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        display: false // We have custom legend
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#1f2937',
+                        bodyColor: '#374151',
+                        borderColor: '#e5e7eb',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        callbacks: {
+                            title: function(context) {
+                                return `Period: ${context[0].label}`;
+                            },
+                            label: function(context) {
+                                const datasetLabel = context.dataset.label;
+                                const value = context.parsed.y;
+
+                                if (datasetLabel.includes('Tasks')) {
+                                    return `${datasetLabel}: ${value} tasks`;
+                                } else {
+                                    return `${datasetLabel}: ${value.toFixed(1)}%`;
+                                }
+                            },
+                            afterBody: function(context) {
+                                const dataIndex = context[0].dataIndex;
+                                const dataPoint = data[dataIndex];
+                                return [
+                                    '',
+                                    `📊 Performance Summary:`,
+                                    `✅ On-time: ${dataPoint.onTimeRate.toFixed(1)}%`,
+                                    `⏱️ Overrun: ${Math.abs(dataPoint.overrunPercentage).toFixed(1)}%`,
+                                    `📋 Tasks: ${dataPoint.tasksCompleted}`
+                                ];
+                            }
+                        }
+                    }
+                },
                 scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(156, 163, 175, 0.1)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            }
+                        }
+                    },
                     y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
                         beginAtZero: true,
-                        max: 100
+                        max: 100,
+                        grid: {
+                            color: 'rgba(156, 163, 175, 0.1)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            },
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Percentage (%)',
+                            color: '#374151',
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        beginAtZero: true,
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Tasks Count',
+                            color: '#374151',
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            }
+                        }
+                    }
+                },
+                elements: {
+                    point: {
+                        hoverBackgroundColor: '#ffffff',
+                        hoverBorderWidth: 3
                     }
                 }
             }
         });
+    }
+
+    function updateChartInsights(data) {
+        if (!data || data.length === 0) return;
+
+        // Calculate trend direction
+        const firstOnTime = data[0].onTimeRate;
+        const lastOnTime = data[data.length - 1].onTimeRate;
+        const trendDirection = lastOnTime > firstOnTime ? 'Improving' :
+                              lastOnTime < firstOnTime ? 'Declining' : 'Stable';
+
+        const trendElement = document.getElementById('trend-direction');
+        if (trendElement) {
+            trendElement.textContent = trendDirection;
+            trendElement.className = `insight-value ${trendDirection.toLowerCase()}`;
+        }
+
+        // Calculate average performance
+        const avgOnTime = data.reduce((sum, d) => sum + d.onTimeRate, 0) / data.length;
+        const avgPerformanceElement = document.getElementById('avg-performance');
+        if (avgPerformanceElement) {
+            avgPerformanceElement.textContent = `${avgOnTime.toFixed(1)}%`;
+            avgPerformanceElement.className = `insight-value ${avgOnTime >= 80 ? 'excellent' : avgOnTime >= 60 ? 'good' : 'needs-improvement'}`;
+        }
     }
 </script>
