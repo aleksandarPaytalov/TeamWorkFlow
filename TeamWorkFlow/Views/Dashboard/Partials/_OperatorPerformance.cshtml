@@ -74,46 +74,33 @@
             <table id="operator-table" class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Rank</th>
-                        <th>Operator</th>
-                        <th>Tasks Completed</th>
-                        <th>Efficiency Rating</th>
-                        <th>On-Time Rate</th>
-                        <th>Avg Time</th>
-                        <th>Status</th>
-                        <th>Trend</th>
+                        <th class="col-priority-1">Rank</th>
+                        <th class="col-priority-1">Operator</th>
+                        <th class="col-priority-2">Tasks Completed</th>
+                        <th class="col-priority-2">Efficiency Rating</th>
+                        <th class="col-priority-3">On-Time Rate</th>
+                        <th class="col-priority-4">Avg Time</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var op in Model.OrderBy(o => o.Rank))
                     {
                         <tr class="@(op.IsTopPerformer ? "top-performer" : op.NeedsAttention ? "needs-attention" : "")">
-                            <td>
+                            <td class="col-priority-1">
                                 <span class="@op.RankClass">@op.Rank</span>
                             </td>
-                            <td>
+                            <td class="col-priority-1">
                                 <div class="operator-info">
                                     <strong>@op.OperatorName</strong>
                                     <small class="text-muted d-block">@op.OperatorEmail</small>
                                 </div>
                             </td>
-                            <td>@op.TasksCompleted</td>
-                            <td>
+                            <td class="col-priority-2">@op.TasksCompleted</td>
+                            <td class="col-priority-2">
                                 <span class="@op.EfficiencyClass">@op.EfficiencyRatingFormatted</span>
                             </td>
-                            <td>@op.OnTimeRateFormatted</td>
-                            <td>@op.AverageCompletionTimeFormatted</td>
-                            <td>
-                                <span class="badge @(op.IsTopPerformer ? "bg-success" : op.NeedsAttention ? "bg-warning" : "bg-secondary")">
-                                    @op.PerformanceStatus
-                                </span>
-                            </td>
-                            <td>
-                                <span class="@op.TrendClass">
-                                    <i class="@op.TrendIcon"></i>
-                                    @op.PerformanceTrendFormatted
-                                </span>
-                            </td>
+                            <td class="col-priority-3">@op.OnTimeRateFormatted</td>
+                            <td class="col-priority-4">@op.AverageCompletionTimeFormatted</td>
                         </tr>
                     }
                 </tbody>

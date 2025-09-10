@@ -487,23 +487,6 @@
                 <td>${
                   operator.averageCompletionTimeHours?.toFixed(1) || "0"
                 }h</td>
-                <td>
-                    <span class="badge ${
-                      operator.isTopPerformer
-                        ? "bg-success"
-                        : operator.needsAttention
-                        ? "bg-warning"
-                        : "bg-secondary"
-                    }">
-                        ${operator.performanceStatus || "Normal"}
-                    </span>
-                </td>
-                <td>
-                    <span class="${operator.trendClass || ""}">
-                        <i class="${operator.trendIcon || "fas fa-minus"}"></i>
-                        ${operator.performanceTrend?.toFixed(1) || "0"}%
-                    </span>
-                </td>
             `;
 
       tableBody.appendChild(row);
