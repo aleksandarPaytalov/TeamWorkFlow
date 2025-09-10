@@ -860,6 +860,108 @@
   margin: 0;
 }
 
+/* Responsive styles for screens larger than 768px - 2x2 Grid Layout */
+@media (min-width: 769px) {
+  /* Force 2x2 grid layout for all screen sizes above 768px */
+  .performance-summary .row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    gap: 16px !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .performance-summary .col-md-3 {
+    width: 100% !important;
+    max-width: none !important;
+    flex: none !important;
+    padding: 0 !important;
+    height: auto !important;
+  }
+
+  .performance-summary .summary-card {
+    padding: 16px !important;
+    gap: 12px !important;
+    height: 85px !important;
+    min-height: 85px !important;
+    max-height: 85px !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .performance-summary .summary-icon {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 16px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .performance-summary .summary-content {
+    flex: 1 !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+
+  .performance-summary .summary-value {
+    font-size: 1.4rem !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    margin-bottom: 4px !important;
+    font-weight: 600 !important;
+  }
+
+  .performance-summary .summary-label {
+    font-size: 0.8rem !important;
+    line-height: 1.2 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    color: #6c757d !important;
+    margin: 0 !important;
+  }
+}
+
+/* Maintain 2x2 grid even for larger screens */
+@media (min-width: 1200px) {
+  .performance-summary .row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    gap: 20px !important;
+    margin: 0 auto !important;
+    max-width: 800px !important;
+  }
+
+  .performance-summary .summary-card {
+    padding: 18px !important;
+    gap: 14px !important;
+    height: 90px !important;
+    min-height: 90px !important;
+    max-height: 90px !important;
+  }
+
+  .performance-summary .summary-icon {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 17px !important;
+  }
+
+  .performance-summary .summary-value {
+    font-size: 1.5rem !important;
+  }
+
+  .performance-summary .summary-label {
+    font-size: 0.85rem !important;
+  }
+}
+
 .performance-chart {
   margin-bottom: 24px;
 }
