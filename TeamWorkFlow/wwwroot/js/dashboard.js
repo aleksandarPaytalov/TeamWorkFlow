@@ -310,8 +310,11 @@
   }
 
   function updateOperatorSection(data) {
+    // Handle both array format (direct operator data) and object format (with operators property)
+    const operators = Array.isArray(data) ? data : data.operators;
+
     // Update operator performance chart
-    if (charts.operator && data.operators) {
+    if (charts.operator && operators) {
       const chartColors = {
         success: "#10b981",
         warning: "#f59e0b",
@@ -319,11 +322,11 @@
       };
 
       const chartData = {
-        labels: data.operators.map((op) => op.operatorName),
-        data: data.operators.map((op) => op.efficiencyRating),
+        labels: operators.map((op) => op.operatorName),
+        data: operators.map((op) => op.efficiencyRating),
       };
 
-      const backgroundColors = data.operators.map((op) => {
+      const backgroundColors = operators.map((op) => {
         if (op.efficiencyRating >= 85) return chartColors.success;
         if (op.efficiencyRating >= 70) return chartColors.warning;
         return chartColors.danger;
@@ -334,7 +337,7 @@
     }
 
     // Update operator table
-    updateOperatorTable(data.operators);
+    updateOperatorTable(operators);
 
     // Update summary cards
     if (data.summary) {

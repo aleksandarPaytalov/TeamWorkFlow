@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Models.Dashboard;
 using TeamWorkFlow.Extensions;
-using static TeamWorkFlow.Core.Constants.Messages;
-using static TeamWorkFlow.Constants.MessageConstants;
 
 namespace TeamWorkFlow.Controllers
 {
@@ -16,18 +14,15 @@ namespace TeamWorkFlow.Controllers
     {
         private readonly ITaskAnalyticsService _analyticsService;
         private readonly IReportService _reportService;
-        private readonly IOperatorService _operatorService;
         private readonly ILogger<DashboardController> _logger;
 
         public DashboardController(
             ITaskAnalyticsService analyticsService,
             IReportService reportService,
-            IOperatorService operatorService,
             ILogger<DashboardController> logger)
         {
             _analyticsService = analyticsService;
             _reportService = reportService;
-            _operatorService = operatorService;
             _logger = logger;
         }
 
@@ -86,31 +81,13 @@ namespace TeamWorkFlow.Controllers
             }
         }
 
-        /// <summary>
-        /// Debug endpoint to compare active operators count between services
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> DebugActiveOperators()
-        {
-            try
-            {
-                var activeOperatorsFromOperatorService = await _operatorService.GetAllActiveOperatorsAsync();
-                var activeOperatorsFromTaskAnalytics = await _analyticsService.GetActiveOperatorsCountAsync();
 
-                var debugInfo = new
-                {
-                    OperatorServiceCount = activeOperatorsFromOperatorService.Count,
-                    TaskAnalyticsCount = activeOperatorsFromTaskAnalytics,
-                    OperatorServiceOperators = activeOperatorsFromOperatorService.Select(o => new { o.Id, o.FullName, o.Email, o.IsActive }).ToList()
-                };
 
-                return Json(debugInfo);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = ex.Message });
-            }
-        }
+
+
+
+
+
 
         /// <summary>
         /// Get efficiency metrics data for AJAX requests

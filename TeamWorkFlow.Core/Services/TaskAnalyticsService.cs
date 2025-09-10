@@ -776,11 +776,11 @@ namespace TeamWorkFlow.Core.Services
                 result.Add(performance);
             }
 
-            // Calculate rankings and relative performance
-            CalculateOperatorRankings(result);
-
-            // Sort results
+            // Sort results first
             result = SortOperatorPerformance(result, sortBy);
+
+            // Calculate rankings based on the sorted order
+            CalculateOperatorRankings(result, sortBy);
 
             return result;
         }
@@ -1214,23 +1214,20 @@ namespace TeamWorkFlow.Core.Services
         }
 
         /// <summary>
-        /// Calculates operator rankings
+        /// Calculates operator rankings based on current sort order
         /// </summary>
-        private static void CalculateOperatorRankings(List<OperatorPerformanceModel> operators)
+        private static void CalculateOperatorRankings(List<OperatorPerformanceModel> operators, string sortBy)
         {
-            var sortedByEfficiency = operators
-                .OrderByDescending(o => o.EfficiencyRating)
-                .ToList();
-
-            for (int i = 0; i < sortedByEfficiency.Count; i++)
+            // Assign ranks based on current order (operators list is already sorted)
+            for (int i = 0; i < operators.Count; i++)
             {
-                sortedByEfficiency[i].Rank = i + 1;
+                operators[i].Rank = i + 1;
 
-                // Calculate relative performance
+                // Calculate relative performance (always based on efficiency for comparison)
                 if (operators.Count > 1)
                 {
                     var avgEfficiency = operators.Average(o => o.EfficiencyRating);
-                    sortedByEfficiency[i].RelativeToTeamAverage = sortedByEfficiency[i].EfficiencyRating - avgEfficiency;
+                    operators[i].RelativeToTeamAverage = operators[i].EfficiencyRating - avgEfficiency;
                 }
             }
         }
@@ -1242,12 +1239,23 @@ namespace TeamWorkFlow.Core.Services
         {
             return sortBy.ToLower() switch
             {
-                "efficiency" => operators.OrderByDescending(o => o.EfficiencyRating).ToList(),
-                "tasks" => operators.OrderByDescending(o => o.TasksCompleted).ToList(),
-                "hours" => operators.OrderByDescending(o => o.TotalProductiveHours).ToList(),
-                "ontime" => operators.OrderByDescending(o => o.OnTimeCompletionRate).ToList(),
-                "name" => operators.OrderBy(o => o.OperatorName).ToList(),
-                _ => operators.OrderByDescending(o => o.EfficiencyRating).ToList()
+                "efficiency" => operators.OrderByDescending(o => o.EfficiencyRating)
+                                        .ThenByDescending(o => o.TasksCompleted)
+                                        .ThenBy(o => o.OperatorName).ToList(),
+                "tasks" => operators.OrderByDescending(o => o.TasksCompleted)
+                                   .ThenByDescending(o => o.EfficiencyRating)
+                                   .ThenBy(o => o.OperatorName).ToList(),
+                "hours" => operators.OrderByDescending(o => o.TotalProductiveHours)
+                                   .ThenByDescending(o => o.EfficiencyRating)
+                                   .ThenBy(o => o.OperatorName).ToList(),
+                "ontime" => operators.OrderByDescending(o => o.OnTimeCompletionRate)
+                                    .ThenByDescending(o => o.EfficiencyRating)
+                                    .ThenBy(o => o.OperatorName).ToList(),
+                "name" => operators.OrderBy(o => o.OperatorName)
+                                  .ThenByDescending(o => o.EfficiencyRating).ToList(),
+                _ => operators.OrderByDescending(o => o.EfficiencyRating)
+                             .ThenByDescending(o => o.TasksCompleted)
+                             .ThenBy(o => o.OperatorName).ToList()
             };
         }
 

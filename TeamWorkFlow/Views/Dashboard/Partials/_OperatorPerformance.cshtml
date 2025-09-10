@@ -71,7 +71,7 @@
     <div class="performance-table">
         <h4>Detailed Performance</h4>
         <div class="table-responsive">
-            <table class="table table-striped">
+            <table id="operator-table" class="table table-striped">
                 <thead>
                     <tr>
                         <th>Rank</th>
@@ -165,49 +165,10 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof Chart !== 'undefined') {
-            initializeOperatorChart();
-        }
-    });
-
-    function initializeOperatorChart() {
-        const ctx = document.getElementById('operator-performance-chart');
-        if (ctx) {
-            const operators = @Html.Raw(Json.Serialize(Model ?? new List<OperatorPerformanceModel>()));
-
-            new Chart(ctx.getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: operators.map(o => o.operatorName),
-                    datasets: [{
-                        label: 'Efficiency Rating (%)',
-                        data: operators.map(o => o.efficiencyRating),
-                        backgroundColor: operators.map(o =>
-                            o.efficiencyRating >= 85 ? '#28a745' :
-                            o.efficiencyRating >= 70 ? '#ffc107' : '#dc3545'
-                        ),
-                        borderColor: '#dee2e6',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
-        }
-    }
+<!-- Chart data for JavaScript initialization -->
+<script type="application/json" id="operator-chart-data">
+@Html.Raw(Json.Serialize(new {
+    labels = Model?.Select(o => o.OperatorName).ToArray() ?? new string[0],
+    data = Model?.Select(o => o.EfficiencyRating).ToArray() ?? new decimal[0]
+}))
 </script>
