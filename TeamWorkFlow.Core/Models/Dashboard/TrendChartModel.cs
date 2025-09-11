@@ -90,7 +90,7 @@ namespace TeamWorkFlow.Core.Models.Dashboard
         /// <summary>
         /// Indicates if there's sufficient data for trend analysis
         /// </summary>
-        public bool HasSufficientData => TotalDataPoints >= 3;
+        public bool HasSufficientData => TotalDataPoints >= 2;
 
         /// <summary>
         /// Analysis period description
@@ -189,7 +189,7 @@ namespace TeamWorkFlow.Core.Models.Dashboard
             get
             {
                 if (!HasSufficientData)
-                    return "Insufficient data points for reliable trend analysis. At least 3 periods are recommended.";
+                    return "Insufficient data points for reliable trend analysis. At least 2 periods are recommended.";
                 return string.Empty;
             }
         }

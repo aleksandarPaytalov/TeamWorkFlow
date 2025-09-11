@@ -452,7 +452,7 @@
 </div>
 
 <!-- Time Tracking Modals -->
-@if (User.IsAdmin() || User.IsOperator())
+@if (User != null && (User.IsAdmin() || User.IsOperator()))
 {
 	<partial name="Partials/_SessionTypeModal" />
 	<partial name="Partials/_WorkSessionHistory" />

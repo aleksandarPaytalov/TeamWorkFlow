@@ -202,6 +202,8 @@
         // Check if Chart.js is available
         if (typeof Chart !== 'undefined' && typeof window.Chart !== 'undefined') {
             initializeCompletionTrendChart();
+            // Enforce positioning after initialization
+            setTimeout(() => enforceChartPositioning(), 200);
         } else {
             console.error('Chart.js not available for completion trends');
             // Try to wait for Chart.js to load
@@ -209,6 +211,8 @@
                 if (typeof Chart !== 'undefined' && typeof window.Chart !== 'undefined') {
                     console.log('Chart.js loaded after delay, initializing chart');
                     initializeCompletionTrendChart();
+                    // Enforce positioning after delayed initialization
+                    setTimeout(() => enforceChartPositioning(), 200);
                 } else {
                     console.error('Chart.js still not available after delay');
                 }
@@ -401,7 +405,37 @@
             chartElement.chart = completionTrendChart;
             window.chartRegistry['completion-trend-chart'] = completionTrendChart;
 
+            // Also register with dashboard.js system if available
+            if (window.charts && typeof window.charts === 'object') {
+                window.charts.completionTrend = completionTrendChart;
+                window.charts['completion-trend-chart'] = completionTrendChart;
+                console.log('Chart registered with dashboard.js system');
+            }
+
             console.log('Completion trend chart initialized successfully');
+
+            // Force canvas dimensions after Chart.js initialization
+            setTimeout(() => {
+                const canvas = document.getElementById('completion-trend-chart');
+                if (canvas) {
+                    console.log('Forcing canvas dimensions after Chart.js init...');
+                    canvas.style.setProperty('width', '100%', 'important');
+                    canvas.style.setProperty('height', '360px', 'important');
+                    canvas.style.setProperty('max-width', '100%', 'important');
+                    canvas.style.setProperty('max-height', '360px', 'important');
+                    canvas.style.setProperty('min-height', '360px', 'important');
+                    canvas.width = 800;
+                    canvas.height = 360;
+                    console.log('Canvas dimensions forced. New height:', canvas.style.height);
+
+                    // Trigger chart resize if possible
+                    if (completionTrendChart && typeof completionTrendChart.resize === 'function') {
+                        completionTrendChart.resize();
+                        console.log('Chart resized');
+                    }
+                }
+            }, 100);
+
         } catch (error) {
             console.error('Error initializing completion trend chart:', error);
         }
@@ -421,7 +455,19 @@
                 e.preventDefault();
                 e.stopPropagation();
 
-                refreshCompletionTrendData();
+                // Use the dashboard.js refresh system to avoid conflicts
+                if (window.refreshDashboardData && typeof window.refreshDashboardData === 'function') {
+                    console.log('Using dashboard.js refresh system');
+                    const filters = window.getCurrentFilters ? window.getCurrentFilters() : {};
+                    window.refreshDashboardData(filters).catch(error => {
+                        console.error('Dashboard refresh failed:', error);
+                        // Fallback to local refresh
+                        refreshCompletionTrendData();
+                    });
+                } else {
+                    console.log('Dashboard.js not available, using local refresh');
+                    refreshCompletionTrendData();
+                }
                 return false;
             }, true);
         } else {
@@ -519,6 +565,9 @@
             if (chartCanvas) {
                 chartCanvas.style.opacity = '1';
             }
+
+            // Enforce chart positioning after refresh is complete
+            setTimeout(() => enforceChartPositioning(), 200);
         }
     }
 
@@ -531,7 +580,35 @@
             return;
         }
 
-        // Completely replace the canvas element to avoid Chart.js conflicts
+        // Check if dashboard.js chart system is available and has the chart
+        const dashboardChart = window.charts && (window.charts.completionTrend || window.charts['completion-trend-chart']);
+        if (dashboardChart) {
+            console.log('Using dashboard.js chart system for update');
+            try {
+                // Update using dashboard.js system
+                if (window.updateChart && typeof window.updateChart === 'function') {
+                    window.updateChart(dashboardChart, trendData);
+                    updateTrendStats(trendData);
+                    return;
+                } else {
+                    // Direct chart update
+                    const labels = trendData.map(d => d.label || d.dateFormatted || d.date || 'N/A');
+                    const values = trendData.map(d => d.value || d.completionRate || 0);
+
+                    dashboardChart.data.labels = labels;
+                    dashboardChart.data.datasets[0].data = values;
+                    dashboardChart.update();
+                    updateTrendStats(trendData);
+                    // Enforce positioning after chart update
+                    setTimeout(() => enforceChartPositioning(), 100);
+                    return;
+                }
+            } catch (error) {
+                console.warn('Dashboard.js chart update failed, falling back to local update:', error);
+            }
+        }
+
+        // Fallback to local chart recreation
         console.log('Recreating canvas element to avoid Chart.js conflicts');
 
         // Store the data for initialization
@@ -552,8 +629,8 @@
             delete window.chartRegistry['completion-trend-chart'];
         }
 
-        // Get the canvas container
-        const canvasContainer = document.querySelector('.chart-container');
+        // Get the canvas container - specific to completion trends
+        const canvasContainer = document.querySelector('.trend-charts-section .main-trend-chart .chart-container');
         if (!canvasContainer) {
             console.error('Chart container not found');
             return;
@@ -568,10 +645,30 @@
         // Create a completely new canvas element
         const newCanvas = document.createElement('canvas');
         newCanvas.id = 'completion-trend-chart';
-        newCanvas.width = 400;
-        newCanvas.height = 200;
-        newCanvas.style.maxWidth = '100%';
-        newCanvas.style.height = 'auto';
+        newCanvas.width = 800;
+        newCanvas.height = 360;
+        newCanvas.setAttribute('data-chart-type', 'completion-trend');
+
+        // Set explicit CSS styles to ensure proper positioning and sizing with !important
+        newCanvas.style.setProperty('width', '100%', 'important');
+        newCanvas.style.setProperty('height', '360px', 'important');
+        newCanvas.style.setProperty('max-width', '100%', 'important');
+        newCanvas.style.setProperty('display', 'block', 'important');
+        newCanvas.style.setProperty('position', 'relative', 'important');
+        newCanvas.style.setProperty('top', '0', 'important');
+        newCanvas.style.setProperty('left', '0', 'important');
+        newCanvas.style.setProperty('margin', '0', 'important');
+        newCanvas.style.setProperty('padding', '0', 'important');
+        newCanvas.style.setProperty('z-index', '1', 'important');
+        newCanvas.style.setProperty('visibility', 'visible', 'important');
+        newCanvas.style.setProperty('opacity', '1', 'important');
+
+        // Ensure container has proper styling to contain the chart
+        canvasContainer.style.position = 'relative';
+        canvasContainer.style.width = '100%';
+        canvasContainer.style.height = '400px';
+        canvasContainer.style.overflow = 'visible';
+        canvasContainer.style.display = 'block';
 
         // Add the new canvas to the container
         canvasContainer.appendChild(newCanvas);
@@ -579,6 +676,8 @@
         // Recreate the chart with new data after a delay
         setTimeout(() => {
             initializeCompletionTrendChart();
+            // Ensure positioning is enforced after chart creation
+            enforceChartPositioning();
         }, 100);
 
         return;
@@ -644,6 +743,112 @@
         }
     }
 
+    function enforceChartPositioning() {
+        console.log('Enforcing chart positioning...');
+
+        const container = document.querySelector('.trend-charts-section .main-trend-chart .chart-container');
+        const canvas = document.getElementById('completion-trend-chart');
+
+        if (container) {
+            console.log('Container found, applying styles...');
+            container.style.setProperty('position', 'relative', 'important');
+            container.style.setProperty('width', '100%', 'important');
+            container.style.setProperty('height', '400px', 'important');
+            container.style.setProperty('overflow', 'visible', 'important');
+            container.style.setProperty('display', 'block', 'important');
+            container.style.setProperty('margin', '0', 'important');
+            container.style.setProperty('padding', '20px', 'important');
+            container.style.setProperty('background', 'white', 'important');
+            container.style.setProperty('border-radius', '8px', 'important');
+            container.style.setProperty('border', '1px solid #e9ecef', 'important');
+            console.log('Container styles applied. Height:', container.style.height, 'Computed height:', window.getComputedStyle(container).height);
+        } else {
+            console.error('Container not found!');
+        }
+
+        if (canvas) {
+            console.log('Canvas found, applying styles...');
+            canvas.style.setProperty('position', 'relative', 'important');
+            canvas.style.setProperty('top', '0', 'important');
+            canvas.style.setProperty('left', '0', 'important');
+            canvas.style.setProperty('width', '100%', 'important');
+            canvas.style.setProperty('height', '360px', 'important'); // Slightly less than container to account for padding
+            canvas.style.setProperty('max-width', '100%', 'important');
+            canvas.style.setProperty('display', 'block', 'important');
+            canvas.style.setProperty('margin', '0', 'important');
+            canvas.style.setProperty('padding', '0', 'important');
+            canvas.style.setProperty('z-index', '1', 'important');
+            canvas.style.setProperty('visibility', 'visible', 'important');
+            canvas.style.setProperty('opacity', '1', 'important');
+
+            // Set canvas attributes for proper rendering
+            canvas.setAttribute('width', '800');
+            canvas.setAttribute('height', '360');
+
+            console.log('Canvas styles applied. Width:', canvas.style.width, 'Height:', canvas.style.height);
+            console.log('Canvas computed styles:', window.getComputedStyle(canvas).width, 'x', window.getComputedStyle(canvas).height);
+            console.log('Canvas attributes:', canvas.width, 'x', canvas.height);
+        } else {
+            console.error('Canvas not found!');
+        }
+
+        console.log('Chart positioning enforced');
+
+        // Debug: Check final positioning
+        setTimeout(() => {
+            debugChartVisibility();
+        }, 100);
+    }
+
+    function debugChartVisibility() {
+        console.log('=== CHART VISIBILITY DEBUG ===');
+        const container = document.querySelector('.trend-charts-section .main-trend-chart .chart-container');
+        const canvas = document.getElementById('completion-trend-chart');
+
+        if (container) {
+            const containerRect = container.getBoundingClientRect();
+            const containerStyles = window.getComputedStyle(container);
+            console.log('Container position:', {
+                top: containerRect.top,
+                left: containerRect.left,
+                width: containerRect.width,
+                height: containerRect.height,
+                computedHeight: containerStyles.height,
+                computedWidth: containerStyles.width,
+                display: containerStyles.display,
+                visibility: containerStyles.visibility,
+                opacity: containerStyles.opacity
+            });
+        }
+
+        if (canvas) {
+            const canvasRect = canvas.getBoundingClientRect();
+            const canvasStyles = window.getComputedStyle(canvas);
+            console.log('Canvas position:', {
+                top: canvasRect.top,
+                left: canvasRect.left,
+                width: canvasRect.width,
+                height: canvasRect.height,
+                computedHeight: canvasStyles.height,
+                computedWidth: canvasStyles.width,
+                display: canvasStyles.display,
+                visibility: canvasStyles.visibility,
+                opacity: canvasStyles.opacity,
+                attributes: { width: canvas.width, height: canvas.height }
+            });
+
+            // Check if canvas is in viewport
+            const isInViewport = canvasRect.top >= 0 && canvasRect.left >= 0 &&
+                               canvasRect.bottom <= window.innerHeight &&
+                               canvasRect.right <= window.innerWidth;
+            console.log('Canvas in viewport:', isInViewport);
+
+            // Check if canvas has Chart.js instance
+            console.log('Canvas has chart instance:', !!canvas.chart);
+        }
+        console.log('=== END DEBUG ===');
+    }
+
     function getAntiForgeryToken() {
         try {
             const token = document.querySelector('input[name="__RequestVerificationToken"]');
@@ -654,3 +859,72 @@
         }
     }
 </script>
+
+<style>
+    /* Ultra-specific selectors ONLY for completion trends chart to avoid affecting other charts */
+    .trend-charts-section .main-trend-chart .chart-container {
+        position: relative !important;
+        width: 100% !important;
+        height: 400px !important;
+        min-height: 400px !important;
+        max-height: 400px !important;
+        overflow: visible !important;
+        display: block !important;
+        margin: 0 !important;
+        padding: 20px !important;
+        background: white !important;
+        border-radius: 8px !important;
+        border: 1px solid #e9ecef !important;
+        box-sizing: border-box !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    /* Ultra-specific canvas styling ONLY for completion trends chart */
+    .trend-charts-section .main-trend-chart .chart-container canvas#completion-trend-chart,
+    .trend-charts-section canvas#completion-trend-chart,
+    canvas#completion-trend-chart {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 360px !important;
+        min-height: 360px !important;
+        max-height: 360px !important;
+        max-width: 100% !important;
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        z-index: 1 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        box-sizing: border-box !important;
+        transform: none !important;
+    }
+
+    /* Override any responsive CSS that might interfere - ONLY for completion trends */
+    @@media (max-width: 480px) {
+        .trend-charts-section .main-trend-chart .chart-container {
+            height: 400px !important;
+            min-height: 400px !important;
+        }
+
+        .trend-charts-section .main-trend-chart .chart-container canvas#completion-trend-chart {
+            height: 360px !important;
+            min-height: 360px !important;
+        }
+    }
+
+    /* Override print styles - ONLY for completion trends */
+    @@media print {
+        .trend-charts-section .main-trend-chart .chart-container {
+            height: 400px !important;
+            min-height: 400px !important;
+        }
+    }
+
+    /* Prevent any absolute positioning conflicts - ONLY for completion trends */
+    .trend-charts-section .main-trend-chart .chart-container * {
+        box-sizing: border-box !important;
+    }
+</style>
