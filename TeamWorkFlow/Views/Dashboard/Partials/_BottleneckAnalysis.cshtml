@@ -427,18 +427,124 @@
         const refreshButton = document.getElementById('refresh-bottlenecks');
         if (refreshButton) {
             console.log('Bottleneck refresh button found, adding event listener');
-            refreshButton.addEventListener('click', function() {
-                console.log('Refresh bottleneck data button clicked');
+
+            // Remove any existing event listeners to prevent conflicts
+            const newButton = refreshButton.cloneNode(true);
+            refreshButton.parentNode.replaceChild(newButton, refreshButton);
+
+            // Add our event listener with high priority (capture phase)
+            newButton.addEventListener('click', function(e) {
+                console.log('Refresh bottleneck data button clicked - forcing chart recreation');
+
+                // Prevent any default behavior or event bubbling
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
 
                 // Get current period
                 const periodSelect = document.getElementById('bottleneck-period');
                 const currentPeriod = periodSelect ? periodSelect.value : 'week';
 
-                // Trigger chart update with current period
-                updateBottleneckChart(currentPeriod);
-            });
+                // FORCE chart recreation instead of trying to update
+                forceRefreshBottleneckChart(currentPeriod);
+
+                return false; // Extra prevention
+            }, true); // Use capture phase to run before other handlers
         } else {
             console.error('Bottleneck refresh button not found');
+        }
+    }
+
+    async function forceRefreshBottleneckChart(period) {
+        console.log('Force refreshing bottleneck chart for period:', period);
+
+        const loadingElement = document.getElementById('chart-loading');
+        const chartCanvas = document.getElementById('bottleneck-categories-chart');
+
+        try {
+            // Show loading indicator
+            if (loadingElement) {
+                loadingElement.style.display = 'block';
+            }
+
+            // ALWAYS destroy and recreate chart - no attempts to update
+            console.log('Destroying existing chart before refresh');
+            safelyDestroyChart();
+
+            // Get date range for the period using existing function
+            const { fromDate, toDate } = calculateDateRange(period);
+            console.log(`Date range for period ${period}:`, { fromDate, toDate });
+
+            // Prepare request body
+            const requestBody = {
+                fromDate: fromDate,
+                toDate: toDate,
+                selectedOperatorIds: [],
+                selectedProjectIds: []
+            };
+            console.log('Sending request body:', requestBody);
+
+            // Fetch new data
+            const response = await fetch('/Dashboard/GetBottleneckData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getAntiForgeryToken()
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Received data from API:', data);
+
+            if (data.success && data.data && data.data.bottleneckAnalysis) {
+                const bottleneckAnalysis = data.data.bottleneckAnalysis;
+                console.log('Bottleneck analysis:', bottleneckAnalysis);
+
+                // Always recreate chart with new data
+                if (bottleneckAnalysis.delaysByCategory && bottleneckAnalysis.delaysByCategory.length > 0) {
+                    const categories = bottleneckAnalysis.delaysByCategory;
+                    console.log('Categories data:', categories);
+
+                    const labels = categories.map(c => c.categoryName);
+                    const values = categories.map(c => c.delayCount);
+                    console.log('Chart labels:', labels, 'Values:', values);
+
+                    // Force recreation
+                    recreateBottleneckChart(labels, values);
+                } else {
+                    console.log('No categories data, creating placeholder chart');
+                    recreateBottleneckChart(['No Data Available'], [1]);
+                }
+
+                // Update the stats cards
+                updateBottleneckStats(bottleneckAnalysis);
+            } else {
+                console.warn('No valid chart data found in response');
+                recreateBottleneckChart(['No Data Available'], [1]);
+
+                // Update stats to show zeros
+                updateBottleneckStats({
+                    totalBottlenecks: 0,
+                    averageDelayHours: 0,
+                    tasksAffectedPercentage: 0,
+                    severityScore: 0
+                });
+            }
+
+        } catch (error) {
+            console.error('Error in force refresh:', error);
+            // Even on error, recreate chart with placeholder
+            recreateBottleneckChart(['Error Loading Data'], [1]);
+        } finally {
+            // Hide loading indicator
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
         }
     }
 
@@ -808,6 +914,42 @@
         if (severityScoreElement) {
             animateValue(severityScoreElement, parseInt(severityScoreElement.textContent) || 0, bottleneckData.severityScore, 800);
         }
+
+        // Update Impact Summary
+        updateImpactSummary(bottleneckData);
+    }
+
+    function updateImpactSummary(bottleneckData) {
+        const impactSummaryElement = document.querySelector('.impact-summary .alert');
+        if (!impactSummaryElement) return;
+
+        // Generate impact summary text based on the data
+        let summaryText = '';
+        let alertClass = 'alert-info';
+
+        if (bottleneckData.totalBottlenecks === 0) {
+            summaryText = 'No significant bottlenecks identified.';
+            alertClass = 'alert-info';
+        } else {
+            // Determine if it requires immediate attention (high severity or high percentage)
+            const requiresAttention = bottleneckData.severityScore > 70 || bottleneckData.tasksAffectedPercentage > 60;
+
+            if (requiresAttention) {
+                summaryText = `Critical: ${bottleneckData.totalBottlenecks} bottlenecks affecting ${bottleneckData.tasksAffectedPercentage.toFixed(0)}% of tasks.`;
+                alertClass = 'alert-danger';
+            } else {
+                const severityLevel = bottleneckData.severityScore > 50 ? 'moderate' : 'low';
+                summaryText = `${bottleneckData.totalBottlenecks} bottlenecks identified with ${severityLevel} impact.`;
+                alertClass = 'alert-info';
+            }
+        }
+
+        // Update the alert class
+        impactSummaryElement.className = `alert ${alertClass}`;
+
+        // Update the text content (preserve the icon and "Impact Summary:" label)
+        const iconAndLabel = '<i class="fas fa-info-circle"></i> <strong>Impact Summary:</strong> ';
+        impactSummaryElement.innerHTML = iconAndLabel + summaryText;
     }
 
     function animateValue(element, start, end, duration, suffix = '') {

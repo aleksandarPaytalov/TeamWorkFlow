@@ -2045,10 +2045,13 @@
         severityScore.textContent = data.severityScoreFormatted;
       }
 
-      // Update bottleneck chart if it exists
-      if (charts.bottlenecks && data.chartData) {
-        updateChart(charts.bottlenecks, data.chartData);
-      }
+      // Update bottleneck chart - DISABLED
+      // Note: Bottleneck chart is now managed by _BottleneckAnalysis.cshtml
+      // The chart will be updated by the period change event or refresh button
+      // Skipping chart update to prevent conflicts
+      console.log(
+        "Bottleneck chart is managed by separate component, skipping chart update"
+      );
 
       console.log("Bottleneck analysis updated");
     } catch (error) {
