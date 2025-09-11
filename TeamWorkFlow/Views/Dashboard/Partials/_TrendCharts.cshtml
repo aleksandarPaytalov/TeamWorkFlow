@@ -3,32 +3,14 @@
 <div class="trend-charts-section">
     <div class="section-header">
         <h3 class="section-title">
-            <i class="fas fa-chart-area"></i>
-            Trend Analysis
+            <i class="fas fa-chart-line"></i>
+            Completion Trends
         </h3>
-        <p class="section-description">Time-series analysis of performance trends and patterns</p>
+        <p class="section-description">Task completion trends based on selected time period</p>
     </div>
 
-    <!-- Chart Controls -->
+    <!-- Simple Controls - Only Refresh Button -->
     <div class="chart-controls">
-        <div class="control-group">
-            <label for="trend-granularity">Time Period:</label>
-            <select id="trend-granularity" class="form-select">
-                <option value="daily" selected="@(Model.Granularity == "daily")">Daily</option>
-                <option value="weekly" selected="@(Model.Granularity == "weekly")">Weekly</option>
-                <option value="monthly" selected="@(Model.Granularity == "monthly")">Monthly</option>
-                <option value="quarterly" selected="@(Model.Granularity == "quarterly")">Quarterly</option>
-            </select>
-        </div>
-        <div class="control-group">
-            <label for="trend-metric">Metric:</label>
-            <select id="trend-metric" class="form-select">
-                <option value="completion">Task Completion</option>
-                <option value="efficiency">Efficiency Score</option>
-                <option value="workload">Workload Distribution</option>
-                <option value="variance">Time Variance</option>
-            </select>
-        </div>
         <div class="control-group">
             <button id="refresh-trends" class="btn btn-outline-primary">
                 <i class="fas fa-sync-alt"></i>
@@ -37,10 +19,10 @@
         </div>
     </div>
 
-    <!-- Trend Overview -->
+    <!-- Simple Overview Stats -->
     <div class="trend-overview">
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="trend-stat">
                     <div class="stat-icon">
                         <i class="fas fa-chart-line"></i>
@@ -54,36 +36,25 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
+                <div class="trend-stat">
+                    <div class="stat-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">@(Model.CompletionTrendData?.Count ?? 0)</div>
+                        <div class="stat-label">Data Points</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
                 <div class="trend-stat">
                     <div class="stat-icon">
                         <i class="fas fa-percentage"></i>
                     </div>
                     <div class="stat-content">
-                        <div class="stat-value @Model.TrendConfidenceClass">@Model.TrendConfidenceFormatted</div>
-                        <div class="stat-label">Confidence</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="trend-stat">
-                    <div class="stat-icon">
-                        <i class="fas fa-calendar"></i>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">@Model.TotalDataPoints</div>
-                        <div class="stat-label">Data Points</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="trend-stat">
-                    <div class="stat-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">@Model.AnalysisPeriod</div>
-                        <div class="stat-label">Analysis Period</div>
+                        <div class="stat-value">@(Model.CompletionTrendData?.LastOrDefault()?.Value.ToString("F1") ?? "0.0")%</div>
+                        <div class="stat-label">Current Rate</div>
                     </div>
                 </div>
             </div>
@@ -99,103 +70,68 @@
         </div>
     }
 
-    <!-- Main Trend Chart -->
+    <!-- Main Completion Trend Chart -->
     <div class="main-trend-chart">
         <div class="chart-header">
-            <h4>Performance Trends</h4>
-            <div class="chart-legend">
-                <div class="legend-item">
-                    <span class="legend-color completion"></span>
-                    <span class="legend-label">Completion Rate</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-color efficiency"></span>
-                    <span class="legend-label">Efficiency Score</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-color workload"></span>
-                    <span class="legend-label">Workload</span>
-                </div>
+            <h4>Task Completion Trends</h4>
+            <div class="chart-info">
+                <span class="chart-period">Based on selected time period</span>
             </div>
         </div>
         <div class="chart-container">
-            <canvas id="main-trend-chart" width="400" height="300"></canvas>
+            <div id="chart-loading" class="chart-loading" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Updating chart data...</p>
+            </div>
+            <canvas id="completion-trend-chart" width="400" height="300" data-chart-type="completion-trend"></canvas>
         </div>
     </div>
 
-    <!-- Secondary Charts Grid -->
-    <div class="secondary-charts">
+    <!-- Summary Cards -->
+    <div class="trend-summary">
         <div class="row">
             <div class="col-md-6">
-                <div class="chart-card">
-                    <h5>Completion Trends</h5>
-                    <div class="chart-container">
-                        <canvas id="completion-trend-chart" width="400" height="200"></canvas>
+                <div class="summary-card">
+                    <div class="summary-header">
+                        <h5>Completion Summary</h5>
+                        <i class="fas fa-check-circle"></i>
                     </div>
-                    <div class="chart-summary">
+                    <div class="summary-content">
                         <div class="summary-item">
                             <span class="label">Current Period:</span>
-                            <span class="value">@Model.CompletionTrendLine.ProjectedNextValue.ToString("F1")</span>
+                            <span class="value">@(Model.CompletionTrendLine?.ProjectedNextValue.ToString("F1") ?? "0.0")%</span>
                         </div>
                         <div class="summary-item">
-                            <span class="label">Trend:</span>
-                            <span class="value @Model.CompletionTrendLine.DirectionClass">@Model.CompletionTrendLine.Direction</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="chart-card">
-                    <h5>Efficiency Trends</h5>
-                    <div class="chart-container">
-                        <canvas id="efficiency-trend-chart" width="400" height="200"></canvas>
-                    </div>
-                    <div class="chart-summary">
-                        <div class="summary-item">
-                            <span class="label">Current:</span>
-                            <span class="value">@Model.EfficiencyTrendLine.ProjectedNextValue.ToString("F1")</span>
+                            <span class="label">Trend Direction:</span>
+                            <span class="value @(Model.CompletionTrendLine?.DirectionClass ?? "")">@(Model.CompletionTrendLine?.Direction ?? "Stable")</span>
                         </div>
                         <div class="summary-item">
-                            <span class="label">Trend:</span>
-                            <span class="value @Model.EfficiencyTrendLine.DirectionClass">@Model.EfficiencyTrendLine.Direction</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="chart-card">
-                    <h5>Workload Distribution</h5>
-                    <div class="chart-container">
-                        <canvas id="workload-trend-chart" width="400" height="200"></canvas>
-                    </div>
-                    <div class="chart-summary">
-                        <div class="summary-item">
-                            <span class="label">Peak Load:</span>
-                            <span class="value">@(Model.WorkloadTrendData.Any() ? Model.WorkloadTrendData.Max(w => w.Value).ToString("F0") : "0") tasks</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="label">Average:</span>
-                            <span class="value">@(Model.WorkloadTrendData.Any() ? Model.WorkloadTrendData.Average(w => w.Value).ToString("F1") : "0") tasks</span>
+                            <span class="label">Average Rate:</span>
+                            <span class="value">@(Model.CompletionTrendData?.Any() == true ? Model.CompletionTrendData.Average(d => d.Value).ToString("F1") : "0.0")%</span>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="chart-card">
-                    <h5>Variance Analysis</h5>
-                    <div class="chart-container">
-                        <canvas id="variance-trend-chart" width="400" height="200"></canvas>
+                <div class="summary-card">
+                    <div class="summary-header">
+                        <h5>Performance Insights</h5>
+                        <i class="fas fa-chart-bar"></i>
                     </div>
-                    <div class="chart-summary">
+                    <div class="summary-content">
                         <div class="summary-item">
-                            <span class="label">Current Variance:</span>
-                            <span class="value">@(Model.VarianceTrendData.Any() ? Model.VarianceTrendData.Last().Value.ToString("F1") : "0")%</span>
+                            <span class="label">Best Period:</span>
+                            <span class="value">@(Model.CompletionTrendData?.Any() == true ? Model.CompletionTrendData.Max(d => d.Value).ToString("F1") : "0.0")%</span>
                         </div>
                         <div class="summary-item">
-                            <span class="label">Trend:</span>
-                            <span class="value">@(Model.VarianceTrendData.Count >= 2 && Model.VarianceTrendData.Last().Value < Model.VarianceTrendData[Model.VarianceTrendData.Count - 2].Value ? "Improving" : "Stable")</span>
+                            <span class="label">Lowest Period:</span>
+                            <span class="value">@(Model.CompletionTrendData?.Any() == true ? Model.CompletionTrendData.Min(d => d.Value).ToString("F1") : "0.0")%</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Variance:</span>
+                            <span class="value">@(Model.CompletionTrendData?.Any() == true && Model.CompletionTrendData.Count > 1 ? (Model.CompletionTrendData.Max(d => d.Value) - Model.CompletionTrendData.Min(d => d.Value)).ToString("F1") : "0.0")%</span>
                         </div>
                     </div>
                 </div>
@@ -203,13 +139,13 @@
         </div>
     </div>
 
-    <!-- Trend Insights -->
-    @if (Model.KeyInsights.Any())
+    <!-- Key Insights (Simplified) -->
+    @if (Model.KeyInsights?.Any() == true)
     {
         <div class="trend-insights">
             <h4>Key Insights</h4>
             <div class="insights-grid">
-                @foreach (var insight in Model.KeyInsights.Take(6))
+                @foreach (var insight in Model.KeyInsights.Take(3))
                 {
                     <div class="insight-card @insight.TypeClass">
                         <div class="insight-icon">
@@ -218,197 +154,503 @@
                         <div class="insight-content">
                             <h6>@insight.Title</h6>
                             <p>@insight.Description</p>
-                            <div class="insight-meta">
-                                <span class="confidence">Confidence: @insight.Confidence.ToString("F0")%</span>
-                                <span class="period">@insight.TimePeriod</span>
-                            </div>
                         </div>
                     </div>
                 }
             </div>
         </div>
     }
-
-    <!-- Period Comparison -->
-    <div class="period-comparison">
-        <h4>Period Comparison</h4>
-        <div class="comparison-cards">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="comparison-card">
-                        <h6>@Model.PeriodComparison.CurrentPeriod</h6>
-                        <div class="comparison-value current">@Model.PeriodComparison.CurrentValue.ToString("F1")</div>
-                        <div class="comparison-label">Current Period</div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="comparison-card">
-                        <h6>@Model.PeriodComparison.PreviousPeriod</h6>
-                        <div class="comparison-value previous">@Model.PeriodComparison.PreviousValue.ToString("F1")</div>
-                        <div class="comparison-label">Previous Period</div>
-                    </div>
-                </div>
-            </div>
-            <div class="comparison-summary">
-                <div class="change-indicator @Model.PeriodComparison.ChangeClass">
-                    <i class="fas fa-@(Model.PeriodComparison.Change >= 0 ? "arrow-up" : "arrow-down")"></i>
-                    @Model.PeriodComparison.ChangeFormatted (@Model.PeriodComparison.ChangePercentageFormatted)
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script>
+    // Global chart variable
+    let completionTrendChart = null;
+
+    // Chart registry to prevent conflicts
+    window.chartRegistry = window.chartRegistry || {};
+
+    // Global variable to track chart update failures
+    let chartUpdateFailures = 0;
+    const MAX_UPDATE_FAILURES = 3;
+    let chartUpdateDisabled = false;
+
+    // Function to safely destroy chart
+    function safeDestroyChart(chartId) {
+        if (window.chartRegistry[chartId]) {
+            try {
+                window.chartRegistry[chartId].destroy();
+                console.log(`Chart ${chartId} destroyed successfully`);
+            } catch (error) {
+                console.warn(`Error destroying chart ${chartId}:`, error);
+            }
+            delete window.chartRegistry[chartId];
+        }
+    }
+
+    // Prevent multiple initializations
+    let isInitialized = false;
+
     document.addEventListener('DOMContentLoaded', function() {
-        if (typeof Chart !== 'undefined') {
-            initializeTrendCharts();
+        if (isInitialized) {
+            console.log('Completion Trends section already initialized');
+            return;
         }
 
-        // Initialize controls
-        initializeTrendControls();
+        console.log('Initializing Completion Trends section');
+        isInitialized = true;
+
+        // Check if Chart.js is available
+        if (typeof Chart !== 'undefined' && typeof window.Chart !== 'undefined') {
+            initializeCompletionTrendChart();
+        } else {
+            console.error('Chart.js not available for completion trends');
+            // Try to wait for Chart.js to load
+            setTimeout(() => {
+                if (typeof Chart !== 'undefined' && typeof window.Chart !== 'undefined') {
+                    console.log('Chart.js loaded after delay, initializing chart');
+                    initializeCompletionTrendChart();
+                } else {
+                    console.error('Chart.js still not available after delay');
+                }
+            }, 1000);
+        }
+
+        // Initialize refresh button
+        initializeTrendRefreshButton();
     });
 
-    function initializeTrendCharts() {
-        // Main Trend Chart
-        if (document.getElementById('main-trend-chart')) {
-            const mainCtx = document.getElementById('main-trend-chart').getContext('2d');
-            const completionData = @Html.Raw(Json.Serialize(Model.CompletionTrendData ?? new List<TrendDataPoint>()));
-            const efficiencyData = @Html.Raw(Json.Serialize(Model.EfficiencyTrendData ?? new List<TrendDataPoint>()));
-            const workloadData = @Html.Raw(Json.Serialize(Model.WorkloadTrendData ?? new List<TrendDataPoint>()));
+    function initializeCompletionTrendChart() {
+        const chartElement = document.getElementById('completion-trend-chart');
+        if (!chartElement) {
+            console.error('Completion trend chart canvas not found');
+            return;
+        }
 
-            new Chart(mainCtx, {
+        // Aggressive canvas cleanup to prevent Chart.js conflicts
+
+        // First, destroy any Chart.js instances associated with this canvas
+        if (chartElement.chart) {
+            console.log('Canvas already has a chart, destroying it first');
+            try {
+                chartElement.chart.destroy();
+                delete chartElement.chart;
+            } catch (error) {
+                console.warn('Error destroying existing chart on canvas:', error);
+            }
+        }
+
+        // Destroy existing chart if it exists
+        safeDestroyChart('completion-trend-chart');
+        if (completionTrendChart) {
+            console.log('Destroying existing chart');
+            try {
+                completionTrendChart.destroy();
+            } catch (destroyError) {
+                console.warn('Error destroying chart:', destroyError);
+            }
+            completionTrendChart = null;
+        }
+
+        // Clear all Chart.js references from the canvas
+        if (chartElement._chartjs) {
+            delete chartElement._chartjs;
+        }
+
+        // Remove any data attributes that Chart.js might have added
+        chartElement.removeAttribute('data-chartjs-id');
+
+        // Force clear the canvas context
+        const ctx = chartElement.getContext('2d');
+        if (ctx) {
+            ctx.clearRect(0, 0, chartElement.width, chartElement.height);
+            // Reset canvas state
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, chartElement.width, chartElement.height);
+            ctx.restore();
+        }
+
+        // Clear the canvas
+        try {
+            const ctx = chartElement.getContext('2d');
+            if (!ctx) {
+                console.error('Could not get 2D context from canvas');
+                return;
+            }
+
+            // Clear the canvas
+            ctx.clearRect(0, 0, chartElement.width, chartElement.height);
+        } catch (contextError) {
+            console.error('Error getting canvas context:', contextError);
+            return;
+        }
+
+        try {
+            const ctx = chartElement.getContext('2d');
+
+            // Use pending data if available, otherwise use server data
+            let completionData;
+            if (window.pendingTrendData) {
+                completionData = window.pendingTrendData;
+                window.pendingTrendData = null; // Clear after use
+                console.log('Using pending trend data:', completionData);
+            } else {
+                completionData = @Html.Raw(Json.Serialize(Model.CompletionTrendData ?? new List<TrendDataPoint>()));
+                console.log('Using server trend data:', completionData);
+            }
+
+            // Prepare chart data with better error handling
+            let labels = [];
+            let values = [];
+
+            if (Array.isArray(completionData) && completionData.length > 0) {
+                labels = completionData.map(d => {
+                    if (d && typeof d === 'object') {
+                        return d.label || d.dateFormatted || d.date || 'N/A';
+                    }
+                    return 'N/A';
+                });
+                values = completionData.map(d => {
+                    if (d && typeof d === 'object') {
+                        return d.value || d.completionRate || 0;
+                    }
+                    return 0;
+                });
+            }
+
+            if (labels.length === 0) {
+                labels.push('No Data');
+                values.push(0);
+            }
+
+            console.log('Chart initialization - Labels:', labels, 'Values:', values);
+
+            // Ensure Chart.js is available
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js is not available');
+                return;
+            }
+
+            completionTrendChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: @Html.Raw(Json.Serialize(Model.TimeLabels ?? new List<string>())),
-                    datasets: [
-                        {
-                            label: 'Completion Rate (%)',
-                            data: completionData.map(d => d.value),
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            tension: 0.4
-                        },
-                        {
-                            label: 'Efficiency Score (%)',
-                            data: efficiencyData.map(d => d.value),
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            tension: 0.4
-                        },
-                        {
-                            label: 'Workload (Tasks)',
-                            data: workloadData.map(d => d.value),
-                            borderColor: '#f59e0b',
-                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                            tension: 0.4,
-                            yAxisID: 'y1'
-                        }
-                    ]
+                    labels: labels,
+                    datasets: [{
+                        label: 'Completion Rate (%)',
+                        data: values,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#3b82f6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(44, 62, 80, 0.95)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#3498db',
+                            borderWidth: 2,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Completion Rate: ${context.parsed.y.toFixed(1)}%`;
+                                }
+                            }
+                        }
+                    },
                     scales: {
                         y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
                             beginAtZero: true,
-                            max: 100
-                        },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            beginAtZero: true,
+                            max: 100,
                             grid: {
-                                drawOnChartArea: false,
+                                color: 'rgba(0, 0, 0, 0.1)'
                             },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
                         }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutCubic'
                     }
                 }
             });
-        }
 
-        // Initialize secondary charts
-        initializeSecondaryCharts();
+            // Store reference to chart on canvas element and in registry
+            chartElement.chart = completionTrendChart;
+            window.chartRegistry['completion-trend-chart'] = completionTrendChart;
+
+            console.log('Completion trend chart initialized successfully');
+        } catch (error) {
+            console.error('Error initializing completion trend chart:', error);
+        }
     }
 
-    function initializeSecondaryCharts() {
-        const chartConfigs = [
-            { id: 'completion-trend-chart', data: @Html.Raw(Json.Serialize(Model.CompletionTrendData ?? new List<TrendDataPoint>())), color: '#3b82f6' },
-            { id: 'efficiency-trend-chart', data: @Html.Raw(Json.Serialize(Model.EfficiencyTrendData ?? new List<TrendDataPoint>())), color: '#10b981' },
-            { id: 'workload-trend-chart', data: @Html.Raw(Json.Serialize(Model.WorkloadTrendData ?? new List<TrendDataPoint>())), color: '#f59e0b' },
-            { id: 'variance-trend-chart', data: @Html.Raw(Json.Serialize(Model.VarianceTrendData ?? new List<TrendDataPoint>())), color: '#ef4444' }
-        ];
+    function initializeTrendRefreshButton() {
+        const refreshButton = document.getElementById('refresh-trends');
+        if (refreshButton) {
+            console.log('Trend refresh button found, adding event listener');
 
-        chartConfigs.forEach(config => {
-            const element = document.getElementById(config.id);
-            if (element) {
-                const ctx = element.getContext('2d');
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: config.data.map(d => d.label || d.dateFormatted),
-                        datasets: [{
-                            data: config.data.map(d => d.value),
-                            borderColor: config.color,
-                            backgroundColor: config.color + '20',
-                            tension: 0.4,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
+            // Remove any existing event listeners
+            const newButton = refreshButton.cloneNode(true);
+            refreshButton.parentNode.replaceChild(newButton, refreshButton);
+
+            newButton.addEventListener('click', function(e) {
+                console.log('Refresh completion trends button clicked');
+                e.preventDefault();
+                e.stopPropagation();
+
+                refreshCompletionTrendData();
+                return false;
+            }, true);
+        } else {
+            console.error('Trend refresh button not found');
+        }
+    }
+
+    async function refreshCompletionTrendData() {
+        console.log('Refreshing completion trend data');
+
+        const loadingElement = document.getElementById('chart-loading');
+        const chartCanvas = document.getElementById('completion-trend-chart');
+
+        try {
+            // Show loading indicator
+            if (loadingElement) {
+                loadingElement.style.display = 'block';
+            }
+            if (chartCanvas) {
+                chartCanvas.style.opacity = '0.5';
+            }
+
+            // Get current filters from main dashboard
+            const fromDate = document.getElementById('fromDate')?.value;
+            const toDate = document.getElementById('toDate')?.value;
+            const timeGranularity = document.getElementById('granularity')?.value || 'weekly';
+
+            // Prepare request body using main filter values
+            const requestBody = {
+                fromDate: fromDate ? convertDateToServerFormat(fromDate) : null,
+                toDate: toDate ? convertDateToServerFormat(toDate) : null,
+                timeGranularity: timeGranularity,
+                selectedOperatorIds: [],
+                selectedProjectIds: []
+            };
+
+            console.log('Sending trend data request:', requestBody);
+
+            // Fetch new trend data
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            const token = getAntiForgeryToken();
+            if (token) {
+                headers['RequestVerificationToken'] = token;
+            }
+
+            const response = await fetch('/Dashboard/GetTrendData', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Received trend data:', data);
+
+            // Handle different response structures
+            let trendData = null;
+            if (data.success && data.data) {
+                // Check if data.data is the trend charts directly or nested
+                if (data.data.trendCharts) {
+                    trendData = data.data.trendCharts;
+                } else if (data.data.completionTrendData) {
+                    trendData = data.data;
+                } else {
+                    trendData = data.data;
+                }
+            } else if (data.completionTrendData) {
+                // Direct trend data response
+                trendData = data;
+            }
+
+            if (trendData && trendData.completionTrendData) {
+                console.log('Using completion trend data:', trendData.completionTrendData);
+                updateCompletionTrendChart(trendData.completionTrendData);
+                updateTrendStats(trendData);
+            } else {
+                console.warn('No valid trend data found in response, using empty data');
+                updateCompletionTrendChart([]);
+            }
+
+        } catch (error) {
+            console.error('Error refreshing completion trend data:', error);
+            updateCompletionTrendChart([]);
+        } finally {
+            // Hide loading indicator
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+            if (chartCanvas) {
+                chartCanvas.style.opacity = '1';
+            }
+        }
+    }
+
+    function updateCompletionTrendChart(trendData) {
+        console.log('Updating completion trend chart with data:', trendData);
+
+        // Check if chart updates are disabled due to persistent failures
+        if (chartUpdateDisabled) {
+            console.warn('Chart updates are disabled due to persistent failures');
+            return;
+        }
+
+        // Completely replace the canvas element to avoid Chart.js conflicts
+        console.log('Recreating canvas element to avoid Chart.js conflicts');
+
+        // Store the data for initialization
+        window.pendingTrendData = trendData;
+
+        // Destroy existing chart if it exists
+        if (completionTrendChart) {
+            try {
+                completionTrendChart.destroy();
+            } catch (e) {
+                console.warn('Error destroying chart:', e);
+            }
+            completionTrendChart = null;
+        }
+
+        // Clear chart registry
+        if (window.chartRegistry) {
+            delete window.chartRegistry['completion-trend-chart'];
+        }
+
+        // Get the canvas container
+        const canvasContainer = document.querySelector('.chart-container');
+        if (!canvasContainer) {
+            console.error('Chart container not found');
+            return;
+        }
+
+        // Remove the old canvas completely
+        const oldCanvas = document.getElementById('completion-trend-chart');
+        if (oldCanvas) {
+            oldCanvas.remove();
+        }
+
+        // Create a completely new canvas element
+        const newCanvas = document.createElement('canvas');
+        newCanvas.id = 'completion-trend-chart';
+        newCanvas.width = 400;
+        newCanvas.height = 200;
+        newCanvas.style.maxWidth = '100%';
+        newCanvas.style.height = 'auto';
+
+        // Add the new canvas to the container
+        canvasContainer.appendChild(newCanvas);
+
+        // Recreate the chart with new data after a delay
+        setTimeout(() => {
+            initializeCompletionTrendChart();
+        }, 100);
+
+        return;
+    }
+
+    function updateTrendStats(trendData) {
+        console.log('Updating trend stats with data:', trendData);
+
+        try {
+            // Update the stats in the overview section
+            if (trendData && trendData.completionTrendData && Array.isArray(trendData.completionTrendData) && trendData.completionTrendData.length > 0) {
+                const completionData = trendData.completionTrendData;
+                const currentRate = completionData[completionData.length - 1]?.value || 0;
+                const avgRate = completionData.reduce((sum, d) => sum + (d?.value || 0), 0) / completionData.length;
+
+                // Update current rate display in the third stat card
+                const currentRateElements = document.querySelectorAll('.trend-stat .stat-value');
+                if (currentRateElements.length >= 3) {
+                    const currentRateElement = currentRateElements[2]; // Third stat card
+                    if (currentRateElement) {
+                        currentRateElement.textContent = currentRate.toFixed(1) + '%';
+                    }
+                }
+
+                // Update summary cards if they exist
+                const summaryValues = document.querySelectorAll('.summary-card .summary-item .value');
+                summaryValues.forEach((element, index) => {
+                    if (element && element.textContent.includes('%')) {
+                        switch (index) {
+                            case 0: // Current Period
+                                element.textContent = currentRate.toFixed(1) + '%';
+                                break;
+                            case 2: // Average Rate
+                                element.textContent = avgRate.toFixed(1) + '%';
+                                break;
                         }
                     }
                 });
+
+                console.log('Trend stats updated successfully');
+            } else {
+                console.warn('No valid completion trend data for stats update');
             }
-        });
-    }
-
-    function initializeTrendControls() {
-        const granularitySelect = document.getElementById('trend-granularity');
-        const metricSelect = document.getElementById('trend-metric');
-        const refreshButton = document.getElementById('refresh-trends');
-
-        if (granularitySelect) {
-            granularitySelect.addEventListener('change', function() {
-                updateTrendCharts();
-            });
-        }
-
-        if (metricSelect) {
-            metricSelect.addEventListener('change', function() {
-                updateTrendCharts();
-            });
-        }
-
-        if (refreshButton) {
-            refreshButton.addEventListener('click', function() {
-                refreshTrendData();
-            });
+        } catch (error) {
+            console.error('Error updating trend stats:', error);
         }
     }
 
-    function updateTrendCharts() {
-        // Implement chart update logic
-        console.log('Updating trend charts...');
+    // Helper functions
+    function convertDateToServerFormat(dateString) {
+        if (!dateString) return null;
+
+        try {
+            // Convert from dd/MM/yyyy to yyyy-MM-dd
+            const parts = dateString.split('/');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
+            return dateString;
+        } catch (error) {
+            console.warn('Error converting date format:', error);
+            return dateString;
+        }
     }
 
-    function refreshTrendData() {
-        // Implement data refresh logic
-        console.log('Refreshing trend data...');
+    function getAntiForgeryToken() {
+        try {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            return token ? token.value : "";
+        } catch (error) {
+            console.warn('Could not get anti-forgery token:', error);
+            return "";
+        }
     }
 </script>
