@@ -67,6 +67,26 @@
         </div>
     </div>
 
+    <!-- Analysis Period Info -->
+    <div class="analysis-period-info">
+        <div class="period-info-card">
+            <div class="period-info-content">
+                <div class="period-dates">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span class="period-label">Analysis Period:</span>
+                    <span id="period-from-date" class="period-date">Loading...</span>
+                    <span class="period-separator">to</span>
+                    <span id="period-to-date" class="period-date">Loading...</span>
+                </div>
+                <div class="period-stats">
+                    <i class="fas fa-list-ol"></i>
+                    <span class="stats-label">Total tasks analyzed:</span>
+                    <span id="total-tasks-count" class="stats-value">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bottleneck Categories Chart -->
     <div class="bottleneck-categories">
         <div class="chart-header">
@@ -257,7 +277,23 @@
 
         // Initialize refresh button
         initializeRefreshButton();
+
+        // Initialize period info display
+        initializePeriodInfo();
     });
+
+    function initializePeriodInfo() {
+        console.log('Initializing period info display');
+
+        // Get initial period from dropdown
+        const periodSelect = document.getElementById('bottleneck-period');
+        const initialPeriod = periodSelect ? periodSelect.value : 'month';
+
+        // Set initial period info
+        updatePeriodInfoForPeriod(initialPeriod);
+
+        console.log('Period info initialized for period:', initialPeriod);
+    }
 
     function initializeBottleneckCharts() {
         // Categories Chart
@@ -417,6 +453,9 @@
             periodSelect.addEventListener('change', function() {
                 console.log('Period changed to:', this.value);
                 updateBottleneckChart(this.value);
+
+                // Also update period info display immediately
+                updatePeriodInfoForPeriod(this.value);
             });
         } else {
             console.error('Bottleneck period selector not found');
@@ -917,6 +956,9 @@
 
         // Update Impact Summary
         updateImpactSummary(bottleneckData);
+
+        // Update Period Info
+        updatePeriodInfo(bottleneckData);
     }
 
     function updateImpactSummary(bottleneckData) {
@@ -950,6 +992,81 @@
         // Update the text content (preserve the icon and "Impact Summary:" label)
         const iconAndLabel = '<i class="fas fa-info-circle"></i> <strong>Impact Summary:</strong> ';
         impactSummaryElement.innerHTML = iconAndLabel + summaryText;
+    }
+
+    function updatePeriodInfo(bottleneckData) {
+        // Get current period from dropdown
+        const periodSelect = document.getElementById('bottleneck-period');
+        const currentPeriod = periodSelect ? periodSelect.value : 'month';
+
+        // Calculate date range for current period
+        const { fromDate, toDate } = calculateDateRange(currentPeriod);
+
+        // Format dates for display (dd/MM/yyyy format as per user preference)
+        const fromDateFormatted = formatDateForDisplay(new Date(fromDate));
+        const toDateFormatted = formatDateForDisplay(new Date(toDate));
+
+        // Update period dates
+        const fromDateElement = document.getElementById('period-from-date');
+        const toDateElement = document.getElementById('period-to-date');
+
+        if (fromDateElement) {
+            fromDateElement.textContent = fromDateFormatted;
+        }
+        if (toDateElement) {
+            toDateElement.textContent = toDateFormatted;
+        }
+
+        // Calculate total tasks count
+        // If we have bottleneck data, calculate total tasks from percentage
+        let totalTasksCount = 0;
+        if (bottleneckData && bottleneckData.totalBottlenecks > 0 && bottleneckData.tasksAffectedPercentage > 0) {
+            // Calculate total tasks: totalBottlenecks / (tasksAffectedPercentage / 100)
+            totalTasksCount = Math.round(bottleneckData.totalBottlenecks / (bottleneckData.tasksAffectedPercentage / 100));
+        } else if (bottleneckData && bottleneckData.totalTasksAnalyzed !== undefined) {
+            // Use direct count if available
+            totalTasksCount = bottleneckData.totalTasksAnalyzed;
+        }
+
+        // Update total tasks count
+        const totalTasksElement = document.getElementById('total-tasks-count');
+        if (totalTasksElement) {
+            totalTasksElement.textContent = totalTasksCount;
+        }
+    }
+
+    function formatDateForDisplay(date) {
+        // Format as dd/MM/yyyy (user preference)
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    function updatePeriodInfoForPeriod(period) {
+        // Update just the date range when period changes (before data loads)
+        const { fromDate, toDate } = calculateDateRange(period);
+
+        // Format dates for display
+        const fromDateFormatted = formatDateForDisplay(new Date(fromDate));
+        const toDateFormatted = formatDateForDisplay(new Date(toDate));
+
+        // Update period dates
+        const fromDateElement = document.getElementById('period-from-date');
+        const toDateElement = document.getElementById('period-to-date');
+
+        if (fromDateElement) {
+            fromDateElement.textContent = fromDateFormatted;
+        }
+        if (toDateElement) {
+            toDateElement.textContent = toDateFormatted;
+        }
+
+        // Set total tasks to "Loading..." while data is being fetched
+        const totalTasksElement = document.getElementById('total-tasks-count');
+        if (totalTasksElement) {
+            totalTasksElement.textContent = 'Loading...';
+        }
     }
 
     function animateValue(element, start, end, duration, suffix = '') {
