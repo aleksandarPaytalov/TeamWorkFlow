@@ -823,10 +823,45 @@ namespace TeamWorkFlow.Core.Services
 
             var delayedTasks = await delayedTasksQuery.ToListAsync();
 
+            // Get total tasks in the same period for percentage calculation
+            var totalTasksQuery = _context.Tasks
+                .Where(t => t.EndDate.HasValue && t.EndDate >= fromDate && t.EndDate <= toDate)
+                .Where(t => t.ActualTime.HasValue && t.EstimatedTime > 0);
+
+            // Apply same filters to total tasks
+            if (operatorIds != null && operatorIds.Any())
+            {
+                totalTasksQuery = totalTasksQuery
+                    .Where(t => t.TasksOperators.Any(to => operatorIds.Contains(to.OperatorId)));
+            }
+
+            if (projectIds != null && projectIds.Any())
+            {
+                totalTasksQuery = totalTasksQuery
+                    .Where(t => projectIds.Contains(t.ProjectId));
+            }
+
+            var totalTasksCount = await totalTasksQuery.CountAsync();
+
             // Calculate bottleneck metrics
             result.TotalBottlenecks = delayedTasks.Count;
             result.AverageDelayHours = delayedTasks.Any() ?
                 (decimal)delayedTasks.Average(t => t.ActualTime!.Value - t.EstimatedTime) : 0;
+
+            // Calculate tasks affected percentage
+            result.TasksAffectedPercentage = totalTasksCount > 0 ?
+                (decimal)delayedTasks.Count / totalTasksCount * 100 : 0;
+
+            // Calculate total time lost due to bottlenecks
+            result.TotalTimeLostHours = delayedTasks.Any() ?
+                (decimal)delayedTasks.Sum(t => t.ActualTime!.Value - t.EstimatedTime) : 0;
+
+            // Calculate severity score (0-100 based on multiple factors)
+            result.SeverityScore = CalculateSeverityScore(
+                result.TotalBottlenecks,
+                result.TasksAffectedPercentage,
+                result.AverageDelayHours,
+                result.TotalTimeLostHours);
 
             // Identify frequent bottleneck tasks
             result.FrequentBottleneckTasks = delayedTasks
@@ -845,7 +880,7 @@ namespace TeamWorkFlow.Core.Services
                 .ToList();
 
             // Calculate delay by category (project)
-            result.DelaysByCategory = delayedTasks
+            var delaysByCategory = delayedTasks
                 .GroupBy(t => t.Project.ProjectName)
                 .Select(g => new DelayCategoryModel
                 {
@@ -857,10 +892,57 @@ namespace TeamWorkFlow.Core.Services
                 .OrderByDescending(dc => dc.TotalDelayHours)
                 .ToList();
 
+            // Calculate percentages for each category
+            var totalDelays = delaysByCategory.Sum(dc => dc.DelayCount);
+            if (totalDelays > 0)
+            {
+                foreach (var category in delaysByCategory)
+                {
+                    category.DelayPercentage = (decimal)category.DelayCount / totalDelays * 100;
+                }
+            }
+
+            result.DelaysByCategory = delaysByCategory;
+
             // Generate improvement recommendations
             result.ImprovementRecommendations = GenerateImprovementRecommendations(result);
 
             return result;
+        }
+
+        /// <summary>
+        /// Calculates severity score based on multiple bottleneck factors
+        /// </summary>
+        private static decimal CalculateSeverityScore(
+            int totalBottlenecks,
+            decimal tasksAffectedPercentage,
+            decimal averageDelayHours,
+            decimal totalTimeLostHours)
+        {
+            decimal score = 0;
+
+            // Factor 1: Number of bottlenecks (0-30 points)
+            // 0 bottlenecks = 0 points, 10+ bottlenecks = 30 points
+            var bottleneckScore = Math.Min(totalBottlenecks * 3, 30);
+            score += bottleneckScore;
+
+            // Factor 2: Percentage of tasks affected (0-25 points)
+            // 0% = 0 points, 100% = 25 points
+            var affectedScore = Math.Min(tasksAffectedPercentage * 0.25m, 25);
+            score += affectedScore;
+
+            // Factor 3: Average delay severity (0-25 points)
+            // 0 hours = 0 points, 8+ hours = 25 points
+            var delayScore = Math.Min(averageDelayHours * 3.125m, 25);
+            score += delayScore;
+
+            // Factor 4: Total time lost impact (0-20 points)
+            // 0 hours = 0 points, 40+ hours = 20 points
+            var timeLostScore = Math.Min(totalTimeLostHours * 0.5m, 20);
+            score += timeLostScore;
+
+            // Ensure score is within 0-100 range
+            return Math.Min(Math.Max(score, 0), 100);
         }
 
         /// <summary>

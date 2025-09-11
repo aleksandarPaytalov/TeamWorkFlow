@@ -140,7 +140,12 @@ namespace TeamWorkFlow.Core.Models.Dashboard
         /// Formatted display of severity score
         /// </summary>
         [Display(Name = "Severity")]
-        public string SeverityScoreFormatted => $"{SeverityScore:F0}/100";
+        public string SeverityScoreFormatted => $"{(SeverityScore % 1 == 0 ? SeverityScore.ToString("F0") : SeverityScore.ToString("F1"))}/100";
+
+        /// <summary>
+        /// Formatted display of severity score value only (for stat cards)
+        /// </summary>
+        public string SeverityScoreValue => SeverityScore % 1 == 0 ? SeverityScore.ToString("F0") : SeverityScore.ToString("F1");
 
         /// <summary>
         /// Formatted display of bottleneck trend

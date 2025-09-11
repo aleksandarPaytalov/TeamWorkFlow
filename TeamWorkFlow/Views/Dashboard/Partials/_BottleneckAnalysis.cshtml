@@ -13,7 +13,7 @@
     <div class="bottleneck-overview">
         <div class="row">
             <div class="col-md-3">
-                <div class="bottleneck-stat critical">
+                <div class="bottleneck-stat critical" data-stat="total-bottlenecks">
                     <div class="stat-icon">
                         <i class="fas fa-ban"></i>
                     </div>
@@ -24,34 +24,34 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="bottleneck-stat warning">
+                <div class="bottleneck-stat warning" data-stat="avg-delay">
                     <div class="stat-icon">
                         <i class="fas fa-clock"></i>
                     </div>
                     <div class="stat-content">
-                        <div class="stat-value">@Model.AverageDelayHours.ToString("F1")h</div>
+                        <div class="stat-value">@(Model.AverageDelayHours % 1 == 0 ? Model.AverageDelayHours.ToString("F0") : Model.AverageDelayHours.ToString("F1"))</div>
                         <div class="stat-label">Avg Delay Time</div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="bottleneck-stat info">
+                <div class="bottleneck-stat info" data-stat="tasks-affected">
                     <div class="stat-icon">
                         <i class="fas fa-tasks"></i>
                     </div>
                     <div class="stat-content">
-                        <div class="stat-value">@Model.TasksAffectedPercentage.ToString("F1")%</div>
+                        <div class="stat-value">@(Model.TasksAffectedPercentage % 1 == 0 ? Model.TasksAffectedPercentage.ToString("F0") : Model.TasksAffectedPercentage.ToString("F1"))</div>
                         <div class="stat-label">Tasks Affected</div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="bottleneck-stat success">
+                <div class="bottleneck-stat success" data-stat="severity-score">
                     <div class="stat-icon">
                         <i class="fas fa-chart-line"></i>
                     </div>
                     <div class="stat-content">
-                        <div class="stat-value @Model.SeverityClass">@Model.SeverityScoreFormatted</div>
+                        <div class="stat-value @Model.SeverityClass">@Model.SeverityScoreValue</div>
                         <div class="stat-label">Severity Score</div>
                     </div>
                 </div>
@@ -74,12 +74,18 @@
             <div class="chart-controls">
                 <select id="bottleneck-period" class="form-select">
                     <option value="week">This Week</option>
-                    <option value="month">This Month</option>
+                    <option value="month" selected>This Month</option>
                     <option value="quarter">This Quarter</option>
                 </select>
             </div>
         </div>
         <div class="chart-container">
+            <div id="chart-loading" class="chart-loading" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Updating chart data...</p>
+            </div>
             <canvas id="bottleneck-categories-chart" width="400" height="300"></canvas>
         </div>
     </div>
@@ -196,47 +202,659 @@
 </div>
 
 <script>
+    let bottleneckChart = null;
+
+    // Function to safely destroy any existing chart
+    function safelyDestroyChart() {
+        try {
+            // Destroy our global chart reference
+            if (bottleneckChart) {
+                console.log('Destroying global chart reference');
+                bottleneckChart.destroy();
+                bottleneckChart = null;
+            }
+
+            // Also check for any Chart.js instances on the canvas
+            const chartCanvas = document.getElementById('bottleneck-categories-chart');
+            if (chartCanvas) {
+                const existingChart = Chart.getChart(chartCanvas);
+                if (existingChart) {
+                    console.log('Destroying Chart.js instance found on canvas');
+                    existingChart.destroy();
+                }
+            }
+        } catch (error) {
+            console.warn('Error during chart destruction:', error);
+            // Force reset the global variable even if destruction fails
+            bottleneckChart = null;
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, checking Chart.js availability');
         if (typeof Chart !== 'undefined') {
+            console.log('Chart.js is available, initializing charts');
             initializeBottleneckCharts();
+
+            // Verify chart was created successfully
+            setTimeout(() => {
+                if (!bottleneckChart) {
+                    console.error('Chart failed to initialize, attempting recreation');
+                    const chartElement = document.getElementById('bottleneck-categories-chart');
+                    if (chartElement) {
+                        recreateBottleneckChart(['No Data Available'], [1]);
+                    }
+                } else {
+                    console.log('Chart initialized successfully');
+                }
+            }, 1000);
+        } else {
+            console.error('Chart.js is not loaded');
         }
 
         // Initialize period selector
         initializeBottleneckControls();
+
+        // Initialize refresh button
+        initializeRefreshButton();
     });
 
     function initializeBottleneckCharts() {
         // Categories Chart
-        if (document.getElementById('bottleneck-categories-chart')) {
-            const categoriesCtx = document.getElementById('bottleneck-categories-chart').getContext('2d');
-            const categories = @Html.Raw(Json.Serialize(Model.DelaysByCategory?.ToDictionary(d => d.CategoryName, d => d.DelayCount) ?? new Dictionary<string, int>()));
+        const chartElement = document.getElementById('bottleneck-categories-chart');
+        if (chartElement) {
+            console.log('Bottleneck chart canvas found, initializing chart');
 
-            new Chart(categoriesCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(categories),
-                    datasets: [{
-                        data: Object.values(categories),
+            try {
+                const categoriesCtx = chartElement.getContext('2d');
+                if (!categoriesCtx) {
+                    console.error('Failed to get 2D context from canvas');
+                    return;
+                }
+
+                const categories = @Html.Raw(Json.Serialize(Model.DelaysByCategory?.ToDictionary(d => d.CategoryName, d => d.DelayCount) ?? new Dictionary<string, int>()));
+                console.log('Initial chart data:', categories);
+
+                // Ensure we have valid data
+                let labels = Object.keys(categories);
+                let values = Object.values(categories);
+
+                if (labels.length === 0) {
+                    console.warn('No initial chart data available, using placeholder');
+                    // Create chart with placeholder data
+                    labels = ['No Data Available'];
+                    values = [1];
+                }
+
+                console.log('Chart will be created with labels:', labels, 'values:', values);
+
+                bottleneckChart = new Chart(categoriesCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
                         backgroundColor: [
-                            '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6'
+                            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD',
+                            '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9', '#F8C471', '#82E0AA'
+                        ],
+                        borderColor: '#ffffff',
+                        borderWidth: 4,
+                        hoverBorderWidth: 6,
+                        hoverOffset: 12,
+                        hoverBackgroundColor: [
+                            '#FF5252', '#26A69A', '#2196F3', '#66BB6A', '#FFD54F', '#BA68C8',
+                            '#4DB6AC', '#FDD835', '#9575CD', '#42A5F5', '#FFB74D', '#4CAF50'
                         ]
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            align: 'center',
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                padding: 15,
+                                font: {
+                                    size: 13,
+                                    weight: '600',
+                                    family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+                                },
+                                color: '#2c3e50',
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        return data.labels.map((label, i) => {
+                                            const value = data.datasets[0].data[i];
+                                            const percentage = ((value / total) * 100).toFixed(1);
+                                            return {
+                                                text: `${label} (${percentage}%)`,
+                                                fillStyle: data.datasets[0].backgroundColor[i],
+                                                strokeStyle: data.datasets[0].borderColor,
+                                                lineWidth: data.datasets[0].borderWidth,
+                                                hidden: false,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(44, 62, 80, 0.95)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#3498db',
+                            borderWidth: 2,
+                            cornerRadius: 12,
+                            displayColors: true,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13,
+                                weight: '500'
+                            },
+                            padding: 12,
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return [
+                                        `Delayed Tasks: ${value}`,
+                                        `Percentage: ${percentage}%`,
+                                        `Total Delays: ${total}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 1200,
+                        easing: 'easeOutCubic'
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'nearest'
+                    },
+                    elements: {
+                        arc: {
+                            borderJoinStyle: 'round'
+                        }
+                    }
                 }
-            });
+                });
+
+                console.log('Bottleneck chart initialized successfully');
+
+            } catch (error) {
+                console.error('Error initializing bottleneck chart:', error);
+                bottleneckChart = null;
+            }
+        } else {
+            console.error('Bottleneck chart canvas not found');
         }
     }
 
     function initializeBottleneckControls() {
         const periodSelect = document.getElementById('bottleneck-period');
         if (periodSelect) {
+            console.log('Bottleneck period selector found, adding event listener');
             periodSelect.addEventListener('change', function() {
-                // Implement period change logic here
                 console.log('Period changed to:', this.value);
+                updateBottleneckChart(this.value);
             });
+        } else {
+            console.error('Bottleneck period selector not found');
         }
+    }
+
+    function initializeRefreshButton() {
+        const refreshButton = document.getElementById('refresh-bottlenecks');
+        if (refreshButton) {
+            console.log('Bottleneck refresh button found, adding event listener');
+            refreshButton.addEventListener('click', function() {
+                console.log('Refresh bottleneck data button clicked');
+
+                // Get current period
+                const periodSelect = document.getElementById('bottleneck-period');
+                const currentPeriod = periodSelect ? periodSelect.value : 'week';
+
+                // Trigger chart update with current period
+                updateBottleneckChart(currentPeriod);
+            });
+        } else {
+            console.error('Bottleneck refresh button not found');
+        }
+    }
+
+    async function updateBottleneckChart(period) {
+        console.log('Starting chart update for period:', period);
+
+        const loadingElement = document.getElementById('chart-loading');
+        const chartCanvas = document.getElementById('bottleneck-categories-chart');
+
+        try {
+            // Show loading indicator
+            if (loadingElement) {
+                loadingElement.style.display = 'flex';
+            }
+            if (chartCanvas) {
+                chartCanvas.style.opacity = '0.5';
+            }
+
+            // Calculate date range based on period
+            const dateRange = calculateDateRange(period);
+            console.log('Date range for period', period, ':', dateRange);
+
+            // Prepare request body
+            const requestBody = {
+                fromDate: dateRange.fromDate,
+                toDate: dateRange.toDate,
+                selectedOperatorIds: [],
+                selectedProjectIds: []
+            };
+            console.log('Sending request body:', requestBody);
+
+            // Fetch new data
+            const response = await fetch('/Dashboard/GetBottleneckData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getAntiForgeryToken()
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            console.log('Received data from API:', data);
+
+            // Try different data structure paths
+            let categories = null;
+            let bottleneckAnalysis = null;
+
+            if (data.data?.bottleneckAnalysis) {
+                bottleneckAnalysis = data.data.bottleneckAnalysis;
+                categories = bottleneckAnalysis.delaysByCategory;
+            } else if (data.bottleneckAnalysis) {
+                bottleneckAnalysis = data.bottleneckAnalysis;
+                categories = bottleneckAnalysis.delaysByCategory;
+            } else if (data.delaysByCategory) {
+                categories = data.delaysByCategory;
+            }
+
+            console.log('Bottleneck analysis:', bottleneckAnalysis);
+            console.log('Categories data:', categories);
+
+            // Update chart with new data
+            if (categories && Array.isArray(categories) && categories.length > 0) {
+                const labels = categories.map(c => c.categoryName);
+                const values = categories.map(c => c.delayCount);
+                console.log('Chart labels:', labels, 'Values:', values);
+
+                // Check if chart exists, if not, create it
+                if (!bottleneckChart) {
+                    console.warn('Chart is null, recreating...');
+                    recreateBottleneckChart(labels, values);
+                    return;
+                }
+
+                // Validate that the chart canvas still exists and is valid
+                const chartCanvas = document.getElementById('bottleneck-categories-chart');
+                if (!chartCanvas || !chartCanvas.getContext) {
+                    console.warn('Chart canvas is invalid, recreating...');
+                    recreateBottleneckChart(labels, values);
+                    return;
+                }
+
+                // Check if chart canvas still exists and is valid
+                if (chartCanvas && chartCanvas.getContext) {
+                    // Validate chart state before updating
+                    if (!bottleneckChart || !bottleneckChart.data || !bottleneckChart.data.datasets || !bottleneckChart.data.datasets[0]) {
+                        console.warn('Chart data structure is invalid, recreating chart');
+                        recreateBottleneckChart(labels, values);
+                        return;
+                    }
+
+                    // Safely update chart data
+                    bottleneckChart.data.labels = labels;
+                    bottleneckChart.data.datasets[0].data = values;
+
+                    // Use a safer update method with validation
+                    try {
+                        // Check if chart is still valid before updating
+                        if (bottleneckChart && typeof bottleneckChart.update === 'function') {
+                            bottleneckChart.update('none'); // Update without animation first
+                            setTimeout(() => {
+                                if (bottleneckChart && typeof bottleneckChart.update === 'function' && chartCanvas && chartCanvas.getContext) {
+                                    bottleneckChart.update('active'); // Then animate
+                                    console.log('Chart updated successfully');
+                                }
+                            }, 100);
+                        } else {
+                            console.warn('Chart update method is not available, recreating chart');
+                            recreateBottleneckChart(labels, values);
+                        }
+                    } catch (updateError) {
+                        console.warn('Chart update failed, recreating chart:', updateError);
+                        // Recreate the chart if update fails
+                        recreateBottleneckChart(labels, values);
+                    }
+                } else {
+                    // Canvas is invalid, recreate the chart
+                    recreateBottleneckChart(labels, values);
+                }
+
+                // Update the stats cards as well
+                if (bottleneckAnalysis) {
+                    updateBottleneckStats(bottleneckAnalysis);
+                }
+            } else {
+                console.warn('No valid chart data found in response');
+
+                // Always recreate chart when there's no data to avoid canvas conflicts
+                console.log('Chart is null, recreating...');
+                recreateBottleneckChart(['No Data Available'], [1]);
+
+                // Update stats to show zeros
+                updateBottleneckStats({
+                    totalBottlenecks: 0,
+                    averageDelayHours: 0,
+                    tasksAffectedPercentage: 0,
+                    severityScore: 0
+                });
+            }
+
+        } catch (error) {
+            console.error('Error updating bottleneck chart:', error);
+            // Show error message to user
+            if (loadingElement) {
+                loadingElement.innerHTML = '<p class="text-danger">Error loading chart data. Please try again.</p>';
+                setTimeout(() => {
+                    loadingElement.style.display = 'none';
+                    loadingElement.innerHTML = `
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p>Updating chart data...</p>
+                    `;
+                }, 3000);
+            }
+        } finally {
+            // Hide loading indicator
+            setTimeout(() => {
+                if (loadingElement) {
+                    loadingElement.style.display = 'none';
+                }
+                if (chartCanvas) {
+                    chartCanvas.style.opacity = '1';
+                }
+            }, 500);
+        }
+    }
+
+    function recreateBottleneckChart(labels, values) {
+        try {
+            console.log('Recreating bottleneck chart with labels:', labels, 'values:', values);
+
+            // Use the safe destroy function to clean up any existing charts
+            safelyDestroyChart();
+
+            // Get fresh canvas element
+            const chartCanvas = document.getElementById('bottleneck-categories-chart');
+            if (!chartCanvas) {
+                console.error('Chart canvas not found');
+                return;
+            }
+
+            const ctx = chartCanvas.getContext('2d');
+            if (!ctx) {
+                console.error('Cannot get 2D context from canvas');
+                return;
+            }
+
+            // Create new chart with updated data
+            bottleneckChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: [
+                            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD',
+                            '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9', '#F8C471', '#82E0AA'
+                        ],
+                        borderColor: '#ffffff',
+                        borderWidth: 4,
+                        hoverBorderWidth: 6,
+                        hoverOffset: 12,
+                        hoverBackgroundColor: [
+                            '#FF5252', '#26A69A', '#2196F3', '#66BB6A', '#FFD54F', '#BA68C8',
+                            '#4DB6AC', '#FDD835', '#9575CD', '#42A5F5', '#FFB74D', '#4CAF50'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            align: 'center',
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                padding: 15,
+                                font: {
+                                    size: 13,
+                                    weight: '600',
+                                    family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+                                },
+                                color: '#2c3e50',
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        return data.labels.map((label, i) => {
+                                            const value = data.datasets[0].data[i];
+                                            const rawPercentage = total > 0 ? (value / total) * 100 : 0;
+                                            const percentage = rawPercentage % 1 === 0 ? Math.round(rawPercentage).toString() : rawPercentage.toFixed(1);
+                                            return {
+                                                text: `${label} (${percentage}%)`,
+                                                fillStyle: data.datasets[0].backgroundColor[i],
+                                                strokeStyle: data.datasets[0].borderColor,
+                                                lineWidth: data.datasets[0].borderWidth,
+                                                hidden: false,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(44, 62, 80, 0.95)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#3498db',
+                            borderWidth: 2,
+                            cornerRadius: 12,
+                            displayColors: true,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13,
+                                weight: '500'
+                            },
+                            padding: 12,
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const rawPercentage = total > 0 ? (value / total) * 100 : 0;
+                                    const percentage = rawPercentage % 1 === 0 ? Math.round(rawPercentage).toString() : rawPercentage.toFixed(1);
+                                    return [
+                                        `Delayed Tasks: ${value}`,
+                                        `Percentage: ${percentage}%`,
+                                        `Total Delays: ${total}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 1200,
+                        easing: 'easeOutCubic'
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'nearest'
+                    },
+                    elements: {
+                        arc: {
+                            borderJoinStyle: 'round'
+                        }
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error('Error recreating bottleneck chart:', error);
+        }
+    }
+
+    function calculateDateRange(period) {
+        const now = new Date();
+        let fromDate, toDate;
+
+        switch (period) {
+            case 'week':
+                // This week (Monday to Sunday)
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay() + 1);
+                startOfWeek.setHours(0, 0, 0, 0);
+                fromDate = startOfWeek.toISOString();
+                toDate = now.toISOString();
+                break;
+
+            case 'month':
+                // This month
+                const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                fromDate = startOfMonth.toISOString();
+                toDate = now.toISOString();
+                break;
+
+            case 'quarter':
+                // This quarter
+                const quarter = Math.floor(now.getMonth() / 3);
+                const startOfQuarter = new Date(now.getFullYear(), quarter * 3, 1);
+                fromDate = startOfQuarter.toISOString();
+                toDate = now.toISOString();
+                break;
+
+            default:
+                // Default to this month
+                const defaultStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                fromDate = defaultStart.toISOString();
+                toDate = now.toISOString();
+        }
+
+        return { fromDate, toDate };
+    }
+
+    function updateBottleneckStats(bottleneckData) {
+        // Update the stat cards with new data
+        const totalBottlenecksElement = document.querySelector('[data-stat="total-bottlenecks"] .stat-value');
+        const avgDelayElement = document.querySelector('[data-stat="avg-delay"] .stat-value');
+        const tasksAffectedElement = document.querySelector('[data-stat="tasks-affected"] .stat-value');
+        const severityScoreElement = document.querySelector('[data-stat="severity-score"] .stat-value');
+
+        if (totalBottlenecksElement) {
+            animateValue(totalBottlenecksElement, parseInt(totalBottlenecksElement.textContent) || 0, bottleneckData.totalBottlenecks, 800);
+        }
+        if (avgDelayElement) {
+            animateValue(avgDelayElement, parseFloat(avgDelayElement.textContent) || 0, bottleneckData.averageDelayHours, 800, 'h');
+        }
+        if (tasksAffectedElement) {
+            animateValue(tasksAffectedElement, parseFloat(tasksAffectedElement.textContent) || 0, bottleneckData.tasksAffectedPercentage, 800, '%');
+        }
+        if (severityScoreElement) {
+            animateValue(severityScoreElement, parseInt(severityScoreElement.textContent) || 0, bottleneckData.severityScore, 800);
+        }
+    }
+
+    function animateValue(element, start, end, duration, suffix = '') {
+        const startTime = performance.now();
+        const difference = end - start;
+
+        function updateValue(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Use easing function for smooth animation
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+            const current = start + (difference * easeOutQuart);
+
+            // Format the value based on suffix and whether it's a whole number
+            let displayValue;
+            if (suffix === '%') {
+                displayValue = current % 1 === 0 ? Math.round(current).toString() : current.toFixed(1);
+            } else if (suffix === 'h') {
+                displayValue = current % 1 === 0 ? Math.round(current).toString() : current.toFixed(1);
+            } else {
+                displayValue = Math.round(current).toString();
+            }
+
+            element.textContent = displayValue;
+
+            if (progress < 1) {
+                requestAnimationFrame(updateValue);
+            } else {
+                // Final value formatting
+                let finalValue;
+                if (suffix === '%') {
+                    finalValue = end % 1 === 0 ? Math.round(end).toString() : end.toFixed(1);
+                } else if (suffix === 'h') {
+                    finalValue = end % 1 === 0 ? Math.round(end).toString() : end.toFixed(1);
+                } else {
+                    finalValue = Math.round(end).toString();
+                }
+                element.textContent = finalValue;
+            }
+        }
+
+        requestAnimationFrame(updateValue);
+    }
+
+    function getAntiForgeryToken() {
+        const token = document.querySelector('input[name="__RequestVerificationToken"]');
+        return token ? token.value : "";
     }
 </script>

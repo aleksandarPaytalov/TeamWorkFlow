@@ -1434,6 +1434,11 @@
 
 .bottleneck-categories {
   margin-bottom: 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+  overflow: hidden;
 }
 
 .chart-header {
@@ -1441,10 +1446,12 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  padding: 20px 20px 0 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
 .chart-header h4 {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: #2c3e50;
   margin: 0;
@@ -1454,6 +1461,107 @@
   display: flex;
   gap: 12px;
   align-items: center;
+}
+
+.chart-controls .form-select {
+  min-width: 140px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.chart-controls .form-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Enhanced bottleneck chart container */
+.bottleneck-categories .chart-container {
+  position: relative;
+  height: 350px;
+  padding: 20px;
+  background: white;
+  transition: opacity 0.3s ease;
+}
+
+.bottleneck-categories .chart-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 10;
+  border-radius: 8px;
+}
+
+.bottleneck-categories .chart-loading .spinner-border {
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 12px;
+}
+
+.bottleneck-categories .chart-loading p {
+  margin: 0;
+  color: #6c757d;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+/* Enhanced chart hover effects */
+.bottleneck-categories:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+  transition: all 0.3s ease;
+}
+
+/* Enhanced chart canvas styling */
+.bottleneck-categories canvas {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  transition: filter 0.3s ease;
+}
+
+.bottleneck-categories:hover canvas {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+/* Stat card animation for value updates */
+.stat-value {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.stat-value.updating {
+  color: #007bff;
+  transform: scale(1.05);
+}
+
+/* Enhanced period selector styling */
+.chart-controls .form-select {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.chart-controls .form-select:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+}
+
+/* Loading animation enhancement */
+.bottleneck-categories .chart-loading .spinner-border {
+  animation: spin 1s linear infinite, pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
 }
 
 .form-select {
@@ -2466,6 +2574,19 @@
 
   .chart-container {
     height: 250px;
+  }
+
+  .bottleneck-categories .chart-container {
+    height: 280px;
+    padding: 16px;
+  }
+
+  .chart-header {
+    padding: 16px 16px 0 16px;
+  }
+
+  .chart-header h4 {
+    font-size: 1.1rem;
   }
 
   .insight-meta {
