@@ -2186,11 +2186,19 @@
 
   // Responsive chart handling
   function handleResize() {
-    Object.keys(charts).forEach((chartKey) => {
-      if (charts[chartKey] && typeof charts[chartKey].resize === "function") {
-        charts[chartKey].resize();
-      }
-    });
+    try {
+      Object.keys(charts).forEach((chartKey) => {
+        if (charts[chartKey] && typeof charts[chartKey].resize === "function") {
+          try {
+            charts[chartKey].resize();
+          } catch (error) {
+            console.warn(`Error resizing chart ${chartKey}:`, error);
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Error in handleResize:", error);
+    }
   }
 
   // Initialize resize handler

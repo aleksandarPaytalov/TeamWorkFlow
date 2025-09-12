@@ -879,7 +879,7 @@
             container.style.setProperty('background', 'white', 'important');
             container.style.setProperty('border-radius', '8px', 'important');
             container.style.setProperty('border', '1px solid #e9ecef', 'important');
-            console.log('Container styles applied. Height:', container.style.height, 'Computed height:', window.getComputedStyle(container).height);
+            console.log('Container styles applied. Height:', container.style.height, 'Computed height:', container ? window.getComputedStyle(container).height : 'N/A');
         } else {
             console.error('Container not found!');
         }
@@ -904,7 +904,7 @@
             canvas.setAttribute('height', '360');
 
             console.log('Canvas styles applied. Width:', canvas.style.width, 'Height:', canvas.style.height);
-            console.log('Canvas computed styles:', window.getComputedStyle(canvas).width, 'x', window.getComputedStyle(canvas).height);
+            console.log('Canvas computed styles:', canvas ? window.getComputedStyle(canvas).width : 'N/A', 'x', canvas ? window.getComputedStyle(canvas).height : 'N/A');
             console.log('Canvas attributes:', canvas.width, 'x', canvas.height);
         } else {
             console.error('Canvas not found!');
@@ -925,33 +925,33 @@
 
         if (container) {
             const containerRect = container.getBoundingClientRect();
-            const containerStyles = window.getComputedStyle(container);
+            const containerStyles = container ? window.getComputedStyle(container) : null;
             console.log('Container position:', {
                 top: containerRect.top,
                 left: containerRect.left,
                 width: containerRect.width,
                 height: containerRect.height,
-                computedHeight: containerStyles.height,
-                computedWidth: containerStyles.width,
-                display: containerStyles.display,
-                visibility: containerStyles.visibility,
-                opacity: containerStyles.opacity
+                computedHeight: containerStyles ? containerStyles.height : 'N/A',
+                computedWidth: containerStyles ? containerStyles.width : 'N/A',
+                display: containerStyles ? containerStyles.display : 'N/A',
+                visibility: containerStyles ? containerStyles.visibility : 'N/A',
+                opacity: containerStyles ? containerStyles.opacity : 'N/A'
             });
         }
 
         if (canvas) {
             const canvasRect = canvas.getBoundingClientRect();
-            const canvasStyles = window.getComputedStyle(canvas);
+            const canvasStyles = canvas ? window.getComputedStyle(canvas) : null;
             console.log('Canvas position:', {
                 top: canvasRect.top,
                 left: canvasRect.left,
                 width: canvasRect.width,
                 height: canvasRect.height,
-                computedHeight: canvasStyles.height,
-                computedWidth: canvasStyles.width,
-                display: canvasStyles.display,
-                visibility: canvasStyles.visibility,
-                opacity: canvasStyles.opacity,
+                computedHeight: canvasStyles ? canvasStyles.height : 'N/A',
+                computedWidth: canvasStyles ? canvasStyles.width : 'N/A',
+                display: canvasStyles ? canvasStyles.display : 'N/A',
+                visibility: canvasStyles ? canvasStyles.visibility : 'N/A',
+                opacity: canvasStyles ? canvasStyles.opacity : 'N/A',
                 attributes: { width: canvas.width, height: canvas.height }
             });
 
