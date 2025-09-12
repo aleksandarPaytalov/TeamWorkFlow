@@ -417,7 +417,16 @@ namespace TeamWorkFlow.Controllers
 
                 return Json(new {
                     success = true,
-                    data = dashboardData.EfficiencyMetrics
+                    data = new {
+                        onTimeCompletionRate = dashboardData.EfficiencyMetrics.OnTimeCompletionRate,
+                        averageTimeOverrunPercentage = dashboardData.EfficiencyMetrics.AverageTimeOverrunPercentage,
+                        totalTasksCompleted = dashboardData.EfficiencyMetrics.TotalTasksCompleted,
+                        overallEfficiencyScore = dashboardData.EfficiencyMetrics.OverallEfficiencyScore,
+                        efficiencyTrend = dashboardData.EfficiencyMetrics.EfficiencyTrend,
+                        activeOperators = dashboardData.KpiSummary?.ActiveOperators ?? 0,
+                        analysisPeriod = dashboardData.AnalysisPeriod,
+                        trendData = dashboardData.EfficiencyMetrics.TrendData
+                    }
                 });
             }
             catch (Exception ex)

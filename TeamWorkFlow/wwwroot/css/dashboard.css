@@ -883,9 +883,7 @@
   .performance-summary .summary-card {
     padding: 16px !important;
     gap: 12px !important;
-    height: 85px !important;
     min-height: 85px !important;
-    max-height: 85px !important;
     width: 100% !important;
     display: flex !important;
     align-items: center !important;
@@ -911,11 +909,10 @@
   .performance-summary .summary-value {
     font-size: 1.4rem !important;
     line-height: 1.2 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
     margin-bottom: 4px !important;
     font-weight: 600 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
   }
 
   .performance-summary .summary-label {
@@ -942,9 +939,7 @@
   .performance-summary .summary-card {
     padding: 18px !important;
     gap: 14px !important;
-    height: 90px !important;
     min-height: 90px !important;
-    max-height: 90px !important;
   }
 
   .performance-summary .summary-icon {

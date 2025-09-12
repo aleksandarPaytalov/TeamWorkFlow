@@ -128,6 +128,12 @@
         // Calculate insights
         updateChartInsights(data);
 
+        // Destroy existing chart if it exists
+        const existingChart = Chart.getChart(ctx);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+
         // Create gradient backgrounds
         const onTimeGradient = ctx.createLinearGradient(0, 0, 0, 400);
         onTimeGradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
@@ -141,7 +147,12 @@
         tasksGradient.addColorStop(0, 'rgba(16, 185, 129, 0.3)');
         tasksGradient.addColorStop(1, 'rgba(16, 185, 129, 0.05)');
 
-        new Chart(ctx, {
+        // Store chart in global charts object for dashboard.js to access
+        if (!window.charts) {
+            window.charts = {};
+        }
+
+        window.charts.efficiency = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: data.map(d => d.dateFormatted || d.periodLabel),

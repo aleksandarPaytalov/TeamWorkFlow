@@ -130,6 +130,7 @@
   }
 
   function handleApplyFilters() {
+    const startTime = performance.now();
     showLoading();
 
     // Get filter values
@@ -157,13 +158,36 @@
     // Update current filters
     currentFilters = { fromDate, toDate, timeGranularity };
 
-    // Reload page with new filters (only include non-empty values)
-    const params = new URLSearchParams();
-    if (fromDate) params.append("fromDate", fromDate);
-    if (toDate) params.append("toDate", toDate);
-    if (timeGranularity) params.append("timeGranularity", timeGranularity);
+    // Refresh all sections with new filters instead of reloading page
+    Promise.all([
+      refreshSection("efficiency"),
+      refreshSection("operators"),
+      refreshSection("bottlenecks"),
+      refreshSection("trends"),
+    ])
+      .then(() => {
+        hideLoading();
+        trackPerformance("filter application", startTime);
+        showSuccess("Dashboard filters applied successfully.");
 
-    window.location.href = `/Dashboard?${params.toString()}`;
+        // Refresh all charts with new data
+        refreshCharts();
+
+        // Also trigger individual chart refresh functions for sections that have them
+        refreshAllSectionCharts();
+      })
+      .catch((error) => {
+        hideLoading();
+        handleError(error, "filter application");
+
+        // Fallback to page reload if AJAX refresh fails
+        console.warn("AJAX refresh failed, falling back to page reload");
+        const params = new URLSearchParams();
+        if (fromDate) params.append("fromDate", fromDate);
+        if (toDate) params.append("toDate", toDate);
+        if (timeGranularity) params.append("timeGranularity", timeGranularity);
+        window.location.href = `/Dashboard?${params.toString()}`;
+      });
   }
 
   function handleRefreshData() {
@@ -222,20 +246,26 @@
           return;
       }
 
-      // Build query string
-      const queryParams = new URLSearchParams();
+      // Use POST requests for all sections to properly handle timeGranularity parameter
+      // Clean up params - remove empty strings and null/undefined values
+      const cleanParams = {};
       Object.keys(params).forEach((key) => {
-        if (params[key] !== null && params[key] !== undefined) {
-          queryParams.append(key, params[key]);
+        if (
+          params[key] !== null &&
+          params[key] !== undefined &&
+          params[key] !== ""
+        ) {
+          cleanParams[key] = params[key];
         }
       });
 
-      fetch(`${endpoint}?${queryParams.toString()}`, {
-        method: "GET",
+      fetch(endpoint, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           RequestVerificationToken: getAntiForgeryToken(),
         },
+        body: JSON.stringify(cleanParams),
       })
         .then((response) => {
           if (!response.ok) {
@@ -280,22 +310,67 @@
   }
 
   function updateEfficiencySection(data) {
-    // Update KPI cards
-    updateKPICard("on-time-rate", data.onTimeCompletionRate, "%");
-    updateKPICard("avg-overrun", data.averageTimeOverrunPercentage, "%");
-    updateKPICard("tasks-completed", data.totalTasksCompleted, "");
-    updateKPICard("efficiency-score", data.overallEfficiencyScore, "");
+    // Extract the actual data from the response structure
+    const actualData = data.data || data;
+
+    console.log("=== DEBUGGING updateEfficiencySection ===");
+    console.log("Received data:", data);
+    console.log("Actual data:", actualData);
+    console.log("onTimeCompletionRate:", actualData.onTimeCompletionRate);
+    console.log("totalTasksCompleted:", actualData.totalTasksCompleted);
+    console.log("activeOperators:", actualData.activeOperators);
+    console.log(
+      "averageTimeOverrunPercentage:",
+      actualData.averageTimeOverrunPercentage
+    );
+    console.log("=== END DEBUG ===");
+
+    // Update main KPI cards using direct element access
+    const onTimeRate = document.getElementById("on-time-completion-rate");
+    const overrunRate = document.getElementById("average-overrun-rate");
+    const tasksAnalyzed = document.getElementById("tasks-analyzed");
+    const activeOperators = document.getElementById("active-operators");
+    const onTimeTrend = document.getElementById("on-time-trend");
+    const analysisPeriod = document.getElementById("analysis-period");
+
+    if (onTimeRate && actualData.onTimeCompletionRate !== undefined) {
+      onTimeRate.textContent = actualData.onTimeCompletionRate.toFixed(1) + "%";
+    }
+    if (overrunRate && actualData.averageTimeOverrunPercentage !== undefined) {
+      overrunRate.textContent =
+        actualData.averageTimeOverrunPercentage.toFixed(1) + "h";
+    }
+    if (tasksAnalyzed && actualData.totalTasksCompleted !== undefined) {
+      tasksAnalyzed.textContent = actualData.totalTasksCompleted;
+    }
+    if (activeOperators && actualData.activeOperators !== undefined) {
+      activeOperators.textContent = actualData.activeOperators;
+    }
+    if (analysisPeriod && actualData.analysisPeriod) {
+      analysisPeriod.textContent = actualData.analysisPeriod;
+    }
+
+    // Update trend indicator
+    if (onTimeTrend && actualData.efficiencyTrend !== undefined) {
+      const trendValue = actualData.efficiencyTrend;
+      const trendIcon = trendValue >= 0 ? "↗" : "↘";
+      const trendClass = trendValue >= 0 ? "positive" : "negative";
+      onTimeTrend.className = `kpi-trend ${trendClass}`;
+      onTimeTrend.textContent = `${trendIcon} ${Math.abs(trendValue).toFixed(
+        1
+      )}%`;
+    }
 
     // Update efficiency chart
-    if (charts.efficiency && data.trendData) {
-      const labels = data.trendData.map(
+    if (charts.efficiency && actualData.trendData) {
+      const labels = actualData.trendData.map(
         (d) => d.dateFormatted || d.periodLabel
       );
-      const onTimeRateData = data.trendData.map((d) => d.onTimeRate || 0);
-      const overrunData = data.trendData.map((d) =>
+      const onTimeRateData = actualData.trendData.map((d) => d.onTimeRate || 0);
+      const overrunData = actualData.trendData.map((d) =>
         Math.abs(d.overrunPercentage || 0)
       );
-      const tasksData = data.trendData.map((d) => d.tasksCompleted || 0);
+      const tasksData = actualData.trendData.map((d) => d.tasksCompleted || 0);
 
       // Update chart data
       charts.efficiency.data.labels = labels;
@@ -305,8 +380,7 @@
       charts.efficiency.update();
     }
 
-    // Update trend indicators
-    updateTrendIndicator("efficiency-trend", data.efficiencyTrend);
+    console.log("Efficiency section updated successfully");
   }
 
   function updateOperatorSection(data) {
@@ -582,7 +656,8 @@
 
     // Initialize individual charts with error handling
     try {
-      initializeEfficiencyChart(chartColors);
+      // Skip efficiency chart initialization - handled by _EfficiencyMetrics.cshtml
+      // initializeEfficiencyChart(chartColors);
       initializeOperatorChart(chartColors);
       initializeBottleneckChart(chartColors);
       initializeTrendCharts(chartColors);
@@ -1182,6 +1257,51 @@
     });
     loadBottleneckChartData();
     loadTrendChartsData();
+  }
+
+  // Function to refresh all section-specific charts
+  function refreshAllSectionCharts() {
+    console.log("Refreshing all section-specific charts...");
+
+    // Refresh completion trends chart if the function exists
+    if (typeof refreshCompletionTrendData === "function") {
+      console.log("Refreshing completion trends chart");
+      refreshCompletionTrendData();
+    } else if (
+      window.refreshCompletionTrendData &&
+      typeof window.refreshCompletionTrendData === "function"
+    ) {
+      console.log("Refreshing completion trends chart (global)");
+      window.refreshCompletionTrendData();
+    }
+
+    // Refresh bottleneck chart if the function exists
+    if (typeof forceRefreshBottleneckChart === "function") {
+      console.log("Refreshing bottleneck chart");
+      const periodSelect = document.getElementById("bottleneck-period");
+      const currentPeriod = periodSelect ? periodSelect.value : "week";
+      forceRefreshBottleneckChart(currentPeriod);
+    } else if (
+      window.forceRefreshBottleneckChart &&
+      typeof window.forceRefreshBottleneckChart === "function"
+    ) {
+      console.log("Refreshing bottleneck chart (global)");
+      const periodSelect = document.getElementById("bottleneck-period");
+      const currentPeriod = periodSelect ? periodSelect.value : "week";
+      window.forceRefreshBottleneckChart(currentPeriod);
+    }
+
+    // Refresh efficiency chart if the function exists
+    if (typeof initializeEfficiencyChart === "function") {
+      console.log("Refreshing efficiency chart");
+      initializeEfficiencyChart();
+    } else if (
+      window.initializeEfficiencyChart &&
+      typeof window.initializeEfficiencyChart === "function"
+    ) {
+      console.log("Refreshing efficiency chart (global)");
+      window.initializeEfficiencyChart();
+    }
   }
 
   function handleExportPdf() {
@@ -2836,6 +2956,7 @@
       return { ...currentFilters };
     },
     refreshCharts: refreshCharts,
+    refreshAllSectionCharts: refreshAllSectionCharts,
     startAutoRefresh: startAutoRefresh,
     stopAutoRefresh: stopAutoRefresh,
     performManualRefresh: performManualRefresh,
@@ -2843,5 +2964,11 @@
     refreshDashboardData: refreshDashboardData,
     charts: charts,
     handleError: handleError,
+  };
+
+  // Make key functions globally accessible for section-specific scripts
+  window.refreshDashboardData = refreshDashboardData;
+  window.getCurrentFilters = function () {
+    return { ...currentFilters };
   };
 })();
