@@ -119,9 +119,20 @@
         public const int ProjectStatusNameMaxLength = 30;
 
         /// <summary>
-        /// TaskStatus DataConstants 
+        /// TaskStatus DataConstants
         /// </summary>
         public const int TaskStatusNameMinLength = 2;
         public const int TaskStatusNameMaxLength = 30;
+
+        /// <summary>
+        /// TaskTimeEntry DataConstants
+        /// </summary>
+        public const int TaskTimeEntryNotesMaxLength = 500;
+        public const int TaskTimeEntrySessionTypeMaxLength = 20;
+
+        /// <summary>
+        /// TaskTimeSession DataConstants
+        /// </summary>
+        public const int TaskTimeSessionStatusMaxLength = 20;
     }
 }

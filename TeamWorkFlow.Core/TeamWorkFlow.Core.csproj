@@ -10,4 +10,9 @@
     <ProjectReference Include="..\TeamWorkFlow.Infrastructure\TeamWorkFlow.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="EPPlus" Version="7.5.2" />
+    <PackageReference Include="iTextSharp.LGPLv2.Core" Version="1.7.1" />
+  </ItemGroup>
+
 </Project>

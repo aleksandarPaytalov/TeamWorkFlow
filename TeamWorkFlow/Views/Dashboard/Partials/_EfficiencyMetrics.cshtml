@@ -1,0 +1,331 @@
+@model EfficiencyMetricsModel
+
+<div class="efficiency-metrics-section">
+
+
+
+
+    <!-- Detailed Metrics -->
+    <div class="detailed-metrics">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="detail-card">
+                    <h4>Average Completion Time</h4>
+                    <div class="detail-value">
+                        @Model.AverageActualTimeHours.ToString("F1") hours
+                        <span class="vs-estimated">(vs @Model.AverageEstimatedTimeHours.ToString("F1") estimated)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: @Math.Min(100, Model.AverageEstimatedTimeHours > 0 ? (Model.AverageActualTimeHours / Model.AverageEstimatedTimeHours * 100) : 0).ToString("F0")%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="detail-card">
+                    <h4>Efficiency Status</h4>
+                    <div class="detail-value">
+                        @Model.OverallEfficiencyScore.ToString("F1")/100
+                        <span class="quality-indicator @(Model.OverallEfficiencyScore >= 85 ? "excellent" : Model.OverallEfficiencyScore >= 70 ? "good" : "needs-improvement")">
+                            @Model.EfficiencyStatus
+                        </span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill quality" style="width: @Model.OverallEfficiencyScore%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Trend Data Chart -->
+    @if (Model.TrendData != null && Model.TrendData.Any())
+    {
+        <div class="efficiency-trend-section">
+            <div class="trend-header">
+                <h4 class="trend-title">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Efficiency Trend Analysis
+                </h4>
+                <div class="trend-legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);"></span>
+                        <span class="legend-label">On-Time Rate</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: linear-gradient(135deg, #f59e0b, #d97706);"></span>
+                        <span class="legend-label">Overrun %</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: linear-gradient(135deg, #10b981, #059669);"></span>
+                        <span class="legend-label">Tasks Completed</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="efficiency-comparison-chart"></canvas>
+            </div>
+            <div class="chart-insights">
+                <div class="insight-grid">
+                    <div class="insight-card">
+                        <div class="insight-icon">
+                            <i class="fas fa-trending-up"></i>
+                        </div>
+                        <div class="insight-content">
+                            <div class="insight-value" id="trend-direction">Calculating...</div>
+                            <div class="insight-label">Trend Direction</div>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="insight-content">
+                            <div class="insight-value" id="avg-performance">Calculating...</div>
+                            <div class="insight-label">Avg Performance</div>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="insight-content">
+                            <div class="insight-value" id="total-tasks">@Model.TrendData.Sum(t => t.TasksCompleted)</div>
+                            <div class="insight-label">Total Tasks</div>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="insight-content">
+                            <div class="insight-value" id="data-points">@Model.TrendData.Count</div>
+                            <div class="insight-label">Data Points</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    // Initialize efficiency metrics charts when document is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Chart !== 'undefined' && document.getElementById('efficiency-comparison-chart')) {
+            initializeEfficiencyChart();
+        }
+    });
+
+    function initializeEfficiencyChart() {
+        const ctx = document.getElementById('efficiency-comparison-chart').getContext('2d');
+        const data = @Html.Raw(Json.Serialize(Model.TrendData ?? new List<EfficiencyTrendPoint>()));
+
+        if (!data || data.length === 0) {
+            ctx.canvas.parentElement.innerHTML = '<div class="no-data-message"><i class="fas fa-chart-line"></i><p>No trend data available</p></div>';
+            return;
+        }
+
+        // Calculate insights
+        updateChartInsights(data);
+
+        // Destroy existing chart if it exists
+        const existingChart = Chart.getChart(ctx);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+
+        // Create gradient backgrounds
+        const onTimeGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        onTimeGradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+        onTimeGradient.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
+
+        const overrunGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        overrunGradient.addColorStop(0, 'rgba(245, 158, 11, 0.3)');
+        overrunGradient.addColorStop(1, 'rgba(245, 158, 11, 0.05)');
+
+        const tasksGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        tasksGradient.addColorStop(0, 'rgba(16, 185, 129, 0.3)');
+        tasksGradient.addColorStop(1, 'rgba(16, 185, 129, 0.05)');
+
+        // Store chart in global charts object for dashboard.js to access
+        if (!window.charts) {
+            window.charts = {};
+        }
+
+        window.charts.efficiency = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(d => d.dateFormatted || d.periodLabel),
+                datasets: [
+                    {
+                        label: 'On-Time Rate (%)',
+                        data: data.map(d => d.onTimeRate),
+                        backgroundColor: '#3b82f6',
+                        borderColor: '#2563eb',
+                        borderWidth: 2,
+                        borderRadius: 4,
+                        borderSkipped: false,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Overrun Percentage (%)',
+                        data: data.map(d => Math.abs(d.overrunPercentage)),
+                        backgroundColor: '#f59e0b',
+                        borderColor: '#d97706',
+                        borderWidth: 2,
+                        borderRadius: 4,
+                        borderSkipped: false,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Tasks Completed',
+                        data: data.map(d => d.tasksCompleted),
+                        backgroundColor: '#10b981',
+                        borderColor: '#059669',
+                        borderWidth: 2,
+                        borderRadius: 4,
+                        borderSkipped: false,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                indexAxis: 'x',
+                scales: {
+                    x: {
+                        type: 'category',
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 0
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Percentage (%)',
+                            color: '#6b7280',
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(156, 163, 175, 0.2)'
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Tasks Count',
+                            color: '#6b7280',
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            }
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false // We have custom legend
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#1f2937',
+                        bodyColor: '#374151',
+                        borderColor: '#e5e7eb',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        callbacks: {
+                            title: function(context) {
+                                return `Period: ${context[0].label}`;
+                            },
+                            label: function(context) {
+                                const datasetLabel = context.dataset.label;
+                                const value = context.parsed.y;
+
+                                if (datasetLabel.includes('Tasks')) {
+                                    return `${datasetLabel}: ${value} tasks`;
+                                } else {
+                                    return `${datasetLabel}: ${value.toFixed(1)}%`;
+                                }
+                            },
+                            afterBody: function(context) {
+                                const dataIndex = context[0].dataIndex;
+                                const dataPoint = data[dataIndex];
+                                return [
+                                    '',
+                                    `📊 Performance Summary:`,
+                                    `✅ On-time: ${dataPoint.onTimeRate.toFixed(1)}%`,
+                                    `⏱️ Overrun: ${Math.abs(dataPoint.overrunPercentage).toFixed(1)}%`,
+                                    `📋 Tasks: ${dataPoint.tasksCompleted}`
+                                ];
+                            }
+                        }
+                    }
+                },
+                elements: {
+                    point: {
+                        hoverBackgroundColor: '#ffffff',
+                        hoverBorderWidth: 3
+                    }
+                }
+            }
+        });
+    }
+
+    function updateChartInsights(data) {
+        if (!data || data.length === 0) return;
+
+        // Calculate trend direction
+        const firstOnTime = data[0].onTimeRate;
+        const lastOnTime = data[data.length - 1].onTimeRate;
+        const trendDirection = lastOnTime > firstOnTime ? 'Improving' :
+                              lastOnTime < firstOnTime ? 'Declining' : 'Stable';
+
+        const trendElement = document.getElementById('trend-direction');
+        if (trendElement) {
+            trendElement.textContent = trendDirection;
+            trendElement.className = `insight-value ${trendDirection.toLowerCase()}`;
+        }
+
+        // Calculate average performance
+        const avgOnTime = data.reduce((sum, d) => sum + d.onTimeRate, 0) / data.length;
+        const avgPerformanceElement = document.getElementById('avg-performance');
+        if (avgPerformanceElement) {
+            avgPerformanceElement.textContent = `${avgOnTime.toFixed(1)}%`;
+            avgPerformanceElement.className = `insight-value ${avgOnTime >= 80 ? 'excellent' : avgOnTime >= 60 ? 'good' : 'needs-improvement'}`;
+        }
+    }
+</script>
