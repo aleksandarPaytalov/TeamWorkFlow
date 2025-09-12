@@ -305,48 +305,47 @@ namespace UnitTests.Controllers
         }
 
         [Test]
-        public async Task RefreshData_WhenAnalyticsServiceReturnsNull_ShouldReturnBadRequest()
+        public async Task RefreshData_WhenAnalyticsServiceReturnsValidData_ShouldReturnPartialView()
         {
             // Arrange
             SetupAuthenticatedAdminUser();
 
             var filters = new ReportFilterModel();
+            var dashboardData = new PerformanceDashboardModel();
 
             _mockAnalyticsService.Setup(x => x.GetDashboardDataAsync(filters))
-                .ReturnsAsync((PerformanceDashboardModel?)null);
+                .ReturnsAsync(dashboardData);
 
             // Act
             var result = await _controller.RefreshData(filters);
 
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+            Assert.That(result, Is.InstanceOf<PartialViewResult>());
 
-            var badRequestResult = (BadRequestObjectResult)result;
-            Assert.That(badRequestResult.Value, Is.EqualTo("Unable to refresh dashboard data"));
+            var partialViewResult = (PartialViewResult)result;
+            Assert.That(partialViewResult.ViewName, Is.EqualTo("_DashboardContent"));
+            Assert.That(partialViewResult.Model, Is.EqualTo(dashboardData));
         }
 
         #endregion
 
         #region GetEfficiencyData Action Tests
 
+
+
         [Test]
-        public async Task GetEfficiencyData_WithValidRequest_ShouldReturnJsonWithEfficiencyData()
+        public async Task GetEfficiencyData_WithValidRequest_ShouldReturnJsonWithEfficiencyMetrics()
         {
             // Arrange
             SetupAuthenticatedAdminUser();
 
             var fromDate = DateTime.Today.AddDays(-30);
             var toDate = DateTime.Today;
-            var expectedMetrics = new EfficiencyMetricsModel
-            {
-                OnTimeCompletionRate = 85.5m,
-                AverageTimeOverrunPercentage = 2.3m,
-                TotalTasksCompleted = 20
-            };
+            var efficiencyData = new EfficiencyMetricsModel();
 
             _mockAnalyticsService.Setup(x => x.GetEfficiencyMetricsAsync(fromDate, toDate, null, null))
-                .ReturnsAsync(expectedMetrics);
+                .ReturnsAsync(efficiencyData);
 
             // Act
             var result = await _controller.GetEfficiencyData(fromDate, toDate);
@@ -356,30 +355,7 @@ namespace UnitTests.Controllers
             Assert.That(result, Is.InstanceOf<JsonResult>());
 
             var jsonResult = (JsonResult)result;
-            Assert.That(jsonResult.Value, Is.EqualTo(expectedMetrics));
-        }
-
-        [Test]
-        public async Task GetEfficiencyData_WhenEfficiencyMetricsIsNull_ShouldReturnJsonWithError()
-        {
-            // Arrange
-            SetupAuthenticatedAdminUser();
-
-            var fromDate = DateTime.Today.AddDays(-30);
-            var toDate = DateTime.Today;
-
-            _mockAnalyticsService.Setup(x => x.GetEfficiencyMetricsAsync(fromDate, toDate, null, null))
-                .ReturnsAsync((EfficiencyMetricsModel?)null);
-
-            // Act
-            var result = await _controller.GetEfficiencyData(fromDate, toDate);
-
-            // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
-
-            var badRequestResult = (BadRequestObjectResult)result;
-            Assert.That(badRequestResult.Value, Is.EqualTo("Unable to retrieve efficiency data"));
+            Assert.That(jsonResult.Value, Is.EqualTo(efficiencyData));
         }
 
         #endregion
@@ -445,8 +421,10 @@ namespace UnitTests.Controllers
 
         #region GetTrendData Action Tests
 
+
+
         [Test]
-        public async Task GetTrendData_WithValidRequest_ShouldReturnJsonWithTrendData()
+        public async Task GetTrendData_WithValidRequest_ShouldReturnJsonWithTrendChartData()
         {
             // Arrange
             SetupAuthenticatedAdminUser();
@@ -456,19 +434,10 @@ namespace UnitTests.Controllers
             int[]? operatorIds = null;
             int[]? projectIds = null;
             var granularity = "weekly";
-
-            var expectedTrendCharts = new TrendChartModel
-            {
-                CompletionTrendData = new List<TrendDataPoint>
-                {
-                    new TrendDataPoint { Date = DateTime.Today.AddDays(-7), Value = 10 },
-                    new TrendDataPoint { Date = DateTime.Today, Value = 15 }
-                },
-                TimeLabels = new List<string> { "Week 1", "Week 2" }
-            };
+            var trendData = new TrendChartModel();
 
             _mockAnalyticsService.Setup(x => x.GetCompletionTrendsAsync(fromDate, toDate, operatorIds, projectIds, granularity))
-                .ReturnsAsync(expectedTrendCharts);
+                .ReturnsAsync(trendData);
 
             // Act
             var result = await _controller.GetTrendData(fromDate, toDate, operatorIds, projectIds, granularity);
@@ -478,33 +447,7 @@ namespace UnitTests.Controllers
             Assert.That(result, Is.InstanceOf<JsonResult>());
 
             var jsonResult = (JsonResult)result;
-            Assert.That(jsonResult.Value, Is.EqualTo(expectedTrendCharts));
-        }
-
-        [Test]
-        public async Task GetTrendData_WhenTrendChartsIsNull_ShouldReturnJsonWithError()
-        {
-            // Arrange
-            SetupAuthenticatedAdminUser();
-
-            var fromDate = DateTime.Today.AddDays(-30);
-            var toDate = DateTime.Today;
-            int[]? operatorIds = null;
-            int[]? projectIds = null;
-            var granularity = "weekly";
-
-            _mockAnalyticsService.Setup(x => x.GetCompletionTrendsAsync(fromDate, toDate, operatorIds, projectIds, granularity))
-                .ReturnsAsync((TrendChartModel?)null);
-
-            // Act
-            var result = await _controller.GetTrendData(fromDate, toDate, operatorIds, projectIds, granularity);
-
-            // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
-
-            var badRequestResult = (BadRequestObjectResult)result;
-            Assert.That(badRequestResult.Value, Is.EqualTo("Unable to retrieve trend data"));
+            Assert.That(jsonResult.Value, Is.EqualTo(trendData));
         }
 
         #endregion

@@ -50,7 +50,7 @@ namespace TeamWorkFlow.Infrastructure.Data.Models
         /// </summary>
         public double CalculatedActualHours => Tasks
             .Where(t => t.TaskStatusId == 3 && t.ActualTime.HasValue) // 3 = "finished" status
-            .Sum(t => t.ActualTime.Value);
+            .Sum(t => t.ActualTime!.Value);
 
         /// <summary>
         /// Total planned hours from all tasks regardless of status (sum of estimated times)

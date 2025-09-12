@@ -604,8 +604,8 @@ namespace TeamWorkFlow.Core.Services
                     ["AverageSessionMinutes"] = entries.Count > 0 ? entries.Average(e => e.DurationMinutes) : 0,
                     ["UniqueTasks"] = entries.Select(e => e.TaskId).Distinct().Count(),
                     ["TotalDays"] = entries.Select(e => e.CreatedAt.Date).Distinct().Count(),
-                    ["FirstSession"] = entries.Count > 0 ? (object)entries.Min(e => e.CreatedAt) : (object?)null,
-                    ["LastSession"] = entries.Count > 0 ? (object)entries.Max(e => e.CreatedAt) : (object?)null
+                    ["FirstSession"] = entries.Count > 0 ? (object)entries.Min(e => e.CreatedAt) : null!,
+                    ["LastSession"] = entries.Count > 0 ? (object)entries.Max(e => e.CreatedAt) : null!
                 };
 
                 return stats;
@@ -640,8 +640,8 @@ namespace TeamWorkFlow.Core.Services
                     ["TotalSessions"] = entries.Count,
                     ["UniqueOperators"] = entries.Select(e => e.OperatorId).Distinct().Count(),
                     ["AverageSessionMinutes"] = entries.Count > 0 ? entries.Average(e => e.DurationMinutes) : 0,
-                    ["FirstSession"] = entries.Count > 0 ? (object)entries.Min(e => e.CreatedAt) : (object?)null,
-                    ["LastSession"] = entries.Count > 0 ? (object)entries.Max(e => e.CreatedAt) : (object?)null,
+                    ["FirstSession"] = entries.Count > 0 ? (object)entries.Min(e => e.CreatedAt) : null!,
+                    ["LastSession"] = entries.Count > 0 ? (object)entries.Max(e => e.CreatedAt) : null!,
                     ["CompletionPercentage"] = estimatedMinutes > 0 ? Math.Min(100, (decimal)totalActualMinutes / estimatedMinutes * 100) : 0
                 };
 
