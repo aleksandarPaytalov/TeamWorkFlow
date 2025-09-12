@@ -1,0 +1,212 @@
+@model List<OperatorPerformanceModel>
+
+<div class="operator-performance-section">
+    <div class="section-header">
+        <h3 class="section-title">
+            <i class="fas fa-users"></i>
+            Operator Performance
+        </h3>
+        <p class="section-description">Individual operator performance analysis and comparison</p>
+    </div>
+
+    <!-- Performance Summary -->
+    <div class="performance-summary">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-value">@Model.Count(o => o.IsTopPerformer)</div>
+                        <div class="summary-label">Top Performers</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-value">@(Model.Any() ? Model.Average(o => o.EfficiencyRating).ToString("F1") : "0")%</div>
+                        <div class="summary-label">Team Average</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-value">@(Model.Any() ? Model.Average(o => o.AverageCompletionTimeHours).ToString("F1") : "0")h</div>
+                        <div class="summary-label">Avg Completion Time</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-value">@Model.Count(o => o.NeedsAttention)</div>
+                        <div class="summary-label">Need Attention</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Operator Performance Chart -->
+    <div class="performance-chart">
+        <h4>Efficiency Comparison</h4>
+        <div class="chart-container">
+            <canvas id="operator-performance-chart" width="400" height="300"></canvas>
+        </div>
+    </div>
+
+    <!-- Operator Performance Table -->
+    <div class="performance-table">
+        <h4>Detailed Performance</h4>
+        <div class="table-responsive">
+            <table id="operator-table" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="col-priority-1">Rank</th>
+                        <th class="col-priority-1">Operator</th>
+                        <th class="col-priority-2">Tasks Completed</th>
+                        <th class="col-priority-2">Efficiency Rating</th>
+                        <th class="col-priority-3">On-Time Rate</th>
+                        <th class="col-priority-4">Avg Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var op in Model.OrderBy(o => o.Rank))
+                    {
+                        <tr class="@(op.IsTopPerformer ? "top-performer" : op.NeedsAttention ? "needs-attention" : "")">
+                            <td class="col-priority-1">
+                                <span class="@op.RankClass">@op.Rank</span>
+                            </td>
+                            <td class="col-priority-1">
+                                <div class="operator-info">
+                                    <strong>@op.OperatorName</strong>
+                                    <small class="text-muted d-block">@op.OperatorEmail</small>
+                                </div>
+                            </td>
+                            <td class="col-priority-2">@op.TasksCompleted</td>
+                            <td class="col-priority-2">
+                                <span class="@op.EfficiencyClass">@op.EfficiencyRatingFormatted</span>
+                            </td>
+                            <td class="col-priority-3">@op.OnTimeRateFormatted</td>
+                            <td class="col-priority-4">@op.AverageCompletionTimeFormatted</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Performance Insights -->
+    <div class="performance-insights">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="insight-card top-performer-card">
+                    <div class="insight-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="insight-content">
+                        <h5><i class="fas fa-star"></i> Top Performer</h5>
+                        @{
+                            var topPerformer = Model.OrderBy(o => o.Rank).FirstOrDefault();
+                        }
+                        @if (topPerformer != null)
+                        {
+                            <div class="top-performer-info">
+                                <div class="performer-name">@topPerformer.OperatorName</div>
+                                <div class="performer-stats">
+                                    <div class="stat-badge efficiency">
+                                        <i class="fas fa-chart-line"></i>
+                                        <span>@topPerformer.EfficiencyRatingFormatted efficiency</span>
+                                    </div>
+                                    <div class="stat-badge tasks">
+                                        <i class="fas fa-tasks"></i>
+                                        <span>@topPerformer.TasksCompleted tasks completed</span>
+                                    </div>
+                                    <div class="stat-badge time">
+                                        <i class="fas fa-clock"></i>
+                                        <span>@topPerformer.OnTimeRateFormatted on-time rate</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="no-data">
+                                <i class="fas fa-info-circle"></i>
+                                <span>No performance data available</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="insight-card team-stats-card">
+                    <div class="insight-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="insight-content">
+                        <h5><i class="fas fa-chart-bar"></i> Team Statistics</h5>
+                        <div class="team-stats">
+                            <div class="stat-item">
+                                <div class="stat-icon">
+                                    <i class="fas fa-percentage"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <span class="stat-label">Average Efficiency</span>
+                                    <span class="stat-value">@(Model.Any() ? Model.Average(o => o.EfficiencyRating).ToString("F1") : "0")%</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">
+                                    <i class="fas fa-stopwatch"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <span class="stat-label">Average Completion Time</span>
+                                    <span class="stat-value">@(Model.Any() ? Model.Average(o => o.AverageCompletionTimeHours).ToString("F1") : "0")h</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <span class="stat-label">Operators Needing Attention</span>
+                                    <span class="stat-value attention-count">@Model.Count(o => o.NeedsAttention)</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <span class="stat-label">Total Active Operators</span>
+                                    <span class="stat-value">@Model.Count()</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart data for JavaScript initialization -->
+<script type="application/json" id="operator-chart-data">
+@Html.Raw(Json.Serialize(new {
+    labels = Model?.Select(o => o.OperatorName).ToArray() ?? new string[0],
+    data = Model?.Select(o => o.EfficiencyRating).ToArray() ?? new decimal[0]
+}))
+</script>

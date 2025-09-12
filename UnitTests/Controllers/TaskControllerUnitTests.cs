@@ -7,6 +7,7 @@ using System.Security.Claims;
 using TeamWorkFlow.Controllers;
 using TeamWorkFlow.Core.Contracts;
 using TeamWorkFlow.Core.Models.Task;
+using TeamWorkFlow.Core.Models.TimeTracking;
 using TeamWorkFlow.Extensions;
 
 namespace UnitTests.Controllers
@@ -17,6 +18,7 @@ namespace UnitTests.Controllers
         private TaskController _controller = null!;
         private Mock<ITaskService> _mockTaskService = null!;
         private Mock<IProjectService> _mockProjectService = null!;
+        private Mock<ITaskTimeTrackingService> _mockTimeTrackingService = null!;
         private Mock<HttpContext> _mockHttpContext = null!;
         private Mock<ClaimsPrincipal> _mockUser = null!;
         private Mock<ITempDataDictionary> _mockTempData = null!;
@@ -26,13 +28,15 @@ namespace UnitTests.Controllers
         {
             _mockTaskService = new Mock<ITaskService>();
             _mockProjectService = new Mock<IProjectService>();
+            _mockTimeTrackingService = new Mock<ITaskTimeTrackingService>();
             _mockHttpContext = new Mock<HttpContext>();
             _mockUser = new Mock<ClaimsPrincipal>();
             _mockTempData = new Mock<ITempDataDictionary>();
 
             _controller = new TaskController(
                 _mockTaskService.Object,
-                _mockProjectService.Object
+                _mockProjectService.Object,
+                _mockTimeTrackingService.Object
             );
 
             var controllerContext = new ControllerContext()
@@ -695,5 +699,137 @@ namespace UnitTests.Controllers
         }
 
         #endregion
+
+        #region Time Tracking Tests
+
+        [Test]
+        public async Task GetTimeTracking_WithValidData_ReturnsSuccess()
+        {
+            // Arrange
+            int taskId = 1;
+            string userId = "test-user-id";
+            int operatorId = 1;
+
+            var mockTrackingData = new TaskTimeTrackingModel
+            {
+                TaskId = taskId,
+                TaskName = "Test Task",
+                OperatorId = operatorId,
+                OperatorName = "John Doe",
+                EstimatedTimeHours = 8,
+                TotalActualTimeMinutes = 120,
+                HasActiveSession = false,
+                TotalCompletedSessions = 3
+            };
+
+            _mockUser.Setup(x => x.FindFirst(ClaimTypes.NameIdentifier))
+                .Returns(new Claim(ClaimTypes.NameIdentifier, userId));
+            _mockUser.Setup(x => x.IsInRole("Operator")).Returns(true);
+            _mockTaskService.Setup(x => x.GetOperatorIdByUserId(userId))
+                .ReturnsAsync(operatorId);
+            _mockTimeTrackingService.Setup(x => x.GetTaskTimeTrackingAsync(taskId, operatorId))
+                .ReturnsAsync(mockTrackingData);
+
+            // Act
+            var result = await _controller.GetTimeTracking(taskId);
+
+            // Assert
+            Assert.That(result, Is.InstanceOf<JsonResult>());
+            var jsonResult = result as JsonResult;
+            Assert.That(jsonResult, Is.Not.Null);
+
+            var resultData = jsonResult!.Value as dynamic;
+            var successProperty = resultData!.GetType().GetProperty("success");
+            Assert.That(successProperty!.GetValue(resultData), Is.True);
+
+            // Verify service calls
+            _mockTaskService.Verify(x => x.GetOperatorIdByUserId(userId), Times.Once);
+            _mockTimeTrackingService.Verify(x => x.GetTaskTimeTrackingAsync(taskId, operatorId), Times.Once);
+        }
+
+        [Test]
+        public async Task GetTimeTracking_WithInvalidOperator_ReturnsFailure()
+        {
+            // Arrange
+            int taskId = 1;
+            string userId = "test-user-id";
+
+            _mockUser.Setup(x => x.FindFirst(ClaimTypes.NameIdentifier))
+                .Returns(new Claim(ClaimTypes.NameIdentifier, userId));
+            _mockUser.Setup(x => x.IsInRole("Operator")).Returns(true);
+            _mockTaskService.Setup(x => x.GetOperatorIdByUserId(userId))
+                .ThrowsAsync(new Exception("Operator not found"));
+
+            // Act
+            var result = await _controller.GetTimeTracking(taskId);
+
+            // Assert
+            Assert.That(result, Is.InstanceOf<JsonResult>());
+            var jsonResult = result as JsonResult;
+            Assert.That(jsonResult, Is.Not.Null);
+
+            var resultData = jsonResult!.Value as dynamic;
+            var successProperty = resultData!.GetType().GetProperty("success");
+            var messageProperty = resultData.GetType().GetProperty("message");
+
+            Assert.That(successProperty!.GetValue(resultData), Is.False);
+            Assert.That(messageProperty!.GetValue(resultData), Is.EqualTo("Operator information not found for current user."));
+        }
+
+        [Test]
+        public async Task GetSessionHistory_WithValidData_ReturnsSuccess()
+        {
+            // Arrange
+            int taskId = 1;
+            string userId = "test-user-id";
+            int operatorId = 1;
+            int limit = 10;
+
+            var mockSessions = new List<WorkSessionModel>
+            {
+                new WorkSessionModel
+                {
+                    Id = 1,
+                    TaskId = taskId,
+                    TaskName = "Test Task",
+                    OperatorId = operatorId,
+                    OperatorName = "John Doe",
+                    StartTime = DateTime.UtcNow.AddHours(-2),
+                    EndTime = DateTime.UtcNow.AddHours(-1),
+                    DurationMinutes = 60,
+                    Notes = "Test session",
+                    SessionType = "Development"
+                }
+            };
+
+            _mockUser.Setup(x => x.FindFirst(ClaimTypes.NameIdentifier))
+                .Returns(new Claim(ClaimTypes.NameIdentifier, userId));
+            _mockUser.Setup(x => x.IsInRole("Operator")).Returns(true);
+            _mockTaskService.Setup(x => x.GetOperatorIdByUserId(userId))
+                .ReturnsAsync(operatorId);
+            _mockTimeTrackingService.Setup(x => x.GetWorkSessionHistoryAsync(taskId, operatorId, limit))
+                .ReturnsAsync(mockSessions);
+            _mockTaskService.Setup(x => x.GetTaskByIdAsync(taskId))
+                .ReturnsAsync(new TaskServiceModel { Id = taskId, Name = "Test Task" });
+
+            // Act
+            var result = await _controller.GetWorkSessionHistory(taskId, limit);
+
+            // Assert
+            Assert.That(result, Is.InstanceOf<JsonResult>());
+            var jsonResult = result as JsonResult;
+            Assert.That(jsonResult, Is.Not.Null);
+
+            var resultData = jsonResult!.Value as dynamic;
+            var successProperty = resultData!.GetType().GetProperty("success");
+            Assert.That(successProperty!.GetValue(resultData), Is.True);
+
+            // Verify service calls
+            _mockTimeTrackingService.Verify(x => x.GetWorkSessionHistoryAsync(taskId, operatorId, limit), Times.Once);
+            _mockTaskService.Verify(x => x.GetTaskByIdAsync(taskId), Times.Once);
+        }
+
+        #endregion
+
     }
 }

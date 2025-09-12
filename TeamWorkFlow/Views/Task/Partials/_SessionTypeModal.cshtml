@@ -1,0 +1,107 @@
+<!-- Session Type Selection Modal -->
+<div class="modal fade" id="sessionTypeModal" tabindex="-1" aria-labelledby="sessionTypeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sessionTypeModalLabel">
+                    <i class="fas fa-play-circle me-2"></i>
+                    Start Work Session
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-4">Select the type of work session you're starting:</p>
+                
+                <div class="session-type-options">
+                    <div class="form-check session-type-option">
+                        <input class="form-check-input" type="radio" name="sessionType" id="sessionTypeDevelopment" value="Development" checked>
+                        <label class="form-check-label" for="sessionTypeDevelopment">
+                            <div class="session-type-info">
+                                <div class="session-type-icon">💻</div>
+                                <div class="session-type-details">
+                                    <strong>Development</strong><br>
+                                    <small>Writing code, implementing features</small>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="form-check session-type-option">
+                        <input class="form-check-input" type="radio" name="sessionType" id="sessionTypeTesting" value="Testing">
+                        <label class="form-check-label" for="sessionTypeTesting">
+                            <div class="session-type-info">
+                                <div class="session-type-icon">🧪</div>
+                                <div class="session-type-details">
+                                    <strong>Testing</strong><br>
+                                    <small>Running tests, debugging, QA</small>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="form-check session-type-option">
+                        <input class="form-check-input" type="radio" name="sessionType" id="sessionTypeDocumentation" value="Documentation">
+                        <label class="form-check-label" for="sessionTypeDocumentation">
+                            <div class="session-type-info">
+                                <div class="session-type-icon">📝</div>
+                                <div class="session-type-details">
+                                    <strong>Documentation</strong><br>
+                                    <small>Writing docs, comments, specifications</small>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="form-check session-type-option">
+                        <input class="form-check-input" type="radio" name="sessionType" id="sessionTypeReview" value="Review">
+                        <label class="form-check-label" for="sessionTypeReview">
+                            <div class="session-type-info">
+                                <div class="session-type-icon">👀</div>
+                                <div class="session-type-details">
+                                    <strong>Code Review</strong><br>
+                                    <small>Reviewing code, providing feedback</small>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="form-check session-type-option">
+                        <input class="form-check-input" type="radio" name="sessionType" id="sessionTypeMeeting" value="Meeting">
+                        <label class="form-check-label" for="sessionTypeMeeting">
+                            <div class="session-type-info">
+                                <div class="session-type-icon">🤝</div>
+                                <div class="session-type-details">
+                                    <strong>Meeting</strong><br>
+                                    <small>Team meetings, planning sessions</small>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="form-check session-type-option">
+                        <input class="form-check-input" type="radio" name="sessionType" id="sessionTypeResearch" value="Research">
+                        <label class="form-check-label" for="sessionTypeResearch">
+                            <div class="session-type-info">
+                                <div class="session-type-icon">🔍</div>
+                                <div class="session-type-details">
+                                    <strong>Research</strong><br>
+                                    <small>Learning, investigating solutions</small>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-success" id="confirmStartBtn">
+                    <i class="fas fa-play me-1"></i>
+                    Start Session
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

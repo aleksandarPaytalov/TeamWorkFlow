@@ -143,15 +143,15 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         {
                             Id = "b806eee6-2ceb-4956-9643-e2e2e82289d2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "28570edd-c236-444e-8074-893a2e75052e",
+                            ConcurrencyStamp = "641a62b2-bef1-4e21-9fbf-2ce4c7cf5b4c",
                             Email = "guest@test.local",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "GUEST@TEST.LOCAL",
                             NormalizedUserName = "GUEST@TEST.LOCAL",
-                            PasswordHash = "AQAAAAEAACcQAAAAEE0EXl9nEGfVMnf4uWk1qEwKjiPHdkoJlfnbUCJI2ZwJavUu3Kv6KSUVZnV2csibIw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEJ2S+Lx6yxzFz3lyXj7GTQMUc53mZp9HaXO10mUMxrycK7OlL40R4e83JceaKB/biw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "e716c82e-fb6b-44b0-81b2-90ae27c507f1",
+                            SecurityStamp = "61c87108-edea-4999-b9bc-beea59db8ffd",
                             TwoFactorEnabled = false,
                             UserName = "guest@test.local"
                         },
@@ -159,15 +159,15 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         {
                             Id = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "51a70398-716a-4947-81f7-fd4eb7bacd05",
+                            ConcurrencyStamp = "387a062b-b551-4018-8cfd-b98315450d8e",
                             Email = "operator@test.local",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "OPERATOR@TEST.LOCAL",
                             NormalizedUserName = "OPERATOR@TEST.LOCAL",
-                            PasswordHash = "AQAAAAEAACcQAAAAEFu72IEgOXxoDsfnqeuiEBMrKd5NJXych6f4FV5Jclfa7OwJhjUDFHN5d8NReYBI6Q==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEEwpSSfE8u3pDNnS43zEGTFetB07TBMO+O7bUHhlEUpl7c0+LcO/RXQb9lecvFN6lQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "581b66fc-aa49-4325-b66b-ef5b40024bad",
+                            SecurityStamp = "924061a2-423c-40e9-9d62-e00e484674c2",
                             TwoFactorEnabled = false,
                             UserName = "operator@test.local"
                         },
@@ -175,15 +175,15 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         {
                             Id = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "5fa46574-3042-4bf4-af01-b74191c03e69",
+                            ConcurrencyStamp = "5ebd1e37-b1db-4568-9791-5b192586419d",
                             Email = "admin@test.local",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@TEST.LOCAL",
                             NormalizedUserName = "ADMIN@TEST.LOCAL",
-                            PasswordHash = "AQAAAAEAACcQAAAAEBVSWm7bMU/MUq+7GDPQbRYATVnRlbiJ5wNoENNKJHKfFxUUkSG4WCwePP8pBvIIwA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEI4u+ymnhM6ZPBhezA0gJkZb1/kCk8MBUQht8126rFBLI4oyGo2Pefb/udl8sq4RpA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "756e1e41-c49f-4df8-b6b2-49ffd4cdc26b",
+                            SecurityStamp = "da739b5a-8898-42af-8837-d2551cca83be",
                             TwoFactorEnabled = false,
                             UserName = "admin@test.local"
                         });
@@ -1065,7 +1065,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         {
                             Id = 1,
                             CreatorId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
-                            DeadLine = new DateTime(2023, 12, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DeadLine = new DateTime(2024, 10, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "LOP dimensional report for phase 1 (T0) - samples from the tool maker should arrive in Calendar week 48.",
                             EstimatedTime = 25,
                             IsInSprint = false,
@@ -1074,14 +1074,14 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             PriorityId = 2,
                             ProjectId = 2,
                             SprintOrder = 0,
-                            StartDate = new DateTime(2023, 11, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            StartDate = new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             TaskStatusId = 1
                         },
                         new
                         {
                             Id = 2,
                             CreatorId = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
-                            DeadLine = new DateTime(2024, 7, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DeadLine = new DateTime(2024, 9, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "PPAP level 3",
                             EstimatedTime = 32,
                             IsInSprint = false,
@@ -1090,7 +1090,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             PriorityId = 2,
                             ProjectId = 3,
                             SprintOrder = 0,
-                            StartDate = new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            StartDate = new DateTime(2024, 8, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             TaskStatusId = 2
                         },
                         new
@@ -1125,9 +1125,11 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         new
                         {
                             Id = 5,
+                            ActualTime = 224.0,
+                            CompletedById = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
                             CreatorId = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
                             Description = "Validation of the part on another production machine. Full dimensional report of 5 shots from the new machine. Results must be compared with measurements of the part from the serial (validated) production machine",
-                            EndDate = new DateTime(2024, 7, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            EndDate = new DateTime(2024, 8, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EstimatedTime = 10,
                             IsInSprint = false,
                             MachineId = 2,
@@ -1135,16 +1137,18 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             PriorityId = 1,
                             ProjectId = 1,
                             SprintOrder = 0,
-                            StartDate = new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            StartDate = new DateTime(2024, 8, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             TaskStatusId = 3
                         },
                         new
                         {
                             Id = 6,
+                            ActualTime = 40.0,
+                            CompletedById = "cf41999b-9cad-4b75-977d-a2fdb3d02e77",
                             CreatorId = "7bf9623c-54d9-45ba-84c6-52806dcee7bd",
-                            DeadLine = new DateTime(2024, 6, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DeadLine = new DateTime(2024, 8, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "PPAP documents level 3 must be performed. Note: Deviations on dimensions 10 and 150 have been accepted from the customer. Drawing will be adjusted with next PPAP revision",
-                            EndDate = new DateTime(2024, 6, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            EndDate = new DateTime(2024, 8, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EstimatedTime = 16,
                             IsInSprint = false,
                             MachineId = 3,
@@ -1152,7 +1156,7 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             PriorityId = 3,
                             ProjectId = 3,
                             SprintOrder = 0,
-                            StartDate = new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            StartDate = new DateTime(2024, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             TaskStatusId = 3
                         });
                 });
@@ -1188,6 +1192,16 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                         {
                             OperatorId = 2,
                             TaskId = 2
+                        },
+                        new
+                        {
+                            OperatorId = 2,
+                            TaskId = 5
+                        },
+                        new
+                        {
+                            OperatorId = 3,
+                            TaskId = 5
                         });
                 });
 
@@ -1233,6 +1247,119 @@ namespace TeamWorkFlow.Infrastructure.Migrations
                             Id = 4,
                             Name = "canceled"
                         });
+                });
+
+            modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.TaskTimeEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasComment("Task time entry identifier");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasComment("Timestamp when the time entry was created");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("int")
+                        .HasComment("Total duration of work session in minutes");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2")
+                        .HasComment("Work session end time");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasComment("Optional notes about the work session");
+
+                    b.Property<int>("OperatorId")
+                        .HasColumnType("int")
+                        .HasComment("Operator identifier");
+
+                    b.Property<string>("SessionType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasComment("Type of work session (e.g., 'Development', 'Testing', 'Review')");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2")
+                        .HasComment("Work session start time");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int")
+                        .HasComment("Task identifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OperatorId");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("TaskTimeEntries");
+
+                    b.HasComment("Task time entry data model - tracks individual completed work sessions");
+                });
+
+            modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.TaskTimeSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasComment("Task time session identifier");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasComment("Timestamp when the session was created");
+
+                    b.Property<bool>("IsPaused")
+                        .HasColumnType("bit")
+                        .HasComment("Indicates if the session is currently paused");
+
+                    b.Property<DateTime?>("LastPauseTime")
+                        .HasColumnType("datetime2")
+                        .HasComment("Last time the session was paused");
+
+                    b.Property<int>("OperatorId")
+                        .HasColumnType("int")
+                        .HasComment("Operator identifier");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2")
+                        .HasComment("Work session start time");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasComment("Current status of the session (e.g., 'Active', 'Paused', 'Completed')");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int")
+                        .HasComment("Task identifier");
+
+                    b.Property<int>("TotalPausedMinutes")
+                        .HasColumnType("int")
+                        .HasComment("Total minutes the session has been paused");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2")
+                        .HasComment("Timestamp when the session was last updated");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OperatorId");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("TaskTimeSessions");
+
+                    b.HasComment("Task time session data model - tracks active work sessions in progress");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1418,6 +1545,44 @@ namespace TeamWorkFlow.Infrastructure.Migrations
 
                     b.HasOne("TeamWorkFlow.Infrastructure.Data.Models.Task", "Task")
                         .WithMany("TasksOperators")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Operator");
+
+                    b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.TaskTimeEntry", b =>
+                {
+                    b.HasOne("TeamWorkFlow.Infrastructure.Data.Models.Operator", "Operator")
+                        .WithMany()
+                        .HasForeignKey("OperatorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TeamWorkFlow.Infrastructure.Data.Models.Task", "Task")
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Operator");
+
+                    b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("TeamWorkFlow.Infrastructure.Data.Models.TaskTimeSession", b =>
+                {
+                    b.HasOne("TeamWorkFlow.Infrastructure.Data.Models.Operator", "Operator")
+                        .WithMany()
+                        .HasForeignKey("OperatorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TeamWorkFlow.Infrastructure.Data.Models.Task", "Task")
+                        .WithMany()
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
