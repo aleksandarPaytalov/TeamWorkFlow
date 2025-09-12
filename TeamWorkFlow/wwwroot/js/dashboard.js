@@ -313,18 +313,6 @@
     // Extract the actual data from the response structure
     const actualData = data.data || data;
 
-    console.log("=== DEBUGGING updateEfficiencySection ===");
-    console.log("Received data:", data);
-    console.log("Actual data:", actualData);
-    console.log("onTimeCompletionRate:", actualData.onTimeCompletionRate);
-    console.log("totalTasksCompleted:", actualData.totalTasksCompleted);
-    console.log("activeOperators:", actualData.activeOperators);
-    console.log(
-      "averageTimeOverrunPercentage:",
-      actualData.averageTimeOverrunPercentage
-    );
-    console.log("=== END DEBUG ===");
-
     // Update main KPI cards using direct element access
     const onTimeRate = document.getElementById("on-time-completion-rate");
     const overrunRate = document.getElementById("average-overrun-rate");
@@ -384,8 +372,13 @@
   }
 
   function updateOperatorSection(data) {
+    // Extract the actual data from the response structure
+    const actualData = data.data || data;
+
     // Handle both array format (direct operator data) and object format (with operators property)
-    const operators = Array.isArray(data) ? data : data.operators;
+    const operators = Array.isArray(actualData)
+      ? actualData
+      : actualData.operators;
 
     // Update operator performance chart
     if (charts.operator && operators) {
@@ -414,10 +407,10 @@
     updateOperatorTable(operators);
 
     // Update summary cards
-    if (data.summary) {
-      updateKPICard("top-performers", data.summary.topPerformers, "");
-      updateKPICard("team-average", data.summary.teamAverage, "%");
-      updateKPICard("needs-attention", data.summary.needsAttention, "");
+    if (actualData.summary) {
+      updateKPICard("top-performers", actualData.summary.topPerformers, "");
+      updateKPICard("team-average", actualData.summary.teamAverage, "%");
+      updateKPICard("needs-attention", actualData.summary.needsAttention, "");
     }
   }
 

@@ -264,7 +264,8 @@ namespace TeamWorkFlow.Core.Services
                     dashboard.OperatorPerformance = await GetOperatorPerformanceAsync(
                         validatedFilters.FromDate,
                         validatedFilters.ToDate,
-                        validatedFilters.SelectedProjectIds);
+                        validatedFilters.SelectedProjectIds,
+                        validatedFilters.SortBy);
                 }
                 catch (Exception ex)
                 {
