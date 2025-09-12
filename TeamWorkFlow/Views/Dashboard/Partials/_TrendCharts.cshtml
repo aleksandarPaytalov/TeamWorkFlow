@@ -348,9 +348,16 @@
             return;
         }
 
-        // Aggressive canvas cleanup to prevent Chart.js conflicts
+        // Prevent multiple chart creation on the same canvas
+        if (chartElement.dataset.chartInitialized === 'true') {
+            console.log('Chart already initialized on this canvas, skipping...');
+            return;
+        }
 
-        // First, destroy any Chart.js instances associated with this canvas
+        // Comprehensive Chart.js cleanup to prevent canvas reuse conflicts
+        console.log('Starting comprehensive chart cleanup...');
+
+        // Step 1: Destroy any Chart.js instances associated with this canvas
         if (chartElement.chart) {
             console.log('Canvas already has a chart, destroying it first');
             try {
@@ -361,25 +368,52 @@
             }
         }
 
-        // Destroy existing chart if it exists
-        safeDestroyChart('completion-trend-chart');
+        // Step 2: Destroy existing global chart reference
         if (completionTrendChart) {
-            console.log('Destroying existing chart');
+            console.log('Destroying existing global chart reference');
             try {
                 completionTrendChart.destroy();
             } catch (destroyError) {
-                console.warn('Error destroying chart:', destroyError);
+                console.warn('Error destroying global chart:', destroyError);
             }
             completionTrendChart = null;
         }
 
-        // Clear all Chart.js references from the canvas
+        // Step 3: Clear Chart.js internal registry
+        safeDestroyChart('completion-trend-chart');
+
+        // Step 4: Clear all Chart.js internal references from canvas
         if (chartElement._chartjs) {
             delete chartElement._chartjs;
         }
 
-        // Remove any data attributes that Chart.js might have added
+        // Step 5: Clear Chart.js registry entries
+        if (window.Chart && window.Chart.registry && window.Chart.registry.controllers) {
+            // Clear any chart instances that might be registered
+            Object.keys(window.Chart.registry.controllers).forEach(key => {
+                if (key.includes('completion-trend')) {
+                    delete window.Chart.registry.controllers[key];
+                }
+            });
+        }
+
+        // Step 6: Remove Chart.js data attributes and initialization flag
         chartElement.removeAttribute('data-chartjs-id');
+        chartElement.removeAttribute('data-chart-initialized');
+
+        // Step 7: Clear any Chart.js instance references from global Chart object
+        if (window.Chart && window.Chart.getChart) {
+            // Chart.js 3.x uses getChart method
+            const existingChart = window.Chart.getChart(chartElement);
+            if (existingChart) {
+                console.log('Removing existing Chart.js instance using getChart');
+                try {
+                    existingChart.destroy();
+                } catch (e) {
+                    console.warn('Error destroying Chart.js instance:', e);
+                }
+            }
+        }
 
         // Force clear the canvas context
         const ctx = chartElement.getContext('2d');
@@ -453,7 +487,16 @@
                 return;
             }
 
-            completionTrendChart = new Chart(ctx, {
+            // Add a small delay to ensure DOM is fully ready and prevent getComputedStyle errors
+            setTimeout(() => {
+                try {
+                    // Double-check that the canvas is still available and attached to DOM
+                    if (!chartElement || !chartElement.parentNode || !document.contains(chartElement)) {
+                        console.error('Canvas element is not properly attached to DOM');
+                        return;
+                    }
+
+                    completionTrendChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
@@ -530,29 +573,35 @@
                 console.log('Chart registered with dashboard.js system');
             }
 
-            console.log('Completion trend chart initialized successfully');
+            // Mark canvas as initialized to prevent duplicate chart creation
+            chartElement.dataset.chartInitialized = 'true';
 
-            // Force canvas dimensions after Chart.js initialization
-            setTimeout(() => {
-                const canvas = document.getElementById('completion-trend-chart');
-                if (canvas) {
-                    console.log('Forcing canvas dimensions after Chart.js init...');
-                    canvas.style.setProperty('width', '100%', 'important');
-                    canvas.style.setProperty('height', '360px', 'important');
-                    canvas.style.setProperty('max-width', '100%', 'important');
-                    canvas.style.setProperty('max-height', '360px', 'important');
-                    canvas.style.setProperty('min-height', '360px', 'important');
-                    canvas.width = 800;
-                    canvas.height = 360;
-                    console.log('Canvas dimensions forced. New height:', canvas.style.height);
+                    console.log('Completion trend chart initialized successfully');
 
-                    // Trigger chart resize if possible
-                    if (completionTrendChart && typeof completionTrendChart.resize === 'function') {
-                        completionTrendChart.resize();
-                        console.log('Chart resized');
-                    }
+                    // Force canvas dimensions after Chart.js initialization
+                    setTimeout(() => {
+                        const canvas = document.getElementById('completion-trend-chart');
+                        if (canvas) {
+                            console.log('Forcing canvas dimensions after Chart.js init...');
+                            canvas.style.setProperty('width', '100%', 'important');
+                            canvas.style.setProperty('height', '360px', 'important');
+                            canvas.style.setProperty('max-width', '100%', 'important');
+                            canvas.style.setProperty('max-height', '360px', 'important');
+                            canvas.style.setProperty('min-height', '360px', 'important');
+                            canvas.width = 800;
+                            canvas.height = 360;
+                            console.log('Canvas dimensions forced. New height:', canvas.style.height);
+
+                            // Skip manual resize - Chart.js will handle this automatically
+                            // Manual resize was causing getComputedStyle errors during initial load
+                            console.log('Chart dimensions set, skipping manual resize to prevent errors');
+                        }
+                    }, 100);
+
+                } catch (chartError) {
+                    console.error('Error creating Chart.js instance:', chartError);
                 }
-            }, 100);
+            }, 50); // Small delay to ensure DOM is ready
 
         } catch (error) {
             console.error('Error initializing completion trend chart:', error);

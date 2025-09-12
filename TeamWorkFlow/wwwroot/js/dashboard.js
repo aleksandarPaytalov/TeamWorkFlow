@@ -400,7 +400,7 @@
 
   function updateSecondaryTrendCharts(data) {
     const chartMappings = {
-      "completion-trend-chart": data.completionTrendData,
+      // Skip completion-trend-chart as it's handled by _TrendCharts.cshtml
       "efficiency-trend-chart": data.efficiencyTrendData,
       "workload-trend-chart": data.workloadTrendData,
       "variance-trend-chart": data.varianceTrendData,
@@ -1012,6 +1012,14 @@
     ];
 
     secondaryCharts.forEach((config) => {
+      // Skip completion-trend-chart as it's handled by _TrendCharts.cshtml
+      if (config.id === "completion-trend-chart") {
+        console.log(
+          "Skipping completion-trend-chart initialization - handled by _TrendCharts.cshtml"
+        );
+        return;
+      }
+
       const ctx = document.getElementById(config.id);
       if (ctx) {
         try {
@@ -1121,9 +1129,8 @@
         charts.mainTrend.update();
       }
 
-      // Update secondary charts
+      // Update secondary charts (skip completion-trend-chart as it's handled by _TrendCharts.cshtml)
       const secondaryData = {
-        "completion-trend-chart": trendData.completion,
         "efficiency-trend-chart": trendData.efficiency,
         "workload-trend-chart": trendData.workload,
         "variance-trend-chart": trendData.variance,
@@ -2061,10 +2068,10 @@
 
   function updateTrendCharts(data) {
     try {
-      // Update completion trend chart
-      if (charts.completionTrend && data.completionTrendData) {
-        updateChart(charts.completionTrend, data.completionTrendData);
-      }
+      // Skip completion trend chart update - handled by _TrendCharts.cshtml
+      // if (charts.completionTrend && data.completionTrendData) {
+      //   updateChart(charts.completionTrend, data.completionTrendData);
+      // }
 
       // Update workload trend chart
       if (charts.workloadTrend && data.workloadTrendData) {
@@ -2190,7 +2197,15 @@
       Object.keys(charts).forEach((chartKey) => {
         if (charts[chartKey] && typeof charts[chartKey].resize === "function") {
           try {
-            charts[chartKey].resize();
+            // Additional safety check: ensure chart canvas exists and is attached to DOM
+            const canvas = charts[chartKey].canvas;
+            if (canvas && canvas.parentNode && document.contains(canvas)) {
+              charts[chartKey].resize();
+            } else {
+              console.warn(
+                `Chart ${chartKey} canvas not properly attached to DOM, skipping resize`
+              );
+            }
           } catch (error) {
             console.warn(`Error resizing chart ${chartKey}:`, error);
           }
