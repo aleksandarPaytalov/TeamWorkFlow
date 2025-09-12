@@ -89,49 +89,167 @@
         </div>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="trend-summary">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="summary-card">
-                    <div class="summary-header">
-                        <h5>Completion Summary</h5>
-                        <i class="fas fa-check-circle"></i>
+    <!-- Enhanced Summary Cards - Optimized for Large Screens -->
+    <div class="trend-summary-enhanced">
+        <!-- Completion Summary Card -->
+        <div class="enhanced-summary-card completion-summary large-screen-optimized">
+            <div class="card-header-enhanced">
+                <div class="header-content">
+                    <div class="header-icon">
+                        <i class="fas fa-chart-line"></i>
                     </div>
-                    <div class="summary-content">
-                        <div class="summary-item">
-                            <span class="label">Current Period:</span>
-                            <span class="value">@(Model.CompletionTrendLine?.ProjectedNextValue.ToString("F1") ?? "0.0")%</span>
+                    <div class="header-text">
+                        <h5 class="card-title">Completion Summary</h5>
+                        <p class="card-subtitle">Current performance metrics</p>
+                    </div>
+                </div>
+                <div class="trend-indicator">
+                    @{
+                        var trendDirection = Model.CompletionTrendLine?.Direction ?? "Stable";
+                        var trendClass = trendDirection.ToLower() switch
+                        {
+                            "improving" => "trend-up",
+                            "declining" => "trend-down",
+                            _ => "trend-stable"
+                        };
+                    }
+                    <span class="trend-badge @trendClass">
+                        <i class="fas @(trendDirection.ToLower() == "improving" ? "fa-arrow-up" : trendDirection.ToLower() == "declining" ? "fa-arrow-down" : "fa-minus")"></i>
+                        @trendDirection
+                    </span>
+                </div>
+            </div>
+            <div class="card-body-enhanced large-screen-body">
+                <div class="metrics-grid-horizontal">
+                    <div class="metric-item primary-metric-large">
+                        <div class="metric-value-large">
+                            @(Model.CompletionTrendLine?.ProjectedNextValue.ToString("F1") ?? "0.0")%
                         </div>
-                        <div class="summary-item">
-                            <span class="label">Trend Direction:</span>
-                            <span class="value @(Model.CompletionTrendLine?.DirectionClass ?? "")">@(Model.CompletionTrendLine?.Direction ?? "Stable")</span>
+                        <div class="metric-label-large">Current Period</div>
+                        <div class="metric-progress-large">
+                            <div class="progress-bar-large" style="width: @(Model.CompletionTrendLine?.ProjectedNextValue ?? 0)%"></div>
                         </div>
-                        <div class="summary-item">
-                            <span class="label">Average Rate:</span>
-                            <span class="value">@(Model.CompletionTrendData?.Any() == true ? Model.CompletionTrendData.Average(d => d.Value).ToString("F1") : "0.0")%</span>
+                    </div>
+                    <div class="metric-item secondary-metric-large">
+                        <div class="metric-value-secondary">
+                            @(Model.CompletionTrendData?.Any() == true ? Model.CompletionTrendData.Average(d => d.Value).ToString("F1") : "0.0")%
+                        </div>
+                        <div class="metric-label-large">Average Rate</div>
+                        <div class="metric-change-large">
+                            @{
+                                var currentValue = Model.CompletionTrendLine?.ProjectedNextValue ?? 0;
+                                var averageValue = Model.CompletionTrendData?.Any() == true ? Model.CompletionTrendData.Average(d => d.Value) : 0;
+                                var difference = currentValue - averageValue;
+                                var changeClass = difference > 0 ? "positive" : difference < 0 ? "negative" : "neutral";
+                            }
+                            <span class="change-indicator-large @changeClass">
+                                @if (difference > 0)
+                                {
+                                    <i class="fas fa-arrow-up"></i>
+                                    <text>+@difference.ToString("F1")%</text>
+                                }
+                                else if (difference < 0)
+                                {
+                                    <i class="fas fa-arrow-down"></i>
+                                    <text>@difference.ToString("F1")%</text>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-minus"></i>
+                                    <text>0.0%</text>
+                                }
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="summary-card">
-                    <div class="summary-header">
-                        <h5>Performance Insights</h5>
-                        <i class="fas fa-chart-bar"></i>
+        </div>
+
+        <!-- Performance Insights Card -->
+        <div class="enhanced-summary-card performance-insights large-screen-optimized">
+            <div class="card-header-enhanced">
+                <div class="header-content">
+                    <div class="header-icon">
+                        <i class="fas fa-analytics"></i>
                     </div>
-                    <div class="summary-content">
-                        <div class="summary-item">
-                            <span class="label">Best Period:</span>
-                            <span class="value">@(Model.CompletionTrendData?.Any() == true ? Model.CompletionTrendData.Max(d => d.Value).ToString("F1") : "0.0")%</span>
+                    <div class="header-text">
+                        <h5 class="card-title">Performance Insights</h5>
+                        <p class="card-subtitle">Historical analysis</p>
+                    </div>
+                </div>
+                <div class="insights-summary">
+                    @{
+                        var dataPoints = Model.CompletionTrendData?.Count ?? 0;
+                    }
+                    <span class="data-points-badge">
+                        <i class="fas fa-database"></i>
+                        @dataPoints data points
+                    </span>
+                </div>
+            </div>
+            <div class="card-body-enhanced large-screen-body">
+                <div class="insights-grid-horizontal">
+                    <div class="insights-metrics-row">
+                        <div class="insight-metric-large best-performance">
+                            <div class="insight-icon-large">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="insight-content-large">
+                                <div class="insight-value-large">
+                                    @(Model.CompletionTrendData?.Any() == true ? Model.CompletionTrendData.Max(d => d.Value).ToString("F1") : "0.0")%
+                                </div>
+                                <div class="insight-label-large">Best Period</div>
+                            </div>
                         </div>
-                        <div class="summary-item">
-                            <span class="label">Lowest Period:</span>
-                            <span class="value">@(Model.CompletionTrendData?.Any() == true ? Model.CompletionTrendData.Min(d => d.Value).ToString("F1") : "0.0")%</span>
+                        <div class="insight-metric-large worst-performance">
+                            <div class="insight-icon-large">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="insight-content-large">
+                                <div class="insight-value-large">
+                                    @(Model.CompletionTrendData?.Any() == true ? Model.CompletionTrendData.Min(d => d.Value).ToString("F1") : "0.0")%
+                                </div>
+                                <div class="insight-label-large">Lowest Period</div>
+                            </div>
                         </div>
-                        <div class="summary-item">
-                            <span class="label">Variance:</span>
-                            <span class="value">@(Model.CompletionTrendData?.Any() == true && Model.CompletionTrendData.Count > 1 ? (Model.CompletionTrendData.Max(d => d.Value) - Model.CompletionTrendData.Min(d => d.Value)).ToString("F1") : "0.0")%</span>
+                        <div class="insight-metric-large variance-analysis">
+                            <div class="insight-icon-large">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="insight-content-large">
+                                <div class="insight-value-large">
+                                    @(Model.CompletionTrendData?.Any() == true && Model.CompletionTrendData.Count > 1 ? (Model.CompletionTrendData.Max(d => d.Value) - Model.CompletionTrendData.Min(d => d.Value)).ToString("F1") : "0.0")%
+                                </div>
+                                <div class="insight-label-large">Variance Range</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Trend Visualization - Enhanced for Large Screens -->
+                    <div class="performance-trend-large">
+                        <div class="trend-header-large">
+                            <span class="trend-title-large">Performance Trend</span>
+                            <span class="trend-period-large">Last @(Model.CompletionTrendData?.Count ?? 0) periods</span>
+                        </div>
+                        <div class="trend-chart-large">
+                            @if (Model.CompletionTrendData?.Any() == true)
+                            {
+                                var maxValue = Model.CompletionTrendData.Max(d => d.Value);
+                                var minValue = Model.CompletionTrendData.Min(d => d.Value);
+                                var range = maxValue - minValue;
+
+                                @foreach (var point in Model.CompletionTrendData)
+                                {
+                                    var height = range > 0 ? ((point.Value - minValue) / range) * 100 : 50;
+                                    <div class="trend-bar-large" style="height: @height%" title="@point.Label: @point.Value.ToString("F1")%">
+                                        <span class="bar-value">@point.Value.ToString("F1")%</span>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="no-data-large">No trend data available</div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -926,5 +1044,842 @@
     /* Prevent any absolute positioning conflicts - ONLY for completion trends */
     .trend-charts-section .main-trend-chart .chart-container * {
         box-sizing: border-box !important;
+    }
+
+    /* Enhanced Summary Cards Styles */
+    .trend-summary-enhanced {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .enhanced-summary-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .enhanced-summary-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header-enhanced {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .completion-summary .card-header-enhanced {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .performance-insights .card-header-enhanced {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .header-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .header-text .card-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .header-text .card-subtitle {
+        margin: 0;
+        font-size: 0.875rem;
+        opacity: 0.9;
+    }
+
+    .trend-indicator .trend-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .trend-badge.trend-up {
+        background: rgba(76, 175, 80, 0.2);
+        color: #4caf50;
+    }
+
+    .trend-badge.trend-down {
+        background: rgba(244, 67, 54, 0.2);
+        color: #f44336;
+    }
+
+    .trend-badge.trend-stable {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+    }
+
+    .insights-summary .data-points-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .card-body-enhanced {
+        padding: 2rem;
+    }
+
+    .metrics-grid {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .metric-item {
+        text-align: center;
+    }
+
+    .primary-metric .metric-value {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .secondary-metric .metric-value {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #34495e;
+        margin-bottom: 0.5rem;
+    }
+
+    .metric-label {
+        font-size: 1rem;
+        color: #7f8c8d;
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+
+    .metric-progress {
+        width: 100%;
+        height: 8px;
+        background: #ecf0f1;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .metric-progress .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+        border-radius: 4px;
+        transition: width 0.6s ease;
+    }
+
+    .metric-change {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .change-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+    }
+
+    .change-indicator.positive {
+        background: rgba(76, 175, 80, 0.1);
+        color: #4caf50;
+    }
+
+    .change-indicator.negative {
+        background: rgba(244, 67, 54, 0.1);
+        color: #f44336;
+    }
+
+    .change-indicator.neutral {
+        background: rgba(158, 158, 158, 0.1);
+        color: #9e9e9e;
+    }
+
+    .insights-grid {
+        display: grid;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .insight-metric {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .insight-metric:hover {
+        background: rgba(255, 255, 255, 0.9);
+        transform: translateX(4px);
+    }
+
+    .insight-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: white;
+    }
+
+    .best-performance .insight-icon {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .worst-performance .insight-icon {
+        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        color: #e67e22;
+    }
+
+    .variance-analysis .insight-icon {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        color: #8e44ad;
+    }
+
+    .insight-content {
+        flex: 1;
+    }
+
+    .insight-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.25rem;
+    }
+
+    .insight-label {
+        font-size: 0.875rem;
+        color: #7f8c8d;
+        font-weight: 500;
+    }
+
+    /* Performance Trend Mini Chart */
+    .performance-trend-mini {
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 12px;
+        padding: 1rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .trend-mini-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .trend-mini-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .trend-mini-period {
+        font-size: 0.75rem;
+        color: #7f8c8d;
+    }
+
+    .trend-mini-chart {
+        display: flex;
+        align-items: end;
+        gap: 4px;
+        height: 60px;
+        padding: 0.5rem 0;
+    }
+
+    .trend-bar {
+        flex: 1;
+        background: linear-gradient(to top, #43e97b 0%, #38f9d7 100%);
+        border-radius: 2px;
+        min-height: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .trend-bar:hover {
+        background: linear-gradient(to top, #667eea 0%, #764ba2 100%);
+        transform: scaleY(1.1);
+    }
+
+    .no-data-mini {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        color: #bdc3c7;
+        font-size: 0.875rem;
+        font-style: italic;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .trend-summary-enhanced {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-header-enhanced {
+            padding: 1rem;
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .header-content {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .card-body-enhanced {
+            padding: 1.5rem;
+        }
+
+        .primary-metric .metric-value {
+            font-size: 2.5rem;
+        }
+
+        .secondary-metric .metric-value {
+            font-size: 1.5rem;
+        }
+
+        .insights-grid {
+            gap: 1rem;
+        }
+
+        .insight-metric {
+            padding: 0.75rem;
+        }
+
+        .insight-icon {
+            width: 32px;
+            height: 32px;
+            font-size: 1rem;
+        }
+
+        .insight-value {
+            font-size: 1.25rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .enhanced-summary-card {
+            border-radius: 12px;
+        }
+
+        .card-header-enhanced {
+            padding: 0.75rem;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.25rem;
+        }
+
+        .card-body-enhanced {
+            padding: 1rem;
+        }
+
+        .primary-metric .metric-value {
+            font-size: 2rem;
+        }
+
+        .secondary-metric .metric-value {
+            font-size: 1.25rem;
+        }
+
+        .insight-metric {
+            flex-direction: column;
+            text-align: center;
+            gap: 0.5rem;
+        }
+
+        .trend-mini-chart {
+            height: 40px;
+        }
+    }
+
+    /* Animation for enhanced cards */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .enhanced-summary-card {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .enhanced-summary-card:nth-child(2) {
+        animation-delay: 0.1s;
+    }
+
+    /* Medium and Large Screen Optimizations */
+    @@media (min-width: 768px) {
+        .trend-summary-enhanced {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .large-screen-optimized {
+            width: 100%;
+            max-width: none;
+            margin-bottom: 0;
+        }
+
+        .large-screen-body {
+            padding: 1.2rem 1.5rem;
+        }
+    }
+
+    /* Base Enhanced Styling - Available on all screen sizes */
+
+    /* Horizontal metrics layout for completion summary */
+    .metrics-grid-horizontal {
+        display: flex;
+        gap: 3rem;
+        align-items: center;
+        justify-content: space-around;
+    }
+
+    /* Large Screen Specific Optimizations */
+    @@media (min-width: 1200px) {
+        .large-screen-body {
+            padding: 1.5rem 2rem;
+        }
+
+    }
+
+    .primary-metric-large .metric-value-large {
+        font-size: 3.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+        line-height: 1;
+    }
+
+        /* Responsive adjustments for completion summary */
+        @@media (max-width: 1199px) {
+            .metrics-grid-horizontal {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+
+            .primary-metric-large .metric-value-large {
+                font-size: 2.5rem;
+            }
+
+            .metric-value-secondary {
+                font-size: 1.8rem;
+            }
+
+            .metric-label-large {
+                font-size: 0.9rem;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .metrics-grid-horizontal {
+                gap: 1rem;
+            }
+
+            .primary-metric-large .metric-value-large {
+                font-size: 2rem;
+            }
+
+            .metric-value-secondary {
+                font-size: 1.5rem;
+            }
+
+            .metric-label-large {
+                font-size: 0.8rem;
+            }
+        }
+
+    .metric-value-secondary {
+        font-size: 2.2rem;
+        font-weight: 600;
+        color: #34495e;
+        margin-bottom: 0.5rem;
+        line-height: 1;
+    }
+
+    .metric-label-large {
+        color: #7f8c8d;
+        font-weight: 500;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .metric-progress-large {
+        height: 10px;
+        background: #ecf0f1;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        max-width: 280px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .progress-bar-large {
+        height: 100%;
+        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+        border-radius: 5px;
+        transition: width 0.6s ease;
+    }
+
+    .change-indicator-large {
+        padding: 0.4rem 0.8rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .change-indicator-large.positive {
+        color: #27ae60;
+    }
+
+    .change-indicator-large.negative {
+        color: #e74c3c;
+    }
+
+    .change-indicator-large.neutral {
+        color: #7f8c8d;
+    }
+
+    /* Performance insights layout for medium+ screens */
+    .insights-grid-horizontal {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .insights-metrics-row {
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+    }
+
+        /* Responsive adjustments for smaller screens */
+        @@media (max-width: 1199px) {
+            .insights-metrics-row {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+
+            .insight-metric-large {
+                min-height: 60px;
+                padding: 0.8rem;
+                gap: 0.6rem;
+            }
+
+            .insight-icon-large {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
+
+            .insight-value-large {
+                font-size: 1.1rem;
+            }
+
+            .insight-label-large {
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Mobile specific adjustments */
+        @@media (max-width: 768px) {
+            .insights-grid-horizontal {
+                gap: 1rem;
+            }
+
+            .insight-metric-large {
+                min-height: 50px;
+                padding: 0.6rem;
+                gap: 0.5rem;
+            }
+
+            .insight-icon-large {
+                width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
+            }
+
+            .insight-value-large {
+                font-size: 1rem;
+            }
+
+            .insight-label-large {
+                font-size: 0.65rem;
+            }
+        }
+
+    .insight-metric-large {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        flex: 1;
+        min-width: 0;
+        min-height: 75px;
+    }
+
+    .insight-metric-large:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .insight-icon-large {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .best-performance .insight-icon-large {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .worst-performance .insight-icon-large {
+        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        color: #d63384;
+    }
+
+    .variance-analysis .insight-icon-large {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        color: #6f42c1;
+    }
+
+    .insight-value-large {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #34495e;
+        margin-bottom: 0.2rem;
+        line-height: 1.1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .insight-label-large {
+        color: #7f8c8d;
+        font-size: 0.75rem;
+        font-weight: 500;
+        line-height: 1.2;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Enhanced performance trend for large screens */
+    .performance-trend-large {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+    }
+
+    .trend-header-large {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .trend-title-large {
+        font-weight: 600;
+        color: #34495e;
+        font-size: 0.95rem;
+    }
+
+    .trend-period-large {
+        font-size: 0.8rem;
+        color: #7f8c8d;
+    }
+
+    .trend-chart-large {
+        display: flex;
+        align-items: end;
+        gap: 0.6rem;
+        height: 60px;
+        padding: 0.8rem 0;
+        justify-content: center;
+    }
+
+    .trend-bar-large {
+        flex: 1;
+        max-width: 45px;
+        background: linear-gradient(to top, #43e97b 0%, #38f9d7 100%);
+        border-radius: 4px 4px 0 0;
+        min-height: 20px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+    }
+
+    .trend-bar-large:hover {
+        opacity: 0.8;
+        transform: scaleY(1.05);
+        box-shadow: 0 2px 8px rgba(67, 233, 123, 0.3);
+    }
+
+    .trend-bar-large .bar-value {
+        position: absolute;
+        top: -20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #34495e;
+        white-space: nowrap;
+    }
+
+    .no-data-large {
+        text-align: center;
+        color: #7f8c8d;
+        font-style: italic;
+        padding: 2rem;
+        font-size: 1rem;
+    }
+
+    /* Large Screen Specific Optimizations */
+    @@media (min-width: 1200px) {
+    }
+
+    /* Responsive adjustments for trend chart */
+    @@media (max-width: 1199px) {
+            .performance-trend-large {
+                padding: 0.8rem;
+            }
+
+            .trend-chart-large {
+                height: 50px;
+                gap: 0.5rem;
+                padding: 0.6rem 0;
+            }
+
+            .trend-bar-large {
+                max-width: 35px;
+                min-height: 15px;
+            }
+
+            .trend-bar-large .bar-value {
+                top: -18px;
+                font-size: 0.6rem;
+            }
+
+            .trend-title-large {
+                font-size: 0.85rem;
+            }
+
+            .trend-period-large {
+                font-size: 0.7rem;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .performance-trend-large {
+                padding: 0.6rem;
+            }
+
+            .trend-chart-large {
+                height: 40px;
+                gap: 0.4rem;
+                padding: 0.5rem 0;
+            }
+
+            .trend-bar-large {
+                max-width: 30px;
+                min-height: 12px;
+            }
+
+            .trend-bar-large .bar-value {
+                top: -15px;
+                font-size: 0.55rem;
+            }
+
+            .trend-title-large {
+                font-size: 0.8rem;
+            }
+
+            .trend-period-large {
+                font-size: 0.65rem;
+            }
+
+            .no-data-large {
+                padding: 1rem;
+                font-size: 0.9rem;
+            }
+        }
     }
 </style>
