@@ -1,0 +1,113 @@
+@*
+    Progress Indicator Component for Enhanced Task Cards
+    Displays visual progress bar showing actual work time vs estimated time
+    
+    Parameters:
+    - Model: TaskServiceModel with enhanced properties
+*@
+
+@model TeamWorkFlow.Core.Models.Task.TaskServiceModel
+
+@{
+    var progressPercentage = Model.ProgressPercentage;
+    var progressColor = Model.ProgressColor;
+    var isOnTrack = Model.IsOnTrack;
+    var timeVariance = Model.GetTimeVarianceDisplay();
+    var actualTime = Model.ActualTimeFormatted;
+    var estimatedTime = Model.EstimatedTimeFormatted;
+    var status = Model.Status.ToLower();
+    
+    // Determine progress bar style class
+    var progressClass = "progress-normal";
+    if (progressPercentage >= 100)
+        progressClass = "progress-over";
+    else if (progressPercentage >= 80)
+        progressClass = "progress-warning";
+    
+    // Animation class for active progress
+    var animationClass = status == "in progress" ? "progress-active" : "";
+}
+
+<div class="progress-indicator-container" data-task-id="@Model.Id">
+    <!-- Progress Header -->
+    <div class="progress-header">
+        <div class="progress-label-section">
+            <span class="progress-label">Progress</span>
+            <span class="progress-percentage" style="color: @progressColor;">
+                @progressPercentage.ToString("F0")%
+            </span>
+        </div>
+        <div class="time-display-section">
+            <span class="actual-time" title="Actual time spent">@actualTime</span>
+            <span class="time-separator">/</span>
+            <span class="estimated-time" title="Estimated time">@estimatedTime</span>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar-wrapper">
+        <div class="progress-bar-track">
+            <div class="progress-bar-fill @progressClass @animationClass" 
+                 style="width: @progressPercentage.ToString("F1")%; background-color: @progressColor;"
+                 data-progress="@progressPercentage"
+                 role="progressbar" 
+                 aria-valuenow="@progressPercentage" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100"
+                 aria-label="Task progress: @progressPercentage% complete">
+                
+                <!-- Shimmer effect for active tasks -->
+                @if (status == "in progress")
+                {
+                    <div class="progress-shimmer"></div>
+                }
+            </div>
+            
+            <!-- 100% marker line -->
+            <div class="progress-marker" title="Target completion (100%)"></div>
+        </div>
+    </div>
+
+    <!-- Progress Details -->
+    <div class="progress-details">
+        <div class="progress-status">
+            @if (status == "finished")
+            {
+                <span class="status-badge status-completed">
+                    <i class="fas fa-check-circle" aria-hidden="true"></i>
+                    Completed
+                </span>
+            }
+            else if (isOnTrack)
+            {
+                <span class="status-badge status-on-track">
+                    <i class="fas fa-thumbs-up" aria-hidden="true"></i>
+                    On Track
+                </span>
+            }
+            else
+            {
+                <span class="status-badge status-behind">
+                    <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                    Behind Schedule
+                </span>
+            }
+        </div>
+        
+        <div class="time-variance" title="Time variance from estimate">
+            <span class="variance-label">Variance:</span>
+            <span class="variance-value" style="color: @(isOnTrack ? "#10b981" : "#ef4444");">
+                @timeVariance
+            </span>
+        </div>
+    </div>
+
+    <!-- Accessibility Information -->
+    <div class="sr-only">
+        Task progress: @actualTime of @estimatedTime completed (@progressPercentage% complete).
+        Status: @(isOnTrack ? "On track" : "Behind schedule").
+        Time variance: @timeVariance.
+    </div>
+</div>
+
+@* CSS is loaded from ~/css/components/progress-indicator.css *@

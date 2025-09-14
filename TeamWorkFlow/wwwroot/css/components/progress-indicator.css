@@ -1,0 +1,305 @@
+/**
+ * Progress Indicator Component Styles
+ * Enhanced progress bars for task cards with animations and responsive design
+ */
+
+/* Progress Indicator Container */
+.progress-indicator-container {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin: 0.75rem 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-indicator-container:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Progress Header */
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.progress-label-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.progress-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.progress-percentage {
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.125rem 0.5rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 0.375rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.time-display-section {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.actual-time {
+    font-weight: 600;
+    color: #059669;
+}
+
+.time-separator {
+    color: #9ca3af;
+    margin: 0 0.125rem;
+}
+
+.estimated-time {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Progress Bar */
+.progress-bar-wrapper {
+    margin-bottom: 0.75rem;
+    position: relative;
+}
+
+.progress-bar-track {
+    width: 100%;
+    height: 12px;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    min-width: 2px;
+}
+
+/* Progress Bar Colors */
+.progress-normal {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.progress-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+.progress-over {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+
+/* Progress Shimmer Animation */
+.progress-shimmer {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* 100% Marker */
+.progress-marker {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 2px;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 1px;
+}
+
+/* Progress Details */
+.progress-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.status-completed {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.status-on-track {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+}
+
+.status-behind {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.time-variance {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+}
+
+.variance-label {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.variance-value {
+    font-weight: 600;
+    padding: 0.125rem 0.375rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 0.25rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .progress-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .progress-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .progress-indicator-container {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .time-display-section {
+        font-size: 0.75rem;
+    }
+    
+    .progress-percentage {
+        font-size: 0.875rem;
+    }
+    
+    .status-badge {
+        font-size: 0.625rem;
+        padding: 0.125rem 0.5rem;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .progress-bar-fill,
+    .progress-indicator-container {
+        transition: none;
+    }
+    
+    .progress-shimmer {
+        animation: none;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .progress-indicator-container {
+        border: 2px solid #000;
+    }
+    
+    .progress-bar-track {
+        border: 1px solid #000;
+    }
+    
+    .status-badge {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .progress-indicator-container {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        border-color: #374151;
+        color: #f9fafb;
+    }
+    
+    .progress-label {
+        color: #f9fafb;
+    }
+    
+    .progress-percentage {
+        background: rgba(0, 0, 0, 0.3);
+        border-color: #374151;
+        color: #f9fafb;
+    }
+    
+    .progress-bar-track {
+        background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+    }
+    
+    .variance-value {
+        background: rgba(0, 0, 0, 0.3);
+        border-color: #374151;
+    }
+    
+    .status-completed {
+        background: #064e3b;
+        color: #a7f3d0;
+        border-color: #065f46;
+    }
+    
+    .status-on-track {
+        background: #1e3a8a;
+        color: #93c5fd;
+        border-color: #1e40af;
+    }
+    
+    .status-behind {
+        background: #7f1d1d;
+        color: #fca5a5;
+        border-color: #991b1b;
+    }
+}
